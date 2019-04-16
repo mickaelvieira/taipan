@@ -1,0 +1,5 @@
+/taipan
+/vendor
+
+.env.local
+.env.*.local
