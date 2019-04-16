@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"os"
 
-	"github/mickaelvieira/taipan/internal"
+	"github/mickaelvieira/taipan/internal/app"
 )
 
 func main() {
-	internal.LoadEnvironment()
-	server := internal.Bootstrap()
+	app.LoadEnvironment()
+	server := app.Bootstrap()
 
 	port := os.Getenv("APP_PORT")
 	env := os.Getenv("TAIPAN_ENV")

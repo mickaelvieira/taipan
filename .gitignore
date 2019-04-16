@@ -1,4 +1,4 @@
-/cmd/web
+/cmd/web/web
 /vendor
 node_modules
 web/static/js/
