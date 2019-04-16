@@ -1,6 +1,8 @@
 /cmd/web
 /vendor
 node_modules
-static
+web/static/js/
+web/static/css/
+web/static/hashes.json
 .env.local
 .env.*.local

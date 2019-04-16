@@ -1,0 +1,14 @@
+{
+  "name": "My App",
+  "short_name": "My App",
+  "description": "",
+  "start_url": "./",
+  "display": "standalone",
+  "dir": "ltr",
+  "lang": "en-GB",
+  "default_locale": "en",
+  "manifest_version": 1,
+  "content_security_policy": "",
+  "background_color": "#fff",
+  "orientation": "portrait-primary"
+}

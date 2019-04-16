@@ -11,4 +11,7 @@ fmt:
 	gofmt -s -w ./**/*.go
 
 clean:
-	rm -rf web/static/* && cd cmd/web && go clean && go mod tidy
+	cd cmd/web && go clean && go mod tidy
+
+clean-ui:
+	rm -rf web/static/css && rm -rf web/static/js && rm -f web/static/hashes.json

@@ -5,26 +5,24 @@ const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 const srcDir = path.resolve(__dirname, "js");
-console.log(path.resolve(__dirname, "../static"))
+const tgtDir = path.resolve(__dirname, "../static");
 
 const isProduction = process.env.NODE_ENV === "production";
 const patternJsFiles = isProduction ? "[name].[contenthash].js" : "[name].js"
 const patternCssFiles = isProduction ? "[name].[contenthash].css" : "[name].css"
-
-console.log(srcDir)
 
 module.exports = {
   target: "web",
   mode: process.env.NODE_ENV,
   devtool: "source-map",
   entry: {
-    app: srcDir + "/app.tsx",
-    login: srcDir + "/login.ts"
+    app: srcDir + "/app.tsx"
+    // login: srcDir + "/login.ts"
   },
   output: {
     filename: `js/${patternJsFiles}`,
     chunkFilename: `js/${patternJsFiles}`,
-    path: path.resolve(process.cwd(), "../static")
+    path: tgtDir
   },
   resolve: {
     extensions: [".js", ".ts", ".tsx"],
@@ -60,15 +58,14 @@ module.exports = {
       chunkFilename: `css/${patternCssFiles}`
     }),
     new StatsWriterPlugin({
-      filename: "hashes.json"
-      // transform(data) {
-      //   return Promise.resolve().then(() => JSON.stringify({
-      //     index: `/${data.assetsByChunkName.index[0]}`,
-      //     sw: `/${data.assetsByChunkName.sw[0]}`,
-      //     styles: `/${data.assetsByChunkName.styles[0]}`,
-      //     stylesJs: `/${data.assetsByChunkName.styles[1]}`
-      //   }, null, 2));
-      // }
+      filename: "hashes.json",
+      transform(data) {
+        return Promise.resolve().then(() => JSON.stringify({
+          styles: `/static/${data.assetsByChunkName.app[0]}`,
+          app: `/static/${data.assetsByChunkName.app[1]}`,
+          vendor: `/static/${data.assetsByChunkName.vendor[0]}`
+        }, null, 2));
+      }
     })
   ],
   module: {
