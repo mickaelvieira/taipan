@@ -14,8 +14,8 @@ type Assets struct {
 }
 
 // LoadAssetsDefinition loads the list of available assets
-func LoadAssetsDefinition() Assets {
-	content, err := ioutil.ReadFile("../../web/static/hashes.json")
+func LoadAssetsDefinition(path string) *Assets {
+	content, err := ioutil.ReadFile(path)
 
 	if err != nil {
 		log.Fatal(err)
@@ -24,5 +24,5 @@ func LoadAssetsDefinition() Assets {
 	var assets Assets
 	json.Unmarshal(content, &assets)
 
-	return assets
+	return &assets
 }

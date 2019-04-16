@@ -8,5 +8,6 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/ptrv/go-gpx v0.0.0-20151216232927-c93804873f99
 	github.com/stretchr/testify v1.3.0 // indirect
+	golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c // indirect
 	golang.org/x/net v0.0.0-20190311183353-d8887717615a // indirect
 )

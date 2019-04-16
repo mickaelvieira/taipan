@@ -1,20 +1,14 @@
 package repository
 
-import (
-	"log"
-
-	gpx "github.com/ptrv/go-gpx"
-)
-
 // NewGpxRepository initialize repository
 func NewGpxRepository() *GpxRepository {
-	data, err := gpx.ParseFile("./data/sample.gpx")
+	// data, err := gpx.ParseFile("./data/sample.gpx")
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	var repository = GpxRepository{data}
+	var repository = GpxRepository{}
 
 	return &repository
 }
@@ -26,16 +20,12 @@ type Repository interface {
 }
 
 // GpxRepository the GPX repository
-type GpxRepository struct {
-	data *gpx.Gpx
-}
+type GpxRepository struct{}
 
 // FindOne find a single entry
-func (r *GpxRepository) FindOne() *gpx.Gpx {
-	return r.data
+func (r *GpxRepository) FindOne() {
 }
 
 // FindAll find all entries
 func (r *GpxRepository) FindAll() {
-
 }

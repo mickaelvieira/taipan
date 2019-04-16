@@ -14,10 +14,10 @@ var repo = repository.NewGpxRepository()
 func GetActivityLoader() *dataloader.Loader {
 	batchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
-		var data = repo.FindOne()
-		var result = &dataloader.Result{Data: data}
+		// var data = repo.FindOne()
+		// var result = &dataloader.Result{Data: data}
 
-		results = append(results, result)
+		// results = append(results, result)
 
 		return results
 	}

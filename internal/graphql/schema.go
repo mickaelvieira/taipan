@@ -8,8 +8,8 @@ import (
 )
 
 // LoadAndParseSchema load and parse the graphQL schema
-func LoadAndParseSchema() *graphql.Schema {
-	content, err := ioutil.ReadFile("./schema.graphql")
+func LoadAndParseSchema(path string) *graphql.Schema {
+	content, err := ioutil.ReadFile(path)
 
 	if err != nil {
 		log.Fatal(err)
