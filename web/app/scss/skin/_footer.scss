@@ -1,0 +1,39 @@
+.app-footer {
+  display: flex;
+  flex-direction: column;
+  padding-top: 6px;
+  padding-bottom: 2px;
+  background-color: var(--black-lightest);
+  border-radius: 20px;
+  overflow: hidden;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+
+  .btn-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .btn-next,
+  .btn-prev,
+  .btn-info {
+    display: inline-block;
+    color: var(--green);
+    flex: 1;
+    border: 0;
+    outline: 0;
+
+    &.active {
+      color: var(--white);
+    }
+  }
+
+  .btn-next,
+  .btn-prev {
+    padding: 0.7rem 0.9rem;
+    text-align: center;
+    text-decoration: none;
+    transition: opacity .4s ease;
+  }
+}

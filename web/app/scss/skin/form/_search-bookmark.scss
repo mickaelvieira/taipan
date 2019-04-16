@@ -1,0 +1,136 @@
+.search-bookmark-panel {
+  width: 100vw;
+  background: var(--black-lightest);
+  color: var(--white);
+  position: fixed;
+  min-height: 100vh;
+  top: 0;
+  transform: translate(-100%, 0);
+  transition: transform .4s ease-in-out;
+  z-index: 2;
+
+  &.active {
+    transform: translate(0, 0);
+  }
+
+  &::after {
+    content: '\f002';
+    display: inline-block;
+    vertical-align: middle;
+    padding: 12px 12px 12px 9px;
+
+    border-color: #c1012a;
+    border-radius: 0 10px 10px 0;
+    background-color: #c1012a;
+
+    position: absolute;
+    bottom: 17px;
+    right: 0;
+
+    margin-right: -35px;
+
+    cursor: pointer;
+    pointer-events: all;
+
+    box-shadow: 0 0 18px 0 hsla(347, 99%, 38%, .41);
+  }
+
+  &::before {
+    content: "";
+  }
+}
+
+.search-bookmark-panel-header,
+.search-bookmark-panel-content {
+  margin: 0 24px;
+}
+
+.search-bookmark-panel-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  h3 {
+    color: #c1012a;
+    font-weight: 300;
+  }
+
+  .btn-close {
+    border: 0;
+    margin: 12px 0;
+    outline: 0;
+  }
+}
+
+.search-bookmark-form-container {}
+
+.search-bookmark-form {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  .search-bookmark-form-input-terms {
+    border: 0;
+    border-bottom: 1px solid;
+    flex-grow: 1;
+    padding: .7rem 0 1rem;
+  }
+
+  .search-bookmark-form-btn-submit {
+    border: 0;
+    border-bottom: 1px solid;
+    padding-bottom: 1rem;
+  }
+}
+
+.search-bookmark-results {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.search-bookmark-no-results,
+.search-bookmark-result {
+  display: block;
+  padding: 24px 0;
+}
+
+.search-bookmark-fetching {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+}
+
+.search-bookmark-result {
+  border-bottom: 1px solid var(--black-lighter);
+  border-top: 1px solid var(--black);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.search-bookmark-result:first-child {
+  border-top: 0;
+}
+
+.search-bookmark-result-title {
+  font-weight: 500;
+  color: #c1012a;
+  font-size: 1.2rem;
+}
+
+.search-bookmark-result-description {
+  text-overflow: ellipsis;
+}
+
+.search-bookmark-result-url {
+  color: inherit;
+}
+
+.search-bookmark-results-container {
+  text-align: left;
+  overflow-y: auto;
+}

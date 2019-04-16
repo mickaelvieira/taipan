@@ -1,0 +1,152 @@
+html {
+  font-family: var(--native-font-family);
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+body {
+  color: var(--text-color);
+  font-family: var(--base-font-family);
+  font-weight: var(--base-font-weight);
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+@media only screen and (min-width: 0) {
+  html {
+    font-size: var(--base-font-size-small-screen);
+  }
+}
+
+@media only screen and (min-width: 960px) {
+  html {
+    font-size: var(--base-font-size-medium-screen);
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  html {
+    font-size: var(--base-font-size-large-screen);
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--black-lightest);
+  font-family: var(--heading-font-family);
+  font-weight: var(--heading-font-weight);
+  line-height: 1.1;
+  margin: 2rem 0;
+
+  a {
+    font-weight: inherit;
+  }
+}
+
+a {
+  color: var(--dark-blue);
+}
+
+a.disabled {
+  color: currentColor;
+  cursor: not-allowed;
+  opacity: 0.5;
+  text-decoration: none;
+}
+
+// a[target='_blank']::after {
+//   content: '\2197';
+//   display: inline-block;
+//   margin-left: 0.2em;
+// }
+
+*[title=''] {
+  border: 10px solid #f00;
+}
+
+h1 {
+  font-size: 4rem;
+}
+
+h2 {
+  font-size: 3.6rem;
+}
+
+h3 {
+  font-size: 2.8rem;
+}
+
+h4 {
+  font-size: 2.4rem;
+}
+
+h5 {
+  font-size: 2rem;
+}
+
+h6 {
+  font-size: 1.6rem;
+}
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight: 900;
+}
+
+small {
+  font-size: 75%;
+}
+
+dl,
+dt,
+dd {
+  margin: 0;
+}
+
+dt {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+dd {
+  margin-bottom: .4rem;
+}
+
+p {
+  text-align: justify;
+}
+
+.break-word {
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  // -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  // word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.truncate {
+  width: 100%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

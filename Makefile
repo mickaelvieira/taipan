@@ -11,4 +11,4 @@ fmt:
 	gofmt -s -w ./**/*.go
 
 clean:
-	cd cmd/web && go clean && go mod tidy
+	rm -rf web/static/* && cd cmd/web && go clean && go mod tidy

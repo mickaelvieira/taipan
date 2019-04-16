@@ -1,0 +1,111 @@
+button {
+  cursor: pointer;
+}
+
+button,
+select,
+textarea {
+  background: transparent;
+  border: 1px solid var(--light-grey);
+  color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  padding: 0.7rem 0.9rem;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+select {
+  margin-bottom: 0.4rem;
+  padding: 0.5rem 0.7rem;
+}
+
+label {
+  display: inline-block;
+
+  &.required {
+    &::after {
+      content: "*";
+      left: 0.2rem;
+      position: relative;
+      top: -0.2rem;
+    }
+  }
+}
+
+fieldset {
+  border: 1px solid var(--light-grey);
+  margin-bottom: 0.4rem;
+}
+
+legend {
+  font-size: 1.4rem;
+  font-weight: 400;
+  padding: 0 0.2rem;
+}
+
+input {
+  &[type] {
+    background: transparent;
+    border: 1px solid var(--light-grey);
+    color: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    margin-bottom: 0.4rem;
+    outline: 0;
+    padding: 0.7rem 0.9rem;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &[type="checkbox"],
+  &[type="radio"] {
+    margin-right: 0.4rem;
+  }
+
+  &[type="button"],
+  &[type="reset"],
+  &[type="submit"] {
+    cursor: pointer;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &[type="color"] {
+    height: 64px;
+    padding: 0.9rem;
+  }
+}
+
+.btn-link {
+  background: transparent;
+  border: 0;
+  color: var(--dark-blue);
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: underline;
+  outline: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid var(--light-grey);
+  color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: 1.1;
+  padding: 0.7rem 0.9rem;
+}

@@ -1,5 +1,6 @@
-/taipan
+/cmd/web
 /vendor
-
+node_modules
+static
 .env.local
 .env.*.local
