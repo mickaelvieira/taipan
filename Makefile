@@ -2,13 +2,13 @@ OS    := $(shell uname -s)
 SHELL := /bin/bash
 
 build:
-	go build
+	cd cmd/web && go build
 
 run:
-	./taipain
+	cd cmd/web && ./web
 
 fmt:
 	gofmt -s -w ./**/*.go
 
 clean:
-	go clean && go mod tidy
+	cd cmd/web && go clean && go mod tidy
