@@ -3,10 +3,34 @@ schema {
   mutation: Mutation
 }
 
-type Query {}
+type Query {
+  GetBookmark(id: ID!): Bookmark
+}
 
 type Mutation {}
 
 interface Node {
   id: ID!
+}
+
+enum BookmarkStatus {
+  FETCHED
+  PENDING
+  FETCHING
+  FAILED
+}
+
+# https://www.apollographql.com/docs/graphql-tools/scalars
+
+type Bookmark implements Node {
+  id: ID!
+  url: String!
+  hash: String!
+  title: String!
+  description: String!
+  status: BookmarkStatus!
+  createdAt: String!
+  updatedAt: String!
+  addedAt: String!
+  isRead: Boolean!
 }

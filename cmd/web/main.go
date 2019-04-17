@@ -23,7 +23,7 @@ func main() {
 
 	// Routing
 	http.HandleFunc("/", server.IndexHandler)
-	// http.HandleFunc("/graphql", queryHandler)
+	http.HandleFunc("/graphql", server.QueryHandler)
 	// http.HandleFunc("/ws", websocketHandler)
 
 	// Start the server
