@@ -1,14 +1,13 @@
 package repository
 
-import (
-	"github/mickaelvieira/taipan/internal/db"
-)
+import "github/mickaelvieira/taipan/internal/db"
+
+var conn = db.GetDB()
 
 // NewBookmarkRepository initialize repository
 func NewBookmarkRepository() *BookmarkRepository {
-	db := db.GetDB()
 
-	var repository = BookmarkRepository{conn: db}
+	var repository = BookmarkRepository{conn: conn}
 
 	return &repository
 }

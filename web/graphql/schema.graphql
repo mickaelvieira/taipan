@@ -5,6 +5,11 @@ schema {
 
 type Query {
   GetBookmark(id: ID!): Bookmark
+  GetLatestBookmarks(offset: Int!, limit: Int!): BookmarkCollection
+  # DeleteBookmark(id: ID!): Boolean
+  # MarkBookmarkAsRead(id: ID!): Bookmark
+  # MarkBookmarkAsUnread(id: ID!): Bookmark
+  # RefreshBookmark(id: ID!): Bookmark
 }
 
 type Mutation {}
@@ -33,4 +38,10 @@ type Bookmark implements Node {
   updatedAt: String!
   addedAt: String!
   isRead: Boolean!
+}
+
+type BookmarkCollection {
+  total: Int!
+  cursor: Int!
+  results: [Bookmark]
 }
