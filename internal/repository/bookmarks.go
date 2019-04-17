@@ -3,20 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"log"
 	"strings"
 )
-
-// NewBookmarkRepository initialize repository
-func NewBookmarkRepository() *BookmarkRepository {
-	db := db.GetDB()
-
-	var repository = BookmarkRepository{conn: db}
-
-	return &repository
-}
 
 // BookmarkRepository the GPX repository
 type BookmarkRepository struct {
