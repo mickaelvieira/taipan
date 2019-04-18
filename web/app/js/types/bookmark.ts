@@ -48,10 +48,10 @@ export interface BookmarkHistoryEntry {
 }
 
 export interface BookmarkHistory {
-  items: Array<BookmarkHistoryEntry>;
+  items: BookmarkHistoryEntry[];
 }
 
 export interface Bookmarks {
-  items: Array<Bookmark>;
+  items: Bookmark[];
   links: BookmarksLinks;
 }

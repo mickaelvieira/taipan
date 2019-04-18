@@ -1,11 +1,15 @@
 import { Bookmarks, BookmarksLinks } from "types/bookmark";
 import { parseCollection, getAllIds } from "collection";
 import { CollectionResponse } from "collection/types";
-import { FeedActions, ReduxActionWithPayload, ParamId } from "store/actions/types";
+import {
+  FeedActions,
+  ReduxActionWithPayload,
+  ParamId
+} from "store/actions/types";
 import feed, { FeedTypes } from "services/repository/feed";
 
 export interface FeedState {
-  items: Array<string>;
+  items: string[];
   links: BookmarksLinks;
 }
 

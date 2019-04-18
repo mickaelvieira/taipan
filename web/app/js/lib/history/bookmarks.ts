@@ -1,6 +1,6 @@
 import { BookmarkHistory, BookmarkHistoryEntry } from "types/bookmark";
 
-type Entries = Array<BookmarkHistoryEntry>;
+type Entries = BookmarkHistoryEntry[];
 
 const sortEntriesByCreationDate = (items: Entries): Entries =>
   items.sort(

@@ -49,7 +49,10 @@ export default class Form {
 
   handleMessages(errors: Errors) {
     Array.from(this.feedbacks).forEach(element => {
-      const fn = element.dataset.for && errors.includes(element.dataset.for) ? "add" : "remove";
+      const fn =
+        element.dataset.for && errors.includes(element.dataset.for)
+          ? "add"
+          : "remove";
       element.classList[fn]("visible");
     });
   }

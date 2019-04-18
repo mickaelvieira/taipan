@@ -4,7 +4,7 @@
 
 * @returns {Object}
 */
-export default function(keys: Array<string>, values: Array<any>) {
+export default function(keys: string[], values: any[]) {
   return keys.reduce(function(carry, item, index) {
     return { ...carry, [item]: values[index] };
   }, {});

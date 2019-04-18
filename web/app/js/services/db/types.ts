@@ -6,14 +6,14 @@ export enum KeyPaths {
 export enum StoreName {
   BOOKMARKS = "bookmarks",
   FEED = "feed",
-  USER = "user",
+  USER = "user"
 }
 
 export enum Mode {
   READONLY = "readonly",
   READWRITE = "readwrite",
-  VERSIONCHANGE = "versionchange",
-};
+  VERSIONCHANGE = "versionchange"
+}
 
 export interface BatchOperation {
   (item: any): Promise<any>;

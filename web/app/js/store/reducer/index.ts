@@ -37,7 +37,9 @@ export default function(
     case BookmarkActions.UPSERT: {
       const payload = action.payload as BookmarkDetails;
       const item: Bookmark = parseItem(payload.info.collection.items[0]);
-      const history: BookmarkHistory = parseCollection(payload.history.collection);
+      const history: BookmarkHistory = parseCollection(
+        payload.history.collection
+      );
 
       const bookmarks = new Map(state.bookmarks);
       let bookmark = bookmarks.get(item.id);
@@ -58,7 +60,9 @@ export default function(
 
     case BookmarkActions.HISTORY: {
       const payload = action.payload as BookmarkHistoryPayload;
-      const history: BookmarkHistory = parseCollection(payload.history.collection);
+      const history: BookmarkHistory = parseCollection(
+        payload.history.collection
+      );
 
       const bookmarks = new Map(state.bookmarks);
       let bookmark = bookmarks.get(payload.bookmark.id);

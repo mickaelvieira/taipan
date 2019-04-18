@@ -1,25 +1,49 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
-import Button from "components/ui/Buttons";
+import { WithStyles, createStyles } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
 
-interface Props {
-  onClickAddBookmark: () => void;
+const styles = () =>
+  createStyles({
+    root: {
+      flexGrow: 1
+    },
+    grow: {
+      flexGrow: 1
+    },
+    menuButton: {
+      marginLeft: -12,
+      marginRight: 20
+    }
+  });
+
+interface Props extends WithStyles<typeof styles> {
+  toggleDrawer: (status: boolean) => void;
 }
 
-export default React.memo(function Header({ onClickAddBookmark }: Props) {
-  console.log("render header");
+export default withStyles(styles)(function Header({
+  toggleDrawer,
+  classes
+}: Props) {
   return (
-    <header className="app-header">
-      <Link to="/" className="btn-home">
-        <FontAwesomeIcon icon="home" />
-      </Link>
-      <Button className="btn-add-bookmark" onClick={onClickAddBookmark}>
-        <FontAwesomeIcon icon="plus" />
-      </Button>
-      <a className="btn-logout" href="#">
-        <FontAwesomeIcon icon="sign-out-alt" />
-      </a>
-    </header>
+    <div className={classes.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="Menu"
+          >
+            <MenuIcon onClick={() => toggleDrawer(true)} />
+          </IconButton>
+          <div className={classes.grow} />
+          <Button color="inherit">Login</Button>
+        </Toolbar>
+      </AppBar>
+    </div>
   );
 });

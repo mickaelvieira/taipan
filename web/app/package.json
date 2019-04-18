@@ -12,8 +12,8 @@
   "scripts": {
     "build:client": "webpack --config webpack.config.js",
     "watch:client": "webpack --watch --config webpack.config.js",
-    "lint": "eslint src -c .eslintrc.json --ext js,jsx",
-    "lint:fix": "eslint src -c .eslintrc.json --fix --ext js,jsx"
+    "lint": "eslint js -c .eslintrc.js --ext ts,tsx",
+    "lint:fix": "eslint js -c .eslintrc.js --fix --ext ts,tsx"
   },
   "dependencies": {
     "@babel/cli": "^7.0.0",
@@ -28,6 +28,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.3.1",
     "@fortawesome/react-fontawesome": "^0.1.3",
     "@material-ui/core": "^3.9.3",
+    "@material-ui/icons": "^3.0.2",
     "@reactivex/rxjs": "^6.3.3",
     "@types/lodash": "^4.14.119",
     "@types/react": "^16.4.14",
@@ -36,6 +37,7 @@
     "@types/react-router": "^4.0.31",
     "@types/react-router-dom": "^4.3.1",
     "@types/redux-logger": "^3.0.6",
+    "apollo-boost": "^0.3.1",
     "autoprefixer": "^9.0",
     "babel-eslint": "^10.0",
     "babel-jest": "^24.0",
@@ -51,8 +53,9 @@
     "coveralls": "^3.0",
     "css-loader": "^2.1.1",
     "dom-element-wrapper": "^0.4.0",
-    "eslint": "^5.0",
+    "eslint": "^5.16.0",
     "eslint-plugin-prettier": "^3.0",
+    "graphql": "^14.2.1",
     "jest": "^24.0",
     "lodash": "^4.17.4",
     "mini-css-extract-plugin": "^0.5.0",
@@ -63,6 +66,7 @@
     "postcss-cli": "^6.0",
     "prettier": "^1.5.2",
     "react": "^16.8",
+    "react-apollo": "^2.5.4",
     "react-dom": "^16.8",
     "react-redux": "^6.0",
     "react-router": "^4.3.1",
@@ -86,9 +90,12 @@
     "uglifycss": "^0.0.29",
     "webpack": "^4.0",
     "webpack-cli": "^3.0",
+    "webpack-graphql-loader": "^1.0.1",
     "webpack-stats-plugin": "^0.2.1"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.6.0",
+    "@typescript-eslint/parser": "^1.6.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",

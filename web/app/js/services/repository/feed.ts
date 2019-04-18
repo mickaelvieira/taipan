@@ -2,7 +2,7 @@ import { KeyPaths, StoreName, Mode } from "../db/types";
 import { getDBStore } from "../idb";
 
 export enum FeedTypes {
-  LATEST = "latest",
+  LATEST = "latest"
 }
 
 interface Feed {

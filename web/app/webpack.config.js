@@ -1,22 +1,24 @@
 const path = require("path");
 const { StatsWriterPlugin } = require("webpack-stats-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const TerserPlugin = require('terser-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 const srcDir = path.resolve(__dirname, "js");
 const tgtDir = path.resolve(__dirname, "../static");
 
 const isProduction = process.env.NODE_ENV === "production";
-const patternJsFiles = isProduction ? "[name].[contenthash].js" : "[name].js"
-const patternCssFiles = isProduction ? "[name].[contenthash].css" : "[name].css"
+const patternJsFiles = isProduction ? "[name].[contenthash].js" : "[name].js";
+const patternCssFiles = isProduction
+  ? "[name].[contenthash].css"
+  : "[name].css";
 
 module.exports = {
   target: "web",
   mode: process.env.NODE_ENV,
   devtool: "source-map",
   entry: {
-    app: srcDir + "/app.tsx"
+    app: srcDir + "/app.ts"
     // login: srcDir + "/login.ts"
   },
   output: {
@@ -25,7 +27,7 @@ module.exports = {
     path: tgtDir
   },
   resolve: {
-    extensions: [".js", ".ts", ".tsx"],
+    extensions: [".ts", ".tsx", ".js"],
     alias: {
       lib: path.resolve(srcDir, "lib/"),
       components: path.resolve(srcDir, "components/"),
@@ -60,16 +62,33 @@ module.exports = {
     new StatsWriterPlugin({
       filename: "hashes.json",
       transform(data) {
-        return Promise.resolve().then(() => JSON.stringify({
-          styles: `/static/${data.assetsByChunkName.app[0]}`,
-          app: `/static/${data.assetsByChunkName.app[1]}`,
-          vendor: `/static/${data.assetsByChunkName.vendor[0]}`
-        }, null, 2));
+        return Promise.resolve().then(() =>
+          JSON.stringify(
+            {
+              styles: `/static/${data.assetsByChunkName.app[0]}`,
+              app: `/static/${data.assetsByChunkName.app[1]}`,
+              vendor: `/static/${data.assetsByChunkName.vendor[0]}`
+            },
+            null,
+            2
+          )
+        );
       }
     })
   ],
   module: {
     rules: [
+      {
+        test: /\.graphql?$/,
+        use: [
+          {
+            loader: "webpack-graphql-loader",
+            options: {
+              output: "document"
+            }
+          }
+        ]
+      },
       {
         test: /\.(js|jsx|ts|tsx)$/,
         exclude: /(node_modules|bower_components)/,
@@ -80,15 +99,20 @@ module.exports = {
       {
         test: /\.scss$/,
         use: [
-          MiniCssExtractPlugin.loader, {
-            loader: "css-loader", options: {
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
               sourceMap: true
             }
-          }, {
-            loader: "sass-loader", options: {
+          },
+          {
+            loader: "sass-loader",
+            options: {
               sourceMap: true
             }
-          }]
+          }
+        ]
       },
       {
         test: /\.(woff(2)?|ttf|svg|eot)(\?v=\d+\.\d+\.\d+)?$/,

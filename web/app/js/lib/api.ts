@@ -17,30 +17,36 @@ export enum ContentTypes {
 class Unauthorized extends Error {}
 
 export default class API {
-
-  static get(endpoint: string, contentType: ContentTypes = ContentTypes.JSON, options: Object | null = null) {
+  static get(
+    endpoint: string,
+    contentType: ContentTypes = ContentTypes.JSON,
+    options: Record<string, any> | null = null
+  ) {
     return API.call(endpoint, HTTPMethod.GET, null, contentType, options);
   }
 
   static post(
     endpoint: string,
-    data: Object | null = null,
-    contentType: ContentTypes = ContentTypes.JSON, options: Object | null = null
+    data: Record<string, any> | null = null,
+    contentType: ContentTypes = ContentTypes.JSON,
+    options: Record<string, any> | null = null
   ) {
     return API.call(endpoint, HTTPMethod.POST, data, contentType, options);
   }
 
   static put(
     endpoint: string,
-    data: Object | null = null,
-    contentType: ContentTypes = ContentTypes.JSON, options: Object | null = null
+    data: Record<string, any> | null = null,
+    contentType: ContentTypes = ContentTypes.JSON,
+    options: Record<string, any> | null = null
   ) {
     return API.call(endpoint, HTTPMethod.PUT, data, contentType, options);
   }
 
   static delete(
     endpoint: string,
-    contentType: ContentTypes = ContentTypes.JSON, options: Object | null = null
+    contentType: ContentTypes = ContentTypes.JSON,
+    options: Record<string, any> | null = null
   ) {
     return API.call(endpoint, HTTPMethod.DELETE, null, contentType, options);
   }
@@ -69,7 +75,10 @@ export default class API {
    */
   static isJsonResponse(response: Response): Response {
     const contentType = response.headers.get("content-type");
-    const contentTypes = ["application/json", "application/vnd.collection+json"];
+    const contentTypes = [
+      "application/json",
+      "application/vnd.collection+json"
+    ];
 
     if (!contentType || !contentTypes.includes(contentType)) {
       throw new Error("Response body does not appear to be of type JSON");
@@ -93,9 +102,9 @@ export default class API {
   static call(
     endpoint: string,
     method: HTTPMethod,
-    data: Object | null = null,
+    data: Record<string, any> | null = null,
     contentType: ContentTypes = ContentTypes.JSON,
-    opts: Object | null = null
+    opts: Record<string, any> | null = null
   ): Promise<any> | [Promise<any>, Function] {
     const mode = "cors";
     const headers = new Headers();

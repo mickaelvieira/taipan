@@ -1,0 +1,38 @@
+query GetLatestBookmarks {
+  GetLatestBookmarks {
+    total
+    offset
+    limit
+    results {
+      id
+      title
+      hash
+      url
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+# query latest_posts {
+#   posts(first: 10, where: { orderby: { field: DATE, order: DESC } }) {
+#     edges {
+#       node {
+#         id
+#         link
+#         title
+#         date
+#         excerpt
+#         featuredImage {
+#           id
+#           sourceUrl(size: HP_NEWS_SIZE)
+#           mediaDetails {
+#             file
+#             height
+#             width
+#           }
+#         }
+#       }
+#     }
+#   }
+# }

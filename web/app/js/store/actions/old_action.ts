@@ -88,7 +88,7 @@ export const updateFilters = filter => ({
   }
 });
 
-export const updateSearchTerms = (terms: Array<string>) => ({
+export const updateSearchTerms = (terms: string[]) => ({
   type: SEARCH_TERMS_UPDATE,
   payload: {
     terms
