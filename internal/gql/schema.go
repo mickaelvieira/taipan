@@ -17,7 +17,8 @@ func mustLoad(path string) string {
 }
 
 func mustParse(content string) *graphql.Schema {
-	schema := graphql.MustParseSchema(content, &resolvers.Resolvers{})
+	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
+	schema := graphql.MustParseSchema(content, &resolvers.Resolvers{}, opts...)
 	return schema
 }
 

@@ -6,12 +6,13 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"time"
 
 	"github.com/graph-gophers/dataloader"
 	graphql "github.com/graph-gophers/graphql-go"
 )
+
+const defBkmkLimit = 10
 
 var bookmarksLoader = loaders.GetBookmarksLoader()
 
@@ -22,19 +23,10 @@ type BookmarkResolver struct {
 
 //BookmarkCollectionResolver resolver
 type BookmarkCollectionResolver struct {
-	results *[]*BookmarkResolver
-}
-
-func (rslv *BookmarkCollectionResolver) Cursor() int32 {
-	return 0
-}
-
-func (rslv *BookmarkCollectionResolver) Total() int32 {
-	return 0
-}
-
-func (rslv *BookmarkCollectionResolver) Results() *[]*BookmarkResolver {
-	return rslv.results
+	Results *[]*BookmarkResolver
+	Total   int32
+	Offset  int32
+	Limit   int32
 }
 
 // ID resolves the ID field
@@ -77,18 +69,10 @@ func (rslv *BookmarkResolver) UpdatedAt() string {
 	return rslv.Bookmark.UpdatedAt.Format(time.UnixDate)
 }
 
-// AddedAt resolves the AddedAt field
-func (rslv *BookmarkResolver) AddedAt() string {
-	return rslv.Bookmark.AddedAt.Format(time.UnixDate)
-}
-
-// IsRead resolves the IsRead field
-func (rslv *BookmarkResolver) IsRead() bool {
-	return rslv.Bookmark.IsRead
-}
-
 // GetBookmark resolves the query
-func (r *Resolvers) GetBookmark(ctx context.Context, args struct{ ID string }) (*BookmarkResolver, error) {
+func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
+	ID string
+}) (*BookmarkResolver, error) {
 	thunk := bookmarksLoader.Load(ctx, dataloader.StringKey(args.ID))
 	result, err := thunk()
 
@@ -109,28 +93,30 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct{ ID string }) (
 
 // GetLatestBookmarks resolves the query
 func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
-	Offset int32
-	Limit  int32
+	Offset *int32
+	Limit  *int32
 }) (*BookmarkCollectionResolver, error) {
+	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
+	offset, limit := fromArgs(args.Offset, args.Limit)
 
-	var repository = repository.NewBookmarkRepository()
-	var ids = repository.FindLatest(ctx, args.Offset, args.Limit)
+	repository := repository.NewBookmarkRepository()
+	ids := repository.FindLatest(ctx, offset, limit)
+	total := repository.CountLatest(ctx)
 
-	log.Println("GET LATEST")
 	thunk := bookmarksLoader.LoadMany(ctx, dataloader.NewKeysFromStrings(ids))
 	results, err := thunk()
 
+	// @TODO better error handling
 	if err != nil {
 		return nil, err[0]
 	}
-
-	log.Println(len(results))
 
 	var bookmarks []*BookmarkResolver
 	for _, result := range results {
 		bookmark, ok := result.(*bookmark.Bookmark)
 
 		if !ok {
+			// @TODO better error handling
 			return nil, errors.New("Wrong data")
 		}
 
@@ -139,7 +125,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 		bookmarks = append(bookmarks, &res)
 	}
 
-	reso := BookmarkCollectionResolver{results: &bookmarks}
+	reso := BookmarkCollectionResolver{Results: &bookmarks, Total: total, Offset: offset, Limit: limit}
 
 	return &reso, nil
 }

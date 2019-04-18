@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// BookmarkRepository the GPX repository
+// BookmarkRepository the Bookmark repository
 type BookmarkRepository struct {
 	conn *sql.DB
 }
@@ -72,4 +72,12 @@ func (r *BookmarkRepository) FindLatest(ctx context.Context, cursor int32, limit
 	}
 
 	return ids
+}
+
+// CountLatest count latest entries
+func (r *BookmarkRepository) CountLatest(ctx context.Context) int32 {
+	var total int32
+	r.conn.QueryRowContext(ctx, "SELECT COUNT(bookmarks.id) as total FROM bookmarks INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id WHERE linked = 1 ORDER BY added_at DESC;").Scan(&total)
+
+	return total
 }
