@@ -10,7 +10,7 @@ import (
 )
 
 // LoadEnvironment load environment variables
-// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
+// See for details: https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 func LoadEnvironment() {
 	env := os.Getenv("TAIPAN_ENV")
 	if "" == env {

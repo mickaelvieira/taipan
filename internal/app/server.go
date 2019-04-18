@@ -27,11 +27,14 @@ func (s *Server) IndexHandler(w http.ResponseWriter, req *http.Request) {
 
 // QueryHandler handles GraphQL requests
 func (s *Server) QueryHandler(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-	if req.Method == "OPTIONS" {
-		return
+	if IsDev() {
+		// In order to have GraphQL on a different domain
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		if req.Method == "OPTIONS" {
+			return
+		}
 	}
 
 	ctx := context.Background()

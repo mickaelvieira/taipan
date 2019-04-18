@@ -16,7 +16,7 @@ func main() {
 	env := os.Getenv("TAIPAN_ENV")
 	webDir := os.Getenv("APP_WEB_DIR")
 
-	if env == "development" || env == "" {
+	if app.IsDev() {
 		fs := http.FileServer(http.Dir(webDir))
 		http.Handle("/static/", fs)
 	}
@@ -29,5 +29,8 @@ func main() {
 	// Start the server
 	log.Println("Listening: http://localhost:" + port)
 	log.Println("Environment", env)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
