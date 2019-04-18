@@ -28,7 +28,7 @@ func (s *Server) IndexHandler(w http.ResponseWriter, req *http.Request) {
 // QueryHandler handles GraphQL requests
 func (s *Server) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	if IsDev() {
-		// In order to have GraphQL on a different domain
+		// In order to have GraphiQL on a different domain
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")

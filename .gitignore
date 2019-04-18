@@ -4,5 +4,6 @@ node_modules
 web/static/js/
 web/static/css/
 web/static/hashes.json
+web/sql/data.sql
 .env.local
 .env.*.local
