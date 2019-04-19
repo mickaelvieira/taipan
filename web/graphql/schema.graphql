@@ -6,13 +6,15 @@ schema {
 type Query {
   GetBookmark(id: ID!): Bookmark
   GetLatestBookmarks(offset: Int, limit: Int): BookmarkCollection
+}
+
+type Mutation {
+  # CreateBookmark(url: String!): UserBookmark
   # DeleteBookmark(id: ID!): Boolean
   # MarkBookmarkAsRead(id: ID!): Bookmark
   # MarkBookmarkAsUnread(id: ID!): Bookmark
   # RefreshBookmark(id: ID!): Bookmark
 }
-
-type Mutation {}
 
 interface Node {
   id: ID!

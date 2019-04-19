@@ -34,17 +34,31 @@ interface Props extends WithStyles<typeof styles> {
   bookmark: UserBookmark;
 }
 
+interface Data {
+  GetLatestBookmarks: {
+    total: number;
+    offset: number;
+    limit: number;
+    results: UserBookmark[];
+  };
+}
+
+interface Variables {
+  offset?: number;
+  limit?: number;
+}
+
+class LatestBookmarkQuery extends Query<Data, Variables> {}
+
 export default withStyles(styles)(function Feed({ classes }: Props) {
   return (
-    <Query query={query}>
+    <LatestBookmarkQuery query={query}>
       {({ data, loading, error }) => {
-        console.log(data);
-
         if (loading) {
           return <Loader />;
         }
 
-        return (
+        return !data ? null : (
           <div className={classes.container}>
             <ul className={classes.list}>
               {data.GetLatestBookmarks.results.map((bookmark: UserBookmark) => {
@@ -58,6 +72,6 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
           </div>
         );
       }}
-    </Query>
+    </LatestBookmarkQuery>
   );
 });
