@@ -11,6 +11,7 @@ import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
+import AddBookmark from "../AddBookmark";
 import useConnectionStatus from "../hooks/connection-status";
 import { SnackbarInfo } from "../ui/Snackbar";
 
@@ -47,6 +48,7 @@ export default withStyles(styles)(function Layout({
   classes
 }: PropsWithChildren<WithStyles<typeof styles>>) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isFormBookmarkOpen, setFormBookmarkStatus] = useState(false);
   const isOnline = useConnectionStatus();
 
   return (
@@ -63,11 +65,20 @@ export default withStyles(styles)(function Layout({
             size="small"
             aria-label="Add"
             className={classes.fab}
+            onClick={() => setFormBookmarkStatus(true)}
           >
             <AddIcon />
           </Fab>
         </Grid>
       </Grid>
+      <AddBookmark
+        isOpen={isFormBookmarkOpen}
+        toggleDialog={setFormBookmarkStatus}
+        onBookmarkCreated={bookmark => {
+          console.log(bookmark);
+          setFormBookmarkStatus(false);
+        }}
+      />
       <SnackbarInfo isOpen={!isOnline} message="You are offline" />
     </>
   );
