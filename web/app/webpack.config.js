@@ -65,8 +65,7 @@ module.exports = {
         return Promise.resolve().then(() =>
           JSON.stringify(
             {
-              styles: `/static/${data.assetsByChunkName.app[0]}`,
-              app: `/static/${data.assetsByChunkName.app[1]}`,
+              app: `/static/${data.assetsByChunkName.app[0]}`,
               vendor: `/static/${data.assetsByChunkName.vendor[0]}`
             },
             null,
@@ -95,24 +94,6 @@ module.exports = {
         use: {
           loader: "babel-loader"
         }
-      },
-      {
-        test: /\.scss$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: {
-              sourceMap: true
-            }
-          },
-          {
-            loader: "sass-loader",
-            options: {
-              sourceMap: true
-            }
-          }
-        ]
       },
       {
         test: /\.(woff(2)?|ttf|svg|eot)(\?v=\d+\.\d+\.\d+)?$/,

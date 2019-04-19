@@ -1,48 +1,62 @@
 module.exports = {
-  "plugins": [
+  plugins: [
     ["lodash"],
     ["@babel/plugin-syntax-class-properties"],
-    ["@babel/plugin-transform-regenerator", {
-      "asyncGenerators": false,
-      "generators": false,
-      "async": false
-    }],
-    ["transform-class-properties"],
-    ["styled-components"]
+    [
+      "@babel/plugin-transform-regenerator",
+      {
+        asyncGenerators: false,
+        generators: false,
+        async: false
+      }
+    ],
+    ["transform-class-properties"]
   ],
-  "env": {
-    "production": {
-      "presets": [
-        ["@babel/env", {
-          "modules": false,
-          "targets": ["last 2 versions"]
-        }],
+  env: {
+    production: {
+      presets: [
+        [
+          "@babel/env",
+          {
+            modules: false,
+            targets: ["last 2 versions"]
+          }
+        ],
         ["@babel/typescript"],
         ["@babel/react"]
       ]
     },
-    "development": {
-      "presets": [
-        ["@babel/env", {
-          "debug": true,
-          "modules": false,
-          "targets": ["last 2 versions"]
-        }],
+    development: {
+      presets: [
+        [
+          "@babel/env",
+          {
+            debug: true,
+            modules: false,
+            targets: ["last 2 versions"]
+          }
+        ],
         ["@babel/typescript"],
-        ["@babel/react", {
-          "development": true
-        }]
+        [
+          "@babel/react",
+          {
+            development: true
+          }
+        ]
       ]
     },
-    "test": {
-      "presets": [
-        ["@babel/env", {
-          "modules": false,
-          "targets": ["last 2 versions"]
-        }],
+    test: {
+      presets: [
+        [
+          "@babel/env",
+          {
+            modules: false,
+            targets: ["last 2 versions"]
+          }
+        ],
         ["@babel/typescript"],
         ["@babel/react"]
       ]
     }
   }
-}
+};

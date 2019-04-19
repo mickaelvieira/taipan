@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ApolloProvider, Query } from "react-apollo";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -44,6 +45,7 @@ function App({ fetchIndex, fetchItems, fetchUser }: Props) {
 
   return (
     <ApolloProvider client={client}>
+      <CssBaseline />
       <Router>
         <Query query={query}>
           {({ data, loading, error }) => {

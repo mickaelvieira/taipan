@@ -8,7 +8,6 @@ import (
 
 // Assets represents the list of available assets
 type Assets struct {
-	Styles string `json:"styles"`
 	App    string `json:"app"`
 	Vendor string `json:"vendor"`
 }
