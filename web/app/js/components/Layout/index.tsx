@@ -11,6 +11,8 @@ import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
+import useConnectionStatus from "../hooks/connection-status";
+import { SnackbarInfo } from "../ui/Snackbar";
 
 const styles = ({ palette, spacing }: Theme) =>
   createStyles({
@@ -33,6 +35,10 @@ const styles = ({ palette, spacing }: Theme) =>
       position: "fixed",
       bottom: spacing.unit * 2,
       right: spacing.unit * 2
+    },
+    message: {
+      display: "flex",
+      alignItems: "center"
     }
   });
 
@@ -41,6 +47,7 @@ export default withStyles(styles)(function Layout({
   classes
 }: PropsWithChildren<WithStyles<typeof styles>>) {
   const [isOpen, setIsOpen] = useState(false);
+  const isOnline = useConnectionStatus();
 
   return (
     <>
@@ -61,6 +68,7 @@ export default withStyles(styles)(function Layout({
           </Fab>
         </Grid>
       </Grid>
+      <SnackbarInfo isOpen={!isOnline} message="You are offline" />
     </>
   );
 });
