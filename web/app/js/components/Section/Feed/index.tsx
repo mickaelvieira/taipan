@@ -34,7 +34,7 @@ interface Props extends WithStyles<typeof styles> {
   bookmark: UserBookmark;
 }
 
-export default withStyles(styles)(function Header({ classes }: Props) {
+export default withStyles(styles)(function Feed({ classes }: Props) {
   return (
     <Query query={query}>
       {({ data, loading, error }) => {

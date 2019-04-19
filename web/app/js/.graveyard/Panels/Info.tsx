@@ -7,10 +7,10 @@ import { fetchBookmarkHistory } from "store/actions/bookmarks";
 import { Bookmark } from "types/bookmark";
 import { PanelProps } from "components/ui/Panel";
 import { ReduxAction } from "store/actions/types";
-import YesNo from "../ui/YesNo";
-import Domain from "../ui/Domain";
-import Datetime from "../ui/Datetime";
-import Info from "../ui/Info";
+import YesNo from "../../components/ui/YesNo";
+import Domain from "../../components/ui/Domain";
+import Datetime from "../../components/ui/Datetime";
+import Info from "../../components/ui/Info";
 
 function getEntries(item: Bookmark) {
   const { history } = item;

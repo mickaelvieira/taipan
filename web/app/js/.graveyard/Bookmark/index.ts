@@ -1,4 +1,4 @@
-import { attachFragment } from "lib/view/index";
+import { attachFragment } from "lib/view";
 import Observer from "./Observer";
 import withWindow from "components/HoC/withWindow";
 import withDispatch from "components/HoC/withDispatch";

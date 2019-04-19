@@ -1,4 +1,4 @@
-import combine from "../helper/combine";
+import combine from "../../lib/helper/combine";
 
 const templateCaches = {};
 

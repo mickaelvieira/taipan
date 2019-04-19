@@ -40,7 +40,7 @@ interface Props extends WithStyles<typeof styles> {
   bookmark: UserBookmark;
 }
 
-export default withStyles(styles)(function Header({
+export default withStyles(styles)(function FeedItem({
   bookmark,
   classes
 }: Props) {

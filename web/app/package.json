@@ -12,7 +12,7 @@
   "scripts": {
     "build:client": "webpack --config webpack.config.js",
     "watch:client": "webpack --watch --config webpack.config.js",
-    "lint": "eslint js -c .eslintrc.js --ext ts,tsx",
+    "lint": "eslint js  -c .eslintrc.js --ext ts,tsx",
     "lint:fix": "eslint js -c .eslintrc.js --fix --ext ts,tsx"
   },
   "dependencies": {

@@ -7,7 +7,7 @@ import { HomeSection, FeedSection } from "../Section";
 
 import Layout from "../Layout";
 
-function App() {
+export default function App() {
   const client = getApolloClient();
 
   return (
@@ -24,5 +24,3 @@ function App() {
     </ApolloProvider>
   );
 }
-
-export default App;

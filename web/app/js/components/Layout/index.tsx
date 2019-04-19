@@ -1,5 +1,10 @@
-import React, { useState, FunctionComponent } from "react";
-import { withStyles, WithStyles, createStyles, Theme } from "@material-ui/core/styles";
+import React, { useState, PropsWithChildren } from "react";
+import {
+  withStyles,
+  WithStyles,
+  createStyles,
+  Theme
+} from "@material-ui/core/styles";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import Paper from "@material-ui/core/Paper";
@@ -31,9 +36,10 @@ const styles = ({ palette, spacing }: Theme) =>
     }
   });
 
-interface Props extends WithStyles<typeof styles> {}
-
-const Layout: FunctionComponent<Props> = ({ children, classes }) => {
+export default withStyles(styles)(function Layout({
+  children,
+  classes
+}: PropsWithChildren<WithStyles<typeof styles>>) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -57,6 +63,4 @@ const Layout: FunctionComponent<Props> = ({ children, classes }) => {
       </Grid>
     </>
   );
-};
-
-export default withStyles(styles)(Layout);
+});

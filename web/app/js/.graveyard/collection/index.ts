@@ -1,5 +1,5 @@
 import { Collection, Data, Link, Item } from "./types";
-import { Bookmark, Bookmarks } from "../types/bookmark";
+import { Bookmark, Bookmarks } from "../../types/bookmark";
 
 export const flattenLinks = (links: Link[]) =>
   links.reduce((carry, { rel, href }) => ({ ...carry, [rel]: href }), {});

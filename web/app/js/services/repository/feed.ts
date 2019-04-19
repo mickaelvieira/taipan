@@ -20,7 +20,7 @@ export async function update(item: Feed) {
   return store.update(item);
 }
 
-export async function batch(items: any[]) {
+export async function batch(items: Feed[]) {
   const store = await getDBStore(StoreName.FEED, Mode.READWRITE);
   return store.batch(items);
 }

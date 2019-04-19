@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import {
   withStyles,
@@ -35,12 +35,12 @@ interface Props extends WithStyles<typeof styles> {
   toggleDrawer: (status: boolean) => void;
 }
 
-const TemporaryDrawer: FunctionComponent<Props> = ({
+export default withStyles(styles)(function Sidebar({
   isOpen,
   toggleDrawer,
   classes
-}) => (
-  <div>
+}: Props) {
+  return (
     <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
       <div className={classes.list}>
         <List>
@@ -92,7 +92,5 @@ const TemporaryDrawer: FunctionComponent<Props> = ({
         </List>
       </div>
     </Drawer>
-  </div>
-);
-
-export default withStyles(styles)(TemporaryDrawer);
+  );
+});
