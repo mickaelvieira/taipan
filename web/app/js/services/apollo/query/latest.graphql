@@ -6,6 +6,7 @@ query GetLatestBookmarks {
     results {
       id
       title
+      description
       hash
       url
       createdAt
@@ -13,26 +14,3 @@ query GetLatestBookmarks {
     }
   }
 }
-
-# query latest_posts {
-#   posts(first: 10, where: { orderby: { field: DATE, order: DESC } }) {
-#     edges {
-#       node {
-#         id
-#         link
-#         title
-#         date
-#         excerpt
-#         featuredImage {
-#           id
-#           sourceUrl(size: HP_NEWS_SIZE)
-#           mediaDetails {
-#             file
-#             height
-#             width
-#           }
-#         }
-#       }
-#     }
-#   }
-# }

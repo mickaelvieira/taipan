@@ -1,22 +1,32 @@
 import React, { FunctionComponent } from "react";
-import { WithStyles, createStyles, Theme } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
+import { Link as RouterLink } from "react-router-dom";
+import {
+  withStyles,
+  WithStyles,
+  createStyles,
+  Theme
+} from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
-import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
+import Divider from "@material-ui/core/Divider";
+import Link from "@material-ui/core/Link";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
+import BookmarkIcon from "@material-ui/icons/BookmarkBorderOutlined";
+import AccountIcon from "@material-ui/icons/AccountCircleRounded";
+import HomeIcon from "@material-ui/icons/HomeOutlined";
 
-const styles = () =>
+const styles = ({ spacing }: Theme) =>
   createStyles({
     list: {
-      width: 250
+      width: 220
     },
-    fullList: {
-      width: "auto"
+    icon: {
+      margin: spacing.unit
+    },
+    link: {
+      display: "block"
     }
   });
 
@@ -32,35 +42,54 @@ const TemporaryDrawer: FunctionComponent<Props> = ({
 }) => (
   <div>
     <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
-      <div
-        tabIndex={0}
-        role="button"
-        onClick={() => toggleDrawer(false)}
-        onKeyDown={() => toggleDrawer(false)}
-      >
-        <div className={classes.list}>
-          <List>
-            {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
-          <Divider />
-          <List>
-            {["All mail", "Trash", "Spam"].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
-        </div>
+      <div className={classes.list}>
+        <List>
+          <Link
+            to="/"
+            className={classes.link}
+            component={RouterLink}
+            underline="none"
+            onClick={() => toggleDrawer(false)}
+          >
+            <ListItem button key="Home">
+              <ListItemIcon>
+                <HomeIcon color="primary" className={classes.icon} />
+              </ListItemIcon>
+              <ListItemText primary="Home" />
+            </ListItem>
+          </Link>
+          <Link
+            to="/feed"
+            className={classes.link}
+            component={RouterLink}
+            underline="none"
+            onClick={() => toggleDrawer(false)}
+          >
+            <ListItem button key="Latest">
+              <ListItemIcon>
+                <BookmarkIcon color="primary" className={classes.icon} />
+              </ListItemIcon>
+              <ListItemText primary="Latest" />
+            </ListItem>
+          </Link>
+        </List>
+        <Divider />
+        <List>
+          <Link
+            to="/"
+            className={classes.link}
+            component={RouterLink}
+            underline="none"
+            onClick={() => toggleDrawer(false)}
+          >
+            <ListItem button key="Account">
+              <ListItemIcon>
+                <AccountIcon color="primary" className={classes.icon} />
+              </ListItemIcon>
+              <ListItemText primary="Account" />
+            </ListItem>
+          </Link>
+        </List>
       </div>
     </Drawer>
   </div>

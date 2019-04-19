@@ -1,5 +1,3 @@
-import Bookmark from "components/Bookmark";
-
 export interface BookmarkLinks {
   about: string;
   read: string;
@@ -17,7 +15,7 @@ export interface BookmarksLinks {
   search?: string;
 }
 
-export interface Bookmark {
+export interface UserBookmark {
   href: string;
   id: string;
   url: string;
@@ -30,12 +28,12 @@ export interface Bookmark {
   accessed_at: string;
   created_at: string;
   updated_at: string;
-  is_read: boolean;
-  is_pending: boolean;
-  is_fetching: boolean;
-  is_fetched: boolean;
-  links: BookmarkLinks;
-  history?: BookmarkHistory;
+  // is_read: boolean;
+  // is_pending: boolean;
+  // is_fetching: boolean;
+  // is_fetched: boolean;
+  // links: BookmarkLinks;
+  // history?: BookmarkHistory;
 }
 
 export interface BookmarkHistoryEntry {
