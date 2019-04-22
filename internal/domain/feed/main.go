@@ -1,15 +1,45 @@
 package feed
 
-import "time"
+import (
+	"errors"
+	"strings"
+	"time"
+)
 
 // Type represents whether the feed is an atom or rss feed
 type Type string
 
 // Type values
 const (
-	ATOM Type = "application/atom+xml"
-	RSS  Type = "application/rss+xml"
+	ATOM    Type = "application/atom+xml"
+	RSS     Type = "application/rss+xml"
+	INVALID Type = ""
 )
+
+func isRSS(t string) bool {
+	return t == string(RSS)
+}
+
+func isAtom(t string) bool {
+	return t == string(ATOM)
+}
+
+func GetFeedType(t string) (Type, error) {
+	t = strings.ToLower(t)
+	if isRSS(t) {
+		return RSS, nil
+	}
+
+	if isAtom(t) {
+		return ATOM, nil
+	}
+
+	return INVALID, errors.New("Invalid feed type")
+}
+
+func IsFeedType(t string) bool {
+	return isAtom(t) || isAtom(t)
+}
 
 // Status represents the status of the feed during the fetching process
 type Status string

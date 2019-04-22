@@ -83,7 +83,10 @@ module.exports = {
           {
             loader: "webpack-graphql-loader",
             options: {
-              output: "document"
+              output: "document",
+              validate: true,
+              schema: "./schema.json",
+              removeUnusedFragments: true
             }
           }
         ]

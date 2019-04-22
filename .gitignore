@@ -1,6 +1,7 @@
 /cmd/web/web
 /vendor
 node_modules
+web/app/schema.json
 web/static/js/
 web/static/css/
 web/static/hashes.json

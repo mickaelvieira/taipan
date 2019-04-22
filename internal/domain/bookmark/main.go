@@ -26,6 +26,8 @@ const (
 type Bookmark struct {
 	ID          string
 	URL         string
+	Lang        string
+	Charset     string
 	Hash        string
 	Title       string
 	Description string

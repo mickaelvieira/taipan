@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/parser"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
 	"time"
@@ -18,7 +19,7 @@ var bookmarksLoader = loaders.GetBookmarksLoader()
 
 // BookmarkResolver resolves the bookmark entity
 type BookmarkResolver struct {
-	*bookmark.Bookmark
+	*bookmark.Bookmark // @TODO replace this with UserBookmark eventually
 }
 
 //BookmarkCollectionResolver resolver
@@ -42,6 +43,16 @@ func (rslv *BookmarkResolver) URL() string {
 // Hash resolves the Hash field
 func (rslv *BookmarkResolver) Hash() string {
 	return rslv.Bookmark.Hash
+}
+
+// Lang resolves the Lang field
+func (rslv *BookmarkResolver) Lang() string {
+	return rslv.Bookmark.Lang
+}
+
+// Charset resolves the Charset field
+func (rslv *BookmarkResolver) Charset() string {
+	return rslv.Bookmark.Charset
 }
 
 // Title resolves the Title field
@@ -128,4 +139,19 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	reso := BookmarkCollectionResolver{Results: &bookmarks, Total: total, Offset: offset, Limit: limit}
 
 	return &reso, nil
+}
+
+func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
+	URL string
+}) (*BookmarkResolver, error) {
+
+	bookmark, err := parser.FetchAndParse(args.URL)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res := BookmarkResolver{Bookmark: bookmark}
+
+	return &res, nil
 }

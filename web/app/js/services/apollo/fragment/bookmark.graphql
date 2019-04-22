@@ -1,0 +1,10 @@
+fragment bookmarkFields on Bookmark {
+  id
+  title
+  lang
+  charset
+  description
+  url
+  createdAt
+  updatedAt
+}

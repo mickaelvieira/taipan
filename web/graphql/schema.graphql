@@ -9,15 +9,11 @@ type Query {
 }
 
 type Mutation {
-  # CreateBookmark(url: String!): UserBookmark
+  CreateBookmark(url: String!): Bookmark
   # DeleteBookmark(id: ID!): Boolean
   # MarkBookmarkAsRead(id: ID!): Bookmark
   # MarkBookmarkAsUnread(id: ID!): Bookmark
   # RefreshBookmark(id: ID!): Bookmark
-}
-
-interface Node {
-  id: ID!
 }
 
 enum BookmarkStatus {
@@ -29,10 +25,22 @@ enum BookmarkStatus {
 
 # https://www.apollographql.com/docs/graphql-tools/scalars
 
+type BookmarkCollection {
+  offset: Int!
+  total: Int!
+  limit: Int!
+  results: [Bookmark]
+}
+
+interface Node {
+  id: ID!
+}
+
 type Bookmark implements Node {
   id: ID!
   url: String!
-  hash: String!
+  lang: String!
+  charset: String!
   title: String!
   description: String!
   status: BookmarkStatus!
@@ -43,7 +51,8 @@ type Bookmark implements Node {
 type UserBookmark implements Node {
   id: ID!
   url: String!
-  hash: String!
+  lang: String!
+  charset: String!
   title: String!
   description: String!
   status: BookmarkStatus!
@@ -53,9 +62,3 @@ type UserBookmark implements Node {
   isRead: Boolean!
 }
 
-type BookmarkCollection {
-  total: Int!
-  offset: Int!
-  limit: Int!
-  results: [Bookmark]
-}

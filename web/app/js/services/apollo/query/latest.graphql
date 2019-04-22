@@ -1,16 +1,12 @@
+#import "../fragment/bookmark.graphql"
+
 query GetLatestBookmarks {
   GetLatestBookmarks {
     total
     offset
     limit
     results {
-      id
-      title
-      description
-      hash
-      url
-      createdAt
-      updatedAt
+      ...bookmarkFields
     }
   }
 }
