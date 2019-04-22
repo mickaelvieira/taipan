@@ -1,6 +1,8 @@
 import Store from "./db/store";
 import { Mode, StoreName, DBConfig, DBUpdater } from "./db/types";
 
+/* eslint @typescript-eslint/no-explicit-any: off */
+
 let config = new Map();
 
 function getDB(config: Map<string, any>, onUpgradeNeeded?: DBUpdater) {

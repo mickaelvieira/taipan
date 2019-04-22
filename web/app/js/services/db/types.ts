@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-explicit-any: off */
 export enum KeyPaths {
   ID = "id",
   TYPE = "type"
