@@ -123,14 +123,56 @@ func ParseCanonicalURL(linkTags []*goquery.Selection) string {
 func ParseFeeds(linkTags []*goquery.Selection) []*feed.Feed {
 	var feeds []*feed.Feed
 	for _, s := range linkTags {
-		h := NormalizeAttr(s.AttrOr("href", ""))
-		t := NormalizeAttr(s.AttrOr("title", ""))
-		ft, err := feed.GetFeedType(NormalizeAttr(s.AttrOr("type", "")))
+		url := NormalizeAttr(s.AttrOr("href", ""))
+		title := NormalizeAttr(s.AttrOr("title", ""))
+		feedType, err := feed.GetFeedType(NormalizeAttr(s.AttrOr("type", "")))
 
-		if IsURLValid(h) && err == nil {
-			feed := feed.Feed{Type: ft, URL: h, Title: t}
+		if IsURLValid(url) && err == nil {
+			feed := feed.New(url, title, feedType)
 			feeds = append(feeds, &feed)
 		}
 	}
 	return feeds
+}
+
+type Social struct {
+	Title       string
+	Description string
+	Image       string
+	URL         string
+}
+
+func ParseFacebookTags(metaTags []*goquery.Selection) *Social {
+	return parseSocialTags(metaTags, "og:", "property")
+}
+
+func ParseTwitterTags(metaTags []*goquery.Selection) *Social {
+	return parseSocialTags(metaTags, "twitter:", "name")
+}
+
+func parseSocialTags(metaTags []*goquery.Selection, prefix string, property string) *Social {
+	var title, desc, image, url string
+
+	for _, s := range metaTags {
+		var exist bool
+		var prop string
+		prop, exist = s.Attr(property)
+		val := s.AttrOr("content", "")
+		if exist && strings.HasPrefix(prop, prefix) && val != "" {
+			prop = strings.ToLower(prop[len(prefix):len(prop)])
+
+			switch prop {
+			case "title":
+				title = val
+			case "description":
+				desc = val
+			case "image":
+				image = val
+			case "url":
+				url = val
+			}
+		}
+	}
+
+	return &Social{Title: title, Description: desc, Image: image, URL: url}
 }

@@ -7,6 +7,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/parser"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
+	"log"
 	"time"
 
 	"github.com/graph-gophers/dataloader"
@@ -40,9 +41,9 @@ func (rslv *BookmarkResolver) URL() string {
 	return rslv.Bookmark.URL
 }
 
-// Hash resolves the Hash field
-func (rslv *BookmarkResolver) Hash() string {
-	return rslv.Bookmark.Hash
+// Image resolves the Image field
+func (rslv *BookmarkResolver) Image() string {
+	return rslv.Bookmark.Image
 }
 
 // Lang resolves the Lang field
@@ -150,6 +151,8 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println(bookmark)
 
 	res := BookmarkResolver{Bookmark: bookmark}
 

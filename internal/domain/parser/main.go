@@ -6,17 +6,9 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
-
-type Social struct {
-	Title       string
-	Description string
-	Image       string
-	URL         string
-}
 
 func FetchAndParse(URL string) (*bookmark.Bookmark, error) {
 	if !IsURLValid(URL) {
@@ -49,27 +41,62 @@ func FetchAndParse(URL string) (*bookmark.Bookmark, error) {
 		linkTags = append(linkTags, s)
 	})
 
+	var image, url string
 	var title = ParseTitle(doc, metaTags)
 	var lang = ParseLang(doc, metaTags)
 	var desc = ParseDescription(metaTags)
 	var charset = ParseCharset(metaTags)
 	var canonical = ParseCanonicalURL(linkTags)
+	var tw = ParseTwitterTags(metaTags)
+	var fb = ParseFacebookTags(metaTags)
 	// var feeds = ParseFeeds(linkTags)
 
-	bookmark := &bookmark.Bookmark{
-		URL:         URL,
-		Lang:        lang,
-		Title:       title,
-		Description: desc,
-		Charset:     charset,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-		Status:      bookmark.FETCHED,
+	// Try to get a good URL
+	if IsURLValid(canonical) {
+		url = canonical
+	} else if IsURLValid(fb.URL) {
+		url = fb.URL
+	} else if IsURLValid(tw.URL) {
+		url = tw.URL
+	} else {
+		url = URL
 	}
 
-	log.Println(bookmark)
-	log.Println(canonical)
-	// log.Println(feeds)
+	// Try to get a good title
+	if title == "" && fb.Title != "" {
+		title = fb.Title
+	}
+
+	if title == "" && tw.Title != "" {
+		title = tw.Title
+	}
+
+	// Try to get a good description
+	if desc == "" && fb.Description != "" {
+		desc = fb.Description
+	}
+
+	if desc == "" && tw.Description != "" {
+		desc = tw.Description
+	}
+
+	// Try to get a good image
+	if image == "" && fb.Image != "" {
+		image = fb.Image
+	}
+
+	if image == "" && tw.Image != "" {
+		image = tw.Image
+	}
+
+	bookmark := bookmark.New(
+		url,
+		lang,
+		charset,
+		title,
+		desc,
+		image,
+	)
 
 	return bookmark, nil
 }

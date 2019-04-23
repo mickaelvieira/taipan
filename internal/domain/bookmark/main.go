@@ -1,6 +1,9 @@
 package bookmark
 
-import "time"
+import (
+	"github/mickaelvieira/taipan/internal/domain/uuid"
+	"time"
+)
 
 // Status defines the status of a bookmark
 type Status string
@@ -31,6 +34,7 @@ type Bookmark struct {
 	Hash        string
 	Title       string
 	Description string
+	Image       string
 	Status      Status
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -56,4 +60,9 @@ type FetchingHistory struct {
 	RespReasonPhrase string
 	RespHeaders      string
 	CreatedAt        time.Time
+}
+
+// New creates a new Bookmark with a UUID
+func New(url string, lang string, charset string, title string, desc string, image string) *Bookmark {
+	return &Bookmark{ID: uuid.New(), URL: url, Lang: lang, Charset: charset, Title: title, Description: desc, Image: image, Status: FETCHED, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 }

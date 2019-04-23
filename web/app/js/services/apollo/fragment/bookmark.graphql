@@ -1,10 +1,11 @@
 fragment bookmarkFields on Bookmark {
   id
+  url
   title
   lang
   charset
   description
-  url
+  image
   createdAt
   updatedAt
 }

@@ -2,6 +2,7 @@ package feed
 
 import (
 	"errors"
+	"github/mickaelvieira/taipan/internal/domain/uuid"
 	"strings"
 	"time"
 )
@@ -61,6 +62,11 @@ type Feed struct {
 	status    Status
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+// New creates a new Feed with a UUID
+func New(url string, title string, feedType Type) Feed {
+	return Feed{ID: uuid.New(), URL: url, Title: title, Type: feedType}
 }
 
 // UserFeed represents a feed from a user's prespective
