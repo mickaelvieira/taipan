@@ -15,3 +15,9 @@ clean:
 
 clean-ui:
 	rm -rf web/static/css && rm -rf web/static/js && rm -f web/static/hashes.json
+
+watch-ui:
+	cd web/app && yarn watch:client
+
+gen-schema:
+	cd web/app && yarn schema:json
