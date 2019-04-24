@@ -113,7 +113,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 
 	repository := repository.NewBookmarkRepository()
 	ids := repository.FindLatest(ctx, offset, limit)
-	total := repository.CountLatest(ctx)
+	total := repository.GetTotal(ctx)
 
 	thunk := bookmarksLoader.LoadMany(ctx, dataloader.NewKeysFromStrings(ids))
 	results, err := thunk()
@@ -142,6 +142,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	return &reso, nil
 }
 
+// CreateBookmark creates a new bookmark or updates and existing one
 func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
@@ -153,6 +154,24 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	}
 
 	log.Println(bookmark)
+
+	repository := repository.NewBookmarkRepository()
+	ID := repository.GetByURL(ctx, bookmark.URL)
+
+	if ID != "" {
+		bookmark.ID = ID
+		repository.Update(ctx, bookmark)
+	} else {
+		repository.Insert(ctx, bookmark)
+	}
+
+	linkID, isLinked := repository.IsLinked(ctx, bookmark)
+
+	if linkID == "" {
+		repository.Link(ctx, bookmark)
+	} else if isLinked == 0 {
+		repository.ReLink(ctx, bookmark)
+	}
 
 	res := BookmarkResolver{Bookmark: bookmark}
 

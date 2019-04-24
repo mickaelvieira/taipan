@@ -8,7 +8,9 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { UserBookmark } from "../../types/bookmark";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import mutation from "../../services/apollo/mutation/create-bookmark.graphql";
+import query from "../../services/apollo/query/latest.graphql";
 
 const styles = () =>
   createStyles({
@@ -37,6 +39,7 @@ class CreateBookmarkMutation extends Mutation<Data, Variables> {}
 export default withStyles(styles)(function AddBookmark({
   isOpen,
   toggleDialog,
+  onBookmarkCreated,
   classes
 }: Props) {
   const [url, setUrl] = useState("");
@@ -48,40 +51,61 @@ export default withStyles(styles)(function AddBookmark({
       aria-labelledby="form-dialog-title"
       className={classes.dialog}
     >
-      <CreateBookmarkMutation mutation={mutation}>
-        {(mutate, { data, error }) => (
-          <>
-            <DialogTitle id="form-dialog-title" className={classes.title}>
-              Bookmark a document
-            </DialogTitle>
-            <DialogContent>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="bookmark_url"
-                label="URL"
-                placeholder="https://"
-                type="url"
-                value={url}
-                error={!!error}
-                helperText={!error ? "" : error.message}
-                onChange={event => setUrl(event.target.value)}
-                fullWidth
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => toggleDialog(false)} color="primary">
-                Cancel
-              </Button>
-              <Button
-                onClick={() => mutate({ variables: { url } })}
-                color="primary"
-              >
-                Bookmark
-              </Button>
-            </DialogActions>
-          </>
-        )}
+      <CreateBookmarkMutation
+        mutation={mutation}
+        onCompleted={({ CreateBookmark: bookmark }) => {
+          setUrl("");
+          onBookmarkCreated(bookmark);
+        }}
+      >
+        {(mutate, { data, loading, error }) => {
+          console.log(loading);
+
+          return (
+            <>
+              <DialogTitle id="form-dialog-title" className={classes.title}>
+                Bookmark a document
+              </DialogTitle>
+              <DialogContent>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="bookmark_url"
+                  label="URL"
+                  placeholder="https://"
+                  type="url"
+                  value={url}
+                  error={!!error}
+                  helperText={!error ? "" : error.message}
+                  onChange={event => setUrl(event.target.value)}
+                  fullWidth
+                />
+              </DialogContent>
+              <DialogActions>
+                {loading && <CircularProgress size={16} />}
+                <Button
+                  onClick={() => toggleDialog(false)}
+                  color="primary"
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() =>
+                    mutate({
+                      variables: { url },
+                      refetchQueries: [{ query }]
+                    })
+                  }
+                  color="primary"
+                  disabled={loading}
+                >
+                  Bookmark
+                </Button>
+              </DialogActions>
+            </>
+          );
+        }}
       </CreateBookmarkMutation>
     </Dialog>
   );

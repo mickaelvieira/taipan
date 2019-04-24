@@ -14,7 +14,7 @@ func GetBookmarksLoader() *dataloader.Loader {
 
 	batchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
-		var bookmarks = repository.FindAll(ctx, keys.Keys())
+		var bookmarks = repository.GetByIDs(ctx, keys.Keys())
 
 		for _, bookmark := range bookmarks {
 			var result = &dataloader.Result{Data: bookmark}
