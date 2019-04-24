@@ -15,7 +15,7 @@ var fields = []string{"id", "url", "title", "description", "status", "created_at
 
 // BookmarkRepository the Bookmark repository
 type BookmarkRepository struct {
-	conn *sql.DB
+	db *sql.DB
 }
 
 // GetByID find a single entry
@@ -23,7 +23,7 @@ func (r *BookmarkRepository) GetByID(ctx context.Context, id string) *bookmark.B
 	var bookmark bookmark.Bookmark
 
 	query := fmt.Sprintf("SELECT %s FROM bookmarks WHERE id = ?", strings.Join(fields, ", "))
-	err := r.conn.QueryRowContext(ctx, query, id).Scan(&bookmark.ID, &bookmark.URL, &bookmark.Title, &bookmark.Description, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt)
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&bookmark.ID, &bookmark.URL, &bookmark.Title, &bookmark.Description, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt)
 
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +37,7 @@ func (r *BookmarkRepository) GetByURL(ctx context.Context, URL string) string {
 	var id string
 
 	query := "SELECT id FROM bookmarks WHERE url = ?"
-	err := r.conn.QueryRowContext(ctx, query, URL).Scan(&id)
+	err := r.db.QueryRowContext(ctx, query, URL).Scan(&id)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -59,7 +59,7 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) []*book
 	}
 
 	query := fmt.Sprintf("SELECT %s FROM bookmarks WHERE id IN (?%s)", strings.Join(fields, ", "), strings.Repeat(",?", len(ids)-1))
-	rows, err := r.conn.QueryContext(ctx, query, params...)
+	rows, err := r.db.QueryContext(ctx, query, params...)
 
 	for rows.Next() {
 		var bookmark bookmark.Bookmark
@@ -81,7 +81,7 @@ func (r *BookmarkRepository) FindLatest(ctx context.Context, cursor int32, limit
 	var ids []string
 
 	query := "SELECT bookmarks.id FROM bookmarks INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id WHERE linked = 1 AND user_id = ? ORDER BY added_at DESC LIMIT ?, ?"
-	rows, err := r.conn.QueryContext(ctx, query, userID, cursor, limit)
+	rows, err := r.db.QueryContext(ctx, query, userID, cursor, limit)
 
 	if err != nil {
 		log.Fatal(err)
@@ -107,19 +107,16 @@ func (r *BookmarkRepository) GetTotal(ctx context.Context) int32 {
 	var total int32
 
 	sql := "SELECT COUNT(bookmarks.id) as total FROM bookmarks INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id WHERE linked = 1 AND user_id = ?"
-	r.conn.QueryRowContext(ctx, sql, userID).Scan(&total)
+	r.db.QueryRowContext(ctx, sql, userID).Scan(&total)
 
 	return total
 }
 
 // Insert creates a new bookmark in the DB
 func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) *bookmark.Bookmark {
-	stmt, err := r.conn.Prepare("INSERT INTO bookmarks(id, url, title, description, status, created_at, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
+	query := "INSERT INTO bookmarks(id, url, title, description, status, created_at, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?)"
+	_, err := r.db.ExecContext(ctx, query, b.ID, b.URL, b.Title, b.Description, b.Status, b.CreatedAt, b.UpdatedAt)
 
-	_, err = stmt.Exec(b.ID, b.URL, b.Title, b.Description, b.Status, b.CreatedAt, b.UpdatedAt)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,12 +126,9 @@ func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) *
 
 // Update updates a bookmark in the DB
 func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) *bookmark.Bookmark {
-	stmt, err := r.conn.Prepare("UPDATE bookmarks SET title = ?, description = ?, status = ?, updated_at = ? WHERE id = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
+	query := "UPDATE bookmarks SET title = ?, description = ?, status = ?, updated_at = ? WHERE id = ?"
+	_, err := r.db.ExecContext(ctx, query, b.Title, b.Description, b.Status, b.UpdatedAt, b.ID)
 
-	_, err = stmt.Exec(b.Title, b.Description, b.Status, b.UpdatedAt, b.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -148,7 +142,7 @@ func (r *BookmarkRepository) IsLinked(ctx context.Context, b *bookmark.Bookmark)
 	var linked int32
 
 	query := "SELECT id, linked FROM users_bookmarks WHERE bookmark_id = ? AND user_id = ?"
-	err := r.conn.QueryRowContext(ctx, query, b.ID, userID).Scan(&id, &linked)
+	err := r.db.QueryRowContext(ctx, query, b.ID, userID).Scan(&id, &linked)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -162,26 +156,16 @@ func (r *BookmarkRepository) IsLinked(ctx context.Context, b *bookmark.Bookmark)
 
 // Link the bookmark to the user
 func (r *BookmarkRepository) Link(ctx context.Context, b *bookmark.Bookmark) error {
-	stmt, err := r.conn.Prepare("INSERT INTO users_bookmarks (user_id, bookmark_id, added_at, accessed_at, marked_as_read, linked) VALUES (?, ?, ?, ?, ?, ?)")
-
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(userID, b.ID, time.Now(), time.Now(), 0, 1)
+	query := "INSERT INTO users_bookmarks (user_id, bookmark_id, added_at, accessed_at, marked_as_read, linked) VALUES (?, ?, ?, ?, ?, ?)"
+	_, err := r.db.ExecContext(ctx, query, userID, b.ID, time.Now(), time.Now(), 0, 1)
 
 	return err
 }
 
 // ReLink the bookmark to the user
 func (r *BookmarkRepository) ReLink(ctx context.Context, b *bookmark.Bookmark) error {
-	stmt, err := r.conn.Prepare("UPDATE users_bookmarks SET linked = 1 WHERE bookmark_id = ? AND user_id = ?")
-
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(b.ID, userID)
+	query := "UPDATE users_bookmarks SET linked = 1 WHERE bookmark_id = ? AND user_id = ?"
+	_, err := r.db.ExecContext(ctx, query, userID)
 
 	return err
 }

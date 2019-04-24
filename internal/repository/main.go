@@ -2,12 +2,12 @@ package repository
 
 import "github/mickaelvieira/taipan/internal/db"
 
-var conn = db.GetDB()
+var newDB = db.GetDB()
 
 // NewBookmarkRepository initialize repository
 func NewBookmarkRepository() *BookmarkRepository {
 
-	var repository = BookmarkRepository{conn: conn}
+	var repository = BookmarkRepository{db: newDB}
 
 	return &repository
 }
