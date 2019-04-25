@@ -25,8 +25,8 @@ type User struct {
 	ID        string
 	Emails    []*Email
 	Username  string
-	FirstName string
-	LastName  string
+	Firstname string
+	Lastname  string
 	Password  string
 	Status    Status
 	CreatedAt time.Time

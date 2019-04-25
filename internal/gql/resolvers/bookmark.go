@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/parser"
-	"github/mickaelvieira/taipan/internal/repository"
 	"log"
 	"time"
 
@@ -108,10 +107,13 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 }) (*BookmarkCollectionResolver, error) {
 	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
 	offset, limit := fromArgs(args.Offset, args.Limit)
+	user, err := r.getUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	repository := repository.NewBookmarkRepository()
-	results := repository.FindLatest(ctx, offset, limit)
-	total := repository.GetTotal(ctx)
+	results := r.Repositories.UserBookmarks.FindLatest(ctx, user, offset, limit)
+	total := r.Repositories.UserBookmarks.GetTotal(ctx, user)
 
 	var bookmarks []*BookmarkResolver
 	for _, result := range results {
@@ -128,6 +130,10 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
+	user, err := r.getUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	bookmark, err := parser.FetchAndParse(args.URL)
 
@@ -137,22 +143,21 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	log.Println(bookmark)
 
-	repository := repository.NewBookmarkRepository()
-	ID := repository.GetByURL(ctx, bookmark.URL)
+	ID := r.Repositories.Bookmarks.GetByURL(ctx, bookmark.URL)
 
 	if ID != "" {
 		bookmark.ID = ID
-		repository.Update(ctx, bookmark)
+		r.Repositories.Bookmarks.Update(ctx, bookmark)
 	} else {
-		repository.Insert(ctx, bookmark)
+		r.Repositories.Bookmarks.Insert(ctx, bookmark)
 	}
 
-	linkID, isLinked := repository.IsLinked(ctx, bookmark)
+	linkID, isLinked := r.Repositories.UserBookmarks.IsLinked(ctx, user, bookmark)
 
 	if linkID == "" {
-		repository.Link(ctx, bookmark)
+		r.Repositories.UserBookmarks.Link(ctx, user, bookmark)
 	} else if isLinked == 0 {
-		repository.ReLink(ctx, bookmark)
+		r.Repositories.UserBookmarks.ReLink(ctx, user, bookmark)
 	}
 
 	res := BookmarkResolver{Bookmark: bookmark}

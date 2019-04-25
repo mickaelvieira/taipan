@@ -2,14 +2,22 @@ package repository
 
 import (
 	"github/mickaelvieira/taipan/internal/db"
-	"log"
 )
 
-// NewBookmarkRepository initialize repository
-func NewBookmarkRepository() *BookmarkRepository {
+// Repositories holds a reference to the repositories
+type Repositories struct {
+	Users         *UserRepository
+	Bookmarks     *BookmarkRepository
+	UserBookmarks *UserBookmarkRepository
+}
 
-	log.Println("New Repo")
-	var repository = BookmarkRepository{db: db.GetDB()}
+// GetRepositories builds the repository holder
+func GetRepositories() *Repositories {
+	var db = db.GetDB()
 
-	return &repository
+	return &Repositories{
+		Users:         &UserRepository{db: db},
+		Bookmarks:     &BookmarkRepository{db: db},
+		UserBookmarks: &UserBookmarkRepository{db: db},
+	}
 }

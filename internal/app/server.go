@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/assets"
+	userid "github/mickaelvieira/taipan/internal/context"
 	"html/template"
 	"net/http"
 
@@ -38,6 +39,8 @@ func (s *Server) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	ctx := context.Background()
+	ctx = userid.NewContext(ctx, "c1479a73-2f8a-11e8-ade8-fa163ea9b6ed")
+
 	handler := &relay.Handler{Schema: s.schema}
 	handler.ServeHTTP(w, req.WithContext(ctx))
 }
