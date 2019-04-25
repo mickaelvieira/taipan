@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/parser"
-	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
 	"time"
@@ -15,8 +14,6 @@ import (
 )
 
 const defBkmkLimit = 10
-
-var bookmarksLoader = loaders.GetBookmarksLoader()
 
 // BookmarkResolver resolves the bookmark entity
 type BookmarkResolver struct {
@@ -85,6 +82,7 @@ func (rslv *BookmarkResolver) UpdatedAt() string {
 func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	ID string
 }) (*BookmarkResolver, error) {
+	var bookmarksLoader = r.Dataloaders.GetBookmarksLoader()
 	thunk := bookmarksLoader.Load(ctx, dataloader.StringKey(args.ID))
 	result, err := thunk()
 
@@ -115,6 +113,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	ids := repository.FindLatest(ctx, offset, limit)
 	total := repository.GetTotal(ctx)
 
+	var bookmarksLoader = r.Dataloaders.GetBookmarksLoader()
 	thunk := bookmarksLoader.LoadMany(ctx, dataloader.NewKeysFromStrings(ids))
 	results, err := thunk()
 

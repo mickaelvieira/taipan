@@ -2,14 +2,19 @@ package loaders
 
 import (
 	"context"
+	"log"
 
 	"github/mickaelvieira/taipan/internal/repository"
 
 	"github.com/graph-gophers/dataloader"
 )
 
+// Loaders helps interact the various dataloaders
+type Loaders struct{}
+
 // GetBookmarksLoader get the loader
-func GetBookmarksLoader() *dataloader.Loader {
+func (l *Loaders) GetBookmarksLoader() *dataloader.Loader {
+	log.Println("get bookmark loader")
 	var repository = repository.NewBookmarkRepository()
 
 	batchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
