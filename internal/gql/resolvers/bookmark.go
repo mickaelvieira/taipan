@@ -110,29 +110,12 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	offset, limit := fromArgs(args.Offset, args.Limit)
 
 	repository := repository.NewBookmarkRepository()
-	ids := repository.FindLatest(ctx, offset, limit)
+	results := repository.FindLatest(ctx, offset, limit)
 	total := repository.GetTotal(ctx)
-
-	var bookmarksLoader = r.Dataloaders.GetBookmarksLoader()
-	thunk := bookmarksLoader.LoadMany(ctx, dataloader.NewKeysFromStrings(ids))
-	results, err := thunk()
-
-	// @TODO better error handling
-	if err != nil {
-		return nil, err[0]
-	}
 
 	var bookmarks []*BookmarkResolver
 	for _, result := range results {
-		bookmark, ok := result.(*bookmark.Bookmark)
-
-		if !ok {
-			// @TODO better error handling
-			return nil, errors.New("Wrong data")
-		}
-
-		res := BookmarkResolver{Bookmark: bookmark}
-
+		res := BookmarkResolver{Bookmark: result}
 		bookmarks = append(bookmarks, &res)
 	}
 

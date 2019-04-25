@@ -23,6 +23,7 @@ export interface UserBookmark {
   hash: string;
   charset: string;
   description: string;
+  image: string;
   canonical_url: string;
   added_at: string;
   accessed_at: string;

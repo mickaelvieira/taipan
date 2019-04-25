@@ -44,6 +44,9 @@ export default withStyles(styles)(function FeedItem({
   bookmark,
   classes
 }: Props) {
+  const image = bookmark.image.startsWith("https")
+    ? bookmark.image
+    : "https://placekitten.com/g/400/225";
   return (
     <Card className={classes.card} raised>
       <Link
@@ -56,7 +59,7 @@ export default withStyles(styles)(function FeedItem({
       >
         <CardMedia
           className={classes.media}
-          image="https://placekitten.com/g/400/225"
+          image={image}
           title={bookmark.title}
         />
       </Link>
