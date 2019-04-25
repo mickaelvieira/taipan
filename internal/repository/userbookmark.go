@@ -18,7 +18,7 @@ type UserBookmarkRepository struct {
 func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User, cursor int32, limit int32) []*bookmark.Bookmark {
 	var bookmarks []*bookmark.Bookmark
 
-	query := "SELECT bookmarks.id, url, title, description, image_url, status, created_at, updated_at FROM bookmarks INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id WHERE linked = 1 AND user_id = ? ORDER BY added_at DESC LIMIT ?, ?"
+	query := "SELECT bookmarks.id, url, charset, language, title, description, image_url, status, created_at, updated_at FROM bookmarks INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id WHERE linked = 1 AND user_id = ? ORDER BY added_at DESC LIMIT ?, ?"
 	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
 
 	if err != nil {
@@ -27,7 +27,7 @@ func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User
 
 	for rows.Next() {
 		var bookmark bookmark.Bookmark
-		if err := rows.Scan(&bookmark.ID, &bookmark.URL, &bookmark.Title, &bookmark.Description, &bookmark.Image, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt); err != nil {
+		if err := rows.Scan(&bookmark.ID, &bookmark.URL, &bookmark.Charset, &bookmark.Lang, &bookmark.Title, &bookmark.Description, &bookmark.Image, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt); err != nil {
 			log.Fatal(err)
 		}
 		bookmarks = append(bookmarks, &bookmark)

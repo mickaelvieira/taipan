@@ -18,8 +18,8 @@ type BookmarkRepository struct {
 func (r *BookmarkRepository) GetByID(ctx context.Context, id string) *bookmark.Bookmark {
 	var bookmark bookmark.Bookmark
 
-	query := "SELECT id, url, title, description, image_url, status, created_at, updated_at FROM bookmarks WHERE id = ?"
-	err := r.db.QueryRowContext(ctx, query, id).Scan(&bookmark.ID, &bookmark.URL, &bookmark.Title, &bookmark.Description, &bookmark.Image, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt)
+	query := "SELECT id, url, charset, language, title, description, image_url, status, created_at, updated_at FROM bookmarks WHERE id = ?"
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&bookmark.ID, &bookmark.URL, &bookmark.Charset, &bookmark.Lang, &bookmark.Title, &bookmark.Description, &bookmark.Image, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -57,12 +57,12 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) []*book
 		params[i] = ids[i]
 	}
 
-	query := fmt.Sprintf("SELECT id, url, title, description, image_url, status, created_at, updated_at FROM bookmarks WHERE id IN (?%s)", strings.Repeat(",?", len(ids)-1))
+	query := fmt.Sprintf("SELECT id, url, charset, language, title, description, image_url, status, created_at, updated_at FROM bookmarks WHERE id IN (?%s)", strings.Repeat(",?", len(ids)-1))
 	rows, err := r.db.QueryContext(ctx, query, params...)
 
 	for rows.Next() {
 		var bookmark bookmark.Bookmark
-		if err := rows.Scan(&bookmark.ID, &bookmark.URL, &bookmark.Title, &bookmark.Description, &bookmark.Image, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt); err != nil {
+		if err := rows.Scan(&bookmark.ID, &bookmark.URL, &bookmark.Charset, &bookmark.Lang, &bookmark.Title, &bookmark.Description, &bookmark.Image, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt); err != nil {
 			log.Fatal(err)
 		}
 		bookmarks = append(bookmarks, &bookmark)
@@ -77,8 +77,8 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) []*book
 
 // Insert creates a new bookmark in the DB
 func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) *bookmark.Bookmark {
-	query := "INSERT INTO bookmarks(id, url, title, description, image_url, status, created_at, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-	_, err := r.db.ExecContext(ctx, query, b.ID, b.URL, b.Title, b.Description, b.Image, b.Status, b.CreatedAt, b.UpdatedAt)
+	query := "INSERT INTO bookmarks(id, url, charset, language, title, description, image_url, status, created_at, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err := r.db.ExecContext(ctx, query, b.ID, b.URL, b.Charset, b.Lang, b.Title, b.Description, b.Image, b.Status, b.CreatedAt, b.UpdatedAt)
 
 	if err != nil {
 		log.Fatal(err)
@@ -89,8 +89,8 @@ func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) *
 
 // Update updates a bookmark in the DB
 func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) *bookmark.Bookmark {
-	query := "UPDATE bookmarks SET title = ?, description = ?, image_url = ?, status = ?, updated_at = ? WHERE id = ?"
-	_, err := r.db.ExecContext(ctx, query, b.Title, b.Description, b.Image, b.Status, b.UpdatedAt, b.ID)
+	query := "UPDATE bookmarks SET charset = ?, language = ?, title = ?, description = ?, image_url = ?, status = ?, updated_at = ? WHERE id = ?"
+	_, err := r.db.ExecContext(ctx, query, b.Charset, b.Lang, b.Title, b.Description, b.Image, b.Status, b.UpdatedAt, b.ID)
 
 	if err != nil {
 		log.Fatal(err)
