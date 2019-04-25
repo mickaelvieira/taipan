@@ -16,10 +16,10 @@ CREATE TABLE `bookmarks` (
   `id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `url` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `hash` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `title` text COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `charset` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `canonical_url` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `title` text COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "",
+  `description` text COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "",
+  `charset` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "",
+  `canonical_url` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "",
   `status` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE `bookmarks` (
 DROP TABLE IF EXISTS `bookmarks_history`;
 CREATE TABLE `bookmarks_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `bookmark_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `bookmark_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `response_status_code` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `response_reason_phrase` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `response_headers` longtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE `feeds` (
 DROP TABLE IF EXISTS `feeds_history`;
 CREATE TABLE `feeds_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `feed_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `feed_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `response_status_code` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `response_reason_phrase` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `response_headers` longtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
@@ -86,9 +86,9 @@ CREATE TABLE `feeds_history` (
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `username` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `firstname` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `lastname` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `username` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "",
+  `firstname` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "",
+  `lastname` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "",
   `password` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `status` smallint(6) NOT NULL,
   `created_at` datetime NOT NULL,
@@ -101,8 +101,8 @@ CREATE TABLE `users` (
 DROP TABLE IF EXISTS `users_bookmarks`;
 CREATE TABLE `users_bookmarks` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `bookmark_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `bookmark_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `added_at` datetime NOT NULL,
   `accessed_at` datetime DEFAULT NULL,
   `marked_as_read` tinyint(1) NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE `users_bookmarks` (
 DROP TABLE IF EXISTS `users_emails`;
 CREATE TABLE `users_emails` (
   `id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `primary` tinyint(1) NOT NULL,
   `created_at` datetime NOT NULL,
@@ -134,8 +134,8 @@ CREATE TABLE `users_emails` (
 DROP TABLE IF EXISTS `users_feeds`;
 CREATE TABLE `users_feeds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `feed_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `feed_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `added_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
@@ -149,17 +149,16 @@ CREATE TABLE `users_feeds` (
 DROP TABLE IF EXISTS `users_tokens`;
 CREATE TABLE `users_tokens` (
   `id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `user_agent` text COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `user_ip` text COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `macaroon` text COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `user_id` char(36) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `user_ip` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `macaroon` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `status` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `created_at` datetime NOT NULL,
   `expires_at` datetime NOT NULL,
-  `accessed_at` datetime DEFAULT NULL,
+  `accessed_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
   CONSTRAINT `users_tokens_fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
-
 
