@@ -7,6 +7,12 @@ build:
 run:
 	cd cmd/web && ./web
 
+build-migration:
+	cd cmd/migration && go build
+
+# run-migration:
+# 	cd cmd/migration && ./migration
+
 fmt:
 	gofmt -s -w ./**/*.go
 
