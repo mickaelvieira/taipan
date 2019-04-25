@@ -1,7 +1,7 @@
 #import "../fragment/bookmark.graphql"
 
-query GetLatestBookmarks {
-  GetLatestBookmarks {
+query GetLatestBookmarks($offset: Int, $limit: Int) {
+  GetLatestBookmarks(offset: $offset, limit: $limit) {
     total
     offset
     limit

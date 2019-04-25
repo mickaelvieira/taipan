@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Mutation } from "react-apollo";
 import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -9,6 +8,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { UserBookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import CreateBookmarkMutation from "../apollo/Mutation/CreateBookmark";
 import mutation from "../../services/apollo/mutation/create-bookmark.graphql";
 import query from "../../services/apollo/query/latest.graphql";
 
@@ -25,16 +25,6 @@ interface Props extends WithStyles<typeof styles> {
   toggleDialog: (status: boolean) => void;
   onBookmarkCreated: (bookmark: UserBookmark) => void;
 }
-
-interface Data {
-  CreateBookmark: UserBookmark;
-}
-
-interface Variables {
-  url: string;
-}
-
-class CreateBookmarkMutation extends Mutation<Data, Variables> {}
 
 export default withStyles(styles)(function AddBookmark({
   isOpen,
@@ -58,9 +48,7 @@ export default withStyles(styles)(function AddBookmark({
           onBookmarkCreated(bookmark);
         }}
       >
-        {(mutate, { data, loading, error }) => {
-          console.log(loading);
-
+        {(mutate, { loading, error }) => {
           return (
             <>
               <DialogTitle id="form-dialog-title" className={classes.title}>

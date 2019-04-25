@@ -1,16 +1,15 @@
 import React from "react";
 import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
-import { Query } from "react-apollo";
 import Loader from "../../ui/Loader";
 import FeedItem from "./Item";
+import LatestBookmarksQuery from "../../apollo/Query/LatestBookmarks";
 import query from "../../../services/apollo/query/latest.graphql";
-
 import { UserBookmark } from "../../../types/bookmark";
 
 const styles = () =>
   createStyles({
     container: {
-      overflow: "hidden",
+      overflow: "auto",
       display: "flex",
       height: 600,
       width: 424
@@ -34,25 +33,9 @@ interface Props extends WithStyles<typeof styles> {
   bookmark: UserBookmark;
 }
 
-interface Data {
-  GetLatestBookmarks: {
-    total: number;
-    offset: number;
-    limit: number;
-    results: UserBookmark[];
-  };
-}
-
-interface Variables {
-  offset?: number;
-  limit?: number;
-}
-
-class LatestBookmarkQuery extends Query<Data, Variables> {}
-
 export default withStyles(styles)(function Feed({ classes }: Props) {
   return (
-    <LatestBookmarkQuery query={query}>
+    <LatestBookmarksQuery query={query} variables={{ limit: 30 }}>
       {({ data, loading, error }) => {
         if (loading) {
           return <Loader />;
@@ -72,6 +55,6 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
           </div>
         );
       }}
-    </LatestBookmarkQuery>
+    </LatestBookmarksQuery>
   );
 });
