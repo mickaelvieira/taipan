@@ -105,15 +105,17 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	Offset *int32
 	Limit  *int32
 }) (*BookmarkCollectionResolver, error) {
+	ubRepo := r.Repositories.UserBookmarks
 	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
 	offset, limit := fromArgs(args.Offset, args.Limit)
+
 	user, err := r.getUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	results := r.Repositories.UserBookmarks.FindLatest(ctx, user, offset, limit)
-	total := r.Repositories.UserBookmarks.GetTotal(ctx, user)
+	results := ubRepo.FindLatest(ctx, user, offset, limit)
+	total := ubRepo.GetTotal(ctx, user)
 
 	var bookmarks []*BookmarkResolver
 	for _, result := range results {
@@ -130,6 +132,9 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
+	bRepo := r.Repositories.Bookmarks
+	ubRepo := r.Repositories.UserBookmarks
+
 	user, err := r.getUser(ctx)
 	if err != nil {
 		return nil, err
@@ -143,21 +148,21 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	log.Println(bookmark)
 
-	ID := r.Repositories.Bookmarks.GetByURL(ctx, bookmark.URL)
+	ID := bRepo.GetByURL(ctx, bookmark.URL)
 
 	if ID != "" {
 		bookmark.ID = ID
-		r.Repositories.Bookmarks.Update(ctx, bookmark)
+		bRepo.Update(ctx, bookmark)
 	} else {
-		r.Repositories.Bookmarks.Insert(ctx, bookmark)
+		bRepo.Insert(ctx, bookmark)
 	}
 
-	linkID, isLinked := r.Repositories.UserBookmarks.IsLinked(ctx, user, bookmark)
+	linkID, isLinked := ubRepo.IsLinked(ctx, user, bookmark)
 
 	if linkID == "" {
-		r.Repositories.UserBookmarks.Link(ctx, user, bookmark)
+		ubRepo.Link(ctx, user, bookmark)
 	} else if isLinked == 0 {
-		r.Repositories.UserBookmarks.ReLink(ctx, user, bookmark)
+		ubRepo.ReLink(ctx, user, bookmark)
 	}
 
 	res := BookmarkResolver{Bookmark: bookmark}

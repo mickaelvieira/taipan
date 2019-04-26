@@ -20,11 +20,13 @@ func mustLoad(path string) string {
 
 func mustParse(content string) *graphql.Schema {
 	var repositories = repository.GetRepositories()
+	var dataloaders = &loaders.Loaders{Repositories: repositories}
 
 	resolvers := resolvers.Resolvers{
-		Dataloaders:  &loaders.Loaders{Repositories: repositories},
+		Dataloaders:  dataloaders,
 		Repositories: repositories,
 	}
+
 	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
 	schema := graphql.MustParseSchema(content, &resolvers, opts...)
 
