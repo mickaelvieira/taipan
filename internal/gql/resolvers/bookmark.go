@@ -169,3 +169,30 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	return &res, nil
 }
+
+// UpdateBookmark updates a bookmark
+func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
+	URL string
+}) (*BookmarkResolver, error) {
+	bRepo := r.Repositories.Bookmarks
+	bookmark, err := parser.FetchAndParse(args.URL)
+
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println(bookmark)
+
+	ID := bRepo.GetByURL(ctx, bookmark.URL)
+
+	if ID == "" {
+		log.Fatal("Could not find bookmark")
+	}
+
+	bookmark.ID = ID
+	bRepo.Update(ctx, bookmark)
+
+	res := BookmarkResolver{Bookmark: bookmark}
+
+	return &res, nil
+}

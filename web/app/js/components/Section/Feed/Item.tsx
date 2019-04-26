@@ -13,8 +13,8 @@ import CachedIcon from "@material-ui/icons/Cached";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { UserBookmark } from "../../../types/bookmark";
-import mutation from "../../../services/apollo/mutation/create-bookmark.graphql";
-import CreateBookmarkMutation from "../../apollo/Mutation/CreateBookmark";
+import mutation from "../../../services/apollo/mutation/update-bookmark.graphql";
+import UpdateBookmarkMutation from "../../apollo/Mutation/UpdateBookmark";
 
 const styles = () =>
   createStyles({
@@ -87,7 +87,7 @@ export default withStyles(styles)(function FeedItem({
         <IconButton aria-label="Share">
           <ShareIcon />
         </IconButton>
-        <CreateBookmarkMutation mutation={mutation}>
+        <UpdateBookmarkMutation mutation={mutation}>
           {(mutate, { loading }) => (
             <IconButton
               aria-label="Share"
@@ -102,7 +102,7 @@ export default withStyles(styles)(function FeedItem({
               {loading && <CircularProgress size={16} />}
             </IconButton>
           )}
-        </CreateBookmarkMutation>
+        </UpdateBookmarkMutation>
         <IconButton>
           <MoreVertIcon />
         </IconButton>
