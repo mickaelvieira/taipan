@@ -56,17 +56,16 @@ const (
 type Feed struct {
 	ID        string
 	URL       string
-	Hash      string
 	Type      Type
 	Title     string
-	status    Status
+	Status    Status
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 // New creates a new Feed with a UUID
 func New(url string, title string, feedType Type) Feed {
-	return Feed{ID: uuid.New(), URL: url, Title: title, Type: feedType}
+	return Feed{ID: uuid.New(), URL: url, Title: title, Type: feedType, Status: NEW, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 }
 
 // UserFeed represents a feed from a user's prespective

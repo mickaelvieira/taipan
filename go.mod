@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
 	github.com/graph-gophers/graphql-go v0.0.0-20190225005345-3e8838d4614c
+	github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/ptrv/go-gpx v0.0.0-20151216232927-c93804873f99

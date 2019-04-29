@@ -6,7 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 )
 
-// UserRepository the User Bookmark repository
+// UserRepository the Bookmark repository
 type UserRepository struct {
 	db *sql.DB
 }

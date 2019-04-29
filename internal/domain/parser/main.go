@@ -4,25 +4,26 @@ import (
 	"errors"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/feed"
 	"log"
 	"net/http"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func FetchAndParse(URL string) (*bookmark.Bookmark, error) {
+func FetchAndParse(URL string) (*bookmark.Bookmark, []*feed.Feed, error) {
 	if !IsURLValid(URL) {
-		return nil, errors.New("Invalid URL")
+		return nil, nil, errors.New("Invalid URL")
 	}
 
 	resp, err := http.Get(URL)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("status code error: %d %s", resp.StatusCode, resp.Status)
+		return nil, nil, fmt.Errorf("status code error: %d %s", resp.StatusCode, resp.Status)
 	}
 
 	// Load the HTML document
@@ -49,7 +50,7 @@ func FetchAndParse(URL string) (*bookmark.Bookmark, error) {
 	var canonical = ParseCanonicalURL(linkTags)
 	var tw = ParseTwitterTags(metaTags)
 	var fb = ParseFacebookTags(metaTags)
-	// var feeds = ParseFeeds(linkTags)
+	var feeds = ParseFeeds(linkTags)
 
 	// Try to get a good URL
 	if IsURLValid(canonical) {
@@ -98,5 +99,5 @@ func FetchAndParse(URL string) (*bookmark.Bookmark, error) {
 		image,
 	)
 
-	return bookmark, nil
+	return bookmark, feeds, nil
 }

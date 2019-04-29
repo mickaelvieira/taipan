@@ -132,6 +132,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
+	fRepo := r.Repositories.Feeds
 	bRepo := r.Repositories.Bookmarks
 	ubRepo := r.Repositories.UserBookmarks
 
@@ -140,7 +141,7 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	bookmark, err := parser.FetchAndParse(args.URL)
+	bookmark, feeds, err := parser.FetchAndParse(args.URL)
 
 	if err != nil {
 		return nil, err
@@ -148,6 +149,7 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	log.Println(bookmark)
 
+	// process bookmark
 	ID := bRepo.GetByURL(ctx, bookmark.URL)
 
 	if ID != "" {
@@ -167,6 +169,14 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	res := BookmarkResolver{Bookmark: bookmark}
 
+	// process bookmarks's feeds
+	for _, feed := range feeds {
+		feedID := fRepo.GetByURL(ctx, feed.URL)
+		if feedID == "" {
+			fRepo.Insert(ctx, feed)
+		}
+	}
+
 	return &res, nil
 }
 
@@ -174,8 +184,9 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
+	fRepo := r.Repositories.Feeds
 	bRepo := r.Repositories.Bookmarks
-	bookmark, err := parser.FetchAndParse(args.URL)
+	bookmark, feeds, err := parser.FetchAndParse(args.URL)
 
 	if err != nil {
 		return nil, err
@@ -193,6 +204,14 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 	bRepo.Update(ctx, bookmark)
 
 	res := BookmarkResolver{Bookmark: bookmark}
+
+	// process bookmarks's feeds
+	for _, feed := range feeds {
+		feedID := fRepo.GetByURL(ctx, feed.URL)
+		if feedID == "" {
+			fRepo.Insert(ctx, feed)
+		}
+	}
 
 	return &res, nil
 }
