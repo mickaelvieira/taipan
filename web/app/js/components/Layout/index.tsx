@@ -35,7 +35,11 @@ const styles = ({ palette, spacing }: Theme) =>
       margin: spacing.unit,
       position: "fixed",
       bottom: spacing.unit * 2,
-      right: spacing.unit * 2
+      right: spacing.unit * 2,
+      backgroundColor: palette.secondary.main,
+      "&:hover": {
+        backgroundColor: palette.secondary.light
+      }
     },
     message: {
       display: "flex",
@@ -74,10 +78,7 @@ export default withStyles(styles)(function Layout({
       <AddBookmark
         isOpen={isFormBookmarkOpen}
         toggleDialog={setFormBookmarkStatus}
-        onBookmarkCreated={bookmark => {
-          console.log(bookmark);
-          setFormBookmarkStatus(false);
-        }}
+        onBookmarkCreated={() => setFormBookmarkStatus(false)}
       />
       <SnackbarInfo isOpen={!isOnline} message="You are offline" />
     </>

@@ -64,6 +64,9 @@ export default withStyles(styles)(function AddBookmark({
                   type="url"
                   value={url}
                   error={!!error}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
                   helperText={!error ? "" : error.message}
                   onChange={event => setUrl(event.target.value)}
                   fullWidth
