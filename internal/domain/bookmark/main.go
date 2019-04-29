@@ -64,5 +64,16 @@ type FetchingHistory struct {
 
 // New creates a new Bookmark with a UUID
 func New(url string, lang string, charset string, title string, desc string, image string) *Bookmark {
-	return &Bookmark{ID: uuid.New(), URL: url, Lang: lang, Charset: charset, Title: title, Description: desc, Image: image, Status: FETCHED, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	return &Bookmark{
+		ID:          uuid.New(),
+		URL:         url,
+		Lang:        lang,
+		Charset:     charset,
+		Title:       title,
+		Description: desc,
+		Image:       image,
+		Status:      FETCHED,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
 }

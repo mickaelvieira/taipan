@@ -18,7 +18,12 @@ type UserBookmarkRepository struct {
 func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User, cursor int32, limit int32) []*bookmark.Bookmark {
 	var bookmarks []*bookmark.Bookmark
 
-	query := "SELECT bookmarks.id, url, charset, language, title, description, image_url, status, created_at, updated_at FROM bookmarks INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id WHERE linked = 1 AND user_id = ? ORDER BY added_at DESC LIMIT ?, ?"
+	query := `
+		SELECT bookmarks.id, url, charset, language, title, description, image_url, status, created_at, updated_at
+		FROM bookmarks
+		INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id
+		WHERE linked = 1 AND user_id = ? ORDER BY added_at DESC LIMIT ?, ?
+		`
 	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
 
 	if err != nil {
@@ -44,7 +49,12 @@ func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User
 func (r *UserBookmarkRepository) GetTotal(ctx context.Context, user *user.User) int32 {
 	var total int32
 
-	sql := "SELECT COUNT(bookmarks.id) as total FROM bookmarks INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id WHERE linked = 1 AND user_id = ?"
+	sql := `
+		SELECT COUNT(bookmarks.id) as total
+		FROM bookmarks
+		INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id
+		WHERE linked = 1 AND user_id = ?
+	`
 	r.db.QueryRowContext(ctx, sql, user.ID).Scan(&total)
 
 	return total
@@ -55,7 +65,11 @@ func (r *UserBookmarkRepository) IsLinked(ctx context.Context, user *user.User, 
 	var id string
 	var linked int32
 
-	query := "SELECT id, linked FROM users_bookmarks WHERE bookmark_id = ? AND user_id = ?"
+	query := `
+		SELECT id, linked
+		FROM users_bookmarks
+		WHERE bookmark_id = ? AND user_id = ?
+		`
 	err := r.db.QueryRowContext(ctx, query, b.ID, user.ID).Scan(&id, &linked)
 
 	if err != nil {
@@ -70,7 +84,12 @@ func (r *UserBookmarkRepository) IsLinked(ctx context.Context, user *user.User, 
 
 // Link the bookmark to the user
 func (r *UserBookmarkRepository) Link(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
-	query := "INSERT INTO users_bookmarks (user_id, bookmark_id, added_at, accessed_at, marked_as_read, linked) VALUES (?, ?, ?, ?, ?, ?)"
+	query := `
+		INSERT INTO users_bookmarks
+		(user_id, bookmark_id, added_at, accessed_at, marked_as_read, linked)
+		VALUES
+		(?, ?, ?, ?, ?, ?)
+		`
 	_, err := r.db.ExecContext(ctx, query, user.ID, b.ID, time.Now(), time.Now(), 0, 1)
 
 	return err
@@ -78,7 +97,11 @@ func (r *UserBookmarkRepository) Link(ctx context.Context, user *user.User, b *b
 
 // ReLink the bookmark to the user
 func (r *UserBookmarkRepository) ReLink(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
-	query := "UPDATE users_bookmarks SET linked = 1 WHERE bookmark_id = ? AND user_id = ?"
+	query := `
+		UPDATE users_bookmarks
+		SET linked = 1
+		WHERE bookmark_id = ? AND user_id = ?
+		`
 	_, err := r.db.ExecContext(ctx, query, user.ID)
 
 	return err

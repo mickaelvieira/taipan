@@ -1,7 +1,7 @@
 package feed
 
 import (
-	"errors"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/uuid"
 	"strings"
 	"time"
@@ -25,6 +25,7 @@ func isAtom(t string) bool {
 	return t == string(ATOM)
 }
 
+// GetFeedType returns the feed type based on a provided string
 func GetFeedType(t string) (Type, error) {
 	t = strings.ToLower(t)
 	if isRSS(t) {
@@ -35,11 +36,7 @@ func GetFeedType(t string) (Type, error) {
 		return ATOM, nil
 	}
 
-	return INVALID, errors.New("Invalid feed type")
-}
-
-func IsFeedType(t string) bool {
-	return isAtom(t) || isAtom(t)
+	return INVALID, fmt.Errorf("Invalid feed type %s", t)
 }
 
 // Status represents the status of the feed during the fetching process
@@ -65,7 +62,15 @@ type Feed struct {
 
 // New creates a new Feed with a UUID
 func New(url string, title string, feedType Type) Feed {
-	return Feed{ID: uuid.New(), URL: url, Title: title, Type: feedType, Status: NEW, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	return Feed{
+		ID:        uuid.New(),
+		URL:       url,
+		Title:     title,
+		Type:      feedType,
+		Status:    NEW,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
 }
 
 // UserFeed represents a feed from a user's prespective
