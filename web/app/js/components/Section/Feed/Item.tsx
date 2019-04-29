@@ -13,8 +13,9 @@ import CachedIcon from "@material-ui/icons/Cached";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { UserBookmark } from "../../../types/bookmark";
-import mutation from "../../../services/apollo/mutation/update-bookmark.graphql";
-import UpdateBookmarkMutation from "../../apollo/Mutation/UpdateBookmark";
+import UpdateBookmarkMutation, {
+  mutation
+} from "../../apollo/Mutation/UpdateBookmark";
 
 const styles = () =>
   createStyles({

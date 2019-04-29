@@ -8,9 +8,10 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { UserBookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CreateBookmarkMutation from "../apollo/Mutation/CreateBookmark";
-import mutation from "../../services/apollo/mutation/create-bookmark.graphql";
-import query from "../../services/apollo/query/latest.graphql";
+import CreateBookmarkMutation, {
+  mutation
+} from "../apollo/Mutation/CreateBookmark";
+import { query, variables } from "../apollo/Query/LatestBookmarks";
 
 const styles = () =>
   createStyles({
@@ -85,7 +86,7 @@ export default withStyles(styles)(function AddBookmark({
                   onClick={() =>
                     mutate({
                       variables: { url },
-                      refetchQueries: [{ query }]
+                      refetchQueries: [{ query, variables }]
                     })
                   }
                   color="primary"

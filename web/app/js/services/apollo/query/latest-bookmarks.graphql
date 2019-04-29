@@ -1,7 +1,8 @@
 #import "../fragment/bookmark.graphql"
 
+# I need to use a directive
 query GetLatestBookmarks($offset: Int, $limit: Int) {
-  GetLatestBookmarks(offset: $offset, limit: $limit) {
+  GetLatestBookmarks(offset: $offset, limit: $limit) @connection(key: "feed_latest_bookmarks") {
     total
     offset
     limit

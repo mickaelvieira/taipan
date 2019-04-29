@@ -2,8 +2,10 @@ import React from "react";
 import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
 import Loader from "../../ui/Loader";
 import FeedItem from "./Item";
-import LatestBookmarksQuery from "../../apollo/Query/LatestBookmarks";
-import query from "../../../services/apollo/query/latest.graphql";
+import LatestBookmarksQuery, {
+  query,
+  variables
+} from "../../apollo/Query/LatestBookmarks";
 import { UserBookmark } from "../../../types/bookmark";
 
 const styles = () =>
@@ -35,8 +37,10 @@ interface Props extends WithStyles<typeof styles> {
 
 export default withStyles(styles)(function Feed({ classes }: Props) {
   return (
-    <LatestBookmarksQuery query={query} variables={{ limit: 30 }}>
+    <LatestBookmarksQuery query={query} variables={variables}>
       {({ data, loading, error }) => {
+        console.log(data);
+        console.log(loading);
         if (loading) {
           return <Loader />;
         }

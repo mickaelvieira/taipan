@@ -1,5 +1,6 @@
 import { Query } from "react-apollo";
 import { UserBookmark } from "../../../types/bookmark";
+import query from "../../../services/apollo/query/latest-bookmarks.graphql";
 
 interface Data {
   GetLatestBookmarks: {
@@ -14,6 +15,12 @@ interface Variables {
   offset?: number;
   limit?: number;
 }
+
+const variables = {
+  limit: 30
+};
+
+export { query, variables };
 
 class LatestBookmarksQuery extends Query<Data, Variables> {}
 
