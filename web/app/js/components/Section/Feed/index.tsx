@@ -39,8 +39,6 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
   return (
     <LatestBookmarksQuery query={query} variables={variables}>
       {({ data, loading, error }) => {
-        console.log(data);
-        console.log(loading);
         if (loading) {
           return <Loader />;
         }
