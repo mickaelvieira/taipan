@@ -16,7 +16,7 @@ type FeedRepository struct {
 func (r *FeedRepository) GetByID(ctx context.Context, id string) *feed.Feed {
 	var feed feed.Feed
 
-	query := `#
+	query := `
 		SELECT id, url, title, type, status, created_at, updated_at
 		FROM feeds
 		WHERE id = ?
