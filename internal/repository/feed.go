@@ -42,6 +42,40 @@ func (r *FeedRepository) GetByID(ctx context.Context, id string) *feed.Feed {
 	return &feed
 }
 
+// GetNewFeeds returns the new created feed entries
+func (r *FeedRepository) GetNewFeeds(ctx context.Context) []*feed.Feed {
+	var feeds []*feed.Feed
+
+	query := `
+		SELECT id, url, title, type, status, created_at, updated_at
+		FROM feeds
+		WHERE status = ?
+		`
+	rows, err := r.db.QueryContext(ctx, query, feed.NEW)
+
+	for rows.Next() {
+		var feed feed.Feed
+		if err := rows.Scan(
+			&feed.ID,
+			&feed.URL,
+			&feed.Title,
+			&feed.Type,
+			&feed.Status,
+			&feed.CreatedAt,
+			&feed.UpdatedAt,
+		); err != nil {
+			log.Fatal(err)
+		}
+		feeds = append(feeds, &feed)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return feeds
+}
+
 // GetByURL find a single entry by URL and returns its ID
 func (r *FeedRepository) GetByURL(ctx context.Context, URL string) string {
 	var id string
