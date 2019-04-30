@@ -1,6 +1,8 @@
 OS    := $(shell uname -s)
 SHELL := /bin/bash
 
+build-app: build build-ui
+
 build:
 	cd cmd/web && go build
 
@@ -20,10 +22,13 @@ clean:
 	cd cmd/web && go clean && go mod tidy
 
 clean-ui:
-	rm -rf web/static/css && rm -rf web/static/js && rm -f web/static/hashes.json
+	rm -rf web/app/node_modules && rm -f web/app/schema.json && rm -rf web/static/js && rm -f web/static/hashes.json
 
 watch-ui:
 	cd web/app && yarn watch:client
+
+build-ui:
+	cd web/app && yarn && yarn build:client
 
 gen-schema:
 	cd web/app && yarn schema:json
