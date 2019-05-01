@@ -12,15 +12,15 @@ import Grid from "@material-ui/core/Grid";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
 import AddBookmark from "../AddBookmark";
-import useConnectionStatus from "../hooks/connection-status";
+import useConnectionStatus from "../../hooks/connection-status";
 import { SnackbarInfo } from "../ui/Snackbar";
 
 const styles = ({ palette, spacing }: Theme) =>
   createStyles({
     root: {
-      display: "flex",
-      flexDirection: "column",
-      flexGrow: 1
+      // display: "flex",
+      // flexDirection: "column",
+      // flexGrow: 1
     },
     paper: {
       display: "flex",

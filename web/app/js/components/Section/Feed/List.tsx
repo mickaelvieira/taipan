@@ -1,0 +1,33 @@
+import React from "react";
+import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import { UserBookmark } from "../../../types/bookmark";
+import FeedItem from "./Item";
+
+const styles = () =>
+  createStyles({
+    container: {
+      display: "flex",
+      flexDirection: "column"
+    }
+  });
+
+export interface Props {
+  hasResults: boolean;
+  bookmarks: UserBookmark[];
+}
+
+export default withStyles(styles)(
+  React.memo(function List({
+    hasResults,
+    bookmarks,
+    classes
+  }: Props & WithStyles<typeof styles>) {
+    return !hasResults ? null : (
+      <div className={classes.container}>
+        {bookmarks.map((bookmark: UserBookmark) => {
+          return <FeedItem bookmark={bookmark} key={bookmark.id} />;
+        })}
+      </div>
+    );
+  })
+);

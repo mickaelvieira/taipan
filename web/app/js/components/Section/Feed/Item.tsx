@@ -21,15 +21,12 @@ const styles = () =>
   createStyles({
     card: {
       marginBottom: 24,
-      marginLeft: 12,
-      marginRight: 12,
-      flex: 1,
       display: "flex",
       flexDirection: "column"
     },
     media: {
-      height: 0,
-      paddingTop: "56.25%" // 16:9
+      backgroundSize: "cover",
+      minHeight: 200
     },
     content: {
       flex: 1
@@ -44,70 +41,69 @@ interface Props extends WithStyles<typeof styles> {
   bookmark: UserBookmark;
 }
 
-export default withStyles(styles)(function FeedItem({
-  bookmark,
-  classes
-}: Props) {
-  const image = bookmark.image.startsWith("https")
-    ? bookmark.image
-    : "https://placekitten.com/g/400/225";
-  return (
-    <Card className={classes.card} raised>
-      <Link
-        underline="none"
-        block
-        href={bookmark.url}
-        title={bookmark.title}
-        target="_blank"
-        rel="noopener"
-      >
-        <CardMedia
-          className={classes.media}
-          image={image}
-          title={bookmark.title}
-        />
-      </Link>
-      <CardContent className={classes.content}>
+export default withStyles(styles)(
+  React.memo(function FeedItem({ bookmark, classes }: Props) {
+    const image = bookmark.image.startsWith("https")
+      ? bookmark.image
+      : "https://placekitten.com/g/400/225";
+    return (
+      <Card className={classes.card}>
         <Link
           underline="none"
+          block
           href={bookmark.url}
           title={bookmark.title}
           target="_blank"
           rel="noopener"
         >
-          <Typography gutterBottom variant="h6" component="h2" noWrap>
-            {bookmark.title}
-          </Typography>
+          <CardMedia
+            className={classes.media}
+            image={image}
+            title={bookmark.title}
+          />
         </Link>
-        <Typography component="p">{bookmark.description}</Typography>
-      </CardContent>
-      <CardActions className={classes.actions} disableActionSpacing>
-        <IconButton aria-label="Add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="Share">
-          <ShareIcon />
-        </IconButton>
-        <UpdateBookmarkMutation mutation={mutation}>
-          {(mutate, { loading }) => (
-            <IconButton
-              aria-label="Share"
-              disabled={loading}
-              onClick={() =>
-                mutate({
-                  variables: { url: bookmark.url }
-                })
-              }
-            >
-              {!loading && <CachedIcon />}
-              {loading && <CircularProgress size={16} />}
-            </IconButton>
-          )}
-        </UpdateBookmarkMutation>
-        <IconButton>
-          <MoreVertIcon />
-        </IconButton>
-      </CardActions>
-    </Card>
-  );
-});
+        <CardContent className={classes.content}>
+          <Link
+            underline="none"
+            href={bookmark.url}
+            title={bookmark.title}
+            target="_blank"
+            rel="noopener"
+          >
+            <Typography gutterBottom variant="h6" component="h2">
+              {bookmark.title}
+            </Typography>
+          </Link>
+          <Typography component="p">{bookmark.description}</Typography>
+        </CardContent>
+        <CardActions className={classes.actions} disableActionSpacing>
+          <IconButton aria-label="Add to favorites">
+            <FavoriteIcon />
+          </IconButton>
+          <IconButton aria-label="Share">
+            <ShareIcon />
+          </IconButton>
+          <UpdateBookmarkMutation mutation={mutation}>
+            {(mutate, { loading }) => (
+              <IconButton
+                aria-label="Share"
+                disabled={loading}
+                onClick={() =>
+                  mutate({
+                    variables: { url: bookmark.url }
+                  })
+                }
+              >
+                {!loading && <CachedIcon />}
+                {loading && <CircularProgress size={16} />}
+              </IconButton>
+            )}
+          </UpdateBookmarkMutation>
+          <IconButton>
+            <MoreVertIcon />
+          </IconButton>
+        </CardActions>
+      </Card>
+    );
+  })
+);

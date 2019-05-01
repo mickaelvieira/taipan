@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import workers from "../../services/workers";
+import workers from "../services/workers";
 import { Bookmark } from "types/bookmark";
 
 export default function useWorkers(onReceived: (data: Bookmark[]) => void) {
