@@ -38,7 +38,9 @@ module.exports = {
       // schemaString: printSchema(schema),
 
       // tagName is set automatically
-    }]
+    }],
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
   },
   settings: {
     react: {
@@ -46,6 +48,7 @@ module.exports = {
     },
   },
   plugins: [
-    "graphql"
+    "graphql",
+    "react-hooks"
   ]
 };
