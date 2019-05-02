@@ -20,7 +20,11 @@ func (l *Loaders) GetBookmarksLoader() *dataloader.Loader {
 
 	batchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
-		var bookmarks = l.Repositories.Bookmarks.GetByIDs(ctx, keys.Keys())
+		bookmarks, err := l.Repositories.Bookmarks.GetByIDs(ctx, keys.Keys())
+
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		for _, bookmark := range bookmarks {
 			var result = &dataloader.Result{Data: bookmark}

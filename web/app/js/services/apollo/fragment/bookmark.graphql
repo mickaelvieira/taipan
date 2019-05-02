@@ -1,4 +1,4 @@
-fragment bookmarkFields on Bookmark {
+fragment bookmarkFields on UserBookmark {
   id
   url
   title
@@ -6,6 +6,7 @@ fragment bookmarkFields on Bookmark {
   charset
   description
   image
-  createdAt
+  addedAt
   updatedAt
+  isRead
 }

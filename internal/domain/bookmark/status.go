@@ -6,7 +6,7 @@ import (
 
 // MarkAsRead marks the user's bookmark as read
 func MarkAsRead(b *UserBookmark) *UserBookmark {
-	b.IsRead = READ
+	b.IsRead = true
 	b.UpdatedAt = time.Now()
 
 	return b
@@ -14,7 +14,7 @@ func MarkAsRead(b *UserBookmark) *UserBookmark {
 
 // MarkAsUnead marks the user's bookmark as read
 func MarkAsUnead(b *UserBookmark) *UserBookmark {
-	b.IsRead = UNREAD
+	b.IsRead = false
 	b.UpdatedAt = time.Now()
 
 	return b

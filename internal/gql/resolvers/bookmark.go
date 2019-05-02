@@ -2,13 +2,11 @@ package resolvers
 
 import (
 	"context"
-	"errors"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/parser"
 	"log"
 	"time"
 
-	"github.com/graph-gophers/dataloader"
 	graphql "github.com/graph-gophers/graphql-go"
 )
 
@@ -16,7 +14,7 @@ const defBkmkLimit = 10
 
 // BookmarkResolver resolves the bookmark entity
 type BookmarkResolver struct {
-	*bookmark.Bookmark // @TODO replace this with UserBookmark eventually
+	*bookmark.UserBookmark // @TODO replace this with UserBookmark eventually
 }
 
 //BookmarkCollectionResolver resolver
@@ -29,76 +27,76 @@ type BookmarkCollectionResolver struct {
 
 // ID resolves the ID field
 func (rslv *BookmarkResolver) ID() graphql.ID {
-	return graphql.ID(rslv.Bookmark.ID)
+	return graphql.ID(rslv.UserBookmark.ID)
 }
 
 // URL resolves the URL
 func (rslv *BookmarkResolver) URL() string {
-	return rslv.Bookmark.URL
+	return rslv.UserBookmark.URL
 }
 
 // Image resolves the Image field
 func (rslv *BookmarkResolver) Image() string {
-	return rslv.Bookmark.Image
+	return rslv.UserBookmark.Image
 }
 
 // Lang resolves the Lang field
 func (rslv *BookmarkResolver) Lang() string {
-	return rslv.Bookmark.Lang
+	return rslv.UserBookmark.Lang
 }
 
 // Charset resolves the Charset field
 func (rslv *BookmarkResolver) Charset() string {
-	return rslv.Bookmark.Charset
+	return rslv.UserBookmark.Charset
 }
 
 // Title resolves the Title field
 func (rslv *BookmarkResolver) Title() string {
-	return rslv.Bookmark.Title
+	return rslv.UserBookmark.Title
 }
 
 // Description resolves the Description field
 func (rslv *BookmarkResolver) Description() string {
-	return rslv.Bookmark.Description
+	return rslv.UserBookmark.Description
 }
 
-// Status resolves the Status field
-func (rslv *BookmarkResolver) Status() bookmark.Status {
-	return rslv.Bookmark.Status
-}
-
-// CreatedAt resolves the CreatedAt field
-func (rslv *BookmarkResolver) CreatedAt() string {
-	return rslv.Bookmark.CreatedAt.Format(time.UnixDate)
+// AddedAt resolves the AddedAt field
+func (rslv *BookmarkResolver) AddedAt() string {
+	return rslv.UserBookmark.AddedAt.Format(time.UnixDate)
 }
 
 // UpdatedAt resolves the UpdatedAt field
 func (rslv *BookmarkResolver) UpdatedAt() string {
-	return rslv.Bookmark.UpdatedAt.Format(time.UnixDate)
+	return rslv.UserBookmark.UpdatedAt.Format(time.UnixDate)
 }
 
-// GetBookmark resolves the query
-func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
-	ID string
-}) (*BookmarkResolver, error) {
-	var bookmarksLoader = r.Dataloaders.GetBookmarksLoader()
-	thunk := bookmarksLoader.Load(ctx, dataloader.StringKey(args.ID))
-	result, err := thunk()
-
-	if err != nil {
-		return nil, err
-	}
-
-	bookmark, ok := result.(*bookmark.Bookmark)
-
-	if !ok {
-		return nil, errors.New("Wrong data")
-	}
-
-	res := BookmarkResolver{Bookmark: bookmark}
-
-	return &res, nil
+// IsRead resolves the IsRead field
+func (rslv *BookmarkResolver) IsRead() bool {
+	return rslv.UserBookmark.IsRead
 }
+
+// // GetBookmark resolves the query
+// func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
+// 	ID string
+// }) (*BookmarkResolver, error) {
+// 	var bookmarksLoader = r.Dataloaders.GetBookmarksLoader()
+// 	thunk := bookmarksLoader.Load(ctx, dataloader.StringKey(args.ID))
+// 	result, err := thunk()
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	bookmark, ok := result.(*bookmark.Bookmark)
+
+// 	if !ok {
+// 		return nil, errors.New("Wrong data")
+// 	}
+
+// 	res := BookmarkResolver{Bookmark: bookmark}
+
+// 	return &res, nil
+// }
 
 // GetLatestBookmarks resolves the query
 func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
@@ -114,16 +112,28 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	results := ubRepo.FindLatest(ctx, user, offset, limit)
-	total := ubRepo.GetTotal(ctx, user)
+	results, err := ubRepo.FindLatest(ctx, user, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := ubRepo.GetTotal(ctx, user)
+	if err != nil {
+		return nil, err
+	}
 
 	var bookmarks []*BookmarkResolver
 	for _, result := range results {
-		res := BookmarkResolver{Bookmark: result}
+		res := BookmarkResolver{UserBookmark: result}
 		bookmarks = append(bookmarks, &res)
 	}
 
-	reso := BookmarkCollectionResolver{Results: &bookmarks, Total: total, Offset: offset, Limit: limit}
+	reso := BookmarkCollectionResolver{
+		Results: &bookmarks,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
 
 	return &reso, nil
 }
@@ -142,40 +152,31 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	}
 
 	bookmark, feeds, err := parser.FetchAndParse(args.URL)
-
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println(bookmark)
-
-	// process bookmark
-	ID := bRepo.GetByURL(ctx, bookmark.URL)
-
-	if ID != "" {
-		bookmark.ID = ID
-		bRepo.Update(ctx, bookmark)
-	} else {
-		bRepo.Insert(ctx, bookmark)
+	err = bRepo.Upsert(ctx, bookmark)
+	if err != nil {
+		return nil, err
 	}
 
-	linkID, isLinked := ubRepo.IsLinked(ctx, user, bookmark)
-
-	if linkID == "" {
-		ubRepo.Link(ctx, user, bookmark)
-	} else if isLinked == 0 {
-		ubRepo.ReLink(ctx, user, bookmark)
+	err = fRepo.InsertAllIfNotExists(ctx, feeds)
+	if err != nil {
+		return nil, err
 	}
 
-	res := BookmarkResolver{Bookmark: bookmark}
-
-	// process bookmarks's feeds
-	for _, feed := range feeds {
-		feedID := fRepo.GetByURL(ctx, feed.URL)
-		if feedID == "" {
-			fRepo.Insert(ctx, feed)
-		}
+	err = ubRepo.AddToUserCollection(ctx, user, bookmark)
+	if err != nil {
+		return nil, err
 	}
+
+	userBookmark, err := ubRepo.GetByURL(ctx, user, bookmark.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	res := BookmarkResolver{UserBookmark: userBookmark}
 
 	return &res, nil
 }
@@ -186,32 +187,45 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 }) (*BookmarkResolver, error) {
 	fRepo := r.Repositories.Feeds
 	bRepo := r.Repositories.Bookmarks
-	bookmark, feeds, err := parser.FetchAndParse(args.URL)
+	ubRepo := r.Repositories.UserBookmarks
 
+	user, err := r.getUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println(bookmark)
-
-	ID := bRepo.GetByURL(ctx, bookmark.URL)
-
-	if ID == "" {
-		log.Fatal("Could not find bookmark")
+	bookmark, feeds, err := parser.FetchAndParse(args.URL)
+	if err != nil {
+		return nil, err
 	}
 
-	bookmark.ID = ID
-	bRepo.Update(ctx, bookmark)
-
-	res := BookmarkResolver{Bookmark: bookmark}
-
-	// process bookmarks's feeds
-	for _, feed := range feeds {
-		feedID := fRepo.GetByURL(ctx, feed.URL)
-		if feedID == "" {
-			fRepo.Insert(ctx, feed)
-		}
+	b, err := bRepo.GetByURL(ctx, bookmark.URL)
+	if err != nil {
+		return nil, err
 	}
+
+	bookmark.ID = b.ID
+	err = bRepo.Update(ctx, bookmark)
+	if err != nil {
+		return nil, err
+	}
+
+	err = fRepo.InsertAllIfNotExists(ctx, feeds)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ubRepo.AddToUserCollection(ctx, user, bookmark)
+	if err != nil {
+		return nil, err
+	}
+
+	userBookmark, err := ubRepo.GetByURL(ctx, user, bookmark.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res := BookmarkResolver{UserBookmark: userBookmark}
 
 	return &res, nil
 }

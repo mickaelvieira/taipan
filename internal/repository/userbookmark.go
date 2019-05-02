@@ -14,95 +14,160 @@ type UserBookmarkRepository struct {
 	db *sql.DB
 }
 
-// FindLatest find latest entries
-func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User, cursor int32, limit int32) []*bookmark.Bookmark {
+// FindNew find newest entries
+func (r *UserBookmarkRepository) FindNew(ctx context.Context, user *user.User, cursor int32, limit int32) ([]*bookmark.Bookmark, error) {
 	var bookmarks []*bookmark.Bookmark
 
 	query := `
-		SELECT bookmarks.id, url, charset, language, title, description, image_url, status, created_at, updated_at
-		FROM bookmarks
-		INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id
-		WHERE linked = 1 AND user_id = ? ORDER BY added_at DESC LIMIT ?, ?
-		`
+		SELECT b.id, user_id, url, charset, language, title, description, image_url, status, created_at, updated_at
+		FROM bookmarks AS b
+		LEFT JOIN users_bookmarks ON ub.bookmark_id = b.id
+		WHERE ub.user_id IS NULL OR ub.user_id != ?
+		ORDER BY b.created_at_at DESC
+		LIMIT ?, ?
+	`
 	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
-
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	for rows.Next() {
 		var bookmark bookmark.Bookmark
-		if err := rows.Scan(&bookmark.ID, &bookmark.URL, &bookmark.Charset, &bookmark.Lang, &bookmark.Title, &bookmark.Description, &bookmark.Image, &bookmark.Status, &bookmark.CreatedAt, &bookmark.UpdatedAt); err != nil {
+		if err := rows.Scan(
+			&bookmark.ID,
+			&bookmark.URL,
+			&bookmark.Charset,
+			&bookmark.Lang,
+			&bookmark.Title,
+			&bookmark.Description,
+			&bookmark.Image,
+			&bookmark.Status,
+			&bookmark.CreatedAt,
+			&bookmark.UpdatedAt,
+		); err != nil {
 			log.Fatal(err)
 		}
 		bookmarks = append(bookmarks, &bookmark)
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return bookmarks
+	return bookmarks, nil
+}
+
+// FindLatest find latest entries
+func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User, cursor int32, limit int32) ([]*bookmark.UserBookmark, error) {
+	var bookmarks []*bookmark.UserBookmark
+
+	query := `
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, ub.added_at, ub.updated_at, ub.linked, ub.marked_as_read
+		FROM bookmarks AS b
+		INNER JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
+		WHERE ub.linked = 1 AND ub.user_id = ?
+		ORDER BY ub.updated_at DESC
+		LIMIT ?, ?
+	`
+	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var bookmark bookmark.UserBookmark
+		if err := rows.Scan(
+			&bookmark.ID,
+			&bookmark.URL,
+			&bookmark.Charset,
+			&bookmark.Lang,
+			&bookmark.Title,
+			&bookmark.Description,
+			&bookmark.Image,
+			&bookmark.AddedAt,
+			&bookmark.UpdatedAt,
+			&bookmark.IsLinked,
+			&bookmark.IsRead,
+		); err != nil {
+			break
+		}
+		bookmarks = append(bookmarks, &bookmark)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return bookmarks, nil
 }
 
 // GetTotal count latest entries
-func (r *UserBookmarkRepository) GetTotal(ctx context.Context, user *user.User) int32 {
+func (r *UserBookmarkRepository) GetTotal(ctx context.Context, user *user.User) (int32, error) {
 	var total int32
 
-	sql := `
-		SELECT COUNT(bookmarks.id) as total
-		FROM bookmarks
-		INNER JOIN users_bookmarks ON users_bookmarks.bookmark_id = bookmarks.id
-		WHERE linked = 1 AND user_id = ?
-	`
-	r.db.QueryRowContext(ctx, sql, user.ID).Scan(&total)
-
-	return total
-}
-
-// IsLinked checked whether the bookmark is linked to the user
-func (r *UserBookmarkRepository) IsLinked(ctx context.Context, user *user.User, b *bookmark.Bookmark) (string, int32) {
-	var id string
-	var linked int32
-
 	query := `
-		SELECT id, linked
-		FROM users_bookmarks
-		WHERE bookmark_id = ? AND user_id = ?
-		`
-	err := r.db.QueryRowContext(ctx, query, b.ID, user.ID).Scan(&id, &linked)
-
+		SELECT COUNT(b.id) as total
+		FROM bookmarks AS b
+		INNER JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
+		WHERE ub.linked = 1 AND ub.user_id = ?
+	`
+	err := r.db.QueryRowContext(ctx, query, user.ID).Scan(&total)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return id, linked
-		}
-		log.Fatal(err)
+		return total, err
 	}
 
-	return id, linked
+	return total, nil
 }
 
-// Link the bookmark to the user
-func (r *UserBookmarkRepository) Link(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
+// GetByURL find a single entry
+func (r *UserBookmarkRepository) GetByURL(ctx context.Context, user *user.User, URL string) (*bookmark.UserBookmark, error) {
+	var bookmark bookmark.UserBookmark
+
+	query := `
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, ub.added_at, ub.updated_at, ub.linked, ub.marked_as_read
+		FROM bookmarks AS b
+		INNER JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
+		WHERE ub.user_id = ? AND b.url = ?
+	`
+	err := r.db.QueryRowContext(ctx, query, user.ID, URL).Scan(
+		&bookmark.ID,
+		&bookmark.URL,
+		&bookmark.Charset,
+		&bookmark.Lang,
+		&bookmark.Title,
+		&bookmark.Description,
+		&bookmark.Image,
+		&bookmark.AddedAt,
+		&bookmark.UpdatedAt,
+		&bookmark.IsLinked,
+		&bookmark.IsRead,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &bookmark, nil
+}
+
+// AddToUserCollection the bookmark to the user
+func (r *UserBookmarkRepository) AddToUserCollection(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
 	query := `
 		INSERT INTO users_bookmarks
-		(user_id, bookmark_id, added_at, accessed_at, marked_as_read, linked)
+		(user_id, bookmark_id, added_at, updated_at, marked_as_read, linked)
 		VALUES
-		(?, ?, ?, ?, ?, ?)
-		`
-	_, err := r.db.ExecContext(ctx, query, user.ID, b.ID, time.Now(), time.Now(), 0, 1)
-
-	return err
-}
-
-// ReLink the bookmark to the user
-func (r *UserBookmarkRepository) ReLink(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
-	query := `
-		UPDATE users_bookmarks
-		SET linked = 1
-		WHERE bookmark_id = ? AND user_id = ?
-		`
-	_, err := r.db.ExecContext(ctx, query, user.ID)
+		(?, ?, ?, ?, 0, 1)
+		ON DUPLICATE KEY UPDATE updated_at = ?, linked = 1
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		user.ID,
+		b.ID,
+		time.Now(),
+		time.Now(),
+		time.Now(),
+	)
 
 	return err
 }

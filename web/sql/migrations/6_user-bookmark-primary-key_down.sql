@@ -1,0 +1,2 @@
+ALTER TABLE `users_bookmarks` DROP PRIMARY KEY;
+ALTER TABLE `users_bookmarks` ADD `id` INT(11) NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id`);

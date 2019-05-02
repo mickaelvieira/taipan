@@ -17,12 +17,13 @@ const (
 )
 
 // ReadStatus are the values defineing whether or not a bookmark has been read
-type ReadStatus int
+type ReadStatus bool
 
+// see https://gist.github.com/husobee/cac9cddbaacc1d3a7ae1
 // ReadStatus values
 const (
-	UNREAD ReadStatus = iota
-	READ
+	UNREAD ReadStatus = false
+	READ   ReadStatus = true
 )
 
 // Bookmark struct represents what is a bookmark within the application
@@ -31,7 +32,6 @@ type Bookmark struct {
 	URL         string
 	Lang        string
 	Charset     string
-	Hash        string
 	Title       string
 	Description string
 	Image       string
@@ -42,11 +42,17 @@ type Bookmark struct {
 
 // UserBookmark struct represents what is a bookmark from a user's perspective
 type UserBookmark struct {
-	Bookmark
-	AddedAt    time.Time
-	AccessedAt time.Time
-	IsRead     ReadStatus
-	IsLinked   bool
+	ID          string
+	URL         string
+	Lang        string
+	Charset     string
+	Title       string
+	Description string
+	Image       string
+	AddedAt     time.Time
+	UpdatedAt   time.Time
+	IsRead      bool
+	IsLinked    bool
 }
 
 // FetchingHistory represents an entry in the history logs

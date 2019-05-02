@@ -19,17 +19,16 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 		SELECT id, username, firstname, lastname, status, created_at, updated_at
 		FROM users
 		WHERE id = ?
-		`
-	err := r.db.QueryRowContext(ctx, query, id).
-		Scan(
-			&user.ID,
-			&user.Username,
-			&user.Firstname,
-			&user.Lastname,
-			&user.Status,
-			&user.CreatedAt,
-			&user.UpdatedAt,
-		)
+	`
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Firstname,
+		&user.Lastname,
+		&user.Status,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
 
 	if err != nil {
 		return nil, err

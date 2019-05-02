@@ -15,14 +15,14 @@ type BookmarkRepository struct {
 }
 
 // GetByID find a single entry
-func (r *BookmarkRepository) GetByID(ctx context.Context, id string) *bookmark.Bookmark {
+func (r *BookmarkRepository) GetByID(ctx context.Context, id string) (*bookmark.Bookmark, error) {
 	var bookmark bookmark.Bookmark
 
 	query := `
 		SELECT id, url, charset, language, title, description, image_url, status, created_at, updated_at
 		FROM bookmarks
 		WHERE id = ?
-		`
+	`
 	err := r.db.QueryRowContext(ctx, query, id).
 		Scan(
 			&bookmark.ID,
@@ -38,34 +38,44 @@ func (r *BookmarkRepository) GetByID(ctx context.Context, id string) *bookmark.B
 		)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return &bookmark
-		}
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return &bookmark
+	return &bookmark, nil
 }
 
 // GetByURL find a single entry
-func (r *BookmarkRepository) GetByURL(ctx context.Context, URL string) string {
-	var id string
+func (r *BookmarkRepository) GetByURL(ctx context.Context, URL string) (*bookmark.Bookmark, error) {
+	var bookmark bookmark.Bookmark
 
-	query := "SELECT id FROM bookmarks WHERE url = ?"
-	err := r.db.QueryRowContext(ctx, query, URL).Scan(&id)
+	query := `
+		SELECT id, url, charset, language, title, description, image_url, status, created_at, updated_at
+		FROM bookmarks
+		WHERE url = ?
+	`
+	err := r.db.QueryRowContext(ctx, query, URL).
+		Scan(
+			&bookmark.ID,
+			&bookmark.URL,
+			&bookmark.Charset,
+			&bookmark.Lang,
+			&bookmark.Title,
+			&bookmark.Description,
+			&bookmark.Image,
+			&bookmark.Status,
+			&bookmark.CreatedAt,
+			&bookmark.UpdatedAt,
+		)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return id
-		}
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return id
+	return &bookmark, nil
 }
 
 // GetByIDs find all entries
-func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) []*bookmark.Bookmark {
+func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) ([]*bookmark.Bookmark, error) {
 	var bookmarks []*bookmark.Bookmark
 
 	params := make([]interface{}, len(ids))
@@ -80,6 +90,9 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) []*book
 	`
 	query = fmt.Sprintf(query, strings.Repeat(",?", len(ids)-1))
 	rows, err := r.db.QueryContext(ctx, query, params...)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var bookmark bookmark.Bookmark
@@ -102,19 +115,19 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) []*book
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return bookmarks
+	return bookmarks, nil
 }
 
 // Insert creates a new bookmark in the DB
-func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) *bookmark.Bookmark {
+func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) error {
 	query := `
-	INSERT INTO bookmarks
-	(id, url, charset, language, title, description, image_url, status, created_at, updated_at)
-	VALUES
-	(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO bookmarks
+		(id, url, charset, language, title, description, image_url, status, created_at, updated_at)
+		VALUES
+		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	_, err := r.db.ExecContext(
 		ctx,
@@ -131,20 +144,16 @@ func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) *
 		b.UpdatedAt,
 	)
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return b
+	return err
 }
 
 // Update updates a bookmark in the DB
-func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) *bookmark.Bookmark {
+func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
 		SET charset = ?, language = ?, title = ?, description = ?, image_url = ?, status = ?, updated_at = ?
 		WHERE id = ?
-		`
+	`
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
@@ -158,9 +167,20 @@ func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) *
 		b.ID,
 	)
 
+	return err
+}
+
+// Upsert insert the bookmark or update if there is already one with the same URL
+func (r *BookmarkRepository) Upsert(ctx context.Context, b *bookmark.Bookmark) error {
+	bookmark, err := r.GetByURL(ctx, b.URL)
 	if err != nil {
-		log.Fatal(err)
+		if err != sql.ErrNoRows {
+			return err
+		}
+		return r.Insert(ctx, b)
 	}
 
-	return b
+	b.ID = bookmark.ID
+
+	return r.Update(ctx, b)
 }
