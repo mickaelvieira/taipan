@@ -16,6 +16,7 @@ import { UserBookmark } from "../../../types/bookmark";
 import UpdateBookmarkMutation, {
   mutation
 } from "../../apollo/Mutation/UpdateBookmark";
+import { truncate } from "../../../helpers/string";
 
 const styles = () =>
   createStyles({
@@ -74,7 +75,7 @@ export default withStyles(styles)(
               {bookmark.title}
             </Typography>
           </Link>
-          <Typography component="p">{bookmark.description}</Typography>
+          <Typography component="p">{truncate(bookmark.description)}</Typography>
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
           <IconButton aria-label="Add to favorites">
