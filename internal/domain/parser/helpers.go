@@ -2,6 +2,7 @@ package parser
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/feed"
+	"html"
 	"net/url"
 	"strings"
 
@@ -16,12 +17,12 @@ func IsURLValid(URL string) bool {
 	return true
 }
 
-func NormalizeAttr(val string) string {
+func NormalizeAttrValue(val string) string {
 	return strings.ToLower(strings.Trim(val, " "))
 }
 
 func NormalizeHTMLText(val string) string {
-	return strings.Trim(val, " \n")
+	return html.UnescapeString(strings.Trim(val, " \n"))
 }
 
 func ParseCharset(metaTags []*goquery.Selection) string {
@@ -32,7 +33,7 @@ func ParseCharset(metaTags []*goquery.Selection) string {
 		var exist bool
 		charset, exist = s.Attr("charset")
 		if exist {
-			charset = NormalizeAttr(charset)
+			charset = NormalizeAttrValue(charset)
 			break
 		}
 	}
@@ -40,8 +41,8 @@ func ParseCharset(metaTags []*goquery.Selection) string {
 	if charset == "" {
 		// otherwise <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 		for _, s := range metaTags {
-			he := NormalizeAttr(s.AttrOr("http-equiv", ""))
-			ct := NormalizeAttr(s.AttrOr("content", ""))
+			he := NormalizeAttrValue(s.AttrOr("http-equiv", ""))
+			ct := NormalizeAttrValue(s.AttrOr("content", ""))
 
 			if he == "content-type" && strings.Contains(ct, "charset") {
 				var c = "charset="
@@ -65,7 +66,7 @@ func ParseTitle(doc *goquery.Document, metaTags []*goquery.Selection) string {
 	if title == "" {
 		for _, s := range metaTags {
 			name, exist := s.Attr("name")
-			name = NormalizeAttr(name)
+			name = NormalizeAttrValue(name)
 			if exist && name == "title" {
 				title = s.AttrOr("content", "")
 				break
@@ -79,15 +80,15 @@ func ParseLang(doc *goquery.Document, metaTags []*goquery.Selection) string {
 	var lang string
 
 	doc.Find("html").EachWithBreak(func(i int, s *goquery.Selection) bool {
-		lang = NormalizeAttr(s.AttrOr("lang", ""))
+		lang = NormalizeAttrValue(s.AttrOr("lang", ""))
 		return false
 	})
 
 	if lang == "" {
 		for _, s := range metaTags {
-			he := NormalizeAttr(s.AttrOr("http-equiv", ""))
+			he := NormalizeAttrValue(s.AttrOr("http-equiv", ""))
 			if he == "content-language" {
-				lang = NormalizeAttr(s.AttrOr("content", ""))
+				lang = NormalizeAttrValue(s.AttrOr("content", ""))
 			}
 		}
 	}
@@ -98,7 +99,7 @@ func ParseDescription(metaTags []*goquery.Selection) string {
 	var desc string
 	for _, s := range metaTags {
 		name, exist := s.Attr("name")
-		name = NormalizeAttr(name)
+		name = NormalizeAttrValue(name)
 		if exist && name == "description" {
 			desc = s.AttrOr("content", "")
 			break
@@ -111,9 +112,9 @@ func ParseCanonicalURL(linkTags []*goquery.Selection) string {
 	var URL string
 	for _, s := range linkTags {
 		rel, exist := s.Attr("href")
-		rel = NormalizeAttr(rel)
+		rel = NormalizeAttrValue(rel)
 		if exist && rel == "canonical" {
-			URL = NormalizeAttr(s.AttrOr("href", ""))
+			URL = NormalizeAttrValue(s.AttrOr("href", ""))
 			break
 		}
 	}
@@ -123,9 +124,9 @@ func ParseCanonicalURL(linkTags []*goquery.Selection) string {
 func ParseFeeds(linkTags []*goquery.Selection) []*feed.Feed {
 	var feeds []*feed.Feed
 	for _, s := range linkTags {
-		url := NormalizeAttr(s.AttrOr("href", ""))
-		title := NormalizeAttr(s.AttrOr("title", ""))
-		feedType, err := feed.GetFeedType(NormalizeAttr(s.AttrOr("type", "")))
+		url := NormalizeAttrValue(s.AttrOr("href", ""))
+		title := NormalizeAttrValue(s.AttrOr("title", ""))
+		feedType, err := feed.GetFeedType(NormalizeAttrValue(s.AttrOr("type", "")))
 
 		if IsURLValid(url) && err == nil {
 			feed := feed.New(url, title, feedType)
@@ -133,13 +134,6 @@ func ParseFeeds(linkTags []*goquery.Selection) []*feed.Feed {
 		}
 	}
 	return feeds
-}
-
-type Social struct {
-	Title       string
-	Description string
-	Image       string
-	URL         string
 }
 
 func ParseFacebookTags(metaTags []*goquery.Selection) *Social {

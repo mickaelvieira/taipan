@@ -4,7 +4,6 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/parser"
-	"log"
 	"time"
 
 	graphql "github.com/graph-gophers/graphql-go"
@@ -151,17 +150,19 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	bookmark, feeds, err := parser.FetchAndParse(args.URL)
+	document, err := parser.FetchAndParse(args.URL)
 	if err != nil {
 		return nil, err
 	}
+
+	bookmark := document.ToBookmark()
 
 	err = bRepo.Upsert(ctx, bookmark)
 	if err != nil {
 		return nil, err
 	}
 
-	err = fRepo.InsertAllIfNotExists(ctx, feeds)
+	err = fRepo.InsertAllIfNotExists(ctx, document.Feeds)
 	if err != nil {
 		return nil, err
 	}
@@ -194,10 +195,12 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	bookmark, feeds, err := parser.FetchAndParse(args.URL)
+	document, err := parser.FetchAndParse(args.URL)
 	if err != nil {
 		return nil, err
 	}
+
+	bookmark := document.ToBookmark()
 
 	b, err := bRepo.GetByURL(ctx, bookmark.URL)
 	if err != nil {
@@ -210,7 +213,7 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	err = fRepo.InsertAllIfNotExists(ctx, feeds)
+	err = fRepo.InsertAllIfNotExists(ctx, document.Feeds)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +225,7 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 
 	userBookmark, err := ubRepo.GetByURL(ctx, user, bookmark.URL)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	res := BookmarkResolver{UserBookmark: userBookmark}
