@@ -1,4 +1,5 @@
 import React from "react";
+import moment from "moment";
 import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -75,7 +76,15 @@ export default withStyles(styles)(
               {bookmark.title}
             </Typography>
           </Link>
-          <Typography component="p">{truncate(bookmark.description)}</Typography>
+          <Typography component="p" gutterBottom>
+            {truncate(bookmark.description)}
+          </Typography>
+          <Typography variant="body2">
+            Added: {moment(bookmark.addedAt).fromNow()}
+          </Typography>
+          <Typography variant="body2">
+            Updated: {moment(bookmark.updatedAt).fromNow()}
+          </Typography>
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
           <IconButton aria-label="Add to favorites">

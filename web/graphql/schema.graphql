@@ -36,6 +36,13 @@ interface Node {
   id: ID!
 }
 
+# @TODO To implement
+type BookmarkImage {
+  URL: String!
+  width: Int!
+  height: Int!
+}
+
 type Bookmark implements Node {
   id: ID!
   url: String!

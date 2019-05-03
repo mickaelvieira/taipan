@@ -4,6 +4,7 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/parser"
+	"log"
 	"time"
 
 	graphql "github.com/graph-gophers/graphql-go"
@@ -61,12 +62,12 @@ func (rslv *BookmarkResolver) Description() string {
 
 // AddedAt resolves the AddedAt field
 func (rslv *BookmarkResolver) AddedAt() string {
-	return rslv.UserBookmark.AddedAt.Format(time.UnixDate)
+	return rslv.UserBookmark.AddedAt.Format(time.RFC3339)
 }
 
 // UpdatedAt resolves the UpdatedAt field
 func (rslv *BookmarkResolver) UpdatedAt() string {
-	return rslv.UserBookmark.UpdatedAt.Format(time.UnixDate)
+	return rslv.UserBookmark.UpdatedAt.Format(time.RFC3339)
 }
 
 // IsRead resolves the IsRead field
@@ -199,6 +200,8 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 	}
 
 	bookmark := document.ToBookmark()
+
+	log.Println(bookmark)
 
 	err = bookmarksRepo.Upsert(ctx, bookmark)
 	if err != nil {

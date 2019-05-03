@@ -16,25 +16,16 @@ export interface BookmarksLinks {
 }
 
 export interface UserBookmark {
-  href: string;
   id: string;
   url: string;
-  title: string;
-  hash: string;
+  lang: string;
   charset: string;
+  title: string;
   description: string;
   image: string;
-  canonical_url: string;
-  added_at: string;
-  accessed_at: string;
-  created_at: string;
-  updated_at: string;
-  // is_read: boolean;
-  // is_pending: boolean;
-  // is_fetching: boolean;
-  // is_fetched: boolean;
-  // links: BookmarkLinks;
-  // history?: BookmarkHistory;
+  addedAt: string;
+  updatedAt: string;
+  isRead: boolean;
 }
 
 export interface BookmarkHistoryEntry {
