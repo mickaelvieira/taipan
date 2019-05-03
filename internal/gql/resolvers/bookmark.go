@@ -74,35 +74,33 @@ func (rslv *BookmarkResolver) IsRead() bool {
 	return rslv.UserBookmark.IsRead
 }
 
-// // GetBookmark resolves the query
-// func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
-// 	ID string
-// }) (*BookmarkResolver, error) {
-// 	var bookmarksLoader = r.Dataloaders.GetBookmarksLoader()
-// 	thunk := bookmarksLoader.Load(ctx, dataloader.StringKey(args.ID))
-// 	result, err := thunk()
+// GetBookmark resolves the query
+func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
+	URL string
+}) (*BookmarkResolver, error) {
+	userBookmarksRepo := r.Repositories.UserBookmarks
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	user, err := r.getUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-// 	bookmark, ok := result.(*bookmark.Bookmark)
+	userBookmark, err := userBookmarksRepo.GetByURL(ctx, user, args.URL)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if !ok {
-// 		return nil, errors.New("Wrong data")
-// 	}
+	res := BookmarkResolver{UserBookmark: userBookmark}
 
-// 	res := BookmarkResolver{Bookmark: bookmark}
-
-// 	return &res, nil
-// }
+	return &res, nil
+}
 
 // GetLatestBookmarks resolves the query
 func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	Offset *int32
 	Limit  *int32
 }) (*BookmarkCollectionResolver, error) {
-	ubRepo := r.Repositories.UserBookmarks
+	userBookmarksRepo := r.Repositories.UserBookmarks
 	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
 	offset, limit := fromArgs(args.Offset, args.Limit)
 
@@ -111,12 +109,12 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	results, err := ubRepo.FindLatest(ctx, user, offset, limit)
+	results, err := userBookmarksRepo.FindLatest(ctx, user, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := ubRepo.GetTotal(ctx, user)
+	total, err := userBookmarksRepo.GetTotal(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +139,9 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
-	fRepo := r.Repositories.Feeds
-	bRepo := r.Repositories.Bookmarks
-	ubRepo := r.Repositories.UserBookmarks
+	feedsRepo := r.Repositories.Feeds
+	bookmarksRepo := r.Repositories.Bookmarks
+	userBookmarksRepo := r.Repositories.UserBookmarks
 
 	user, err := r.getUser(ctx)
 	if err != nil {
@@ -157,22 +155,22 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	bookmark := document.ToBookmark()
 
-	err = bRepo.Upsert(ctx, bookmark)
+	err = bookmarksRepo.Upsert(ctx, bookmark)
 	if err != nil {
 		return nil, err
 	}
 
-	err = fRepo.InsertAllIfNotExists(ctx, document.Feeds)
+	err = feedsRepo.InsertAllIfNotExists(ctx, document.Feeds)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ubRepo.AddToUserCollection(ctx, user, bookmark)
+	err = userBookmarksRepo.AddToUserCollection(ctx, user, bookmark)
 	if err != nil {
 		return nil, err
 	}
 
-	userBookmark, err := ubRepo.GetByURL(ctx, user, bookmark.URL)
+	userBookmark, err := userBookmarksRepo.GetByURL(ctx, user, bookmark.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -186,9 +184,9 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
-	fRepo := r.Repositories.Feeds
-	bRepo := r.Repositories.Bookmarks
-	ubRepo := r.Repositories.UserBookmarks
+	feedsRepo := r.Repositories.Feeds
+	bookmarksRepo := r.Repositories.Bookmarks
+	userBookmarksRepo := r.Repositories.UserBookmarks
 
 	user, err := r.getUser(ctx)
 	if err != nil {
@@ -202,28 +200,22 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 
 	bookmark := document.ToBookmark()
 
-	b, err := bRepo.GetByURL(ctx, bookmark.URL)
+	err = bookmarksRepo.Upsert(ctx, bookmark)
 	if err != nil {
 		return nil, err
 	}
 
-	bookmark.ID = b.ID
-	err = bRepo.Update(ctx, bookmark)
+	err = feedsRepo.InsertAllIfNotExists(ctx, document.Feeds)
 	if err != nil {
 		return nil, err
 	}
 
-	err = fRepo.InsertAllIfNotExists(ctx, document.Feeds)
+	err = userBookmarksRepo.AddToUserCollection(ctx, user, bookmark)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ubRepo.AddToUserCollection(ctx, user, bookmark)
-	if err != nil {
-		return nil, err
-	}
-
-	userBookmark, err := ubRepo.GetByURL(ctx, user, bookmark.URL)
+	userBookmark, err := userBookmarksRepo.GetByURL(ctx, user, bookmark.URL)
 	if err != nil {
 		return nil, err
 	}

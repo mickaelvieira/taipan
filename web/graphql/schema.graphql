@@ -4,7 +4,7 @@ schema {
 }
 
 type Query {
-  # GetBookmark(id: ID!): Bookmark
+  GetBookmark(url: String!): UserBookmark
   GetLatestBookmarks(offset: Int, limit: Int): BookmarkCollection
 }
 
