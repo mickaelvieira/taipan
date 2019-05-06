@@ -2,78 +2,12 @@ package resolvers
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/parser"
+	"github/mickaelvieira/taipan/internal/s3"
 	"log"
-	"time"
-
-	graphql "github.com/graph-gophers/graphql-go"
 )
 
 const defBkmkLimit = 10
-
-// BookmarkResolver resolves the bookmark entity
-type BookmarkResolver struct {
-	*bookmark.UserBookmark // @TODO replace this with UserBookmark eventually
-}
-
-//BookmarkCollectionResolver resolver
-type BookmarkCollectionResolver struct {
-	Results *[]*BookmarkResolver
-	Total   int32
-	Offset  int32
-	Limit   int32
-}
-
-// ID resolves the ID field
-func (rslv *BookmarkResolver) ID() graphql.ID {
-	return graphql.ID(rslv.UserBookmark.ID)
-}
-
-// URL resolves the URL
-func (rslv *BookmarkResolver) URL() string {
-	return rslv.UserBookmark.URL
-}
-
-// Image resolves the Image field
-func (rslv *BookmarkResolver) Image() string {
-	return rslv.UserBookmark.Image
-}
-
-// Lang resolves the Lang field
-func (rslv *BookmarkResolver) Lang() string {
-	return rslv.UserBookmark.Lang
-}
-
-// Charset resolves the Charset field
-func (rslv *BookmarkResolver) Charset() string {
-	return rslv.UserBookmark.Charset
-}
-
-// Title resolves the Title field
-func (rslv *BookmarkResolver) Title() string {
-	return rslv.UserBookmark.Title
-}
-
-// Description resolves the Description field
-func (rslv *BookmarkResolver) Description() string {
-	return rslv.UserBookmark.Description
-}
-
-// AddedAt resolves the AddedAt field
-func (rslv *BookmarkResolver) AddedAt() string {
-	return rslv.UserBookmark.AddedAt.Format(time.RFC3339)
-}
-
-// UpdatedAt resolves the UpdatedAt field
-func (rslv *BookmarkResolver) UpdatedAt() string {
-	return rslv.UserBookmark.UpdatedAt.Format(time.RFC3339)
-}
-
-// IsRead resolves the IsRead field
-func (rslv *BookmarkResolver) IsRead() bool {
-	return rslv.UserBookmark.IsRead
-}
 
 // GetBookmark resolves the query
 func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
@@ -156,9 +90,25 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	bookmark := document.ToBookmark()
 
+	if bookmark.Image != nil {
+		image, err := s3.Upload(bookmark.Image.URL.String())
+		if err != nil {
+			log.Println(err) // @TODO we might eventually better handle this case
+		} else {
+			bookmark.Image = image
+		}
+	}
+
 	err = bookmarksRepo.Upsert(ctx, bookmark)
 	if err != nil {
 		return nil, err
+	}
+
+	if bookmark.Image != nil {
+		err = bookmarksRepo.UpdateImage(ctx, bookmark)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = feedsRepo.InsertAllIfNotExists(ctx, document.Feeds)
@@ -201,11 +151,27 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 
 	bookmark := document.ToBookmark()
 
-	log.Println(bookmark)
+	if bookmark.Image != nil {
+		log.Printf("Uploading %s", bookmark.Image.URL.String())
+		image, err := s3.Upload(bookmark.Image.URL.String())
+		if err != nil {
+			log.Println(err) // @TODO we might eventually better handle this case
+		} else {
+			log.Printf("Success %s", image.URL.String())
+			bookmark.Image = image
+		}
+	}
 
 	err = bookmarksRepo.Upsert(ctx, bookmark)
 	if err != nil {
 		return nil, err
+	}
+
+	if bookmark.Image != nil {
+		err = bookmarksRepo.UpdateImage(ctx, bookmark)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = feedsRepo.InsertAllIfNotExists(ctx, document.Feeds)

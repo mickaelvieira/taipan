@@ -11,7 +11,7 @@ import (
 
 // Parser parses the document
 type Parser struct {
-	makeAbs  func(u *url.URL) *url.URL
+	makeAbs  MakeURLAbs
 	metaTags []*goquery.Selection
 	linkTags []*goquery.Selection
 	document *goquery.Document

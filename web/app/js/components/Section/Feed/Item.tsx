@@ -45,8 +45,8 @@ interface Props extends WithStyles<typeof styles> {
 
 export default withStyles(styles)(
   React.memo(function FeedItem({ bookmark, classes }: Props) {
-    const image = bookmark.image.startsWith("https")
-      ? bookmark.image
+    const image = bookmark.image
+      ? bookmark.image.url
       : "https://placekitten.com/g/400/225";
     return (
       <Card className={classes.card}>

@@ -49,7 +49,7 @@ func (r *BookmarkRepository) GetByURL(ctx context.Context, URL string) (*bookmar
 	var bookmark bookmark.Bookmark
 
 	query := `
-		SELECT id, url, charset, language, title, description, image_url, status, created_at, updated_at
+		SELECT id, url, charset, language, title, description, status, created_at, updated_at
 		FROM bookmarks
 		WHERE url = ?
 	`
@@ -61,7 +61,6 @@ func (r *BookmarkRepository) GetByURL(ctx context.Context, URL string) (*bookmar
 			&bookmark.Lang,
 			&bookmark.Title,
 			&bookmark.Description,
-			&bookmark.Image,
 			&bookmark.Status,
 			&bookmark.CreatedAt,
 			&bookmark.UpdatedAt,
@@ -125,9 +124,9 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) ([]*boo
 func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) error {
 	query := `
 		INSERT INTO bookmarks
-		(id, url, charset, language, title, description, image_url, status, created_at, updated_at)
+		(id, url, charset, language, title, description, status, created_at, updated_at)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	_, err := r.db.ExecContext(
 		ctx,
@@ -138,7 +137,6 @@ func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) e
 		b.Lang,
 		b.Title,
 		b.Description,
-		b.Image,
 		b.Status,
 		b.CreatedAt,
 		b.UpdatedAt,
@@ -151,7 +149,7 @@ func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) e
 func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET charset = ?, language = ?, title = ?, description = ?, image_url = ?, status = ?, updated_at = ?
+		SET charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
@@ -161,9 +159,29 @@ func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) e
 		b.Lang,
 		b.Title,
 		b.Description,
-		b.Image,
 		b.Status,
 		b.UpdatedAt,
+		b.ID,
+	)
+
+	return err
+}
+
+// UpdateImage updates a bookmark's image in the DB
+func (r *BookmarkRepository) UpdateImage(ctx context.Context, b *bookmark.Bookmark) error {
+	query := `
+		UPDATE bookmarks
+		SET image_url = ?, image_name = ?, image_width = ?, image_height = ?, image_format = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		b.Image.URL.String(),
+		b.Image.Name,
+		b.Image.Width,
+		b.Image.Height,
+		b.Image.Format,
 		b.ID,
 	)
 

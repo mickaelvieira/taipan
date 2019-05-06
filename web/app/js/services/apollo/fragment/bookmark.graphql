@@ -5,7 +5,13 @@ fragment bookmarkFields on UserBookmark {
   lang
   charset
   description
-  image
+  image {
+    url
+    name
+    width
+    height
+    format
+  }
   addedAt
   updatedAt
   isRead

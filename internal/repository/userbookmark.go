@@ -6,8 +6,27 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"log"
+	"net/url"
 	"time"
 )
+
+type row struct {
+	id          string
+	url         string
+	lang        string
+	charset     string
+	title       string
+	description string
+	imageURL    string
+	imageName   string
+	imageWidth  int32
+	imageHeight int32
+	imageFormat string
+	addedAt     time.Time
+	updatedAt   time.Time
+	isRead      bool
+	isLinked    bool
+}
 
 // UserBookmarkRepository the User Bookmark repository
 type UserBookmarkRepository struct {
@@ -62,7 +81,7 @@ func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User
 	var bookmarks []*bookmark.UserBookmark
 
 	query := `
-		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, ub.added_at, ub.updated_at, ub.linked, ub.marked_as_read
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, ub.added_at, ub.updated_at, ub.linked, ub.marked_as_read
 		FROM bookmarks AS b
 		INNER JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
 		WHERE ub.linked = 1 AND ub.user_id = ?
@@ -75,23 +94,15 @@ func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User
 	}
 
 	for rows.Next() {
-		var bookmark bookmark.UserBookmark
-		if err := rows.Scan(
-			&bookmark.ID,
-			&bookmark.URL,
-			&bookmark.Charset,
-			&bookmark.Lang,
-			&bookmark.Title,
-			&bookmark.Description,
-			&bookmark.Image,
-			&bookmark.AddedAt,
-			&bookmark.UpdatedAt,
-			&bookmark.IsLinked,
-			&bookmark.IsRead,
-		); err != nil {
-			break
+		bookmark, err := r.scan(rows)
+		if err != nil {
+			return nil, err
 		}
-		bookmarks = append(bookmarks, &bookmark)
+		bookmarks = append(bookmarks, bookmark)
+	}
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -121,33 +132,20 @@ func (r *UserBookmarkRepository) GetTotal(ctx context.Context, user *user.User) 
 
 // GetByURL find a single entry
 func (r *UserBookmarkRepository) GetByURL(ctx context.Context, user *user.User, URL string) (*bookmark.UserBookmark, error) {
-	var bookmark bookmark.UserBookmark
-
 	query := `
-		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, ub.added_at, ub.updated_at, ub.linked, ub.marked_as_read
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, ub.added_at, ub.updated_at, ub.linked, ub.marked_as_read
 		FROM bookmarks AS b
 		INNER JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
 		WHERE ub.user_id = ? AND b.url = ?
 	`
-	err := r.db.QueryRowContext(ctx, query, user.ID, URL).Scan(
-		&bookmark.ID,
-		&bookmark.URL,
-		&bookmark.Charset,
-		&bookmark.Lang,
-		&bookmark.Title,
-		&bookmark.Description,
-		&bookmark.Image,
-		&bookmark.AddedAt,
-		&bookmark.UpdatedAt,
-		&bookmark.IsLinked,
-		&bookmark.IsRead,
-	)
+	row := r.db.QueryRowContext(ctx, query, user.ID, URL)
+	bookmark, err := r.scan(row)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &bookmark, nil
+	return bookmark, nil
 }
 
 // AddToUserCollection the bookmark to the user
@@ -170,4 +168,63 @@ func (r *UserBookmarkRepository) AddToUserCollection(ctx context.Context, user *
 	)
 
 	return err
+}
+
+func (r *UserBookmarkRepository) scan(rows Scanable) (*bookmark.UserBookmark, error) {
+	var rw row
+
+	err := rows.Scan(
+		&rw.id,
+		&rw.url,
+		&rw.charset,
+		&rw.lang,
+		&rw.title,
+		&rw.description,
+		&rw.imageURL,
+		&rw.imageName,
+		&rw.imageWidth,
+		&rw.imageHeight,
+		&rw.imageFormat,
+		&rw.addedAt,
+		&rw.updatedAt,
+		&rw.isLinked,
+		&rw.isRead,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	b := bookmark.UserBookmark{
+		ID:          rw.id,
+		URL:         rw.url,
+		Charset:     rw.charset,
+		Lang:        rw.lang,
+		Title:       rw.title,
+		Description: rw.description,
+		AddedAt:     rw.addedAt,
+		UpdatedAt:   rw.updatedAt,
+		IsLinked:    rw.isLinked,
+		IsRead:      rw.isRead,
+	}
+
+	if rw.imageURL != "" {
+		u, err := url.ParseRequestURI(rw.imageURL)
+
+		if err != nil {
+			return nil, err
+		}
+
+		i := bookmark.Image{
+			URL:    u,
+			Name:   rw.imageName,
+			Width:  rw.imageWidth,
+			Height: rw.imageHeight,
+			Format: rw.imageFormat,
+		}
+
+		b.Image = &i
+	}
+
+	return &b, nil
 }

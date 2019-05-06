@@ -4,6 +4,11 @@ import (
 	"github/mickaelvieira/taipan/internal/db"
 )
 
+// Scanable sql.Rows or sql.Row
+type Scanable interface {
+	Scan(...interface{}) error
+}
+
 // Repositories holds a reference to the repositories
 type Repositories struct {
 	Users         *UserRepository

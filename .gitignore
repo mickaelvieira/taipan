@@ -10,3 +10,4 @@ web/static/hashes.json
 web/sql/data.sql
 .env.local
 .env.*.local
+.private

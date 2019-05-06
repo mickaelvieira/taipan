@@ -2,6 +2,7 @@ package bookmark
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/uuid"
+	"net/url"
 	"time"
 )
 
@@ -34,10 +35,26 @@ type Bookmark struct {
 	Charset     string
 	Title       string
 	Description string
-	Image       string
+	Image       *Image
 	Status      Status
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+// Image represents a bookmark's image
+type Image struct {
+	Name   string
+	URL    *url.URL
+	Width  int32
+	Height int32
+	Format string
+}
+
+func (i *Image) String() string {
+	if i.URL == nil {
+		return ""
+	}
+	return i.URL.String()
 }
 
 // UserBookmark struct represents what is a bookmark from a user's perspective
@@ -48,7 +65,7 @@ type UserBookmark struct {
 	Charset     string
 	Title       string
 	Description string
-	Image       string
+	Image       *Image
 	AddedAt     time.Time
 	UpdatedAt   time.Time
 	IsRead      bool
@@ -69,7 +86,7 @@ type FetchingHistory struct {
 }
 
 // New creates a new Bookmark with a UUID
-func New(url string, lang string, charset string, title string, desc string, image string) *Bookmark {
+func New(url string, lang string, charset string, title string, desc string, image *Image) *Bookmark {
 	return &Bookmark{
 		ID:          uuid.New(),
 		URL:         url,

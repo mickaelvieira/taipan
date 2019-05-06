@@ -1,18 +1,9 @@
-export interface BookmarkLinks {
-  about: string;
-  read: string;
-  self: string;
-  unread: string;
-  image: string;
-}
-
-export interface BookmarksLinks {
-  edit?: string;
-  first?: string;
-  last?: string;
-  prev?: string;
-  next?: string;
-  search?: string;
+export interface BookmarkImage {
+  name: string;
+  url: string;
+  width: number;
+  height: number;
+  format: string;
 }
 
 export interface UserBookmark {
@@ -22,7 +13,7 @@ export interface UserBookmark {
   charset: string;
   title: string;
   description: string;
-  image: string;
+  image?: BookmarkImage;
   addedAt: string;
   updatedAt: string;
   isRead: boolean;
@@ -41,7 +32,3 @@ export interface BookmarkHistory {
   items: BookmarkHistoryEntry[];
 }
 
-export interface Bookmarks {
-  items: Bookmark[];
-  links: BookmarksLinks;
-}

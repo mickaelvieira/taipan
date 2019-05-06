@@ -11,8 +11,11 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// MakeURLAbs defines the type of the anonymous function that makes a URL absolute
+type MakeURLAbs = func(*url.URL) *url.URL
+
 // getAbsURLCreator returns a function that can append the base domain to a URL if it is not absolute
-func getAbsURLCreator(b *url.URL) func(*url.URL) *url.URL {
+func getAbsURLCreator(b *url.URL) MakeURLAbs {
 	return func(u *url.URL) *url.URL {
 		if !u.IsAbs() {
 			username := b.User.Username()

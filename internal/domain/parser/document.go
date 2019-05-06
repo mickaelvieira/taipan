@@ -66,18 +66,21 @@ func (d *Document) Description() string {
 }
 
 // Image retrieves the image URL from the social media tag. It will return an empty string if there isn't any
-func (d *Document) Image() string {
+func (d *Document) Image() *bookmark.Image {
 	var iu *url.URL
-	var u string
 	if d.facebook.Image != nil {
 		iu = d.facebook.Image
 	} else if d.twitter.Image != nil {
 		iu = d.twitter.Image
-	} else {
-		return u
 	}
-	u, _ = url.QueryUnescape(iu.String())
-	return u
+
+	if iu == nil {
+		return nil
+	}
+
+	return &bookmark.Image{
+		URL: iu,
+	}
 }
 
 // ToBookmark is a factory to create a bookmark entity from the document
