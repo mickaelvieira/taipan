@@ -18,9 +18,13 @@ import { SnackbarInfo } from "../ui/Snackbar";
 const styles = ({ palette, spacing }: Theme) =>
   createStyles({
     root: {
-      // display: "flex",
-      // flexDirection: "column",
-      // flexGrow: 1
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center"
+    },
+    inner: {
+      width: "100%",
+      maxWidth: 600
     },
     paper: {
       display: "flex",
@@ -60,7 +64,7 @@ export default withStyles(styles)(function Layout({
       <Sidebar isOpen={isOpen} toggleDrawer={setIsOpen} />
       <Header toggleDrawer={setIsOpen} />
       <Grid container className={classes.root}>
-        <Grid item xs={12} className={classes.root}>
+        <Grid item xs={12} className={classes.inner}>
           <Paper className={classes.paper} square>
             {children}
           </Paper>
