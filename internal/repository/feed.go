@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"log"
+	"strconv"
 )
 
 // FeedRepository the Feed repository
@@ -105,14 +106,14 @@ func (r *FeedRepository) GetByURL(ctx context.Context, URL string) (*feed.Feed, 
 func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed) error {
 	query := `
 		INSERT INTO feeds
-		(id, url, title, type, status, created_at, updated_at)
+		(url, title, type, status, created_at, updated_at)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?)
 	`
-	_, err := r.db.ExecContext(
+
+	result, err := r.db.ExecContext(
 		ctx,
 		query,
-		f.ID,
 		f.URL,
 		f.Title,
 		f.Type,
@@ -121,32 +122,38 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed) error {
 		f.UpdatedAt,
 	)
 
-	if err != nil {
-		return err
+	if err == nil {
+		var ID int64
+		ID, err = result.LastInsertId()
+		if err == nil {
+			f.ID = strconv.FormatInt(ID, 10)
+		}
 	}
 
-	return nil
+	return err
 }
 
 // InsertIfNotExists stores the feed in the database if there is none with the same URL
 func (r *FeedRepository) InsertIfNotExists(ctx context.Context, f *feed.Feed) error {
-	_, err := r.GetByURL(ctx, f.URL)
-	if err == sql.ErrNoRows {
-		return r.Insert(ctx, f)
+	feed, err := r.GetByURL(ctx, f.URL)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = r.Insert(ctx, f)
+		}
+	} else {
+		f.ID = feed.ID
 	}
-
-	return nil
+	return err
 }
 
 // InsertAllIfNotExists stores feeds in the database if there are none with the same URL
 func (r *FeedRepository) InsertAllIfNotExists(ctx context.Context, feeds []*feed.Feed) error {
 	var err error
 	for _, feed := range feeds {
-		err := r.InsertIfNotExists(ctx, feed)
+		err = r.InsertIfNotExists(ctx, feed)
 		if err != nil {
 			break
 		}
 	}
-
 	return err
 }

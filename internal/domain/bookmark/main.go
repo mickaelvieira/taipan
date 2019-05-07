@@ -1,7 +1,6 @@
 package bookmark
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/uuid"
 	"net/url"
 	"time"
 )
@@ -88,7 +87,6 @@ type FetchingHistory struct {
 // New creates a new Bookmark with a UUID
 func New(url string, lang string, charset string, title string, desc string, image *Image) *Bookmark {
 	return &Bookmark{
-		ID:          uuid.New(),
 		URL:         url,
 		Lang:        lang,
 		Charset:     charset,

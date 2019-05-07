@@ -8,9 +8,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { UserBookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CreateBookmarkMutation, {
+import BookmarkMutation, {
   mutation
-} from "../apollo/Mutation/CreateBookmark";
+} from "../apollo/Mutation/Bookmark";
 import { query, variables } from "../apollo/Query/LatestBookmarks";
 
 const styles = () =>
@@ -42,9 +42,9 @@ export default withStyles(styles)(function AddBookmark({
       aria-labelledby="form-dialog-title"
       className={classes.dialog}
     >
-      <CreateBookmarkMutation
+      <BookmarkMutation
         mutation={mutation}
-        onCompleted={({ CreateBookmark: bookmark }) => {
+        onCompleted={({ Bookmark: bookmark }) => {
           setUrl("");
           onBookmarkCreated(bookmark);
         }}
@@ -98,7 +98,7 @@ export default withStyles(styles)(function AddBookmark({
             </>
           );
         }}
-      </CreateBookmarkMutation>
+      </BookmarkMutation>
     </Dialog>
   );
 });

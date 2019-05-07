@@ -14,9 +14,9 @@ import CachedIcon from "@material-ui/icons/Cached";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { UserBookmark } from "../../../types/bookmark";
-import UpdateBookmarkMutation, {
+import BookmarkMutation, {
   mutation
-} from "../../apollo/Mutation/UpdateBookmark";
+} from "../../apollo/Mutation/Bookmark";
 import { truncate } from "../../../helpers/string";
 
 const styles = () =>
@@ -93,7 +93,7 @@ export default withStyles(styles)(
           <IconButton aria-label="Share">
             <ShareIcon />
           </IconButton>
-          <UpdateBookmarkMutation mutation={mutation}>
+          <BookmarkMutation mutation={mutation}>
             {(mutate, { loading }) => (
               <IconButton
                 aria-label="Share"
@@ -108,7 +108,7 @@ export default withStyles(styles)(
                 {loading && <CircularProgress size={16} />}
               </IconButton>
             )}
-          </UpdateBookmarkMutation>
+          </BookmarkMutation>
           <IconButton>
             <MoreVertIcon />
           </IconButton>

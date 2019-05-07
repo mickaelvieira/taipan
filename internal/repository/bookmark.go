@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -124,14 +125,13 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) ([]*boo
 func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) error {
 	query := `
 		INSERT INTO bookmarks
-		(id, url, charset, language, title, description, status, created_at, updated_at)
+		(url, charset, language, title, description, status, created_at, updated_at)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	_, err := r.db.ExecContext(
+	result, err := r.db.ExecContext(
 		ctx,
 		query,
-		b.ID,
 		b.URL,
 		b.Charset,
 		b.Lang,
@@ -141,6 +141,14 @@ func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) e
 		b.CreatedAt,
 		b.UpdatedAt,
 	)
+
+	if err == nil {
+		var ID int64
+		ID, err = result.LastInsertId()
+		if err == nil {
+			b.ID = strconv.FormatInt(ID, 10)
+		}
+	}
 
 	return err
 }

@@ -2,7 +2,6 @@ package feed
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/uuid"
 	"strings"
 	"time"
 )
@@ -63,7 +62,6 @@ type Feed struct {
 // New creates a new Feed with a UUID
 func New(url string, title string, feedType Type) Feed {
 	return Feed{
-		ID:        uuid.New(),
 		URL:       url,
 		Title:     title,
 		Type:      feedType,

@@ -140,7 +140,6 @@ func (r *UserBookmarkRepository) GetByURL(ctx context.Context, user *user.User, 
 	`
 	row := r.db.QueryRowContext(ctx, query, user.ID, URL)
 	bookmark, err := r.scan(row)
-
 	if err != nil {
 		return nil, err
 	}
@@ -215,15 +214,13 @@ func (r *UserBookmarkRepository) scan(rows Scanable) (*bookmark.UserBookmark, er
 			return nil, err
 		}
 
-		i := bookmark.Image{
+		b.Image = &bookmark.Image{
 			URL:    u,
 			Name:   rw.imageName,
 			Width:  rw.imageWidth,
 			Height: rw.imageHeight,
 			Format: rw.imageFormat,
 		}
-
-		b.Image = &i
 	}
 
 	return &b, nil

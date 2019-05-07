@@ -9,8 +9,7 @@ type Query {
 }
 
 type Mutation {
-  CreateBookmark(url: String!): UserBookmark
-  UpdateBookmark(url: String!): UserBookmark
+  Bookmark(url: String!): UserBookmark
   # DeleteBookmark(id: ID!): Boolean
   # MarkBookmarkAsRead(id: ID!): Bookmark
   # MarkBookmarkAsUnread(id: ID!): Bookmark
