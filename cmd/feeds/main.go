@@ -19,7 +19,11 @@ func main() {
 	repo := repository.GetRepositories().Feeds
 
 	ctx := context.Background()
-	feeds := repo.GetNewFeeds(ctx)
+	feeds, err := repo.GetNewFeeds(ctx)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for _, feed := range feeds {
 		fmt.Println(feed.URL)
