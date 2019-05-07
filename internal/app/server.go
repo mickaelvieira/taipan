@@ -39,7 +39,7 @@ func (s *Server) QueryHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	ctx := context.Background()
-	ctx = userid.NewContext(ctx, "c1479a73-2f8a-11e8-ade8-fa163ea9b6ed")
+	ctx = userid.NewContext(ctx, "1")
 
 	handler := &relay.Handler{Schema: s.schema}
 	handler.ServeHTTP(w, req.WithContext(ctx))

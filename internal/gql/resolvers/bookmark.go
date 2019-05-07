@@ -2,6 +2,8 @@ package resolvers
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/parser"
 	"github/mickaelvieira/taipan/internal/s3"
 	"log"
@@ -17,6 +19,9 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 
 	user, err := r.getUser(ctx)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("Unknown user")
+		}
 		return nil, err
 	}
 
@@ -41,6 +46,9 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 
 	user, err := r.getUser(ctx)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("Unknown user")
+		}
 		return nil, err
 	}
 
@@ -80,6 +88,9 @@ func (r *Resolvers) CreateBookmark(ctx context.Context, args struct {
 
 	user, err := r.getUser(ctx)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("Unknown user")
+		}
 		return nil, err
 	}
 
@@ -141,6 +152,9 @@ func (r *Resolvers) UpdateBookmark(ctx context.Context, args struct {
 
 	user, err := r.getUser(ctx)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("Unknown user")
+		}
 		return nil, err
 	}
 

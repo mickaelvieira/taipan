@@ -102,7 +102,7 @@ func (r *UserBookmarkRepository) FindLatest(ctx context.Context, user *user.User
 	}
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	if err = rows.Err(); err != nil {
