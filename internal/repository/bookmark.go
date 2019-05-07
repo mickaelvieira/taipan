@@ -5,9 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"log"
+	"github/mickaelvieira/taipan/internal/domain/user"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // BookmarkRepository the User Bookmark repository
@@ -17,61 +18,34 @@ type BookmarkRepository struct {
 
 // GetByID find a single entry
 func (r *BookmarkRepository) GetByID(ctx context.Context, id string) (*bookmark.Bookmark, error) {
-	var bookmark bookmark.Bookmark
-
 	query := `
-		SELECT id, url, charset, language, title, description, image_url, status, created_at, updated_at
-		FROM bookmarks
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		FROM bookmarks AS b
 		WHERE id = ?
 	`
-	err := r.db.QueryRowContext(ctx, query, id).
-		Scan(
-			&bookmark.ID,
-			&bookmark.URL,
-			&bookmark.Charset,
-			&bookmark.Lang,
-			&bookmark.Title,
-			&bookmark.Description,
-			&bookmark.Image,
-			&bookmark.Status,
-			&bookmark.CreatedAt,
-			&bookmark.UpdatedAt,
-		)
-
+	row := r.db.QueryRowContext(ctx, query, id)
+	bookmark, err := r.scan(row)
 	if err != nil {
 		return nil, err
 	}
 
-	return &bookmark, nil
+	return bookmark, nil
 }
 
 // GetByURL find a single entry
 func (r *BookmarkRepository) GetByURL(ctx context.Context, URL string) (*bookmark.Bookmark, error) {
-	var bookmark bookmark.Bookmark
-
 	query := `
-		SELECT id, url, charset, language, title, description, status, created_at, updated_at
-		FROM bookmarks
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		FROM bookmarks AS b
 		WHERE url = ?
 	`
-	err := r.db.QueryRowContext(ctx, query, URL).
-		Scan(
-			&bookmark.ID,
-			&bookmark.URL,
-			&bookmark.Charset,
-			&bookmark.Lang,
-			&bookmark.Title,
-			&bookmark.Description,
-			&bookmark.Status,
-			&bookmark.CreatedAt,
-			&bookmark.UpdatedAt,
-		)
-
+	row := r.db.QueryRowContext(ctx, query, URL)
+	bookmark, err := r.scan(row)
 	if err != nil {
 		return nil, err
 	}
 
-	return &bookmark, nil
+	return bookmark, nil
 }
 
 // GetByIDs find all entries
@@ -84,8 +58,8 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) ([]*boo
 	}
 
 	query := `
-		SELECT id, url, charset, language, title, description, image_url, status, created_at, updated_at
-		FROM bookmarks
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		FROM bookmarks AS b
 		WHERE id IN (?%s)
 	`
 	query = fmt.Sprintf(query, strings.Repeat(",?", len(ids)-1))
@@ -95,23 +69,11 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) ([]*boo
 	}
 
 	for rows.Next() {
-		var bookmark bookmark.Bookmark
-		if err := rows.
-			Scan(
-				&bookmark.ID,
-				&bookmark.URL,
-				&bookmark.Charset,
-				&bookmark.Lang,
-				&bookmark.Title,
-				&bookmark.Description,
-				&bookmark.Image,
-				&bookmark.Status,
-				&bookmark.CreatedAt,
-				&bookmark.UpdatedAt,
-			); err != nil {
-			log.Fatal(err)
+		bookmark, err := r.scan(rows)
+		if err != nil {
+			return nil, err
 		}
-		bookmarks = append(bookmarks, &bookmark)
+		bookmarks = append(bookmarks, bookmark)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -119,6 +81,53 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) ([]*boo
 	}
 
 	return bookmarks, nil
+}
+
+// FindNew find newest entries
+func (r *BookmarkRepository) FindNew(ctx context.Context, user *user.User, cursor int32, limit int32) ([]*bookmark.Bookmark, error) {
+	var bookmarks []*bookmark.Bookmark
+
+	query := `
+		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		FROM bookmarks AS b
+		LEFT JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
+		WHERE ub.user_id IS NULL OR ub.user_id != ?
+		ORDER BY b.updated_at DESC
+		LIMIT ?, ?
+	`
+	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		bookmark, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		bookmarks = append(bookmarks, bookmark)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return bookmarks, nil
+}
+
+// GetTotal count latest entries
+func (r *BookmarkRepository) GetTotal(ctx context.Context) (int32, error) {
+	var total int32
+
+	query := `
+		SELECT COUNT(b.id) as total FROM bookmarks AS b
+	`
+	err := r.db.QueryRowContext(ctx, query).Scan(&total)
+	if err != nil {
+		return total, err
+	}
+
+	return total, nil
 }
 
 // Insert creates a new bookmark in the DB
@@ -209,4 +218,51 @@ func (r *BookmarkRepository) Upsert(ctx context.Context, b *bookmark.Bookmark) e
 	b.ID = bookmark.ID
 
 	return r.Update(ctx, b)
+}
+
+func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
+	var id, URL, lang, charset, title, description, imageURL, imageName, imageFormat string
+	var imageWidth, imageHeight int32
+	var createdAt, updatedAt time.Time
+
+	err := rows.Scan(
+		&id,
+		&URL,
+		&charset,
+		&lang,
+		&title,
+		&description,
+		&imageURL,
+		&imageName,
+		&imageWidth,
+		&imageHeight,
+		&imageFormat,
+		&createdAt,
+		&updatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var bookmark = bookmark.Bookmark{
+		ID:          id,
+		URL:         URL,
+		Charset:     charset,
+		Lang:        lang,
+		Title:       title,
+		Description: description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+	}
+
+	if imageURL != "" {
+		image, err := getBookmarkImage(imageURL, imageName, imageWidth, imageHeight, imageFormat)
+		if err != nil {
+			return nil, err
+		}
+		bookmark.Image = image
+	}
+
+	return &bookmark, nil
 }

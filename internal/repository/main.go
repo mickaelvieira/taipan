@@ -2,6 +2,8 @@ package repository
 
 import (
 	"github/mickaelvieira/taipan/internal/db"
+	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"net/url"
 )
 
 // Scanable sql.Rows or sql.Row
@@ -27,4 +29,21 @@ func GetRepositories() *Repositories {
 		Bookmarks:     &BookmarkRepository{db: db},
 		UserBookmarks: &UserBookmarkRepository{db: db},
 	}
+}
+
+func getBookmarkImage(rawURL string, name string, width int32, height int32, format string) (*bookmark.Image, error) {
+	URL, err := url.ParseRequestURI(rawURL)
+	if err != nil {
+		return nil, err
+	}
+
+	var image = bookmark.Image{
+		URL:    URL,
+		Name:   name,
+		Width:  width,
+		Height: height,
+		Format: format,
+	}
+
+	return &image, nil
 }

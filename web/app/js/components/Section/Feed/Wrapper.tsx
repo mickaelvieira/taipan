@@ -1,40 +1,16 @@
 import React, { useEffect } from "react";
-// import { FetchMoreOptions, ApolloQueryResult } from "react-apollo";
-import { hasReachedTheBottom } from "../../../helpers/window";
 import Loader from "../../ui/Loader";
 import List, { Props as ListProps } from "./List";
 import {
   variables,
-  query,
   Variables,
   Data
 } from "../../apollo/Query/LatestBookmarks";
 import useWindoBottom from "../../../hooks/window-bottom";
 
-// const styles = () =>
-//   createStyles({
-//     scrolling: {
-//       pointerEvents: "none"
-//     },
-//     idle: {
-//       pointerEvents: "auto"
-//     }
-//   });
-
-// export interface RenderProps {
-//   isScrolling: boolean;
-//   isAtTheBottom: boolean;
-// }
-
-// interface Props {
-//   hasResults: boolean;
-//   bookmarks: UserBookmark[];
-// }
-
-// type ;
-
 interface Props extends ListProps {
   isLoading: boolean;
+  queryKey: string;
   fetchMore: (options: {
     variables: Variables;
     updateQuery: (
@@ -49,16 +25,13 @@ interface Props extends ListProps {
 
 export default function FeedWrapper({
   isLoading,
+  queryKey,
   fetchMore,
   hasResults,
   bookmarks
 }: Props) {
   const isAtTheBottom = useWindoBottom();
-
-  // console.log(`isScrolling ${isScrolling}`);
-  // const isAtTheBottom = hasReachedTheBottom();
   const offset = bookmarks.length;
-  // console.log(`Bottom ${isAtTheBottom}`);
 
   useEffect(() => {
     // console.log("fetch more");
@@ -82,11 +55,11 @@ export default function FeedWrapper({
           }
 
           return {
-            GetLatestBookmarks: {
-              ...fetchMoreResult.GetLatestBookmarks,
+            [queryKey]: {
+              ...fetchMoreResult[queryKey],
               results: [
-                ...prev.GetLatestBookmarks.results,
-                ...fetchMoreResult.GetLatestBookmarks.results
+                ...prev[queryKey].results,
+                ...fetchMoreResult[queryKey].results
               ]
             }
           };

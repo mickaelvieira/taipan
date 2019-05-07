@@ -5,14 +5,12 @@ schema {
 
 type Query {
   GetBookmark(url: String!): UserBookmark
-  GetLatestBookmarks(offset: Int, limit: Int): BookmarkCollection
+  GetNewBookmarks(offset: Int, limit: Int): BookmarkCollection
+  GetLatestBookmarks(offset: Int, limit: Int): UserBookmarkCollection
 }
 
 type Mutation {
   Bookmark(url: String!): UserBookmark
-  # DeleteBookmark(id: ID!): Boolean
-  # MarkBookmarkAsRead(id: ID!): Bookmark
-  # MarkBookmarkAsUnread(id: ID!): Bookmark
 }
 
 enum BookmarkStatus {
@@ -28,6 +26,13 @@ type BookmarkCollection {
   offset: Int!
   total: Int!
   limit: Int!
+  results: [Bookmark]
+}
+
+type UserBookmarkCollection {
+  offset: Int!
+  total: Int!
+  limit: Int!
   results: [UserBookmark]
 }
 
@@ -35,7 +40,6 @@ interface Node {
   id: ID!
 }
 
-# @TODO To implement
 type BookmarkImage {
   name: String!
   url: String!
@@ -51,8 +55,7 @@ type Bookmark implements Node {
   charset: String!
   title: String!
   description: String!
-  image: String
-  status: BookmarkStatus!
+  image: BookmarkImage
   createdAt: String!
   updatedAt: String!
 }

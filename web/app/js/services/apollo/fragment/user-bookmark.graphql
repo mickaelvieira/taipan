@@ -1,4 +1,4 @@
-fragment bookmarkFields on Bookmark {
+fragment userBookmarkFields on UserBookmark {
   id
   url
   title
@@ -12,6 +12,7 @@ fragment bookmarkFields on Bookmark {
     height
     format
   }
-  createdAt
+  addedAt
   updatedAt
+  isRead
 }

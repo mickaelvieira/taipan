@@ -14,7 +14,7 @@ const defBkmkLimit = 10
 // GetBookmark resolves the query
 func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	URL string
-}) (*BookmarkResolver, error) {
+}) (*UserBookmarkResolver, error) {
 	userBookmarksRepo := r.Repositories.UserBookmarks
 
 	user, err := r.getUser(ctx)
@@ -30,16 +30,59 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := BookmarkResolver{UserBookmark: userBookmark}
+	res := UserBookmarkResolver{UserBookmark: userBookmark}
 
 	return &res, nil
+}
+
+// GetNewBookmarks resolves the query
+func (r *Resolvers) GetNewBookmarks(ctx context.Context, args struct {
+	Offset *int32
+	Limit  *int32
+}) (*BookmarkCollectionResolver, error) {
+	bookmarksRepo := r.Repositories.Bookmarks
+	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
+	offset, limit := fromArgs(args.Offset, args.Limit)
+
+	user, err := r.getUser(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("Unknown user")
+		}
+		return nil, err
+	}
+
+	results, err := bookmarksRepo.FindNew(ctx, user, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := bookmarksRepo.GetTotal(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var bookmarks []*BookmarkResolver
+	for _, result := range results {
+		res := BookmarkResolver{Bookmark: result}
+		bookmarks = append(bookmarks, &res)
+	}
+
+	reso := BookmarkCollectionResolver{
+		Results: &bookmarks,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
+
+	return &reso, nil
 }
 
 // GetLatestBookmarks resolves the query
 func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	Offset *int32
 	Limit  *int32
-}) (*BookmarkCollectionResolver, error) {
+}) (*UserBookmarkCollectionResolver, error) {
 	userBookmarksRepo := r.Repositories.UserBookmarks
 	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
 	offset, limit := fromArgs(args.Offset, args.Limit)
@@ -62,13 +105,13 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var bookmarks []*BookmarkResolver
+	var bookmarks []*UserBookmarkResolver
 	for _, result := range results {
-		res := BookmarkResolver{UserBookmark: result}
+		res := UserBookmarkResolver{UserBookmark: result}
 		bookmarks = append(bookmarks, &res)
 	}
 
-	reso := BookmarkCollectionResolver{
+	reso := UserBookmarkCollectionResolver{
 		Results: &bookmarks,
 		Total:   total,
 		Offset:  offset,
@@ -81,7 +124,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 // Bookmark bookmarks a URL
 func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	URL string
-}) (*BookmarkResolver, error) {
+}) (*UserBookmarkResolver, error) {
 	feedsRepo := r.Repositories.Feeds
 	bookmarksRepo := r.Repositories.Bookmarks
 	userBookmarksRepo := r.Repositories.UserBookmarks
@@ -137,7 +180,7 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := BookmarkResolver{UserBookmark: userBookmark}
+	res := UserBookmarkResolver{UserBookmark: userBookmark}
 
 	return &res, nil
 }

@@ -5,75 +5,12 @@ import (
 	"database/sql"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/user"
-	"log"
-	"net/url"
 	"time"
 )
-
-type row struct {
-	id          string
-	url         string
-	lang        string
-	charset     string
-	title       string
-	description string
-	imageURL    string
-	imageName   string
-	imageWidth  int32
-	imageHeight int32
-	imageFormat string
-	addedAt     time.Time
-	updatedAt   time.Time
-	isRead      bool
-	isLinked    bool
-}
 
 // UserBookmarkRepository the User Bookmark repository
 type UserBookmarkRepository struct {
 	db *sql.DB
-}
-
-// FindNew find newest entries
-func (r *UserBookmarkRepository) FindNew(ctx context.Context, user *user.User, cursor int32, limit int32) ([]*bookmark.Bookmark, error) {
-	var bookmarks []*bookmark.Bookmark
-
-	query := `
-		SELECT b.id, user_id, url, charset, language, title, description, image_url, status, created_at, updated_at
-		FROM bookmarks AS b
-		LEFT JOIN users_bookmarks ON ub.bookmark_id = b.id
-		WHERE ub.user_id IS NULL OR ub.user_id != ?
-		ORDER BY b.created_at_at DESC
-		LIMIT ?, ?
-	`
-	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		var bookmark bookmark.Bookmark
-		if err := rows.Scan(
-			&bookmark.ID,
-			&bookmark.URL,
-			&bookmark.Charset,
-			&bookmark.Lang,
-			&bookmark.Title,
-			&bookmark.Description,
-			&bookmark.Image,
-			&bookmark.Status,
-			&bookmark.CreatedAt,
-			&bookmark.UpdatedAt,
-		); err != nil {
-			log.Fatal(err)
-		}
-		bookmarks = append(bookmarks, &bookmark)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return bookmarks, nil
 }
 
 // FindLatest find latest entries
@@ -170,24 +107,27 @@ func (r *UserBookmarkRepository) AddToUserCollection(ctx context.Context, user *
 }
 
 func (r *UserBookmarkRepository) scan(rows Scanable) (*bookmark.UserBookmark, error) {
-	var rw row
+	var id, url, lang, charset, title, description, imageURL, imageName, imageFormat string
+	var imageWidth, imageHeight int32
+	var addedAt, updatedAt time.Time
+	var isRead, isLinked bool
 
 	err := rows.Scan(
-		&rw.id,
-		&rw.url,
-		&rw.charset,
-		&rw.lang,
-		&rw.title,
-		&rw.description,
-		&rw.imageURL,
-		&rw.imageName,
-		&rw.imageWidth,
-		&rw.imageHeight,
-		&rw.imageFormat,
-		&rw.addedAt,
-		&rw.updatedAt,
-		&rw.isLinked,
-		&rw.isRead,
+		&id,
+		&url,
+		&charset,
+		&lang,
+		&title,
+		&description,
+		&imageURL,
+		&imageName,
+		&imageWidth,
+		&imageHeight,
+		&imageFormat,
+		&addedAt,
+		&updatedAt,
+		&isLinked,
+		&isRead,
 	)
 
 	if err != nil {
@@ -195,32 +135,24 @@ func (r *UserBookmarkRepository) scan(rows Scanable) (*bookmark.UserBookmark, er
 	}
 
 	b := bookmark.UserBookmark{
-		ID:          rw.id,
-		URL:         rw.url,
-		Charset:     rw.charset,
-		Lang:        rw.lang,
-		Title:       rw.title,
-		Description: rw.description,
-		AddedAt:     rw.addedAt,
-		UpdatedAt:   rw.updatedAt,
-		IsLinked:    rw.isLinked,
-		IsRead:      rw.isRead,
+		ID:          id,
+		URL:         url,
+		Charset:     charset,
+		Lang:        lang,
+		Title:       title,
+		Description: description,
+		AddedAt:     addedAt,
+		UpdatedAt:   updatedAt,
+		IsLinked:    isLinked,
+		IsRead:      isRead,
 	}
 
-	if rw.imageURL != "" {
-		u, err := url.ParseRequestURI(rw.imageURL)
-
+	if imageURL != "" {
+		image, err := getBookmarkImage(imageURL, imageName, imageWidth, imageHeight, imageFormat)
 		if err != nil {
 			return nil, err
 		}
-
-		b.Image = &bookmark.Image{
-			URL:    u,
-			Name:   rw.imageName,
-			Width:  rw.imageWidth,
-			Height: rw.imageHeight,
-			Format: rw.imageFormat,
-		}
+		b.Image = image
 	}
 
 	return &b, nil
