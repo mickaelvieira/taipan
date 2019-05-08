@@ -71,19 +71,6 @@ type UserBookmark struct {
 	IsLinked    bool
 }
 
-// FetchingHistory represents an entry in the history logs
-// @TODO I need to find a better name
-type FetchingHistory struct {
-	ID               string
-	ReqURI           string
-	ReqMethod        string
-	ReqHeaders       string
-	RespStatusCode   int
-	RespReasonPhrase string
-	RespHeaders      string
-	CreatedAt        time.Time
-}
-
 // New creates a new Bookmark with a UUID
 func New(url string, lang string, charset string, title string, desc string, image *Image) *Bookmark {
 	return &Bookmark{

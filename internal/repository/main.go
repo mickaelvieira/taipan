@@ -17,6 +17,7 @@ type Repositories struct {
 	Feeds         *FeedRepository
 	Bookmarks     *BookmarkRepository
 	UserBookmarks *UserBookmarkRepository
+	Botlogs       *BotlogRepository
 }
 
 // GetRepositories builds the repository holder
@@ -28,6 +29,7 @@ func GetRepositories() *Repositories {
 		Feeds:         &FeedRepository{db: db},
 		Bookmarks:     &BookmarkRepository{db: db},
 		UserBookmarks: &UserBookmarkRepository{db: db},
+		Botlogs:       &BotlogRepository{db: db},
 	}
 }
 

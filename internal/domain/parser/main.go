@@ -2,10 +2,9 @@ package parser
 
 import (
 	"errors"
-	"fmt"
+	"github/mickaelvieira/taipan/internal/domain/fetcher"
 	"io"
 	"log"
-	"net/http"
 	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
@@ -35,7 +34,7 @@ func getAbsURLCreator(b *url.URL) MakeURLAbs {
 }
 
 // MustParse parses the html tree and creates our parsed document
-func mustParse(URL *url.URL, r io.ReadCloser) *Document {
+func mustParse(URL *url.URL, r io.Reader) *Document {
 	document, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
 		log.Fatal(err)
@@ -74,23 +73,20 @@ func mustParse(URL *url.URL, r io.ReadCloser) *Document {
 
 // FetchAndParse fetch the content from the provided URL
 // and returns a document containing the relevant information we need
-func FetchAndParse(rawURL string) (*Document, error) {
+func FetchAndParse(rawURL string) (*Document, *fetcher.RequestLog, error) {
 	URL, err := url.ParseRequestURI(rawURL)
 	if err != nil || !URL.IsAbs() {
-		return nil, errors.New("Invalid URL")
-	}
-	resp, err := http.Get(URL.String())
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("status code error: %d %s", resp.StatusCode, resp.Status)
+		return nil, nil, errors.New("Invalid URL")
 	}
 
-	document := mustParse(URL, resp.Body)
+	f := fetcher.Fetcher{}
+	f.Fetch(URL)
 
+	// @TODO consider the case when we can't fetch the document
+	document := mustParse(URL, f.Reader)
+
+	// log.Println(f.Log)
 	log.Println(document)
 
-	return document, nil
+	return document, f.Log, nil
 }

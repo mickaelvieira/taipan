@@ -76,16 +76,3 @@ type UserFeed struct {
 	Feed
 	AddedAt time.Time
 }
-
-// FetchingHistory represents an entry in the history logs
-// @TODO I need to find a better name
-type FetchingHistory struct {
-	ID               string
-	ReqURI           string
-	ReqMethod        string
-	ReqHeaders       string
-	RespStatusCode   int
-	RespReasonPhrase string
-	RespHeaders      string
-	CreatedAt        time.Time
-}

@@ -128,6 +128,7 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	feedsRepo := r.Repositories.Feeds
 	bookmarksRepo := r.Repositories.Bookmarks
 	userBookmarksRepo := r.Repositories.UserBookmarks
+	logsRepo := r.Repositories.Botlogs
 
 	user, err := r.getUser(ctx)
 	if err != nil {
@@ -137,7 +138,7 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	document, err := parser.FetchAndParse(args.URL)
+	document, reqLog, err := parser.FetchAndParse(args.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -163,6 +164,11 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	err = logsRepo.Insert(ctx, reqLog)
+	if err != nil {
+		return nil, err
 	}
 
 	err = feedsRepo.InsertAllIfNotExists(ctx, document.Feeds)
