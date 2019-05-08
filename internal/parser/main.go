@@ -1,10 +1,7 @@
 package parser
 
 import (
-	"errors"
-	"github/mickaelvieira/taipan/internal/domain/fetcher"
 	"io"
-	"log"
 	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
@@ -33,11 +30,11 @@ func getAbsURLCreator(b *url.URL) MakeURLAbs {
 	}
 }
 
-// MustParse parses the html tree and creates our parsed document
-func mustParse(URL *url.URL, r io.Reader) *Document {
+// Parse parses the html tree and creates our parsed document
+func Parse(URL *url.URL, r io.Reader) (*Document, error) {
 	document, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	makeAbs := getAbsURLCreator(URL)
@@ -58,7 +55,7 @@ func mustParse(URL *url.URL, r io.Reader) *Document {
 		document: document,
 	}
 
-	return &Document{
+	doc := &Document{
 		origURL:   URL,
 		title:     p.Title(),
 		desc:      p.Description(),
@@ -69,24 +66,6 @@ func mustParse(URL *url.URL, r io.Reader) *Document {
 		facebook:  p.FacebookTags(),
 		Feeds:     p.Feeds(),
 	}
-}
 
-// FetchAndParse fetch the content from the provided URL
-// and returns a document containing the relevant information we need
-func FetchAndParse(rawURL string) (*Document, *fetcher.RequestLog, error) {
-	URL, err := url.ParseRequestURI(rawURL)
-	if err != nil || !URL.IsAbs() {
-		return nil, nil, errors.New("Invalid URL")
-	}
-
-	f := fetcher.Fetcher{}
-	f.Fetch(URL)
-
-	// @TODO consider the case when we can't fetch the document
-	document := mustParse(URL, f.Reader)
-
-	// log.Println(f.Log)
-	log.Println(document)
-
-	return document, f.Log, nil
+	return doc, nil
 }

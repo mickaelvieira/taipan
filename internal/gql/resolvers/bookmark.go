@@ -4,9 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/parser"
-	"github/mickaelvieira/taipan/internal/s3"
-	"log"
+	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/usecase"
 )
 
 const defBkmkLimit = 10
@@ -125,10 +124,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	URL string
 }) (*UserBookmarkResolver, error) {
-	feedsRepo := r.Repositories.Feeds
-	bookmarksRepo := r.Repositories.Bookmarks
 	userBookmarksRepo := r.Repositories.UserBookmarks
-	logsRepo := r.Repositories.Botlogs
 
 	user, err := r.getUser(ctx)
 	if err != nil {
@@ -138,40 +134,8 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	document, reqLog, err := parser.FetchAndParse(args.URL)
-	if err != nil {
-		return nil, err
-	}
-
-	bookmark := document.ToBookmark()
-
-	if bookmark.Image != nil {
-		image, err := s3.Upload(bookmark.Image.URL.String())
-		if err != nil {
-			log.Println(err) // @TODO we might eventually better handle this case
-		} else {
-			bookmark.Image = image
-		}
-	}
-
-	err = bookmarksRepo.Upsert(ctx, bookmark)
-	if err != nil {
-		return nil, err
-	}
-
-	if bookmark.Image != nil {
-		err = bookmarksRepo.UpdateImage(ctx, bookmark)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	err = logsRepo.Insert(ctx, reqLog)
-	if err != nil {
-		return nil, err
-	}
-
-	err = feedsRepo.InsertAllIfNotExists(ctx, document.Feeds)
+	var bookmark *bookmark.Bookmark
+	bookmark, err = usecase.Bookmark(ctx, args.URL, r.Repositories)
 	if err != nil {
 		return nil, err
 	}

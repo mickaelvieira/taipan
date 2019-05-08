@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/domain/fetcher"
+	"github/mickaelvieira/taipan/internal/client"
 )
 
 // BotlogRepository the Bot logs repository
@@ -12,7 +12,7 @@ type BotlogRepository struct {
 }
 
 // Insert saves an entry in the bookmark log
-func (r *BotlogRepository) Insert(ctx context.Context, l *fetcher.RequestLog) error {
+func (r *BotlogRepository) Insert(ctx context.Context, l *client.Result) error {
 	query := `
 		INSERT INTO bot_logs
 		(checksum, content_type, response_status_code, response_reason_phrase, response_headers, request_uri, request_method, request_headers, created_at)
@@ -37,7 +37,7 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *fetcher.RequestLog) er
 }
 
 // FindLatestByURI find the latest log entry for a given URI
-func (r *BotlogRepository) FindLatestByURI(ctx context.Context, URL string) (*fetcher.RequestLog, error) {
+func (r *BotlogRepository) FindLatestByURI(ctx context.Context, URL string) (*client.Result, error) {
 	query := `
 		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
@@ -55,8 +55,8 @@ func (r *BotlogRepository) FindLatestByURI(ctx context.Context, URL string) (*fe
 }
 
 // FindByURI finds the log entries for a give URI
-func (r *BotlogRepository) FindByURI(ctx context.Context, URI string) ([]*fetcher.RequestLog, error) {
-	var logs []*fetcher.RequestLog
+func (r *BotlogRepository) FindByURI(ctx context.Context, URI string) ([]*client.Result, error) {
+	var logs []*client.Result
 
 	query := `
 		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
@@ -69,7 +69,7 @@ func (r *BotlogRepository) FindByURI(ctx context.Context, URI string) ([]*fetche
 	}
 
 	for rows.Next() {
-		var log *fetcher.RequestLog
+		var log *client.Result
 		log, err = r.scan(rows)
 		if err != nil {
 			return nil, err
@@ -84,8 +84,8 @@ func (r *BotlogRepository) FindByURI(ctx context.Context, URI string) ([]*fetche
 	return logs, nil
 }
 
-func (r *BotlogRepository) scan(rows Scanable) (*fetcher.RequestLog, error) {
-	var l fetcher.RequestLog
+func (r *BotlogRepository) scan(rows Scanable) (*client.Result, error) {
+	var l client.Result
 	var checksum sql.NullString
 
 	err := rows.Scan(

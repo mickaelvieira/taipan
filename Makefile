@@ -17,6 +17,9 @@ build-migration:
 run:
 	cd cmd/web && ./web
 
+run-feeds:
+	cd cmd/feeds && ./feeds
+
 analyse:
 	staticcheck cmd/web/main.go
 	staticcheck cmd/feeds/main.go

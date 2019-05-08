@@ -46,7 +46,8 @@ func (r *FeedRepository) GetNewFeeds(ctx context.Context) ([]*feed.Feed, error) 
 	query := `
 		SELECT id, url, title, type, status, created_at, updated_at
 		FROM feeds
-		WHERE status = ?
+		WHERE status = ? AND url != "http://1001days.london/comments/feed/"
+		LIMIT 1
 	`
 	rows, err := r.db.QueryContext(ctx, query, feed.NEW)
 	if err != nil {
