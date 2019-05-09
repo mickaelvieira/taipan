@@ -2,6 +2,7 @@ package parser
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/helpers"
 	"html"
 	"net/url"
 	"strings"
@@ -107,7 +108,7 @@ func (p *Parser) CanonicalURL() *url.URL {
 			break
 		}
 	}
-	return p.parseRawURL(rawURL)
+	return p.parseAndNormalizeRawURL(rawURL)
 }
 
 // Feeds parses feeds links
@@ -117,7 +118,7 @@ func (p *Parser) Feeds() []*feed.Feed {
 		url := p.normalizeAttrValue(s.AttrOr("href", ""))
 		title := p.normalizeAttrValue(s.AttrOr("title", ""))
 		feedType, err := feed.GetFeedType(p.normalizeAttrValue(s.AttrOr("type", "")))
-		urlFeed := p.parseRawURL(url)
+		urlFeed := p.parseAndNormalizeRawURL(url)
 		if err == nil && urlFeed != nil {
 			feed := feed.New(urlFeed.String(), title, feedType)
 			feeds = append(feeds, &feed)
@@ -161,8 +162,8 @@ func (p *Parser) parseSocialTags(prefix string, property string) *Social {
 	return &Social{
 		Title:       title,
 		Description: desc,
-		Image:       p.parseRawURL(image),
-		URL:         p.parseRawURL(url),
+		Image:       p.parseAndNormalizeRawURL(image),
+		URL:         p.parseAndNormalizeRawURL(url),
 	}
 }
 
@@ -176,10 +177,12 @@ func (p *Parser) normalizeHTMLText(val string) string {
 	return html.UnescapeString(strings.Trim(val, " \n"))
 }
 
-func (p *Parser) parseRawURL(rawURL string) *url.URL {
+func (p *Parser) parseAndNormalizeRawURL(rawURL string) *url.URL {
 	URL, _ := url.ParseRequestURI(rawURL)
 	if URL != nil {
 		p.makeAbs(URL)
+		helpers.RemoveFragment(URL)
 	}
+
 	return URL
 }

@@ -124,8 +124,6 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	URL string
 }) (*UserBookmarkResolver, error) {
-	userBookmarksRepo := r.Repositories.UserBookmarks
-
 	user, err := r.getUser(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -134,23 +132,16 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var bookmark *bookmark.Bookmark
-	bookmark, err = usecase.Bookmark(ctx, args.URL, r.Repositories)
+	var b *bookmark.Bookmark
+	b, err = usecase.Bookmark(ctx, args.URL, r.Repositories)
 	if err != nil {
 		return nil, err
 	}
 
-	err = userBookmarksRepo.AddToUserCollection(ctx, user, bookmark)
-	if err != nil {
-		return nil, err
-	}
+	var ub *bookmark.UserBookmark
+	ub, err = usecase.CreateUserBookmark(ctx, user, b, r.Repositories)
 
-	userBookmark, err := userBookmarksRepo.GetByURL(ctx, user, bookmark.URL)
-	if err != nil {
-		return nil, err
-	}
+	res := &UserBookmarkResolver{UserBookmark: ub}
 
-	res := UserBookmarkResolver{UserBookmark: userBookmark}
-
-	return &res, nil
+	return res, nil
 }

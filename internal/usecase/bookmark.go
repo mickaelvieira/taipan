@@ -5,6 +5,8 @@ import (
 	"errors"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/helpers"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/s3"
@@ -13,13 +15,21 @@ import (
 	"net/url"
 )
 
-// Bookmark bookmark use case
+// Bookmark in this use case, given a provided URL, we will from:
+// - Fetch the corresponding document
+// - Parse the document
+// - Upload the document's image to AWS S3
+// - Insert/Update the bookmark in the DB
+// - Insert new feeds URL in the DB
+// - And finally returns the bookmark entity
 func Bookmark(ctx context.Context, rawURL string, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
 	cl := client.Client{}
 	URL, err := url.ParseRequestURI(rawURL)
 	if err != nil || !URL.IsAbs() {
 		return nil, errors.New("Invalid URL")
 	}
+
+	URL = helpers.RemoveFragment(URL)
 
 	var reader io.Reader
 	var result *client.Result
@@ -73,4 +83,22 @@ func Bookmark(ctx context.Context, rawURL string, repositories *repository.Repos
 	}
 
 	return bookmark, nil
+}
+
+// CreateUserBookmark in this use case given a user and a bookmarkwe will from:
+// - Add the bookmark to the user's bookmark collection
+// - Save it in the DB
+// - And finally return the user's bookmark
+func CreateUserBookmark(ctx context.Context, user *user.User, bookmark *bookmark.Bookmark, repositories *repository.Repositories) (*bookmark.UserBookmark, error) {
+	err := repositories.UserBookmarks.AddToUserCollection(ctx, user, bookmark)
+	if err != nil {
+		return nil, err
+	}
+
+	userBookmark, err := repositories.UserBookmarks.GetByURL(ctx, user, bookmark.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	return userBookmark, nil
 }
