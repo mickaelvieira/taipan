@@ -2,7 +2,7 @@ package parser
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/feed"
-	"github/mickaelvieira/taipan/internal/helpers"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"html"
 	"net/url"
 	"strings"
@@ -120,7 +120,11 @@ func (p *Parser) Feeds() []*feed.Feed {
 		feedType, err := feed.GetFeedType(p.normalizeAttrValue(s.AttrOr("type", "")))
 		urlFeed := p.parseAndNormalizeRawURL(url)
 		if err == nil && urlFeed != nil {
-			feed := feed.New(urlFeed.String(), title, feedType)
+			feed := feed.New(
+				&types.URI{URL: urlFeed},
+				title,
+				feedType,
+			)
 			feeds = append(feeds, &feed)
 		}
 	}
@@ -181,8 +185,7 @@ func (p *Parser) parseAndNormalizeRawURL(rawURL string) *url.URL {
 	URL, _ := url.ParseRequestURI(rawURL)
 	if URL != nil {
 		p.makeAbs(URL)
-		helpers.RemoveFragment(URL)
+		removeFragment(URL)
 	}
-
 	return URL
 }

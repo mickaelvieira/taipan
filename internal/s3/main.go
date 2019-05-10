@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"github/mickaelvieira/taipan/internal/domain/uuid"
 	"image"
 	_ "image/gif"
@@ -165,7 +166,7 @@ func Upload(URL string) (*bookmark.Image, error) {
 		return nil, err
 	}
 
-	img.URL = s3URL
+	img.URL = &types.URI{URL: s3URL}
 
 	return &img, nil
 }

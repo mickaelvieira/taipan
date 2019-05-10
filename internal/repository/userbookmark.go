@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"time"
 )
@@ -68,14 +69,14 @@ func (r *UserBookmarkRepository) GetTotal(ctx context.Context, user *user.User) 
 }
 
 // GetByURL find a single entry
-func (r *UserBookmarkRepository) GetByURL(ctx context.Context, user *user.User, URL string) (*bookmark.UserBookmark, error) {
+func (r *UserBookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *types.URI) (*bookmark.UserBookmark, error) {
 	query := `
 		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, ub.added_at, ub.updated_at, ub.linked, ub.marked_as_read
 		FROM bookmarks AS b
 		INNER JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
 		WHERE ub.user_id = ? AND b.url = ?
 	`
-	row := r.db.QueryRowContext(ctx, query, user.ID, URL)
+	row := r.db.QueryRowContext(ctx, query, user.ID, u.String())
 	bookmark, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -107,44 +108,30 @@ func (r *UserBookmarkRepository) AddToUserCollection(ctx context.Context, user *
 }
 
 func (r *UserBookmarkRepository) scan(rows Scanable) (*bookmark.UserBookmark, error) {
-	var id, url, lang, charset, title, description, imageURL, imageName, imageFormat string
+	var bookmark bookmark.UserBookmark
+	var imageURL, imageName, imageFormat string
 	var imageWidth, imageHeight int32
-	var addedAt, updatedAt time.Time
-	var isRead, isLinked bool
 
 	err := rows.Scan(
-		&id,
-		&url,
-		&charset,
-		&lang,
-		&title,
-		&description,
+		&bookmark.ID,
+		&bookmark.URL,
+		&bookmark.Charset,
+		&bookmark.Lang,
+		&bookmark.Title,
+		&bookmark.Description,
 		&imageURL,
 		&imageName,
 		&imageWidth,
 		&imageHeight,
 		&imageFormat,
-		&addedAt,
-		&updatedAt,
-		&isLinked,
-		&isRead,
+		&bookmark.AddedAt,
+		&bookmark.UpdatedAt,
+		&bookmark.IsLinked,
+		&bookmark.IsRead,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	b := bookmark.UserBookmark{
-		ID:          id,
-		URL:         url,
-		Charset:     charset,
-		Lang:        lang,
-		Title:       title,
-		Description: description,
-		AddedAt:     addedAt,
-		UpdatedAt:   updatedAt,
-		IsLinked:    isLinked,
-		IsRead:      isRead,
 	}
 
 	if imageURL != "" {
@@ -152,8 +139,8 @@ func (r *UserBookmarkRepository) scan(rows Scanable) (*bookmark.UserBookmark, er
 		if err != nil {
 			return nil, err
 		}
-		b.Image = image
+		bookmark.Image = image
 	}
 
-	return &b, nil
+	return &bookmark, nil
 }

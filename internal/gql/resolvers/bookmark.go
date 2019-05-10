@@ -3,9 +3,10 @@ package resolvers
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"github/mickaelvieira/taipan/internal/usecase"
+	"net/url"
 )
 
 const defBkmkLimit = 10
@@ -19,12 +20,15 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	user, err := r.getUser(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("Unknown user")
+			return nil, usecase.ErrUserDoesNotExist
 		}
 		return nil, err
 	}
 
-	userBookmark, err := userBookmarksRepo.GetByURL(ctx, user, args.URL)
+	var u *url.URL
+	u, err = url.ParseRequestURI(args.URL)
+
+	userBookmark, err := userBookmarksRepo.GetByURL(ctx, user, &types.URI{URL: u})
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +50,7 @@ func (r *Resolvers) GetNewBookmarks(ctx context.Context, args struct {
 	user, err := r.getUser(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("Unknown user")
+			return nil, usecase.ErrUserDoesNotExist
 		}
 		return nil, err
 	}
@@ -89,7 +93,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	user, err := r.getUser(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("Unknown user")
+			return nil, usecase.ErrUserDoesNotExist
 		}
 		return nil, err
 	}
@@ -127,7 +131,7 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	user, err := r.getUser(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("Unknown user")
+			return nil, usecase.ErrUserDoesNotExist
 		}
 		return nil, err
 	}

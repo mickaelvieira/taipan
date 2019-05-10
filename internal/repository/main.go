@@ -3,6 +3,7 @@ package repository
 import (
 	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"net/url"
 )
 
@@ -40,7 +41,7 @@ func getBookmarkImage(rawURL string, name string, width int32, height int32, for
 	}
 
 	var image = bookmark.Image{
-		URL:    URL,
+		URL:    &types.URI{URL: URL},
 		Name:   name,
 		Width:  width,
 		Height: height,

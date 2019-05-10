@@ -1,7 +1,7 @@
 package bookmark
 
 import (
-	"net/url"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"time"
 )
 
@@ -26,10 +26,13 @@ const (
 	READ   ReadStatus = true
 )
 
+// https://husobee.github.io/golang/database/2015/06/12/scanner-valuer.html
+
 // Bookmark struct represents what is a bookmark within the application
 type Bookmark struct {
 	ID          string
-	URL         string
+	Checksum    types.Checksum
+	URL         *types.URI
 	Lang        string
 	Charset     string
 	Title       string
@@ -43,7 +46,7 @@ type Bookmark struct {
 // Image represents a bookmark's image
 type Image struct {
 	Name   string
-	URL    *url.URL
+	URL    *types.URI
 	Width  int32
 	Height int32
 	Format string
@@ -59,7 +62,7 @@ func (i *Image) String() string {
 // UserBookmark struct represents what is a bookmark from a user's perspective
 type UserBookmark struct {
 	ID          string
-	URL         string
+	URL         *types.URI
 	Lang        string
 	Charset     string
 	Title       string
@@ -72,7 +75,7 @@ type UserBookmark struct {
 }
 
 // New creates a new Bookmark with a UUID
-func New(url string, lang string, charset string, title string, desc string, image *Image) *Bookmark {
+func New(url *types.URI, lang string, charset string, title string, desc string, image *Image) *Bookmark {
 	return &Bookmark{
 		URL:         url,
 		Lang:        lang,

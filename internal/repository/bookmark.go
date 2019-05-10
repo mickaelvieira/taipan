@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // BookmarkRepository the User Bookmark repository
@@ -19,7 +19,7 @@ type BookmarkRepository struct {
 // GetByID find a single entry
 func (r *BookmarkRepository) GetByID(ctx context.Context, id string) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		SELECT b.id, b.url, HEX(b.checksum), b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
 		FROM bookmarks AS b
 		WHERE id = ?
 	`
@@ -33,13 +33,29 @@ func (r *BookmarkRepository) GetByID(ctx context.Context, id string) (*bookmark.
 }
 
 // GetByURL find a single entry
-func (r *BookmarkRepository) GetByURL(ctx context.Context, URL string) (*bookmark.Bookmark, error) {
+func (r *BookmarkRepository) GetByURL(ctx context.Context, u *types.URI) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		SELECT b.id, b.url, HEX(b.checksum), b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
 		FROM bookmarks AS b
 		WHERE url = ?
 	`
-	row := r.db.QueryRowContext(ctx, query, URL)
+	row := r.db.QueryRowContext(ctx, query, u.String())
+	bookmark, err := r.scan(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return bookmark, nil
+}
+
+// GetByChecksum find a single entry
+func (r *BookmarkRepository) GetByChecksum(ctx context.Context, c types.Checksum) (*bookmark.Bookmark, error) {
+	query := `
+		SELECT b.id, b.url, HEX(b.checksum), b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		FROM bookmarks AS b
+		WHERE b.checksum = UNHEX(?)
+	`
+	row := r.db.QueryRowContext(ctx, query, c.String())
 	bookmark, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -58,7 +74,7 @@ func (r *BookmarkRepository) GetByIDs(ctx context.Context, ids []string) ([]*boo
 	}
 
 	query := `
-		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		SELECT b.id, b.url, HEX(b.checksum), b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
 		FROM bookmarks AS b
 		WHERE id IN (?%s)
 	`
@@ -88,7 +104,7 @@ func (r *BookmarkRepository) FindNew(ctx context.Context, user *user.User, curso
 	var bookmarks []*bookmark.Bookmark
 
 	query := `
-		SELECT b.id, b.url, b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
+		SELECT b.id, b.url, HEX(b.checksum), b.charset, b.language, b.title, b.description, b.image_url, b.image_name, b.image_width, b.image_height, b.image_format, b.created_at, b.updated_at
 		FROM bookmarks AS b
 		LEFT JOIN users_bookmarks AS ub ON ub.bookmark_id = b.id
 		WHERE ub.user_id IS NULL OR ub.user_id != ?
@@ -134,14 +150,15 @@ func (r *BookmarkRepository) GetTotal(ctx context.Context) (int32, error) {
 func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) error {
 	query := `
 		INSERT INTO bookmarks
-		(url, charset, language, title, description, status, created_at, updated_at)
+		(url, checksum, charset, language, title, description, status, created_at, updated_at)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?)
+		(?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?)
 	`
 	result, err := r.db.ExecContext(
 		ctx,
 		query,
 		b.URL,
+		b.Checksum,
 		b.Charset,
 		b.Lang,
 		b.Title,
@@ -166,12 +183,13 @@ func (r *BookmarkRepository) Insert(ctx context.Context, b *bookmark.Bookmark) e
 func (r *BookmarkRepository) Update(ctx context.Context, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?
+		SET checksum = UNHEX(?), charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
+		b.Checksum,
 		b.Charset,
 		b.Lang,
 		b.Title,
@@ -221,39 +239,29 @@ func (r *BookmarkRepository) Upsert(ctx context.Context, b *bookmark.Bookmark) e
 }
 
 func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
-	var id, URL, lang, charset, title, description, imageURL, imageName, imageFormat string
+	var bookmark bookmark.Bookmark
+	var imageURL, imageName, imageFormat string
 	var imageWidth, imageHeight int32
-	var createdAt, updatedAt time.Time
 
 	err := rows.Scan(
-		&id,
-		&URL,
-		&charset,
-		&lang,
-		&title,
-		&description,
+		&bookmark.ID,
+		&bookmark.URL,
+		&bookmark.Checksum,
+		&bookmark.Charset,
+		&bookmark.Lang,
+		&bookmark.Title,
+		&bookmark.Description,
 		&imageURL,
 		&imageName,
 		&imageWidth,
 		&imageHeight,
 		&imageFormat,
-		&createdAt,
-		&updatedAt,
+		&bookmark.CreatedAt,
+		&bookmark.UpdatedAt,
 	)
 
 	if err != nil {
 		return nil, err
-	}
-
-	var bookmark = bookmark.Bookmark{
-		ID:          id,
-		URL:         URL,
-		Charset:     charset,
-		Lang:        lang,
-		Title:       title,
-		Description: description,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
 	}
 
 	if imageURL != "" {

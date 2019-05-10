@@ -30,12 +30,20 @@ func getAbsURLCreator(b *url.URL) MakeURLAbs {
 	}
 }
 
+// RemoveFragment removes the fragment from the URL
+func removeFragment(u *url.URL) *url.URL {
+	u.Fragment = ""
+	return u
+}
+
 // Parse parses the html tree and creates our parsed document
 func Parse(URL *url.URL, r io.Reader) (*Document, error) {
 	document, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
 		return nil, err
 	}
+
+	removeFragment(URL)
 
 	makeAbs := getAbsURLCreator(URL)
 

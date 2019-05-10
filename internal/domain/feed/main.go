@@ -2,6 +2,7 @@ package feed
 
 import (
 	"fmt"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"strings"
 	"time"
 )
@@ -30,11 +31,9 @@ func GetFeedType(t string) (Type, error) {
 	if isRSS(t) {
 		return RSS, nil
 	}
-
 	if isAtom(t) {
 		return ATOM, nil
 	}
-
 	return INVALID, fmt.Errorf("Invalid feed type %s", t)
 }
 
@@ -51,7 +50,7 @@ const (
 // Feed represents what is the feed within the application
 type Feed struct {
 	ID        string
-	URL       string
+	URL       *types.URI
 	Type      Type
 	Title     string
 	Status    Status
@@ -60,7 +59,7 @@ type Feed struct {
 }
 
 // New creates a new Feed with a UUID
-func New(url string, title string, feedType Type) Feed {
+func New(url *types.URI, title string, feedType Type) Feed {
 	return Feed{
 		URL:       url,
 		Title:     title,

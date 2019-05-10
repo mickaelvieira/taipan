@@ -22,7 +22,7 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *client.Result) error {
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
-		l.ChecksumToString(),
+		l.Checksum,
 		l.ContentType,
 		l.RespStatusCode,
 		l.RespReasonPhrase,
@@ -86,11 +86,10 @@ func (r *BotlogRepository) FindByURI(ctx context.Context, URI string) ([]*client
 
 func (r *BotlogRepository) scan(rows Scanable) (*client.Result, error) {
 	var l client.Result
-	var checksum sql.NullString
 
 	err := rows.Scan(
 		&l.ID,
-		&checksum,
+		&l.Checksum,
 		&l.ContentType,
 		&l.RespStatusCode,
 		&l.RespReasonPhrase,
@@ -100,10 +99,6 @@ func (r *BotlogRepository) scan(rows Scanable) (*client.Result, error) {
 		&l.ReqHeaders,
 		&l.CreatedAt,
 	)
-
-	if checksum.Valid {
-		l.SetChecksumFromString(checksum.String)
-	}
 
 	if err != nil {
 		return nil, err

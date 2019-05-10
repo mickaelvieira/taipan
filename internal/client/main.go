@@ -9,10 +9,7 @@ import (
 )
 
 // Client bot
-type Client struct {
-	log    *Result
-	client *http.Client
-}
+type Client struct{}
 
 // Fetch fetches the document
 func (f *Client) Fetch(URL *url.URL) (*Result, io.Reader, error) {

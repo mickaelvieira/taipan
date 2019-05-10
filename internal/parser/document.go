@@ -3,6 +3,7 @@ package parser
 import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/domain/types"
 	"net/url"
 )
 
@@ -22,7 +23,7 @@ type Document struct {
 
 // URL retrieves the URL of the document. It will first try to grab the canonical URL, if there isn't one
 // it will try to get one from the social media tags. If it can find any it will return the URL provided by the user
-func (d *Document) URL() string {
+func (d *Document) URL() *types.URI {
 	var du *url.URL
 	if d.canonical != nil {
 		du = d.canonical
@@ -33,8 +34,7 @@ func (d *Document) URL() string {
 	} else {
 		du = d.origURL
 	}
-	u, _ := url.QueryUnescape(du.String())
-	return u
+	return &types.URI{URL: du}
 }
 
 // Title retrieve the title of the document. If there isn't a title tag,
@@ -79,7 +79,7 @@ func (d *Document) Image() *bookmark.Image {
 	}
 
 	return &bookmark.Image{
-		URL: iu,
+		URL: &types.URI{URL: iu},
 	}
 }
 

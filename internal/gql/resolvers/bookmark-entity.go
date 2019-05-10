@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"log"
 	"time"
 
 	graphql "github.com/graph-gophers/graphql-go"
@@ -14,6 +15,12 @@ type BookmarkImageResolver struct {
 
 // URL resolves the URL
 func (r *BookmarkImageResolver) URL() string {
+	// @TODO replace with the CDN url
+	// var URL = &url.URL{}
+	// URL.Scheme = "https"
+	// URL.Host = os.Getenv("AWS_BUCKET")
+	// URL.Path = r.Image.URL.RequestURI()
+
 	return r.Image.String()
 }
 
@@ -44,12 +51,13 @@ type BookmarkResolver struct {
 
 // ID resolves the ID field
 func (r *BookmarkResolver) ID() graphql.ID {
+	log.Println(r.Bookmark.Checksum)
 	return graphql.ID(r.Bookmark.ID)
 }
 
 // URL resolves the URL
 func (r *BookmarkResolver) URL() string {
-	return r.Bookmark.URL
+	return r.Bookmark.URL.String()
 }
 
 // Image resolves the Image field
@@ -105,7 +113,7 @@ func (r *UserBookmarkResolver) ID() graphql.ID {
 
 // URL resolves the URL
 func (r *UserBookmarkResolver) URL() string {
-	return r.UserBookmark.URL
+	return r.UserBookmark.URL.String()
 }
 
 // Image resolves the Image field
