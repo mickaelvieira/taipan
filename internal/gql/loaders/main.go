@@ -20,14 +20,14 @@ func (l *Loaders) GetBookmarksLoader() *dataloader.Loader {
 
 	batchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
-		bookmarks, err := l.Repositories.Bookmarks.GetByIDs(ctx, keys.Keys())
+		documents, err := l.Repositories.Documents.GetByIDs(ctx, keys.Keys())
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		for _, bookmark := range bookmarks {
-			var result = &dataloader.Result{Data: bookmark}
+		for _, document := range documents {
+			var result = &dataloader.Result{Data: document}
 			results = append(results, result)
 		}
 

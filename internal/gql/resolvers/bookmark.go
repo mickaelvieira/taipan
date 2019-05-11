@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"github/mickaelvieira/taipan/internal/domain/types"
+	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/uri"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"net/url"
 )
@@ -14,9 +15,7 @@ const defBkmkLimit = 10
 // GetBookmark resolves the query
 func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	URL string
-}) (*UserBookmarkResolver, error) {
-	userBookmarksRepo := r.Repositories.UserBookmarks
-
+}) (*BookmarkResolver, error) {
 	user, err := r.getUser(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -28,12 +27,12 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	var u *url.URL
 	u, err = url.ParseRequestURI(args.URL)
 
-	userBookmark, err := userBookmarksRepo.GetByURL(ctx, user, &types.URI{URL: u})
+	b, err := r.Repositories.Bookmarks.GetByURL(ctx, user, &uri.URI{URL: u})
 	if err != nil {
 		return nil, err
 	}
 
-	res := UserBookmarkResolver{UserBookmark: userBookmark}
+	res := BookmarkResolver{Bookmark: b}
 
 	return &res, nil
 }
@@ -42,8 +41,7 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 func (r *Resolvers) GetNewBookmarks(ctx context.Context, args struct {
 	Offset *int32
 	Limit  *int32
-}) (*BookmarkCollectionResolver, error) {
-	bookmarksRepo := r.Repositories.Bookmarks
+}) (*DocumentCollectionResolver, error) {
 	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
 	offset, limit := fromArgs(args.Offset, args.Limit)
 
@@ -55,12 +53,54 @@ func (r *Resolvers) GetNewBookmarks(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	results, err := bookmarksRepo.FindNew(ctx, user, offset, limit)
+	results, err := r.Repositories.Documents.FindNew(ctx, user, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := bookmarksRepo.GetTotal(ctx)
+	total, err := r.Repositories.Documents.GetTotal(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var documents []*DocumentResolver
+	for _, result := range results {
+		res := DocumentResolver{Document: result}
+		documents = append(documents, &res)
+	}
+
+	reso := DocumentCollectionResolver{
+		Results: &documents,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
+
+	return &reso, nil
+}
+
+// GetLatestBookmarks resolves the query
+func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
+	Offset *int32
+	Limit  *int32
+}) (*BookmarkCollectionResolver, error) {
+	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
+	offset, limit := fromArgs(args.Offset, args.Limit)
+
+	user, err := r.getUser(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, usecase.ErrUserDoesNotExist
+		}
+		return nil, err
+	}
+
+	results, err := r.Repositories.Bookmarks.FindLatest(ctx, user, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := r.Repositories.Bookmarks.GetTotal(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -81,71 +121,28 @@ func (r *Resolvers) GetNewBookmarks(ctx context.Context, args struct {
 	return &reso, nil
 }
 
-// GetLatestBookmarks resolves the query
-func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
-	Offset *int32
-	Limit  *int32
-}) (*UserBookmarkCollectionResolver, error) {
-	userBookmarksRepo := r.Repositories.UserBookmarks
-	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
-	offset, limit := fromArgs(args.Offset, args.Limit)
-
-	user, err := r.getUser(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, usecase.ErrUserDoesNotExist
-		}
-		return nil, err
-	}
-
-	results, err := userBookmarksRepo.FindLatest(ctx, user, offset, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	total, err := userBookmarksRepo.GetTotal(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-
-	var bookmarks []*UserBookmarkResolver
-	for _, result := range results {
-		res := UserBookmarkResolver{UserBookmark: result}
-		bookmarks = append(bookmarks, &res)
-	}
-
-	reso := UserBookmarkCollectionResolver{
-		Results: &bookmarks,
-		Total:   total,
-		Offset:  offset,
-		Limit:   limit,
-	}
-
-	return &reso, nil
-}
-
 // Bookmark bookmarks a URL
 func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	URL string
-}) (*UserBookmarkResolver, error) {
+}) (*BookmarkResolver, error) {
 	user, err := r.getUser(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, usecase.ErrUserDoesNotExist
 		}
+		return nil, err
+	}
+
+	var d *document.Document
+	d, err = usecase.Document(ctx, args.URL, r.Repositories)
+	if err != nil {
 		return nil, err
 	}
 
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, args.URL, r.Repositories)
-	if err != nil {
-		return nil, err
-	}
+	b, err = usecase.Bookmark(ctx, user, d, r.Repositories)
 
-	var ub *bookmark.UserBookmark
-	ub, err = usecase.CreateUserBookmark(ctx, user, b, r.Repositories)
-
-	res := &UserBookmarkResolver{UserBookmark: ub}
+	res := &BookmarkResolver{Bookmark: b}
 
 	return res, nil
 }

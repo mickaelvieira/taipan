@@ -1,19 +1,12 @@
 package client
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
 )
-
-func makeChecksum(b []byte) []byte {
-	buf := sha256.New()
-	buf.Write(b)
-	return buf.Sum(nil)
-}
 
 func makeResult(URL *url.URL, req *http.Request, resp *http.Response, checksum []byte) *Result {
 	return &Result{
@@ -32,7 +25,7 @@ func makeResult(URL *url.URL, req *http.Request, resp *http.Response, checksum [
 func makeClient() *http.Client {
 	return &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
+			return http.ErrUseLastResponse // @TODO I need to double check this. It does not seem to work
 		},
 	}
 }

@@ -2,7 +2,7 @@ package feed
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/types"
+	"github/mickaelvieira/taipan/internal/domain/uri"
 	"strings"
 	"time"
 )
@@ -50,7 +50,7 @@ const (
 // Feed represents what is the feed within the application
 type Feed struct {
 	ID        string
-	URL       *types.URI
+	URL       *uri.URI
 	Type      Type
 	Title     string
 	Status    Status
@@ -59,7 +59,7 @@ type Feed struct {
 }
 
 // New creates a new Feed with a UUID
-func New(url *types.URI, title string, feedType Type) Feed {
+func New(url *uri.URI, title string, feedType Type) Feed {
 	return Feed{
 		URL:       url,
 		Title:     title,

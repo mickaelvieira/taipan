@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -33,8 +34,8 @@ func (f *Client) Fetch(URL *url.URL) (*Result, io.Reader, error) {
 	}
 
 	reader := bytes.NewReader(content)
-	checksum := makeChecksum(content)
-	result := makeResult(URL, req, resp, checksum)
+	cs := checksum.FromBytes(content)
+	result := makeResult(URL, req, resp, cs)
 
 	return result, reader, nil
 }

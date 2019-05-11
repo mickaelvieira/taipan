@@ -2,7 +2,10 @@ package resolvers
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"log"
+	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/image"
+	"net/url"
+	"os"
 	"time"
 
 	graphql "github.com/graph-gophers/graphql-go"
@@ -10,18 +13,17 @@ import (
 
 // BookmarkImageResolver resolves the bookmark's image entity
 type BookmarkImageResolver struct {
-	*bookmark.Image
+	*image.Image
 }
 
 // URL resolves the URL
 func (r *BookmarkImageResolver) URL() string {
-	// @TODO replace with the CDN url
-	// var URL = &url.URL{}
-	// URL.Scheme = "https"
-	// URL.Host = os.Getenv("AWS_BUCKET")
-	// URL.Path = r.Image.URL.RequestURI()
+	var URL = &url.URL{}
+	URL.Scheme = "https"
+	URL.Host = os.Getenv("AWS_BUCKET")
+	URL.Path = r.Image.Name
 
-	return r.Image.String()
+	return URL.String()
 }
 
 // Name resolves the Name field
@@ -44,6 +46,62 @@ func (r *BookmarkImageResolver) Format() string {
 	return r.Image.Format
 }
 
+// DocumentResolver resolves the bookmark entity
+type DocumentResolver struct {
+	*document.Document
+}
+
+// ID resolves the ID field
+func (r *DocumentResolver) ID() graphql.ID {
+	return graphql.ID(r.Document.ID)
+}
+
+// URL resolves the URL
+func (r *DocumentResolver) URL() string {
+	return r.Document.URL.String()
+}
+
+// Image resolves the Image field
+func (r *DocumentResolver) Image() *BookmarkImageResolver {
+	if r.Document.Image == nil {
+		return nil
+	}
+
+	return &BookmarkImageResolver{
+		Image: r.Document.Image,
+	}
+}
+
+// Lang resolves the Lang field
+func (r *DocumentResolver) Lang() string {
+	return r.Document.Lang
+}
+
+// Charset resolves the Charset field
+func (r *DocumentResolver) Charset() string {
+	return r.Document.Charset
+}
+
+// Title resolves the Title field
+func (r *DocumentResolver) Title() string {
+	return r.Document.Title
+}
+
+// Description resolves the Description field
+func (r *DocumentResolver) Description() string {
+	return r.Document.Description
+}
+
+// CreatedAt resolves the CreatedAt field
+func (r *DocumentResolver) CreatedAt() string {
+	return r.Document.CreatedAt.Format(time.RFC3339)
+}
+
+// UpdatedAt resolves the UpdatedAt field
+func (r *DocumentResolver) UpdatedAt() string {
+	return r.Document.UpdatedAt.Format(time.RFC3339)
+}
+
 // BookmarkResolver resolves the bookmark entity
 type BookmarkResolver struct {
 	*bookmark.Bookmark
@@ -51,7 +109,6 @@ type BookmarkResolver struct {
 
 // ID resolves the ID field
 func (r *BookmarkResolver) ID() graphql.ID {
-	log.Println(r.Bookmark.Checksum)
 	return graphql.ID(r.Bookmark.ID)
 }
 
@@ -91,9 +148,9 @@ func (r *BookmarkResolver) Description() string {
 	return r.Bookmark.Description
 }
 
-// CreatedAt resolves the CreatedAt field
-func (r *BookmarkResolver) CreatedAt() string {
-	return r.Bookmark.CreatedAt.Format(time.RFC3339)
+// AddedAt resolves the AddedAt field
+func (r *BookmarkResolver) AddedAt() string {
+	return r.Bookmark.AddedAt.Format(time.RFC3339)
 }
 
 // UpdatedAt resolves the UpdatedAt field
@@ -101,63 +158,7 @@ func (r *BookmarkResolver) UpdatedAt() string {
 	return r.Bookmark.UpdatedAt.Format(time.RFC3339)
 }
 
-// UserBookmarkResolver resolves the bookmark entity
-type UserBookmarkResolver struct {
-	*bookmark.UserBookmark
-}
-
-// ID resolves the ID field
-func (r *UserBookmarkResolver) ID() graphql.ID {
-	return graphql.ID(r.UserBookmark.ID)
-}
-
-// URL resolves the URL
-func (r *UserBookmarkResolver) URL() string {
-	return r.UserBookmark.URL.String()
-}
-
-// Image resolves the Image field
-func (r *UserBookmarkResolver) Image() *BookmarkImageResolver {
-	if r.UserBookmark.Image == nil {
-		return nil
-	}
-
-	return &BookmarkImageResolver{
-		Image: r.UserBookmark.Image,
-	}
-}
-
-// Lang resolves the Lang field
-func (r *UserBookmarkResolver) Lang() string {
-	return r.UserBookmark.Lang
-}
-
-// Charset resolves the Charset field
-func (r *UserBookmarkResolver) Charset() string {
-	return r.UserBookmark.Charset
-}
-
-// Title resolves the Title field
-func (r *UserBookmarkResolver) Title() string {
-	return r.UserBookmark.Title
-}
-
-// Description resolves the Description field
-func (r *UserBookmarkResolver) Description() string {
-	return r.UserBookmark.Description
-}
-
-// AddedAt resolves the AddedAt field
-func (r *UserBookmarkResolver) AddedAt() string {
-	return r.UserBookmark.AddedAt.Format(time.RFC3339)
-}
-
-// UpdatedAt resolves the UpdatedAt field
-func (r *UserBookmarkResolver) UpdatedAt() string {
-	return r.UserBookmark.UpdatedAt.Format(time.RFC3339)
-}
-
 // IsRead resolves the IsRead field
-func (r *UserBookmarkResolver) IsRead() bool {
-	return r.UserBookmark.IsRead
+func (r *BookmarkResolver) IsRead() bool {
+	return r.Bookmark.IsRead
 }

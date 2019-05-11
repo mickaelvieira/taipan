@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/client"
-	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"io"
@@ -48,8 +48,8 @@ func main() {
 				if err == nil {
 					for _, item := range content.Items {
 						log.Println(item.Link)
-						var bookmark *bookmark.Bookmark
-						bookmark, err = usecase.Bookmark(ctx, item.Link, repositories)
+						var bookmark *document.Document
+						bookmark, err = usecase.Document(ctx, item.Link, repositories)
 
 						if err != nil {
 							log.Println(err)

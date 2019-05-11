@@ -1,16 +1,16 @@
 package resolvers
 
-// BookmarkCollectionResolver resolver
-type BookmarkCollectionResolver struct {
-	Results *[]*BookmarkResolver
+// DocumentCollectionResolver resolver
+type DocumentCollectionResolver struct {
+	Results *[]*DocumentResolver
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
-// UserBookmarkCollectionResolver resolver
-type UserBookmarkCollectionResolver struct {
-	Results *[]*UserBookmarkResolver
+// BookmarkCollectionResolver resolver
+type BookmarkCollectionResolver struct {
+	Results *[]*BookmarkResolver
 	Total   int32
 	Offset  int32
 	Limit   int32

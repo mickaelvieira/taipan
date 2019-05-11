@@ -3,10 +3,10 @@ package s3
 import (
 	"bytes"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"github/mickaelvieira/taipan/internal/domain/types"
-	"github/mickaelvieira/taipan/internal/domain/uuid"
-	"image"
+	"github/mickaelvieira/taipan/internal/domain/checksum"
+	"github/mickaelvieira/taipan/internal/domain/image"
+	"github/mickaelvieira/taipan/internal/domain/uri"
+	img "image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
@@ -87,7 +87,7 @@ func getContentTypeFromFormat(i string) string {
 }
 
 // Upload uploads a file to the S3 bucket
-func Upload(URL string) (*bookmark.Image, error) {
+func Upload(URL string) (*image.Image, error) {
 	bucket := os.Getenv("AWS_BUCKET")
 
 	resp, err := http.Get(URL)
@@ -109,11 +109,12 @@ func Upload(URL string) (*bookmark.Image, error) {
 		return nil, err
 	}
 
+	filename := checksum.FromBytes(b).String()
 	reader := bytes.NewReader(b)
-	config, format, err := image.DecodeConfig(reader)
+	config, format, err := img.DecodeConfig(reader)
 
 	if err != nil {
-		if err != image.ErrFormat {
+		if err != img.ErrFormat {
 			return nil, err
 		}
 		format = ""
@@ -128,12 +129,11 @@ func Upload(URL string) (*bookmark.Image, error) {
 	}
 
 	// image's filename
-	var filename = uuid.New()
 	if format != "" {
 		filename = filename + "." + format
 	}
 
-	img := bookmark.Image{
+	img := image.Image{
 		Name:   filename,
 		Width:  int32(config.Width),
 		Height: int32(config.Height),
@@ -166,7 +166,7 @@ func Upload(URL string) (*bookmark.Image, error) {
 		return nil, err
 	}
 
-	img.URL = &types.URI{URL: s3URL}
+	img.URL = &uri.URI{URL: s3URL}
 
 	return &img, nil
 }

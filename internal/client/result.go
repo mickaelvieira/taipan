@@ -1,14 +1,14 @@
 package client
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/types"
+	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"time"
 )
 
 // Result represents an entry in the history logs
 type Result struct {
 	ID               string
-	Checksum         types.Checksum
+	Checksum         checksum.Checksum
 	ContentType      string
 	ReqURI           string
 	ReqMethod        string

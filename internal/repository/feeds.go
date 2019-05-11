@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github/mickaelvieira/taipan/internal/domain/feed"
-	"github/mickaelvieira/taipan/internal/domain/types"
+	"github/mickaelvieira/taipan/internal/domain/uri"
 	"log"
 	"strconv"
 )
@@ -79,7 +79,7 @@ func (r *FeedRepository) GetNewFeeds(ctx context.Context) ([]*feed.Feed, error) 
 }
 
 // GetByURL find a single entry by URL and returns its ID
-func (r *FeedRepository) GetByURL(ctx context.Context, u *types.URI) (*feed.Feed, error) {
+func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, error) {
 	var feed feed.Feed
 
 	query := `
