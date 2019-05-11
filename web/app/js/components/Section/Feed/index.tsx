@@ -10,12 +10,12 @@ import FeedItem from "./Item";
 import FeedWrapper from "./Wrapper";
 import List from "./List";
 
-import LatestBookmarksQuery, {
+import FeedsQuery, {
   query,
   variables,
   Data
-} from "../../apollo/Query/LatestBookmarks";
-import { UserBookmark } from "../../../types/bookmark";
+} from "../../apollo/Query/Feeds";
+import { Bookmark } from "../../../types/bookmark";
 
 const styles = () =>
   createStyles({
@@ -29,15 +29,15 @@ const styles = () =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  bookmark: UserBookmark;
+  bookmark: Bookmark;
 }
 
 function hasReceivedBookmarks(
   data: Data | undefined,
   queyrKey: string
-): [boolean, UserBookmark[]] {
+): [boolean, Bookmark[]] {
   let hasResults = false;
-  let results: UserBookmark[] = [];
+  let results: Bookmark[] = [];
 
   if (
     data &&
@@ -71,10 +71,10 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
         <Tab label="Latest" />
         <Tab label="Bookmarks" />
       </Tabs>
-      <LatestBookmarksQuery query={query} variables={variables}>
+      <FeedsQuery query={query} variables={variables}>
         {({ data, loading, error, fetchMore, networkStatus }) => {
           const [hasLatest, latest] = hasReceivedBookmarks(data, "GetLatestBookmarks");
-          const [hasNewest, newest] = hasReceivedBookmarks(data, "GetNewBookmarks");
+          const [hasNewest, newest] = hasReceivedBookmarks(data, "GetLatestDocuments");
           console.log(hasLatest);
           console.log(latest);
           console.log(networkStatus);
@@ -86,7 +86,7 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
               onChangeIndex={setTabIndex}
             >
               <FeedWrapper
-                queryKey="GetNewBookmarks"
+                queryKey="GetLatestDocuments"
                 isLoading={loading}
                 fetchMore={fetchMore}
                 hasResults={hasNewest}
@@ -102,7 +102,7 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
             </SwipeableViews>
           );
         }}
-      </LatestBookmarksQuery>
+      </FeedsQuery>
     </>
   );
 });

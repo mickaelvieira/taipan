@@ -1,6 +1,6 @@
 import { Image } from "./image";
 
-export interface Bookmark {
+export interface Document {
   id: string;
   url: string;
   lang: string;
@@ -8,7 +8,6 @@ export interface Bookmark {
   title: string;
   description: string;
   image?: Image;
-  addedAt: string;
+  createdAt: string;
   updatedAt: string;
-  isRead: boolean;
 }

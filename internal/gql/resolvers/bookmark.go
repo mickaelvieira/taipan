@@ -37,8 +37,8 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	return &res, nil
 }
 
-// GetNewBookmarks resolves the query
-func (r *Resolvers) GetNewBookmarks(ctx context.Context, args struct {
+// GetLatestDocuments resolves the query
+func (r *Resolvers) GetLatestDocuments(ctx context.Context, args struct {
 	Offset *int32
 	Limit  *int32
 }) (*DocumentCollectionResolver, error) {

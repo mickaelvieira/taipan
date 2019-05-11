@@ -12,6 +12,7 @@ fragment bookmarkFields on Bookmark {
     height
     format
   }
-  createdAt
+  addedAt
   updatedAt
+  isRead
 }

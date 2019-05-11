@@ -1,9 +1,9 @@
 import { Mutation } from "react-apollo";
-import { UserBookmark } from "../../../types/bookmark";
+import { Bookmark } from "../../../types/bookmark";
 import mutation from "../../../services/apollo/mutation/bookmark.graphql";
 
 interface Data {
-  Bookmark: UserBookmark;
+  Bookmark: Bookmark;
 }
 
 interface Variables {

@@ -1,6 +1,6 @@
 import React from "react";
 import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
-import { UserBookmark } from "../../../types/bookmark";
+import { Bookmark } from "../../../types/bookmark";
 import FeedItem from "./Item";
 
 const styles = () =>
@@ -13,7 +13,7 @@ const styles = () =>
 
 export interface Props {
   hasResults: boolean;
-  bookmarks: UserBookmark[];
+  bookmarks: Bookmark[];
 }
 
 export default withStyles(styles)(
@@ -24,7 +24,7 @@ export default withStyles(styles)(
   }: Props & WithStyles<typeof styles>) {
     return !hasResults ? null : (
       <div className={classes.container}>
-        {bookmarks.map((bookmark: UserBookmark) => {
+        {bookmarks.map((bookmark: Bookmark) => {
           return <FeedItem bookmark={bookmark} key={bookmark.id} />;
         })}
       </div>

@@ -6,12 +6,12 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { UserBookmark } from "../../types/bookmark";
+import { Bookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import BookmarkMutation, {
   mutation
 } from "../apollo/Mutation/Bookmark";
-import { query, variables } from "../apollo/Query/LatestBookmarks";
+import { query, variables } from "../apollo/Query/Feeds";
 
 const styles = () =>
   createStyles({
@@ -24,7 +24,7 @@ const styles = () =>
 interface Props extends WithStyles<typeof styles> {
   isOpen: boolean;
   toggleDialog: (status: boolean) => void;
-  onBookmarkCreated: (bookmark: UserBookmark) => void;
+  onBookmarkCreated: (bookmark: Bookmark) => void;
 }
 
 export default withStyles(styles)(function AddBookmark({

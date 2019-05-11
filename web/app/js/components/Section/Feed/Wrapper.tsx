@@ -5,7 +5,7 @@ import {
   variables,
   Variables,
   Data
-} from "../../apollo/Query/LatestBookmarks";
+} from "../../apollo/Query/Feeds";
 import useWindoBottom from "../../../hooks/window-bottom";
 
 interface Props extends ListProps {

@@ -1,4 +1,4 @@
-fragment userBookmarkFields on UserBookmark {
+fragment documentFields on Document {
   id
   url
   title
@@ -12,7 +12,6 @@ fragment userBookmarkFields on UserBookmark {
     height
     format
   }
-  addedAt
+  createdAt
   updatedAt
-  isRead
 }

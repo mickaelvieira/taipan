@@ -13,7 +13,7 @@ import ShareIcon from "@material-ui/icons/Share";
 import CachedIcon from "@material-ui/icons/Cached";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { UserBookmark } from "../../../types/bookmark";
+import { Bookmark } from "../../../types/bookmark";
 import BookmarkMutation, {
   mutation
 } from "../../apollo/Mutation/Bookmark";
@@ -40,7 +40,7 @@ const styles = () =>
   });
 
 interface Props extends WithStyles<typeof styles> {
-  bookmark: UserBookmark;
+  bookmark: Bookmark;
 }
 
 export default withStyles(styles)(
