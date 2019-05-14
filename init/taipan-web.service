@@ -1,0 +1,18 @@
+# https://serverfault.com/questions/730239/start-n-processes-with-one-systemd-service-file
+# https://vincent.bernat.ch/en/blog/2017-systemd-golang
+# https://wiki.archlinux.org/index.php/Systemd
+
+[Unit]
+Description=Taipan WebApp
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment=TAIPAN_ENV=production
+Type=simple
+User=http
+ExecStart=/usr/bin/node /srv/http/bkmk
+Restart=on-failure
+
+[Install]
+WantedBy=taipan-web.target
