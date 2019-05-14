@@ -146,13 +146,15 @@ func Upload(URL string) (*image.Image, error) {
 	// Upload file to AWS S3
 	sess := session.Must(session.NewSession())
 	uploader := s3manager.NewUploader(sess)
+	cacheControl := "public, max-age=2592000"
 
 	output, err := uploader.Upload(&s3manager.UploadInput{
-		ACL:         aws.String("public-read"),
-		Bucket:      aws.String(bucket),
-		Key:         aws.String(img.Name),
-		Body:        reader,
-		ContentType: &contentType,
+		ACL:          aws.String("public-read"),
+		Bucket:       aws.String(bucket),
+		Key:          aws.String(img.Name),
+		Body:         reader,
+		ContentType:  &contentType,
+		CacheControl: &cacheControl,
 	})
 
 	if err != nil {

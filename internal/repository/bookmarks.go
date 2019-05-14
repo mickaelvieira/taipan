@@ -136,7 +136,7 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 	}
 
 	if imageURL != "" {
-		image, err := getBookmarkImage(imageURL, imageName, imageWidth, imageHeight, imageFormat)
+		image, err := getImageEntity(imageURL, imageName, imageWidth, imageHeight, imageFormat)
 		if err != nil {
 			return nil, err
 		}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
@@ -45,6 +46,12 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		return nil, err
 	}
 
+	log.Println(result)
+
+	if result.RespStatusCode != 200 {
+		return nil, fmt.Errorf("Unable to fetch the document: %s", result.RespReasonPhrase)
+	}
+
 	// The problem that we have here is the URL provided by the user or in the feed might be different from
 	// the URL we actually store in the DB. (.i.e we get a "cleaned-up" URL from the document itself). So we can't
 	// really rely on the URL to identify properly a document.
@@ -60,7 +67,6 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		return nil, err
 	}
 
-	// @TODO Don't parse the document if it hasn't changed
 	// @TODO I need to check client's result before parsing
 	d, err = parser.Parse(URL, reader)
 	if err != nil {

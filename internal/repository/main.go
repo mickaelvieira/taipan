@@ -34,7 +34,7 @@ func GetRepositories() *Repositories {
 	}
 }
 
-func getBookmarkImage(rawURL string, name string, width int32, height int32, format string) (*image.Image, error) {
+func getImageEntity(rawURL string, name string, width int32, height int32, format string) (*image.Image, error) {
 	URL, err := url.ParseRequestURI(rawURL)
 	if err != nil {
 		return nil, err
