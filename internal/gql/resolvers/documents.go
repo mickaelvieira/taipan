@@ -1,7 +1,10 @@
 package resolvers
 
 import (
+	"context"
+	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/repository"
 	"time"
 
 	graphql "github.com/graph-gophers/graphql-go"
@@ -18,6 +21,7 @@ type DocumentCollectionResolver struct {
 // DocumentResolver resolves the bookmark entity
 type DocumentResolver struct {
 	*document.Document
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
@@ -69,4 +73,58 @@ func (r *DocumentResolver) CreatedAt() string {
 // UpdatedAt resolves the UpdatedAt field
 func (r *DocumentResolver) UpdatedAt() string {
 	return r.Document.UpdatedAt.Format(time.RFC3339)
+}
+
+// Feeds returns the document's feeds
+func (r *DocumentResolver) Feeds(ctx context.Context) (*[]*FeedResolver, error) {
+	results, err := r.repositories.Feeds.GetDocumentFeeds(ctx, r.Document)
+	if err != nil {
+		return nil, err
+	}
+
+	var feeds []*FeedResolver
+	for _, result := range results {
+		res := FeedResolver{Feed: result}
+		feeds = append(feeds, &res)
+	}
+
+	return &feeds, nil
+}
+
+// GetLatestDocuments resolves the query
+func (r *Resolvers) GetLatestDocuments(ctx context.Context, args struct {
+	Offset *int32
+	Limit  *int32
+}) (*DocumentCollectionResolver, error) {
+	fromArgs := GetBoundariesFromArgs(10)
+	offset, limit := fromArgs(args.Offset, args.Limit)
+	user := auth.FromContext(ctx)
+
+	results, err := r.Repositories.Documents.FindNew(ctx, user, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := r.Repositories.Documents.GetTotal(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var documents []*DocumentResolver
+	for _, result := range results {
+		res := DocumentResolver{
+			Document:     result,
+			repositories: r.Repositories,
+		}
+		documents = append(documents, &res)
+	}
+
+	reso := DocumentCollectionResolver{
+		Results: &documents,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
+
+	return &reso, nil
 }

@@ -103,7 +103,7 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		return nil, err
 	}
 
-	err = repositories.Feeds.InsertAllIfNotExists(ctx, d.Feeds)
+	err = repositories.Feeds.InsertAllIfNotExists(ctx, d.Feeds, d)
 	if err != nil {
 		return nil, err
 	}

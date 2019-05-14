@@ -58,6 +58,7 @@ type Document implements Node {
   image: Image
   createdAt: String!
   updatedAt: String!
+  feeds: [Feed]
 }
 
 type Bookmark implements Node {
@@ -73,3 +74,13 @@ type Bookmark implements Node {
   isRead: Boolean!
 }
 
+
+type Feed implements Node {
+  id: ID!
+  url: String!
+  type: String!
+  title: String!
+  status: String!
+  createdAt: String!
+  updatedAt: String!
+}
