@@ -42,7 +42,7 @@ func main() {
 		log.Println(feed)
 
 		if err == nil {
-			if !result.IsContentDifferent(prevResult) {
+			if result.IsContentDifferent(prevResult) {
 				var content *gofeed.Feed
 				content, err = fp.Parse(reader)
 				if err == nil {

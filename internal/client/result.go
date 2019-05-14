@@ -21,5 +21,5 @@ type Result struct {
 
 // IsContentDifferent have we fetched a new document
 func (r *Result) IsContentDifferent(prev *Result) bool {
-	return prev != nil && prev.Checksum.String() == r.Checksum.String()
+	return prev == nil || prev.Checksum.String() != r.Checksum.String()
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github/mickaelvieira/taipan/internal/app"
+	"github/mickaelvieira/taipan/internal/auth"
 )
 
 func main() {
@@ -23,8 +24,7 @@ func main() {
 
 	// Routing
 	http.HandleFunc("/", server.IndexHandler)
-	http.HandleFunc("/graphql", server.QueryHandler)
-	// http.HandleFunc("/ws", websocketHandler)
+	http.HandleFunc("/graphql", auth.WithUser(server.QueryHandler, server.Repositories.Users))
 
 	// Start the server
 	log.Println("Listening: http://localhost:" + port)

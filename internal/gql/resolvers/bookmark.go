@@ -2,9 +2,8 @@ package resolvers
 
 import (
 	"context"
-	"database/sql"
+	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/uri"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"net/url"
@@ -16,17 +15,9 @@ const defBkmkLimit = 10
 func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
-	user, err := r.getUser(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, usecase.ErrUserDoesNotExist
-		}
-		return nil, err
-	}
+	user := auth.FromContext(ctx)
 
-	var u *url.URL
-	u, err = url.ParseRequestURI(args.URL)
-
+	u, err := url.ParseRequestURI(args.URL)
 	b, err := r.Repositories.Bookmarks.GetByURL(ctx, user, &uri.URI{URL: u})
 	if err != nil {
 		return nil, err
@@ -44,14 +35,7 @@ func (r *Resolvers) GetLatestDocuments(ctx context.Context, args struct {
 }) (*DocumentCollectionResolver, error) {
 	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
 	offset, limit := fromArgs(args.Offset, args.Limit)
-
-	user, err := r.getUser(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, usecase.ErrUserDoesNotExist
-		}
-		return nil, err
-	}
+	user := auth.FromContext(ctx)
 
 	results, err := r.Repositories.Documents.FindNew(ctx, user, offset, limit)
 	if err != nil {
@@ -86,14 +70,7 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 }) (*BookmarkCollectionResolver, error) {
 	fromArgs := GetBoundariesFromArgs(defBkmkLimit)
 	offset, limit := fromArgs(args.Offset, args.Limit)
-
-	user, err := r.getUser(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, usecase.ErrUserDoesNotExist
-		}
-		return nil, err
-	}
+	user := auth.FromContext(ctx)
 
 	results, err := r.Repositories.Bookmarks.FindLatest(ctx, user, offset, limit)
 	if err != nil {
@@ -125,16 +102,9 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
-	user, err := r.getUser(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, usecase.ErrUserDoesNotExist
-		}
-		return nil, err
-	}
+	user := auth.FromContext(ctx)
 
-	var d *document.Document
-	d, err = usecase.Document(ctx, args.URL, r.Repositories)
+	d, err := usecase.Document(ctx, args.URL, r.Repositories)
 	if err != nil {
 		return nil, err
 	}

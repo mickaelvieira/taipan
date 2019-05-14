@@ -1,6 +1,8 @@
 package app
 
-import "os"
+import (
+	"os"
+)
 
 // IsDev is the app running in the development environment
 func IsDev() bool {

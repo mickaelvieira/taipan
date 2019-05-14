@@ -1,21 +1,22 @@
 package app
 
 import (
-	"context"
 	"github/mickaelvieira/taipan/internal/assets"
-	userid "github/mickaelvieira/taipan/internal/context"
+	"github/mickaelvieira/taipan/internal/repository"
 	"html/template"
 	"net/http"
 
 	graphql "github.com/graph-gophers/graphql-go"
+
 	"github.com/graph-gophers/graphql-go/relay"
 )
 
 // Server is the main application
 type Server struct {
-	templates *template.Template
-	schema    *graphql.Schema
-	assets    *assets.Assets
+	templates    *template.Template
+	schema       *graphql.Schema
+	assets       *assets.Assets
+	Repositories *repository.Repositories
 }
 
 // IndexHandler is the method to handle / route
@@ -38,9 +39,6 @@ func (s *Server) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	ctx := context.Background()
-	ctx = userid.NewContext(ctx, "1")
-
 	handler := &relay.Handler{Schema: s.schema}
-	handler.ServeHTTP(w, req.WithContext(ctx))
+	handler.ServeHTTP(w, req)
 }
