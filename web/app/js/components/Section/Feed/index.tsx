@@ -19,10 +19,6 @@ import { Bookmark } from "../../../types/bookmark";
 
 const styles = () =>
   createStyles({
-    container: {
-      display: "flex",
-      flexDirection: "column"
-    },
     tabs: {
       width: "100%"
     }

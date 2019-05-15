@@ -7,7 +7,8 @@ const styles = () =>
   createStyles({
     container: {
       display: "flex",
-      flexDirection: "column"
+      flexDirection: "column",
+      margin: 12
     }
   });
 
