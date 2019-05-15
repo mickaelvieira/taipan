@@ -23,7 +23,8 @@ const styles = () =>
       width: "100%"
     },
     container: {
-      width: "100%"
+      width: "100%",
+      minHeight: 200
     }
   });
 
@@ -82,6 +83,8 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
           return (
             <SwipeableViews
               index={tabIndex}
+              disabled
+              animateHeight
               onChangeIndex={setTabIndex}
               className={classes.container}
             >
