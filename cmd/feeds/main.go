@@ -8,7 +8,6 @@ import (
 	"github/mickaelvieira/taipan/internal/usecase"
 	"io"
 	"log"
-	"net/url"
 
 	"github/mickaelvieira/taipan/internal/app"
 
@@ -28,16 +27,14 @@ func main() {
 	}
 
 	for _, feed := range feeds {
-		var URL *url.URL
 		var prevResult *client.Result
 		var reader io.Reader
 		var result *client.Result
 
 		prevResult, err = repositories.Botlogs.FindLatestByURI(ctx, feed.URL)
-		URL, err = url.ParseRequestURI(feed.URL)
 
 		cl := client.Client{}
-		result, reader, err = cl.Fetch(URL)
+		result, reader, err = cl.Fetch(feed.URL.URL)
 
 		log.Println(feed)
 
