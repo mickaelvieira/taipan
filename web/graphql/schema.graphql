@@ -7,6 +7,7 @@ type Query {
   GetBookmark(url: String!): Bookmark
   GetLatestDocuments(offset: Int, limit: Int): DocumentCollection
   GetLatestBookmarks(offset: Int, limit: Int): BookmarkCollection
+  Feeds(offset: Int, limit: Int): FeedCollection
 }
 
 type Mutation {
@@ -34,6 +35,13 @@ type BookmarkCollection {
   total: Int!
   limit: Int!
   results: [Bookmark]
+}
+
+type FeedCollection {
+  offset: Int!
+  total: Int!
+  limit: Int!
+  results: [Feed]
 }
 
 interface Node {
@@ -73,7 +81,6 @@ type Bookmark implements Node {
   addedAt: String!
   isRead: Boolean!
 }
-
 
 type Feed implements Node {
   id: ID!

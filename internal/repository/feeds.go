@@ -89,6 +89,51 @@ func (r *FeedRepository) GetNewFeeds(ctx context.Context) ([]*feed.Feed, error) 
 	return results, nil
 }
 
+// FindAll find newest entries
+func (r *FeedRepository) FindAll(ctx context.Context, cursor int32, limit int32) ([]*feed.Feed, error) {
+	var results []*feed.Feed
+
+	query := `
+		SELECT id, url, title, type, status, created_at, updated_at
+		FROM feeds AS f
+		ORDER BY f.updated_at DESC
+		LIMIT ?, ?
+	`
+	rows, err := r.db.QueryContext(ctx, query, cursor, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		d, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, d)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+// GetTotal count latest entries
+func (r *FeedRepository) GetTotal(ctx context.Context) (int32, error) {
+	var total int32
+
+	query := `
+		SELECT COUNT(f.id) as total FROM feeds AS f
+	`
+	err := r.db.QueryRowContext(ctx, query).Scan(&total)
+	if err != nil {
+		return total, err
+	}
+
+	return total, nil
+}
+
 // GetByURL find a single entry by URL and returns its ID
 func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, error) {
 	query := `

@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"context"
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"time"
 
@@ -53,4 +54,40 @@ func (r *FeedResolver) CreatedAt() string {
 // UpdatedAt resolves the UpdatedAt field
 func (r *FeedResolver) UpdatedAt() string {
 	return r.Feed.UpdatedAt.Format(time.RFC3339)
+}
+
+// Feeds resolves the query
+func (r *Resolvers) Feeds(ctx context.Context, args struct {
+	Offset *int32
+	Limit  *int32
+}) (*FeedCollectionResolver, error) {
+	fromArgs := GetBoundariesFromArgs(10)
+	offset, limit := fromArgs(args.Offset, args.Limit)
+
+	results, err := r.Repositories.Feeds.FindAll(ctx, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := r.Repositories.Feeds.GetTotal(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var feeds []*FeedResolver
+	for _, result := range results {
+		res := FeedResolver{
+			Feed: result,
+		}
+		feeds = append(feeds, &res)
+	}
+
+	reso := FeedCollectionResolver{
+		Results: &feeds,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
+
+	return &reso, nil
 }

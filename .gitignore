@@ -11,3 +11,5 @@ web/sql/data.sql
 .env.local
 .env.*.local
 .private
+web/proto/
+internal/proto/

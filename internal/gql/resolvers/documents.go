@@ -4,6 +4,7 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
 	"time"
 
@@ -21,6 +22,7 @@ type DocumentCollectionResolver struct {
 // DocumentResolver resolves the bookmark entity
 type DocumentResolver struct {
 	*document.Document
+	dataloaders  *loaders.Loaders
 	repositories *repository.Repositories
 }
 
@@ -114,6 +116,7 @@ func (r *Resolvers) GetLatestDocuments(ctx context.Context, args struct {
 	for _, result := range results {
 		res := DocumentResolver{
 			Document:     result,
+			dataloaders:  r.Dataloaders,
 			repositories: r.Repositories,
 		}
 		documents = append(documents, &res)

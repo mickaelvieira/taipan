@@ -20,6 +20,9 @@ run:
 run-feeds:
 	cd cmd/feeds && ./feeds
 
+gen-proto:
+	protoc --proto_path=web/proto --go_out=internal/proto web/proto/*.proto
+
 analyse:
 	staticcheck cmd/web/main.go
 	staticcheck cmd/feeds/main.go
