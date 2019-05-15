@@ -30,10 +30,8 @@ const styles = ({ palette, spacing }: Theme) =>
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      padding: spacing.unit * 2,
       color: palette.text.secondary,
-      marginTop: 56,
-      flex: 1
+      paddingTop: 70
     },
     fab: {
       margin: spacing.unit,

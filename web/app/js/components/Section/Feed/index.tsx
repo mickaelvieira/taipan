@@ -21,6 +21,9 @@ const styles = () =>
   createStyles({
     tabs: {
       width: "100%"
+    },
+    container: {
+      width: "100%"
     }
   });
 
@@ -80,6 +83,7 @@ export default withStyles(styles)(function Feed({ classes }: Props) {
             <SwipeableViews
               index={tabIndex}
               onChangeIndex={setTabIndex}
+              className={classes.container}
             >
               <FeedWrapper
                 queryKey="GetLatestDocuments"
