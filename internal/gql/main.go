@@ -1,7 +1,6 @@
 package gql
 
 import (
-	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/gql/resolvers"
 	"github/mickaelvieira/taipan/internal/repository"
 	"io/ioutil"
@@ -18,16 +17,10 @@ func mustLoad(path string) string {
 	return string(content)
 }
 
-func mustParse(content string, r *repository.Repositories) *graphql.Schema {
-	var dataloaders = &loaders.Loaders{Repositories: r}
-
-	resolvers := resolvers.Resolvers{
-		Dataloaders:  dataloaders,
-		Repositories: r,
-	}
-
+func mustParse(content string, repositories *repository.Repositories) *graphql.Schema {
+	resolvers := resolvers.GetRootResolver(repositories)
 	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
-	schema := graphql.MustParseSchema(content, &resolvers, opts...)
+	schema := graphql.MustParseSchema(content, resolvers, opts...)
 
 	return schema
 }

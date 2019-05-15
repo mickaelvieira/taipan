@@ -2,12 +2,17 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
+	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
+	"log"
 	"time"
 
+	"github.com/graph-gophers/dataloader"
 	graphql "github.com/graph-gophers/graphql-go"
 )
 
@@ -22,7 +27,8 @@ type DocumentCollectionResolver struct {
 // DocumentResolver resolves the bookmark entity
 type DocumentResolver struct {
 	*document.Document
-	dataloaders  *loaders.Loaders
+	feedsLoader  *dataloader.Loader
+	logsLoader   *dataloader.Loader
 	repositories *repository.Repositories
 }
 
@@ -79,18 +85,40 @@ func (r *DocumentResolver) UpdatedAt() string {
 
 // Feeds returns the document's feeds
 func (r *DocumentResolver) Feeds(ctx context.Context) (*[]*FeedResolver, error) {
-	results, err := r.repositories.Feeds.GetDocumentFeeds(ctx, r.Document)
+	log.Printf("get feeds %s", r.Document.ID)
+	results, err := r.feedsLoader.Load(ctx, r.Document)()
 	if err != nil {
 		return nil, err
 	}
-
-	var feeds []*FeedResolver
-	for _, result := range results {
-		res := FeedResolver{Feed: result}
-		feeds = append(feeds, &res)
+	feeds, ok := results.([]*feed.Feed)
+	if !ok {
+		return nil, fmt.Errorf("Invalid data")
 	}
+	var resolvers []*FeedResolver
+	for _, feed := range feeds {
+		resolvers = append(resolvers, &FeedResolver{
+			Feed:       feed,
+			logsLoader: r.logsLoader,
+		})
+	}
+	return &resolvers, nil
+}
 
-	return &feeds, nil
+// LogEntries returns the document's parser log
+func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
+	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Document.URL.String()))()
+	if err != nil {
+		return nil, err
+	}
+	results, ok := data.([]*client.Result)
+	if !ok {
+		return nil, fmt.Errorf("Invalid data")
+	}
+	var resolvers []*HTTPClientLogResolver
+	for _, result := range results {
+		resolvers = append(resolvers, &HTTPClientLogResolver{Result: result})
+	}
+	return &resolvers, nil
 }
 
 // GetLatestDocuments resolves the query
@@ -102,24 +130,68 @@ func (r *Resolvers) GetLatestDocuments(ctx context.Context, args struct {
 	offset, limit := fromArgs(args.Offset, args.Limit)
 	user := auth.FromContext(ctx)
 
-	results, err := r.Repositories.Documents.FindNew(ctx, user, offset, limit)
+	results, err := r.repositories.Documents.FindNew(ctx, user, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := r.Repositories.Documents.GetTotal(ctx)
+	var total int32
+	total, err = r.repositories.Documents.GetTotal(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	var feedsLoader = loaders.GetDocumentsFeedsLoader(r.repositories.Feeds)
+	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	var documents []*DocumentResolver
 	for _, result := range results {
-		res := DocumentResolver{
+		documents = append(documents, &DocumentResolver{
 			Document:     result,
-			dataloaders:  r.Dataloaders,
-			repositories: r.Repositories,
-		}
-		documents = append(documents, &res)
+			feedsLoader:  feedsLoader,
+			logsLoader:   logsLoader,
+			repositories: r.repositories,
+		})
+	}
+
+	reso := DocumentCollectionResolver{
+		Results: &documents,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
+
+	return &reso, nil
+}
+
+// Documents resolves the query
+func (r *Resolvers) Documents(ctx context.Context, args struct {
+	Offset *int32
+	Limit  *int32
+}) (*DocumentCollectionResolver, error) {
+	fromArgs := GetBoundariesFromArgs(10)
+	offset, limit := fromArgs(args.Offset, args.Limit)
+
+	results, err := r.repositories.Documents.GetDocuments(ctx, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var total int32
+	total, err = r.repositories.Documents.GetTotal(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var feedsLoader = loaders.GetDocumentsFeedsLoader(r.repositories.Feeds)
+	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
+	var documents []*DocumentResolver
+	for _, result := range results {
+		documents = append(documents, &DocumentResolver{
+			Document:     result,
+			feedsLoader:  feedsLoader,
+			logsLoader:   logsLoader,
+			repositories: r.repositories,
+		})
 	}
 
 	reso := DocumentCollectionResolver{

@@ -5,6 +5,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/image"
 	"github/mickaelvieira/taipan/internal/domain/uri"
 	"net/url"
+	"strings"
 )
 
 // Scanable sql.Rows or sql.Row
@@ -49,4 +50,8 @@ func getImageEntity(rawURL string, name string, width int32, height int32, forma
 	}
 
 	return &image, nil
+}
+
+func formatQuery(query string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(query, "\t", " "), "\n", "")
 }

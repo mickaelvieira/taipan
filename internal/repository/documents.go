@@ -24,7 +24,7 @@ func (r *DocumentRepository) GetByID(ctx context.Context, id string) (*document.
 		FROM documents AS d
 		WHERE id = ?
 	`
-	row := r.db.QueryRowContext(ctx, query, id)
+	row := r.db.QueryRowContext(ctx, formatQuery(query), id)
 	d, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (r *DocumentRepository) GetByURL(ctx context.Context, u *uri.URI) (*documen
 		FROM documents AS d
 		WHERE url = ?
 	`
-	row := r.db.QueryRowContext(ctx, query, u.String())
+	row := r.db.QueryRowContext(ctx, formatQuery(query), u.String())
 	d, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (r *DocumentRepository) GetByChecksum(ctx context.Context, c checksum.Check
 		FROM documents AS d
 		WHERE d.checksum = UNHEX(?)
 	`
-	row := r.db.QueryRowContext(ctx, query, c.String())
+	row := r.db.QueryRowContext(ctx, formatQuery(query), c.String())
 	d, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (r *DocumentRepository) GetByIDs(ctx context.Context, ids []string) ([]*doc
 		WHERE id IN (?%s)
 	`
 	query = fmt.Sprintf(query, strings.Repeat(",?", len(ids)-1))
-	rows, err := r.db.QueryContext(ctx, query, params...)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), params...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,37 @@ func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, curso
 		ORDER BY d.updated_at DESC
 		LIMIT ?, ?
 	`
-	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), user.ID, cursor, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		d, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, d)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+// GetDocuments returns the paginated documents
+func (r *DocumentRepository) GetDocuments(ctx context.Context, cursor int32, limit int32) ([]*document.Document, error) {
+	var results []*document.Document
+
+	query := `
+		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at
+		FROM documents AS d
+		ORDER BY d.updated_at DESC
+		LIMIT ?, ?
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), cursor, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +169,7 @@ func (r *DocumentRepository) GetTotal(ctx context.Context) (int32, error) {
 	query := `
 		SELECT COUNT(d.id) as total FROM documents AS d
 	`
-	err := r.db.QueryRowContext(ctx, query).Scan(&total)
+	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
 	if err != nil {
 		return total, err
 	}
@@ -157,7 +187,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 	`
 	result, err := r.db.ExecContext(
 		ctx,
-		query,
+		formatQuery(query),
 		d.URL,
 		d.Checksum,
 		d.Charset,
@@ -189,7 +219,7 @@ func (r *DocumentRepository) Update(ctx context.Context, d *document.Document) e
 	`
 	_, err := r.db.ExecContext(
 		ctx,
-		query,
+		formatQuery(query),
 		d.Checksum,
 		d.Charset,
 		d.Lang,
@@ -212,7 +242,7 @@ func (r *DocumentRepository) UpdateImage(ctx context.Context, d *document.Docume
 	`
 	_, err := r.db.ExecContext(
 		ctx,
-		query,
+		formatQuery(query),
 		d.Image.URL.String(),
 		d.Image.Name,
 		d.Image.Width,

@@ -35,6 +35,15 @@ type Document struct {
 	UpdatedAt   time.Time
 }
 
+func (d *Document) String() string {
+	return d.ID
+}
+
+// Raw returns the key raws data
+func (d *Document) Raw() interface{} {
+	return d
+}
+
 // New creates a new document
 func New(url *uri.URI, lang string, charset string, title string, desc string, image *image.Image, feeds []*feed.Feed) *Document {
 	return &Document{

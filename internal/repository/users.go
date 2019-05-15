@@ -20,7 +20,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 		FROM users
 		WHERE id = ?
 	`
-	err := r.db.QueryRowContext(ctx, query, id).Scan(
+	err := r.db.QueryRowContext(ctx, formatQuery(query), id).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Firstname,

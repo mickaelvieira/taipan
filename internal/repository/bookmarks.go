@@ -27,7 +27,7 @@ func (r *BookmarkRepository) FindLatest(ctx context.Context, user *user.User, cu
 		ORDER BY b.updated_at DESC
 		LIMIT ?, ?
 	`
-	rows, err := r.db.QueryContext(ctx, query, user.ID, cursor, limit)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), user.ID, cursor, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (r *BookmarkRepository) GetTotal(ctx context.Context, user *user.User) (int
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.linked = 1 AND b.user_id = ?
 	`
-	err := r.db.QueryRowContext(ctx, query, user.ID).Scan(&total)
+	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
 		return total, err
 	}
@@ -77,7 +77,7 @@ func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *u
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.user_id = ? AND d.url = ?
 	`
-	row := r.db.QueryRowContext(ctx, query, user.ID, u.String())
+	row := r.db.QueryRowContext(ctx, formatQuery(query), user.ID, u.String())
 	b, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.Us
 	`
 	_, err := r.db.ExecContext(
 		ctx,
-		query,
+		formatQuery(query),
 		user.ID,
 		d.ID,
 		time.Now(),

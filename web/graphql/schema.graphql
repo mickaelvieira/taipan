@@ -5,9 +5,11 @@ schema {
 
 type Query {
   GetBookmark(url: String!): Bookmark
+
   GetLatestDocuments(offset: Int, limit: Int): DocumentCollection
   GetLatestBookmarks(offset: Int, limit: Int): BookmarkCollection
   Feeds(offset: Int, limit: Int): FeedCollection
+  Documents(offset: Int, limit: Int): DocumentCollection
 }
 
 type Mutation {
@@ -67,6 +69,7 @@ type Document implements Node {
   createdAt: String!
   updatedAt: String!
   feeds: [Feed]
+  logEntries: [HTTPClientLog]
 }
 
 type Bookmark implements Node {
@@ -90,4 +93,13 @@ type Feed implements Node {
   status: String!
   createdAt: String!
   updatedAt: String!
+  logEntries: [HTTPClientLog]
+}
+
+type HTTPClientLog implements Node {
+  id: ID!
+  uri: String!
+  statusCode: Int!
+  contentType: String!
+  createdAt: String!
 }

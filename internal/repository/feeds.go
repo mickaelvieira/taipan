@@ -22,7 +22,7 @@ func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, er
 		FROM feeds
 		WHERE id = ?
 	`
-	rows := r.db.QueryRowContext(ctx, query, id)
+	rows := r.db.QueryRowContext(ctx, formatQuery(query), id)
 	f, err := r.scan(rows)
 
 	if err != nil {
@@ -40,7 +40,7 @@ func (r *FeedRepository) GetDocumentFeeds(ctx context.Context, d *document.Docum
 		FROM feeds
 		WHERE document_id = ?
 	`
-	rows, err := r.db.QueryContext(ctx, query, d.ID)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), d.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (r *FeedRepository) GetNewFeeds(ctx context.Context) ([]*feed.Feed, error) 
 		WHERE status = ? AND url != "http://1001days.london/comments/feed/"
 		LIMIT 1
 	`
-	rows, err := r.db.QueryContext(ctx, query, feed.NEW)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), feed.NEW)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (r *FeedRepository) FindAll(ctx context.Context, cursor int32, limit int32)
 		ORDER BY f.updated_at DESC
 		LIMIT ?, ?
 	`
-	rows, err := r.db.QueryContext(ctx, query, cursor, limit)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), cursor, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (r *FeedRepository) GetTotal(ctx context.Context) (int32, error) {
 	query := `
 		SELECT COUNT(f.id) as total FROM feeds AS f
 	`
-	err := r.db.QueryRowContext(ctx, query).Scan(&total)
+	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
 	if err != nil {
 		return total, err
 	}
@@ -141,7 +141,7 @@ func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, 
 		FROM feeds
 		WHERE url = ?
 	`
-	rows := r.db.QueryRowContext(ctx, query, u.String())
+	rows := r.db.QueryRowContext(ctx, formatQuery(query), u.String())
 	f, err := r.scan(rows)
 	if err != nil {
 		return nil, err
@@ -161,7 +161,7 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.D
 
 	result, err := r.db.ExecContext(
 		ctx,
-		query,
+		formatQuery(query),
 		d.ID,
 		f.URL,
 		f.Title,

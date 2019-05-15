@@ -2,9 +2,13 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
+	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"time"
 
+	"github.com/graph-gophers/dataloader"
 	graphql "github.com/graph-gophers/graphql-go"
 )
 
@@ -19,6 +23,7 @@ type FeedCollectionResolver struct {
 // FeedResolver resolves the bookmark entity
 type FeedResolver struct {
 	*feed.Feed
+	logsLoader *dataloader.Loader
 }
 
 // ID resolves the ID field
@@ -56,6 +61,23 @@ func (r *FeedResolver) UpdatedAt() string {
 	return r.Feed.UpdatedAt.Format(time.RFC3339)
 }
 
+// LogEntries returns the document's parser log
+func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
+	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Feed.URL.String()))()
+	if err != nil {
+		return nil, err
+	}
+	results, ok := data.([]*client.Result)
+	if !ok {
+		return nil, fmt.Errorf("Invalid data")
+	}
+	var resolvers []*HTTPClientLogResolver
+	for _, result := range results {
+		resolvers = append(resolvers, &HTTPClientLogResolver{Result: result})
+	}
+	return &resolvers, nil
+}
+
 // Feeds resolves the query
 func (r *Resolvers) Feeds(ctx context.Context, args struct {
 	Offset *int32
@@ -64,22 +86,24 @@ func (r *Resolvers) Feeds(ctx context.Context, args struct {
 	fromArgs := GetBoundariesFromArgs(10)
 	offset, limit := fromArgs(args.Offset, args.Limit)
 
-	results, err := r.Repositories.Feeds.FindAll(ctx, offset, limit)
+	results, err := r.repositories.Feeds.FindAll(ctx, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := r.Repositories.Feeds.GetTotal(ctx)
+	var total int32
+	total, err = r.repositories.Feeds.GetTotal(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var feeds []*FeedResolver
+	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	for _, result := range results {
-		res := FeedResolver{
-			Feed: result,
-		}
-		feeds = append(feeds, &res)
+		feeds = append(feeds, &FeedResolver{
+			Feed:       result,
+			logsLoader: logsLoader,
+		})
 	}
 
 	reso := FeedCollectionResolver{

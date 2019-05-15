@@ -88,7 +88,12 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 
 	u, err := url.ParseRequestURI(args.URL)
-	b, err := r.Repositories.Bookmarks.GetByURL(ctx, user, &uri.URI{URL: u})
+	if err != nil {
+		return nil, err
+	}
+
+	var b *bookmark.Bookmark
+	b, err = r.repositories.Bookmarks.GetByURL(ctx, user, &uri.URI{URL: u})
 	if err != nil {
 		return nil, err
 	}
@@ -107,20 +112,20 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	offset, limit := fromArgs(args.Offset, args.Limit)
 	user := auth.FromContext(ctx)
 
-	results, err := r.Repositories.Bookmarks.FindLatest(ctx, user, offset, limit)
+	results, err := r.repositories.Bookmarks.FindLatest(ctx, user, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := r.Repositories.Bookmarks.GetTotal(ctx, user)
+	var total int32
+	total, err = r.repositories.Bookmarks.GetTotal(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
 	var bookmarks []*BookmarkResolver
 	for _, result := range results {
-		res := BookmarkResolver{Bookmark: result}
-		bookmarks = append(bookmarks, &res)
+		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
 	}
 
 	reso := BookmarkCollectionResolver{
@@ -139,13 +144,16 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 
-	d, err := usecase.Document(ctx, args.URL, r.Repositories)
+	d, err := usecase.Document(ctx, args.URL, r.repositories)
 	if err != nil {
 		return nil, err
 	}
 
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, user, d, r.Repositories)
+	b, err = usecase.Bookmark(ctx, user, d, r.repositories)
+	if err != nil {
+		return nil, err
+	}
 
 	res := &BookmarkResolver{Bookmark: b}
 
