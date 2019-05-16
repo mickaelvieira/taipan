@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { hasReachedTheBottom } from "../helpers/window";
 
-export default function useWindoBottom() {
+export default function useWindowBottom() {
   const [atTheBotttom, setIsAtTheBotttom] = useState(false);
 
   useEffect(() => {

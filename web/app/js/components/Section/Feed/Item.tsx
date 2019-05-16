@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import moment from "moment";
 import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import RootRef from '@material-ui/core/RootRef';
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
@@ -18,6 +19,7 @@ import BookmarkMutation, {
   mutation
 } from "../../apollo/Mutation/Bookmark";
 import { truncate } from "../../../helpers/string";
+import useIsVisible from "../../../hooks/is-visible";
 
 const styles = () =>
   createStyles({
@@ -40,80 +42,84 @@ const styles = () =>
   });
 
 interface Props extends WithStyles<typeof styles> {
+  index: Number;
   bookmark: Bookmark;
 }
 
-export default withStyles(styles)(
-  React.memo(function FeedItem({ bookmark, classes }: Props) {
-    const image = bookmark.image
-      ? bookmark.image.url
-      : "https://placekitten.com/g/400/225";
-    return (
-      <Card className={classes.card}>
-        <Link
-          underline="none"
-          block
-          href={bookmark.url}
-          title={bookmark.title}
-          target="_blank"
-          rel="noopener"
-        >
+export default withStyles(styles)(React.memo(function FeedItem({ index, bookmark, classes }: Props) {
+  const divRef = useRef(null);
+  const visible = index < 5 ? true : useIsVisible(divRef)
+  const image = bookmark.image && visible
+    ? bookmark.image.url
+    : "https://placekitten.com/g/400/225";
+
+  return (
+    <Card className={classes.card}>
+      <Link
+        underline="none"
+        block
+        href={bookmark.url}
+        title={bookmark.title}
+        target="_blank"
+        rel="noopener"
+      >
+        <RootRef rootRef={divRef}>
           <CardMedia
             className={classes.media}
             image={image}
             title={bookmark.title}
           />
+        </RootRef>
+      </Link>
+      <CardContent className={classes.content}>
+        <Link
+          underline="none"
+          href={bookmark.url}
+          title={bookmark.title}
+          target="_blank"
+          rel="noopener"
+        >
+          <Typography gutterBottom variant="h6" component="h2">
+            {bookmark.title}
+          </Typography>
         </Link>
-        <CardContent className={classes.content}>
-          <Link
-            underline="none"
-            href={bookmark.url}
-            title={bookmark.title}
-            target="_blank"
-            rel="noopener"
-          >
-            <Typography gutterBottom variant="h6" component="h2">
-              {bookmark.title}
-            </Typography>
-          </Link>
-          <Typography component="p" gutterBottom>
-            {truncate(bookmark.description)}
-          </Typography>
-          <Typography variant="body2">
-            Added: {moment(bookmark.addedAt).fromNow()}
-          </Typography>
-          <Typography variant="body2">
-            Updated: {moment(bookmark.updatedAt).fromNow()}
-          </Typography>
-        </CardContent>
-        <CardActions className={classes.actions} disableActionSpacing>
-          <IconButton aria-label="Add to favorites">
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton aria-label="Share">
-            <ShareIcon />
-          </IconButton>
-          <BookmarkMutation mutation={mutation}>
-            {(mutate, { loading }) => (
-              <IconButton
-                aria-label="Share"
-                disabled={loading}
-                onClick={() =>
-                  mutate({
-                    variables: { url: bookmark.url }
-                  })
-                }
-              >
-                {!loading && <CachedIcon />}
-                {loading && <CircularProgress size={16} />}
-              </IconButton>
-            )}
-          </BookmarkMutation>
-          <IconButton>
-            <MoreVertIcon />
-          </IconButton>
-        </CardActions>
-      </Card>
-    );
-  })
-);
+        <Typography component="p" gutterBottom>
+          {truncate(bookmark.description)}
+        </Typography>
+        <Typography variant="body2">
+          Added: {moment(bookmark.addedAt).fromNow()}
+        </Typography>
+        <Typography variant="body2">
+          Updated: {moment(bookmark.updatedAt).fromNow()}
+        </Typography>
+      </CardContent>
+      <CardActions className={classes.actions} disableActionSpacing>
+        <IconButton aria-label="Add to favorites">
+          <FavoriteIcon />
+        </IconButton>
+        <IconButton aria-label="Share">
+          <ShareIcon />
+        </IconButton>
+        <BookmarkMutation mutation={mutation}>
+          {(mutate, { loading }) => (
+            <IconButton
+              aria-label="Share"
+              disabled={loading}
+              onClick={() =>
+                mutate({
+                  variables: { url: bookmark.url }
+                })
+              }
+            >
+              {!loading && <CachedIcon />}
+              {loading && <CircularProgress size={16} />}
+            </IconButton>
+          )}
+        </BookmarkMutation>
+        <IconButton>
+          <MoreVertIcon />
+        </IconButton>
+      </CardActions>
+    </Card>
+  );
+}));
