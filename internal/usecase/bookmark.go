@@ -17,6 +17,8 @@ import (
 	"net/url"
 )
 
+/* https://godoc.org/golang.org/x/xerrors */
+
 // Bookmarks use cases errors
 var (
 	ErrInvalidURI           = errors.New("Invalid URL")

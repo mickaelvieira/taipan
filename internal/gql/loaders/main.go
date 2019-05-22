@@ -54,7 +54,6 @@ func GetDocumentsFeedsLoader(repository *repository.FeedRepository) *dataloader.
 
 // GetHTTPClientLogEntriesLoader get the loader
 func GetHTTPClientLogEntriesLoader(repository *repository.BotlogRepository) *dataloader.Loader {
-	log.Println("=>>>>> GetHTTPClientLogEntriesLoader")
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		log.Println("run batch logs")
 		log.Println(keys.Keys())

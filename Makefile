@@ -3,13 +3,16 @@ SHELL := /bin/bash
 
 build-app: build build-ui
 
-build: build-web build-feeds build-migration
+build: build-web build-feeds build-documents
 
 build-web:
 	cd cmd/web && go build
 
 build-feeds:
 	cd cmd/feeds && go build
+
+build-documents:
+	cd cmd/documents && go build
 
 build-migration:
 	cd cmd/migration && go build
@@ -20,8 +23,11 @@ run:
 run-feeds:
 	cd cmd/feeds && ./feeds
 
+run-documents:
+	cd cmd/documents && ./documents
+
 gen-proto:
-	protoc --proto_path=web/proto --go_out=internal/proto web/proto/*.proto
+	protoc --proto_path=web/proto --go_out=internal/domain/document web/proto/document.proto
 
 analyse:
 	staticcheck cmd/web/main.go

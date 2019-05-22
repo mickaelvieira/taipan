@@ -2,57 +2,63 @@ package main
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/client"
-	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/usecase"
-	"io"
+	"fmt"
 	"log"
+	"time"
 
 	"github/mickaelvieira/taipan/internal/app"
-
-	"github.com/mmcdole/gofeed"
+	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/rmq"
+	"github/mickaelvieira/taipan/internal/usecase"
 )
 
 func main() {
+	fmt.Println("Starting feeds worker")
 	app.LoadEnvironment()
-
-	fp := gofeed.NewParser()
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 	repositories := repository.GetRepositories()
 
-	feeds, err := repositories.Feeds.GetNewFeeds(ctx)
+	// @TODO Check out how RMQ handle context
+	fmt.Println("Creating RabbitMQ client")
+	client, err := rmq.New()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, feed := range feeds {
-		var prevResult *client.Result
-		var reader io.Reader
-		var result *client.Result
+	onStop := func() {
+		// Cancel context
+		cancel()
+		// Close RabbitMQ connection
+		client.Close()
+	}
+	app.Signal(onStop)
+	defer onStop()
 
-		prevResult, err = repositories.Botlogs.FindLatestByURI(ctx, feed.URL)
+	ticker := time.NewTicker(5 * time.Minute)
 
-		cl := client.Client{}
-		result, reader, err = cl.Fetch(feed.URL.URL)
+	for {
+		fmt.Println("loop")
+		select {
+		case t := <-ticker.C:
+			fmt.Println("Tick at", t)
 
-		log.Println(feed)
+			feeds, err := repositories.Feeds.GetOutdatedFeeds(ctx)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		if err == nil {
-			if result.IsContentDifferent(prevResult) {
-				var content *gofeed.Feed
-				content, err = fp.Parse(reader)
-				if err == nil {
-					for _, item := range content.Items {
-						log.Println(item.Link)
-						var bookmark *document.Document
-						bookmark, err = usecase.Document(ctx, item.Link, repositories)
+			for _, feed := range feeds {
+				var entries []string
+				entries, err = usecase.ParseFeed(ctx, feed, repositories)
+				if err != nil {
+					// We just log the parsing errors for now
+					log.Println(err)
+				}
 
-						if err != nil {
-							log.Println(err)
-						} else {
-							log.Println(bookmark)
-						}
+				for _, entry := range entries {
+					e := client.PublishDocument(entry)
+					if e != nil {
+						log.Println(e)
 					}
 				}
 			}

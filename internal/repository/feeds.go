@@ -8,6 +8,8 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/uri"
 	"log"
 	"strconv"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 // FeedRepository the Feed repository
@@ -18,9 +20,9 @@ type FeedRepository struct {
 // GetByID find a single entry
 func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, error) {
 	query := `
-		SELECT id, url, title, type, status, created_at, updated_at
-		FROM feeds
-		WHERE id = ?
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		FROM feeds AS f
+		WHERE f.id = ?
 	`
 	rows := r.db.QueryRowContext(ctx, formatQuery(query), id)
 	f, err := r.scan(rows)
@@ -36,11 +38,40 @@ func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, er
 func (r *FeedRepository) GetDocumentFeeds(ctx context.Context, d *document.Document) ([]*feed.Feed, error) {
 	var results []*feed.Feed
 	query := `
-		SELECT id, url, title, type, status, created_at, updated_at
-		FROM feeds
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		FROM feeds AS f
 		WHERE document_id = ?
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), d.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		f, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, f)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return results, nil
+}
+
+// GetOutdatedFeeds returns the feeds which have been last updated more than 24 hrs
+func (r *FeedRepository) GetOutdatedFeeds(ctx context.Context) ([]*feed.Feed, error) {
+	var results []*feed.Feed
+	query := `
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		FROM feeds AS f
+		WHERE f.parsed_at IS NULL OR f.parsed_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+		LIMIT ?;
+		`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), 10)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +95,9 @@ func (r *FeedRepository) GetDocumentFeeds(ctx context.Context, d *document.Docum
 func (r *FeedRepository) GetNewFeeds(ctx context.Context) ([]*feed.Feed, error) {
 	var results []*feed.Feed
 	query := `
-		SELECT id, url, title, type, status, created_at, updated_at
-		FROM feeds
-		WHERE status = ? AND url != "http://1001days.london/comments/feed/"
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		FROM feeds AS f
+		WHERE f.status = ?
 		LIMIT 1
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), feed.NEW)
@@ -94,7 +125,7 @@ func (r *FeedRepository) FindAll(ctx context.Context, cursor int32, limit int32)
 	var results []*feed.Feed
 
 	query := `
-		SELECT id, url, title, type, status, created_at, updated_at
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
 		FROM feeds AS f
 		ORDER BY f.updated_at DESC
 		LIMIT ?, ?
@@ -137,9 +168,9 @@ func (r *FeedRepository) GetTotal(ctx context.Context) (int32, error) {
 // GetByURL find a single entry by URL and returns its ID
 func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, error) {
 	query := `
-		SELECT id, url, title, type, status, created_at, updated_at
-		FROM feeds
-		WHERE url = ?
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		FROM feeds AS f
+		WHERE f.url = ?
 	`
 	rows := r.db.QueryRowContext(ctx, formatQuery(query), u.String())
 	f, err := r.scan(rows)
@@ -158,7 +189,6 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.D
 		VALUES
 		(?, ?, ?, ?, ?, ?, ?)
 	`
-
 	result, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
@@ -178,6 +208,25 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.D
 			f.ID = strconv.FormatInt(ID, 10)
 		}
 	}
+
+	return err
+}
+
+// Update updates a feed in the DB
+func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
+	query := `
+		UPDATE feeds
+		SET status = ?, updated_at = ?, parsed_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		f.Status,
+		f.UpdatedAt,
+		f.ParsedAt,
+		f.ID,
+	)
 
 	return err
 }
@@ -209,6 +258,8 @@ func (r *FeedRepository) InsertAllIfNotExists(ctx context.Context, feeds []*feed
 
 func (r *FeedRepository) scan(rows Scanable) (*feed.Feed, error) {
 	var feed feed.Feed
+	var parsedAt mysql.NullTime
+
 	err := rows.Scan(
 		&feed.ID,
 		&feed.URL,
@@ -217,7 +268,12 @@ func (r *FeedRepository) scan(rows Scanable) (*feed.Feed, error) {
 		&feed.Status,
 		&feed.CreatedAt,
 		&feed.UpdatedAt,
+		&parsedAt,
 	)
+
+	if parsedAt.Valid {
+		feed.ParsedAt = parsedAt.Time
+	}
 
 	if err != nil {
 		return nil, err
