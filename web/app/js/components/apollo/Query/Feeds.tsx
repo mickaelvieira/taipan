@@ -9,13 +9,13 @@ export interface Data {
     offset: number;
     limit: number;
     results: Bookmark[];
-  },
+  };
   GetLatestDocuments: {
     total: number;
     offset: number;
     limit: number;
     results: Document[];
-  }
+  };
 }
 
 export interface Variables {
@@ -29,6 +29,6 @@ const variables = {
 
 export { query, variables };
 
-class LatestBookmarksQuery extends Query<Data, Variables> { }
+class LatestBookmarksQuery extends Query<Data, Variables> {}
 
 export default LatestBookmarksQuery;

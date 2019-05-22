@@ -17,18 +17,16 @@ export interface Props {
   bookmarks: Bookmark[];
 }
 
-export default withStyles(styles)(
-  React.memo(function List({
-    hasResults,
-    bookmarks,
-    classes
-  }: Props & WithStyles<typeof styles>) {
-    return !hasResults ? null : (
-      <div className={classes.container}>
-        {bookmarks.map((bookmark: Bookmark, index) => {
-          return <FeedItem bookmark={bookmark} index={index} key={bookmark.id} />;
-        })}
-      </div>
-    );
-  })
-);
+export default withStyles(styles)(function List({
+  hasResults,
+  bookmarks,
+  classes
+}: Props & WithStyles<typeof styles>) {
+  return !hasResults ? null : (
+    <div className={classes.container}>
+      {bookmarks.map((bookmark: Bookmark, index) => (
+        <FeedItem bookmark={bookmark} index={index} key={bookmark.id} />
+      ))}
+    </div>
+  );
+});

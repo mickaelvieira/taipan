@@ -1,6 +1,6 @@
 const truncate = (input: string, len: number = 500) => {
   if (input.length <= len) {
-    return input
+    return input;
   }
 
   const words = input
@@ -8,25 +8,21 @@ const truncate = (input: string, len: number = 500) => {
     .filter(word => word !== "")
     .map(word => word.trim());
 
-  let output = ""
+  let output = "";
   let next = "";
 
   do {
-    output = next
+    output = next;
     const token = words.shift();
 
     if (!token) {
       break;
     }
 
-    next = output === ""
-      ? token
-      : `${output} ${token}`;
-  } while (output.length < len && next.length <= len)
+    next = output === "" ? token : `${output} ${token}`;
+  } while (output.length < len && next.length <= len);
 
   return `${output}...`;
-}
+};
 
-export {
-  truncate
-}
+export { truncate };

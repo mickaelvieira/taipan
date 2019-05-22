@@ -10,7 +10,7 @@ interface Variables {
   url: string;
 }
 
-class BookmarkMutation extends Mutation<Data, Variables> { }
+class BookmarkMutation extends Mutation<Data, Variables> {}
 
 export { mutation };
 

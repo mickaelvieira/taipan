@@ -1,11 +1,7 @@
 import React, { useEffect } from "react";
 import Loader from "../../ui/Loader";
 import List, { Props as ListProps } from "./List";
-import {
-  variables,
-  Variables,
-  Data
-} from "../../apollo/Query/Feeds";
+import { variables, Variables, Data } from "../../apollo/Query/Feeds";
 import useWindowBottom from "../../../hooks/window-bottom";
 
 interface Props extends ListProps {

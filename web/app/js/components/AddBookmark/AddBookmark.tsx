@@ -8,9 +8,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Bookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import BookmarkMutation, {
-  mutation
-} from "../apollo/Mutation/Bookmark";
+import BookmarkMutation, { mutation } from "../apollo/Mutation/Bookmark";
 import { query, variables } from "../apollo/Query/Feeds";
 
 const styles = () =>
