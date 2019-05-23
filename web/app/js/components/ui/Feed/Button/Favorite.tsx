@@ -19,6 +19,9 @@ interface Props extends WithStyles<typeof styles> {
   bookmark: Bookmark;
 }
 
+// @TODO ask for confirmation whem removing from favorites
+// @TODO add callback for the oncomplete, it would be nice to add some error/confirmation messages
+
 export default withStyles(styles)(
   React.memo(function Favorite({ bookmark, classes }: Props) {
     return (

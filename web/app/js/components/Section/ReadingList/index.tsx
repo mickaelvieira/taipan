@@ -34,6 +34,10 @@ function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   return [hasResults, results];
 }
 
+// @TODO add some margin at the bottom of all feeds
+// @TODO Add infinite scroll to all feeds
+// @TODO display the document's domain somewhere
+
 export default withStyles(styles)(function News({
   classes
 }: WithStyles<typeof styles>) {

@@ -1,3 +1,5 @@
+#import "./image.graphql"
+
 fragment documentFields on Document {
   id
   url
@@ -6,11 +8,7 @@ fragment documentFields on Document {
   charset
   description
   image {
-    url
-    name
-    width
-    height
-    format
+    ...imageFields
   }
   createdAt
   updatedAt
