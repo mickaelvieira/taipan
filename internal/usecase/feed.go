@@ -52,13 +52,12 @@ func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Re
 		for _, item := range content.Items {
 			entries = append(entries, item.Link)
 		}
-
-		feed.ParsedAt = time.Now()
-
-		repositories.Feeds.Update(ctx, feed)
 	} else {
 		fmt.Println("content has not changed")
 	}
+
+	feed.ParsedAt = time.Now()
+	repositories.Feeds.Update(ctx, feed)
 
 	return entries, nil
 }
