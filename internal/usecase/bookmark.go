@@ -8,6 +8,7 @@ import (
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/uri"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -15,6 +16,7 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"time"
 )
 
 /* https://godoc.org/golang.org/x/xerrors */
@@ -129,4 +131,50 @@ func Bookmark(ctx context.Context, user *user.User, d *document.Document, reposi
 	}
 
 	return b, nil
+}
+
+// ReadStatus bla
+func ReadStatus(ctx context.Context, user *user.User, URL *uri.URI, isRead bookmark.ReadStatus, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
+	var err error
+	var b *bookmark.Bookmark
+
+	b, err = repositories.Bookmarks.GetByURL(ctx, user, URL)
+	if err != nil {
+		return nil, err
+	}
+
+	b.IsRead = isRead
+	b.UpdatedAt = time.Now()
+
+	err = repositories.Bookmarks.ChangeReadStatus(ctx, user, b)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// Unbookmark removes bookmark from user list
+func Unbookmark(ctx context.Context, user *user.User, URL *uri.URI, repositories *repository.Repositories) (*document.Document, error) {
+	var err error
+	var b *bookmark.Bookmark
+	var d *document.Document
+
+	b, err = repositories.Bookmarks.GetByURL(ctx, user, URL)
+	if err != nil {
+		return nil, err
+	}
+
+	b.IsLinked = false
+	// b.IsRead = false // @TODO
+	b.UpdatedAt = time.Now()
+
+	err = repositories.Bookmarks.Remove(ctx, user, b)
+	if err != nil {
+		return nil, err
+	}
+
+	d, err = repositories.Documents.GetByID(ctx, b.ID)
+
+	return d, nil
 }

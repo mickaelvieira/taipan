@@ -78,7 +78,7 @@ func (r *BookmarkResolver) UpdatedAt() string {
 
 // IsRead resolves the IsRead field
 func (r *BookmarkResolver) IsRead() bool {
-	return r.Bookmark.IsRead
+	return bool(r.Bookmark.IsRead)
 }
 
 // GetBookmark resolves the query
@@ -103,8 +103,8 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 	return &res, nil
 }
 
-// GetLatestBookmarks resolves the query
-func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
+// GetFavorites resolves the query
+func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
 	Offset *int32
 	Limit  *int32
 }) (*BookmarkCollectionResolver, error) {
@@ -112,13 +112,48 @@ func (r *Resolvers) GetLatestBookmarks(ctx context.Context, args struct {
 	offset, limit := fromArgs(args.Offset, args.Limit)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Bookmarks.FindLatest(ctx, user, offset, limit)
+	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
 	var total int32
-	total, err = r.repositories.Bookmarks.GetTotal(ctx, user)
+	total, err = r.repositories.Bookmarks.GetTotalFavorites(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	var bookmarks []*BookmarkResolver
+	for _, result := range results {
+		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
+	}
+
+	reso := BookmarkCollectionResolver{
+		Results: &bookmarks,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
+
+	return &reso, nil
+}
+
+// GetReadingList resolves the query
+func (r *Resolvers) GetReadingList(ctx context.Context, args struct {
+	Offset *int32
+	Limit  *int32
+}) (*BookmarkCollectionResolver, error) {
+	fromArgs := GetBoundariesFromArgs(10)
+	offset, limit := fromArgs(args.Offset, args.Limit)
+	user := auth.FromContext(ctx)
+
+	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var total int32
+	total, err = r.repositories.Bookmarks.GetTotalReadingList(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +191,48 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	}
 
 	res := &BookmarkResolver{Bookmark: b}
+
+	return res, nil
+}
+
+// ChangeBookmarkReadStatus marks the bookmark as read or unread
+func (r *Resolvers) ChangeBookmarkReadStatus(ctx context.Context, args struct {
+	URL    string
+	IsRead bool
+}) (*BookmarkResolver, error) {
+	user := auth.FromContext(ctx)
+	isRead := bookmark.ReadStatus(args.IsRead)
+	url, err := uri.FromRawURL(args.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := usecase.ReadStatus(ctx, user, url, isRead, r.repositories)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &BookmarkResolver{Bookmark: b}
+
+	return res, nil
+}
+
+// Unbookmark removes bookmark from user's list
+func (r *Resolvers) Unbookmark(ctx context.Context, args struct {
+	URL string
+}) (*DocumentResolver, error) {
+	user := auth.FromContext(ctx)
+	url, err := uri.FromRawURL(args.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	d, err := usecase.Unbookmark(ctx, user, url, r.repositories)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &DocumentResolver{Document: d}
 
 	return res, nil
 }

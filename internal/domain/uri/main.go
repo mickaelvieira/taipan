@@ -33,3 +33,12 @@ func (uri *URI) Scan(value interface{}) error {
 	}
 	return errors.New("failed to scan URL")
 }
+
+// FromRawURL returns an URI
+func FromRawURL(rawURL string) (*URI, error) {
+	URL, err := url.ParseRequestURI(rawURL)
+	if err != nil || !URL.IsAbs() {
+		return nil, errors.New("Invalid URL")
+	}
+	return &URI{URL: URL}, nil
+}

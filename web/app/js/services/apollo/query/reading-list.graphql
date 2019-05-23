@@ -1,0 +1,12 @@
+#import "../fragment/bookmark.graphql"
+
+query ReadingList($offset: Int, $limit: Int) {
+  GetReadingList(offset: $offset, limit: $limit) @connection(key: "feed_reading_list") {
+    total
+    offset
+    limit
+    results {
+      ...bookmarkFields
+    }
+  }
+}

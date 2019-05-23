@@ -5,15 +5,17 @@ schema {
 
 type Query {
   GetBookmark(url: String!): Bookmark
-
-  GetLatestDocuments(offset: Int, limit: Int): DocumentCollection
-  GetLatestBookmarks(offset: Int, limit: Int): BookmarkCollection
+  News(offset: Int, limit: Int): DocumentCollection
+  GetFavorites(offset: Int, limit: Int): BookmarkCollection
+  GetReadingList(offset: Int, limit: Int): BookmarkCollection
   Feeds(offset: Int, limit: Int): FeedCollection
   Documents(offset: Int, limit: Int): DocumentCollection
 }
 
 type Mutation {
   Bookmark(url: String!): Bookmark
+  Unbookmark(url: String!): Document
+  ChangeBookmarkReadStatus(url: String!, isRead: Boolean!): Bookmark
 }
 
 enum BookmarkStatus {

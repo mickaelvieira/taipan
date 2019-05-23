@@ -1,0 +1,12 @@
+#import "../fragment/bookmark.graphql"
+
+query Favorites($offset: Int, $limit: Int) {
+  GetFavorites(offset: $offset, limit: $limit) @connection(key: "feed_favorites") {
+    total
+    offset
+    limit
+    results {
+      ...bookmarkFields
+    }
+  }
+}

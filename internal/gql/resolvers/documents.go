@@ -121,8 +121,8 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 	return &resolvers, nil
 }
 
-// GetLatestDocuments resolves the query
-func (r *Resolvers) GetLatestDocuments(ctx context.Context, args struct {
+// News resolves the query
+func (r *Resolvers) News(ctx context.Context, args struct {
 	Offset *int32
 	Limit  *int32
 }) (*DocumentCollectionResolver, error) {

@@ -1,0 +1,12 @@
+#import "../fragment/document.graphql"
+
+query News($offset: Int, $limit: Int) {
+  News(offset: $offset, limit: $limit) @connection(key: "feed_news") {
+    total
+    offset
+    limit
+    results {
+      ...documentFields
+    }
+  }
+}
