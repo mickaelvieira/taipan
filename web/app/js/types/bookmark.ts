@@ -7,7 +7,7 @@ export interface Bookmark {
   charset: string;
   title: string;
   description: string;
-  image?: Image;
+  image: Image | null;
   addedAt: string;
   updatedAt: string;
   isRead: boolean;

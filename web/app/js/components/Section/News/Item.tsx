@@ -79,7 +79,7 @@ export default withStyles(styles)(
             Updated: {moment(document.updatedAt).fromNow()}
           </Typography>
         </CardContent>
-        <CardActions className={classes.actions} disableActionSpacing>
+        <CardActions className={classes.actions} disableSpacing>
           <BookmarkButton document={document} />
         </CardActions>
       </Card>

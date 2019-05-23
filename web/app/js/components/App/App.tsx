@@ -4,12 +4,7 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import getApolloClient from "../../services/apollo";
-import {
-  HomeSection,
-  NewsSection,
-  ReadingListSection,
-  FavoriteSection
-} from "../Section";
+import { NewsSection, ReadingListSection, FavoriteSection } from "../Section";
 import uiTheme from "../ui/theme";
 import Layout from "../Layout";
 

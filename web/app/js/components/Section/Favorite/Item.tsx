@@ -49,7 +49,6 @@ export default withStyles(styles)(
       <Card className={classes.card}>
         <Link
           underline="none"
-          block
           href={bookmark.url}
           title={bookmark.title}
           target="_blank"
@@ -83,7 +82,7 @@ export default withStyles(styles)(
             Updated: {moment(bookmark.updatedAt).fromNow()}
           </Typography>
         </CardContent>
-        <CardActions className={classes.actions} disableActionSpacing>
+        <CardActions className={classes.actions} disableSpacing>
           <FavoriteButton bookmark={bookmark} />
           <IconButton aria-label="Share">
             <ShareIcon />

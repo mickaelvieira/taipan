@@ -17,7 +17,7 @@ export interface Variables {
 }
 
 const variables = {
-  limit: 30
+  limit: 10
 };
 
 export { query, variables };

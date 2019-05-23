@@ -7,7 +7,7 @@ export interface Document {
   charset: string;
   title: string;
   description: string;
-  image?: Image;
+  image: Image | null;
   createdAt: string;
   updatedAt: string;
 }

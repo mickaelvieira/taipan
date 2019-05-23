@@ -26,16 +26,16 @@ const styles = ({ breakpoints, palette, spacing, transitions, shape }: Theme) =>
       "&:hover": {
         backgroundColor: fade(palette.common.white, 0.25)
       },
-      marginRight: spacing.unit * 2,
+      marginRight: spacing(2),
       marginLeft: 0,
       width: "100%",
       [breakpoints.up("sm")]: {
-        marginLeft: spacing.unit * 3,
+        marginLeft: spacing(3),
         width: "auto"
       }
     },
     searchIcon: {
-      width: spacing.unit * 9,
+      width: spacing(9),
       height: "100%",
       position: "absolute",
       pointerEvents: "none",
@@ -48,10 +48,10 @@ const styles = ({ breakpoints, palette, spacing, transitions, shape }: Theme) =>
       width: "100%"
     },
     inputInput: {
-      paddingTop: spacing.unit,
-      paddingRight: spacing.unit,
-      paddingBottom: spacing.unit,
-      paddingLeft: spacing.unit * 10,
+      paddingTop: spacing(1),
+      paddingRight: spacing(1),
+      paddingBottom: spacing(1),
+      paddingLeft: spacing(10),
       transition: transitions.create("width"),
       width: "100%",
       [breakpoints.up("md")]: {

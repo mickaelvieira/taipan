@@ -84,7 +84,7 @@ export default withStyles(styles)(
             Updated: {moment(bookmark.updatedAt).fromNow()}
           </Typography>
         </CardContent>
-        <CardActions className={classes.actions} disableActionSpacing>
+        <CardActions className={classes.actions} disableSpacing>
           <IconButton aria-label="Add to favorites">
             <FavoriteButton bookmark={bookmark} />
           </IconButton>

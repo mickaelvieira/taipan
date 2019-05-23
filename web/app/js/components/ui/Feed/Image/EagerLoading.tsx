@@ -4,7 +4,7 @@ import { IMAGE_PLACEHOLDER } from "../../../../constant/image";
 import { Image } from "../../../../types/image";
 
 interface Props extends CardMediaProps {
-  media: Image | undefined;
+  media: Image | null;
 }
 
 export default function EagerLoadingImage({ media, title, className }: Props) {

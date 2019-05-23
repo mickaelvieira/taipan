@@ -34,10 +34,10 @@ const styles = ({ palette, spacing }: Theme) =>
       paddingTop: 70
     },
     fab: {
-      margin: spacing.unit,
+      margin: spacing(1),
       position: "fixed",
-      bottom: spacing.unit * 2,
-      right: spacing.unit * 2,
+      bottom: spacing(2),
+      right: spacing(2),
       backgroundColor: palette.secondary.main,
       "&:hover": {
         backgroundColor: palette.secondary.light

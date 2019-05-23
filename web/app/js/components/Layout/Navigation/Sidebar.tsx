@@ -24,7 +24,7 @@ const styles = ({ spacing }: Theme) =>
       width: 220
     },
     icon: {
-      margin: spacing.unit
+      margin: spacing(1)
     },
     link: {
       display: "block"
