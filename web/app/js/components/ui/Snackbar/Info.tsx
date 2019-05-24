@@ -1,29 +1,25 @@
 import React from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import InfoIcon from "@material-ui/icons/InfoOutlined";
 import Snackbar from "@material-ui/core/Snackbar";
 
-const styles = () =>
-  createStyles({
-    icon: {
-      marginRight: 12
-    },
-    message: {
-      display: "flex",
-      alignItems: "center"
-    }
-  });
+const useStyles = makeStyles({
+  icon: {
+    marginRight: 12
+  },
+  message: {
+    display: "flex",
+    alignItems: "center"
+  }
+});
 
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   isOpen: boolean;
   message: string;
 }
 
-export default withStyles(styles)(function SnackbarInfo({
-  message,
-  isOpen,
-  classes
-}: Props) {
+export default function SnackbarInfo({ message, isOpen }: Props) {
+  const classes = useStyles();
   return (
     <Snackbar
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
@@ -39,4 +35,4 @@ export default withStyles(styles)(function SnackbarInfo({
       }
     />
   );
-});
+}

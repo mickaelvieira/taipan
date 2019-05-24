@@ -1,27 +1,23 @@
 import React from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { Bookmark } from "../../../types/bookmark";
 import FeedItem from "./Item";
 
-const styles = () =>
-  createStyles({
-    container: {
-      display: "flex",
-      flexDirection: "column",
-      margin: 12
-    }
-  });
+const useStyles = makeStyles({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    margin: 12
+  }
+});
 
 export interface Props {
   hasResults: boolean;
   bookmarks: Bookmark[];
 }
 
-export default withStyles(styles)(function List({
-  hasResults,
-  bookmarks,
-  classes
-}: Props & WithStyles<typeof styles>) {
+export default function List({ hasResults, bookmarks }: Props) {
+  const classes = useStyles();
   return !hasResults ? null : (
     <div className={classes.container}>
       {bookmarks.map((bookmark: Bookmark, index) => (
@@ -29,4 +25,4 @@ export default withStyles(styles)(function List({
       ))}
     </div>
   );
-});
+}

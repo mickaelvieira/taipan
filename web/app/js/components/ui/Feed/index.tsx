@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import SwipeableViews from "react-swipeable-views";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
@@ -17,18 +17,17 @@ import FeedsQuery, {
 } from "../../apollo/Query/ReadingList";
 import { Bookmark } from "../../../types/bookmark";
 
-const styles = () =>
-  createStyles({
-    tabs: {
-      width: "100%"
-    },
-    container: {
-      width: "100%",
-      minHeight: 200
-    }
-  });
+const useStyles = makeStyles({
+  tabs: {
+    width: "100%"
+  },
+  container: {
+    width: "100%",
+    minHeight: 200
+  }
+});
 
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   bookmark: Bookmark;
 }
 
@@ -49,7 +48,8 @@ function hasReceivedBookmarks(
   return [hasResults, results];
 }
 
-export default withStyles(styles)(function Feed({ classes }: Props) {
+export default function Feed() {
+  const classes = useStyles()
   const [tabIndex, setTabIndex] = useState(0);
 
   return (

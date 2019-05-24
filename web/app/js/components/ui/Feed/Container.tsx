@@ -1,18 +1,15 @@
 import React, { PropsWithChildren } from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
-const styles = () =>
-  createStyles({
-    container: {
-      marginBottom: 60,
-      width: "100%",
-      minHeight: "100vh"
-    }
-  });
-
-export default withStyles(styles)(function FeedContainer({
-  children,
-  classes
-}: PropsWithChildren<WithStyles<typeof styles>>) {
-  return <section className={classes.container}>{children}</section>;
+const useStyles = makeStyles({
+  container: {
+    marginBottom: 60,
+    width: "100%",
+    minHeight: "100vh"
+  }
 });
+
+export default function FeedContainer({ children }: PropsWithChildren<{}>) {
+  const classes = useStyles();
+  return <section className={classes.container}>{children}</section>;
+}

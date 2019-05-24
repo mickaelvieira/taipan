@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -11,26 +11,25 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import BookmarkMutation, { mutation } from "../apollo/Mutation/Bookmark";
 import { query, variables } from "../apollo/Query/ReadingList";
 
-const styles = () =>
-  createStyles({
-    dialog: {},
-    title: {
-      minWidth: 320
-    }
-  });
+const useStyles = makeStyles({
+  dialog: {},
+  title: {
+    minWidth: 320
+  }
+});
 
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   isOpen: boolean;
   toggleDialog: (status: boolean) => void;
   onBookmarkCreated: (bookmark: Bookmark) => void;
 }
 
-export default withStyles(styles)(function AddBookmark({
+export default function AddBookmark({
   isOpen,
   toggleDialog,
-  onBookmarkCreated,
-  classes
+  onBookmarkCreated
 }: Props) {
+  const classes = useStyles();
   const [url, setUrl] = useState("");
 
   return (
@@ -99,4 +98,4 @@ export default withStyles(styles)(function AddBookmark({
       </BookmarkMutation>
     </Dialog>
   );
-});
+}

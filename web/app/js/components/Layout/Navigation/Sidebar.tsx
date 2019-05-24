@@ -1,11 +1,6 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import {
-  withStyles,
-  WithStyles,
-  createStyles,
-  Theme
-} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -18,29 +13,25 @@ import AccountIcon from "@material-ui/icons/AccountCircleRounded";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 
-const styles = ({ spacing }: Theme) =>
-  createStyles({
-    list: {
-      width: 220
-    },
-    icon: {
-      margin: spacing(1)
-    },
-    link: {
-      display: "block"
-    }
-  });
+const useStyles = makeStyles(({ spacing }) => ({
+  list: {
+    width: 220
+  },
+  icon: {
+    margin: spacing(1)
+  },
+  link: {
+    display: "block"
+  }
+}));
 
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   isOpen: boolean;
   toggleDrawer: (status: boolean) => void;
 }
 
-export default withStyles(styles)(function Sidebar({
-  isOpen,
-  toggleDrawer,
-  classes
-}: Props) {
+export default function Sidebar({ isOpen, toggleDrawer }: Props) {
+  const classes = useStyles();
   return (
     <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
       <div className={classes.list}>
@@ -108,4 +99,4 @@ export default withStyles(styles)(function Sidebar({
       </div>
     </Drawer>
   );
-});
+}

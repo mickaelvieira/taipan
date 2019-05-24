@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  withStyles,
-  WithStyles,
-  createStyles,
-  Theme
-} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -13,8 +8,8 @@ import MenuIcon from "@material-ui/icons/Menu";
 import InputBase from "@material-ui/core/InputBase";
 import SearchIcon from "@material-ui/icons/Search";
 
-const styles = ({ breakpoints, palette, spacing, transitions, shape }: Theme) =>
-  createStyles({
+const useStyles = makeStyles(
+  ({ shape, palette, spacing, breakpoints, transitions }) => ({
     menuButton: {
       marginLeft: -12,
       marginRight: 20
@@ -58,16 +53,15 @@ const styles = ({ breakpoints, palette, spacing, transitions, shape }: Theme) =>
         width: 200
       }
     }
-  });
+  })
+);
 
-interface Props extends WithStyles<typeof styles> {
+interface Props {
   toggleDrawer: (status: boolean) => void;
 }
 
-export default withStyles(styles)(function Header({
-  toggleDrawer,
-  classes
-}: Props) {
+export default function Header({ toggleDrawer }: Props) {
+  const classes = useStyles();
   return (
     <>
       <AppBar position="fixed">
@@ -97,4 +91,4 @@ export default withStyles(styles)(function Header({
       </AppBar>
     </>
   );
-});
+}

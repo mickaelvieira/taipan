@@ -1,21 +1,9 @@
 import React from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
 import Item from "./Item";
 import Loader from "../../ui/Loader";
 import NewsQuery, { query, variables, Data } from "../../apollo/Query/News";
 import { Document } from "../../../types/document";
 import FeedContainer from "../../ui/Feed/Container";
-
-const styles = () =>
-  createStyles({
-    tabs: {
-      width: "100%"
-    },
-    container: {
-      width: "100%",
-      minHeight: 200
-    }
-  });
 
 function hasReceivedData(data: Data | undefined): [boolean, Document[]] {
   let hasResults = false;

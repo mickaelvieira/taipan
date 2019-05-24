@@ -1,28 +1,27 @@
 import React, { PropsWithChildren } from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
-const styles = () =>
-  createStyles({
-    scrolling: {
-      pointerEvents: "none"
-    },
-    idle: {
-      pointerEvents: "auto"
-    }
-  });
+const useStyles = makeStyles({
+  scrolling: {
+    pointerEvents: "none"
+  },
+  idle: {
+    pointerEvents: "auto"
+  }
+});
 
-interface Props extends PropsWithChildren<WithStyles<typeof styles>> {
+interface Props {
   isScrolling: boolean;
 }
 
-export default withStyles(styles)(function PointerEvents({
+export default function PointerEvents({
   children,
-  isScrolling,
-  classes
-}: Props) {
+  isScrolling
+}: PropsWithChildren<Props>) {
+  const classes = useStyles();
   return (
     <div className={isScrolling ? classes.scrolling : classes.idle}>
       {children}
     </div>
   );
-});
+}
