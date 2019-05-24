@@ -39,19 +39,21 @@ export default React.memo(function FeedItem({ index, document }: Props) {
 
   return (
     <Card className={classes.card}>
-      <Link
-        underline="none"
-        href={document.url}
-        title={document.title}
-        target="_blank"
-        rel="noopener"
-      >
-        <ImageComp
-          className={classes.media}
-          media={document.image}
+      {document.image && (
+        <Link
+          underline="none"
+          href={document.url}
           title={document.title}
-        />
-      </Link>
+          target="_blank"
+          rel="noopener"
+        >
+          <ImageComp
+            className={classes.media}
+            media={document.image}
+            title={document.title}
+          />
+        </Link>
+      )}
       <CardContent className={classes.content}>
         <Link
           underline="none"
@@ -60,13 +62,15 @@ export default React.memo(function FeedItem({ index, document }: Props) {
           target="_blank"
           rel="noopener"
         >
-          <Typography gutterBottom variant="h6" component="h2">
+          <Typography variant="h6" component="h6">
             {document.title}
           </Typography>
         </Link>
-        <Typography component="p" gutterBottom>
-          {truncate(document.description)}
-        </Typography>
+        {document.description && (
+          <Typography component="p" gutterBottom>
+            {truncate(document.description)}
+          </Typography>
+        )}
         <Typography variant="body2">
           Created: {moment(document.createdAt).fromNow()}
         </Typography>

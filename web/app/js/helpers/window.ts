@@ -39,15 +39,26 @@ const isInViewport = (element: HTMLElement | null) => {
   }
 
   const bounding = element.getBoundingClientRect();
+  const bottom = window.innerHeight || document.documentElement.clientHeight;
+  const right = window.innerWidth || document.documentElement.clientWidth;
 
   return (
     bounding.top >= 0 &&
     bounding.left >= 0 &&
-    bounding.bottom <=
-      (window.innerHeight || document.documentElement.clientHeight) &&
-    bounding.right <=
-      (window.innerWidth || document.documentElement.clientWidth)
+    bounding.bottom <= bottom &&
+    bounding.right <= right
   );
+};
+
+const willBeSoonInViewport = (element: HTMLElement | null) => {
+  if (!element) {
+    return false;
+  }
+
+  const bounding = element.getBoundingClientRect();
+  const bottom = window.innerHeight || document.documentElement.clientHeight;
+
+  return bounding.top >= bottom + 200;
 };
 
 const hasReachedTheBottom = (gap = 200) => {
@@ -63,6 +74,7 @@ const hasReachedTheBottom = (gap = 200) => {
 
 export {
   isInViewport,
+  willBeSoonInViewport,
   hasReachedTheBottom,
   getWindowDimensions,
   getDocumentDimensions,

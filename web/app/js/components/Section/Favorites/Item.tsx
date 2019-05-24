@@ -1,5 +1,5 @@
 import React from "react";
-import moment from "moment";
+// import moment from "moment";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -11,7 +11,7 @@ import ShareIcon from "@material-ui/icons/Share";
 import { Bookmark } from "../../../types/bookmark";
 import { truncate } from "../../../helpers/string";
 import { EagerLoadingImage, LazyLoadingImage } from "../../ui/Feed/Image";
-import { FavoriteButton, RefreshButton } from "../../ui/Feed/Button";
+import { FavoriteButton, RefreshButton, UnbookmarkButton } from "../../ui/Feed/Button";
 import Domain from "../../ui/Domain";
 import ItemFooter from "../../ui/Feed/Item/Footer";
 
@@ -41,19 +41,21 @@ export default React.memo(function FeedItem({ index, bookmark }: Props) {
 
   return (
     <Card className={classes.card}>
-      <Link
-        underline="none"
-        href={bookmark.url}
-        title={bookmark.title}
-        target="_blank"
-        rel="noopener"
-      >
-        <ImageComp
-          className={classes.media}
-          media={bookmark.image}
+      {bookmark.image && (
+        <Link
+          underline="none"
+          href={bookmark.url}
           title={bookmark.title}
-        />
-      </Link>
+          target="_blank"
+          rel="noopener"
+        >
+          <ImageComp
+            className={classes.media}
+            media={bookmark.image}
+            title={bookmark.title}
+          />
+        </Link>
+      )}
       <CardContent className={classes.content}>
         <Link
           underline="none"
@@ -62,29 +64,30 @@ export default React.memo(function FeedItem({ index, bookmark }: Props) {
           target="_blank"
           rel="noopener"
         >
-          <Typography gutterBottom variant="h6" component="h2">
+          <Typography variant="h6" component="h6">
             {bookmark.title}
           </Typography>
         </Link>
-        <Typography component="p" gutterBottom>
-          {truncate(bookmark.description)}
-        </Typography>
-        <Typography variant="body2">
+        {bookmark.description && (
+          <Typography gutterBottom>{truncate(bookmark.description)}</Typography>
+        )}
+        {/* <Typography variant="body2" component="span">
           Added: {moment(bookmark.addedAt).fromNow()}
         </Typography>
-        <Typography variant="body2">
+        <Typography variant="body2" component="span">
           Updated: {moment(bookmark.updatedAt).fromNow()}
-        </Typography>
+        </Typography> */}
       </CardContent>
       <ItemFooter>
         <CardActions disableSpacing>
           <Domain item={bookmark} />
         </CardActions>
         <CardActions disableSpacing>
+          <UnbookmarkButton bookmark={bookmark} />
           <FavoriteButton bookmark={bookmark} />
-          <IconButton aria-label="Share">
+          {/* <IconButton aria-label="Share">
             <ShareIcon />
-          </IconButton>
+          </IconButton> */}
           <RefreshButton bookmark={bookmark} />
         </CardActions>
       </ItemFooter>
