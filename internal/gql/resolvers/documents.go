@@ -136,7 +136,7 @@ func (r *Resolvers) News(ctx context.Context, args struct {
 	}
 
 	var total int32
-	total, err = r.repositories.Documents.GetTotal(ctx)
+	total, err = r.repositories.Documents.GetTotalNew(ctx, user)
 	if err != nil {
 		return nil, err
 	}

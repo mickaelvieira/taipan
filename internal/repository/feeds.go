@@ -12,6 +12,8 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+// @TODO add the ability to soft delete a feed
+
 // FeedRepository the Feed repository
 type FeedRepository struct {
 	db *sql.DB

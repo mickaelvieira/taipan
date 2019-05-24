@@ -1,6 +1,6 @@
 import HomeSection from "./Home";
 import NewsSection from "./News";
 import ReadingListSection from "./ReadingList";
-import FavoriteSection from "./Favorite";
+import FavoritesSection from "./Favorites";
 
-export { HomeSection, NewsSection, ReadingListSection, FavoriteSection };
+export { HomeSection, NewsSection, ReadingListSection, FavoritesSection };

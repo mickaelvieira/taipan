@@ -2,19 +2,24 @@ import React, { useEffect, useRef } from "react";
 import { ApolloQueryResult } from "apollo-boost";
 import Item from "./Item";
 import Loader from "../../ui/Loader";
-import NewsQuery, { query, variables, Data } from "../../apollo/Query/News";
-import { Document } from "../../../types/document";
+import FavoritesQuery, {
+  query,
+  variables,
+  Data
+} from "../../apollo/Query/Favorites";
+import { Bookmark } from "../../../types/bookmark";
 import FeedContainer from "../../ui/Feed/Container";
 import useWindowBottom from "../../../hooks/window-bottom";
+import { Noop } from "../../../types";
 
 type FetchMore = () => Promise<ApolloQueryResult<Data>>;
 
-function hasReceivedData(data: Data | undefined): [boolean, Document[]] {
+function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   let hasResults = false;
-  let results: Document[] = [];
+  let results: Bookmark[] = [];
 
-  if (data && "News" in data && "results" in data.News) {
-    results = data.News.results;
+  if (data && "GetFavorites" in data && "results" in data.GetFavorites) {
+    results = data.GetFavorites.results;
     if (results.length > 0) {
       hasResults = true;
     }
@@ -23,7 +28,7 @@ function hasReceivedData(data: Data | undefined): [boolean, Document[]] {
   return [hasResults, results];
 }
 
-export default function News() {
+export default function Favorites() {
   const isAtTheBottom = useWindowBottom();
   const loadMore = useRef<FetchMore | undefined>();
 
@@ -41,34 +46,38 @@ export default function News() {
   }, [isAtTheBottom, loadMore]);
 
   return (
-    <NewsQuery query={query} variables={variables}>
+    <FavoritesQuery
+      query={query}
+      variables={variables}
+      fetchPolicy="cache-and-network"
+    >
       {({ data, loading, fetchMore }) => {
-        const [hasResults, documents] = hasReceivedData(data);
-        console.log("news");
+        const [hasResults, bookmarks] = hasReceivedData(data);
+        console.log("favorites");
         console.log(data);
-        console.log(document);
+        console.log(bookmarks);
         console.log(hasResults);
         console.log(loading);
 
         if (hasResults) {
           loadMore.current =
-            data && data.News.results.length === data.News.total
+            data && data.GetFavorites.results.length === data.GetFavorites.total
               ? undefined
               : () =>
                   fetchMore({
                     variables: {
-                      offset: data ? data.News.results.length : 0
+                      offset: data ? data.GetFavorites.results.length : 0
                     },
                     updateQuery: (prev, { fetchMoreResult }) => {
                       if (!fetchMoreResult) {
                         return prev;
                       }
                       return {
-                        News: {
-                          ...fetchMoreResult.News,
+                        GetFavorites: {
+                          ...fetchMoreResult.GetFavorites,
                           results: [
-                            ...prev.News.results,
-                            ...fetchMoreResult.News.results
+                            ...prev.GetFavorites.results,
+                            ...fetchMoreResult.GetFavorites.results
                           ]
                         }
                       };
@@ -80,14 +89,14 @@ export default function News() {
           <>
             {loading && !hasResults && <Loader />}
             <FeedContainer>
-              {documents.map((document: Document, index) => (
-                <Item document={document} index={index} key={document.id} />
+              {bookmarks.map((bookmark: Bookmark, index) => (
+                <Item bookmark={bookmark} index={index} key={bookmark.id} />
               ))}
             </FeedContainer>
             {loading && hasResults && <Loader />}
           </>
         );
       }}
-    </NewsQuery>
+    </FavoritesQuery>
   );
 }

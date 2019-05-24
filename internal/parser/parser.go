@@ -94,6 +94,8 @@ func (p *Parser) title() string {
 	return t
 }
 
+// @TODO looks I need to clean up further, there are html entities such as <br/>. See "Developers Should Abandon Agile" bookmark
+
 // Description retrieve the description of the document. If there isn't a description meta tag,
 // it will try to get the description from the socual media tags
 func (p *Parser) description() string {

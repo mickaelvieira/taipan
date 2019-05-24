@@ -109,7 +109,7 @@ func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, curso
 		FROM documents AS d
 		LEFT JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.user_id IS NULL OR b.user_id != ?
-		ORDER BY d.updated_at DESC
+		ORDER BY d.created_at DESC
 		LIMIT ?, ?
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), user.ID, cursor, limit)
@@ -131,6 +131,27 @@ func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, curso
 
 	return results, nil
 }
+
+// GetTotalNew returns the total of new documents
+func (r *DocumentRepository) GetTotalNew(ctx context.Context, user *user.User) (int32, error) {
+	var total int32
+
+	query := `
+		SELECT COUNT(d.id) AS total
+		FROM documents AS d
+		LEFT JOIN bookmarks AS b ON b.document_id = d.id
+		WHERE b.user_id IS NULL OR b.user_id != ?
+	`
+
+	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
+	if err != nil {
+		return total, err
+	}
+
+	return total, nil
+}
+
+// @TODO should I add a soft delete function?
 
 // GetDocuments returns the paginated documents
 func (r *DocumentRepository) GetDocuments(ctx context.Context, cursor int32, limit int32) ([]*document.Document, error) {

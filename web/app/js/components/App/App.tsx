@@ -4,7 +4,7 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import getApolloClient from "../../services/apollo";
-import { NewsSection, ReadingListSection, FavoriteSection } from "../Section";
+import { NewsSection, ReadingListSection, FavoritesSection } from "../Section";
 import uiTheme from "../ui/theme";
 import Layout from "../Layout";
 
@@ -27,7 +27,7 @@ export default function App() {
                 path="/reading-list"
                 component={ReadingListSection}
               />
-              <Route exact path="/favorites" component={FavoriteSection} />
+              <Route exact path="/favorites" component={FavoritesSection} />
             </Switch>
           </Layout>
         </BrowserRouter>

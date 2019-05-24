@@ -9,3 +9,5 @@ export interface Index {
   href: string;
   links: IndexLinks;
 }
+
+export type Noop = () => void;

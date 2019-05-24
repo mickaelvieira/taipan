@@ -50,7 +50,7 @@ const isInViewport = (element: HTMLElement | null) => {
   );
 };
 
-const hasReachedTheBottom = (gap = 400) => {
+const hasReachedTheBottom = (gap = 200) => {
   const win = getWindowDimensions();
   const doc = getDocumentDimensions();
   const scroll = getScrollPosition();

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { ApolloQueryResult } from "apollo-boost";
 import Item from "./Item";
 import Loader from "../../ui/Loader";
 import ReadingListQuery, {
@@ -8,6 +9,9 @@ import ReadingListQuery, {
 } from "../../apollo/Query/ReadingList";
 import { Bookmark } from "../../../types/bookmark";
 import FeedContainer from "../../ui/Feed/Container";
+import useWindowBottom from "../../../hooks/window-bottom";
+
+type FetchMore = () => Promise<ApolloQueryResult<Data>>;
 
 function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   let hasResults = false;
@@ -23,28 +27,69 @@ function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   return [hasResults, results];
 }
 
-// @TODO Add infinite scroll to all feeds
+export default function ReadingList() {
+  const isAtTheBottom = useWindowBottom();
+  const loadMore = useRef<FetchMore | undefined>();
 
-export default function News() {
+  console.log("func");
+  console.log(isAtTheBottom);
+
+  useEffect(() => {
+    console.log("effect");
+    console.log(isAtTheBottom);
+
+    if (isAtTheBottom && loadMore.current) {
+      console.log("======================= FETCH MORE =======================");
+      loadMore.current();
+    }
+  }, [isAtTheBottom, loadMore]);
+
   return (
     <ReadingListQuery query={query} variables={variables}>
-      {({ data, loading, error, fetchMore, networkStatus }) => {
+      {({ data, loading, fetchMore }) => {
         const [hasResults, bookmarks] = hasReceivedData(data);
-        console.log(hasResults);
+        console.log("reading list");
+        console.log(data);
         console.log(bookmarks);
-        // console.log(networkStatus);
-        // console.log(fetchMore);
+        console.log(hasResults);
+        console.log(loading);
+
+        if (hasResults) {
+          loadMore.current =
+            data &&
+            data.GetReadingList.results.length === data.GetReadingList.total
+              ? undefined
+              : () =>
+                  fetchMore({
+                    variables: {
+                      offset: data ? data.GetReadingList.results.length : 0
+                    },
+                    updateQuery: (prev, { fetchMoreResult }) => {
+                      if (!fetchMoreResult) {
+                        return prev;
+                      }
+                      return {
+                        GetReadingList: {
+                          ...fetchMoreResult.GetReadingList,
+                          results: [
+                            ...prev.GetReadingList.results,
+                            ...fetchMoreResult.GetReadingList.results
+                          ]
+                        }
+                      };
+                    }
+                  });
+        }
 
         return (
           <>
-            {loading && <Loader />}
-            {!loading && hasResults && (
-              <FeedContainer>
-                {bookmarks.map((bookmark: Bookmark, index) => (
-                  <Item bookmark={bookmark} index={index} key={bookmark.id} />
-                ))}
-              </FeedContainer>
-            )}
+            {loading && !hasResults && <Loader />}
+            <FeedContainer>
+              {bookmarks.map((bookmark: Bookmark, index) => (
+                <Item bookmark={bookmark} index={index} key={bookmark.id} />
+              ))}
+            </FeedContainer>
+            {loading && hasResults && <Loader />}
           </>
         );
       }}
