@@ -85,7 +85,7 @@ export default React.memo(function FeedItem({ index, bookmark }: Props) {
           <IconButton aria-label="Share">
             <ShareIcon />
           </IconButton>
-          <RefreshButton bookmmark={bookmark} />
+          <RefreshButton bookmark={bookmark} />
         </CardActions>
       </ItemFooter>
     </Card>
