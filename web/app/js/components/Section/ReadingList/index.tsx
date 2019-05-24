@@ -1,5 +1,4 @@
 import React from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
 import Item from "./Item";
 import Loader from "../../ui/Loader";
 import ReadingListQuery, {
@@ -8,17 +7,7 @@ import ReadingListQuery, {
   Data
 } from "../../apollo/Query/ReadingList";
 import { Bookmark } from "../../../types/bookmark";
-
-const styles = () =>
-  createStyles({
-    tabs: {
-      width: "100%"
-    },
-    container: {
-      width: "100%",
-      minHeight: 200
-    }
-  });
+import FeedContainer from "../../ui/Feed/Container";
 
 function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   let hasResults = false;
@@ -34,13 +23,9 @@ function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   return [hasResults, results];
 }
 
-// @TODO add some margin at the bottom of all feeds
 // @TODO Add infinite scroll to all feeds
-// @TODO display the document's domain somewhere
 
-export default withStyles(styles)(function News({
-  classes
-}: WithStyles<typeof styles>) {
+export default function News() {
   return (
     <ReadingListQuery query={query} variables={variables}>
       {({ data, loading, error, fetchMore, networkStatus }) => {
@@ -54,15 +39,15 @@ export default withStyles(styles)(function News({
           <>
             {loading && <Loader />}
             {!loading && hasResults && (
-              <div className={classes.container}>
+              <FeedContainer>
                 {bookmarks.map((bookmark: Bookmark, index) => (
                   <Item bookmark={bookmark} index={index} key={bookmark.id} />
                 ))}
-              </div>
+              </FeedContainer>
             )}
           </>
         );
       }}
     </ReadingListQuery>
   );
-});
+}

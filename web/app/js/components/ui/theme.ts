@@ -5,8 +5,5 @@ export default {
   palette: {
     primary: deepPurple,
     secondary: pink
-  },
-  typography: {
-    useNextVariants: true
   }
 };

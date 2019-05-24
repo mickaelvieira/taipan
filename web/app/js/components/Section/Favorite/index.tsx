@@ -1,5 +1,4 @@
 import React from "react";
-import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
 import Item from "./Item";
 import Loader from "../../ui/Loader";
 import FavoritesQuery, {
@@ -8,17 +7,7 @@ import FavoritesQuery, {
   Data
 } from "../../apollo/Query/Favorites";
 import { Bookmark } from "../../../types/bookmark";
-
-const styles = () =>
-  createStyles({
-    tabs: {
-      width: "100%"
-    },
-    container: {
-      width: "100%",
-      minHeight: 200
-    }
-  });
+import FeedContainer from "../../ui/Feed/Container";
 
 function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   let hasResults = false;
@@ -34,9 +23,7 @@ function hasReceivedData(data: Data | undefined): [boolean, Bookmark[]] {
   return [hasResults, results];
 }
 
-export default withStyles(styles)(function News({
-  classes
-}: WithStyles<typeof styles>) {
+export default function News() {
   return (
     <FavoritesQuery query={query} variables={variables}>
       {({ data, loading, error, fetchMore, networkStatus }) => {
@@ -50,15 +37,15 @@ export default withStyles(styles)(function News({
           <>
             {loading && <Loader />}
             {!loading && hasResults && (
-              <div className={classes.container}>
+              <FeedContainer>
                 {bookmarks.map((bookmark: Bookmark, index) => (
                   <Item bookmark={bookmark} index={index} key={bookmark.id} />
                 ))}
-              </div>
+              </FeedContainer>
             )}
           </>
         );
       }}
     </FavoritesQuery>
   );
-});
+}

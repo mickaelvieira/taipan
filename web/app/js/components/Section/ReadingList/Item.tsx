@@ -10,6 +10,8 @@ import { Bookmark } from "../../../types/bookmark";
 import { truncate } from "../../../helpers/string";
 import { EagerLoadingImage, LazyLoadingImage } from "../../ui/Feed/Image";
 import { FavoriteButton } from "../../ui/Feed/Button";
+import Domain from "../../ui/Domain";
+import ItemFooter from "../../ui/Feed/Item/Footer";
 
 const styles = () =>
   createStyles({
@@ -24,10 +26,6 @@ const styles = () =>
     },
     content: {
       flex: 1
-    },
-    actions: {
-      display: "flex",
-      alignSelf: "flex-end"
     }
   });
 
@@ -44,7 +42,6 @@ export default withStyles(styles)(
       <Card className={classes.card}>
         <Link
           underline="none"
-          block
           href={bookmark.url}
           title={bookmark.title}
           target="_blank"
@@ -78,9 +75,14 @@ export default withStyles(styles)(
             Updated: {moment(bookmark.updatedAt).fromNow()}
           </Typography>
         </CardContent>
-        <CardActions className={classes.actions} disableSpacing>
-          <FavoriteButton bookmark={bookmark} />
-        </CardActions>
+        <ItemFooter>
+          <CardActions disableSpacing>
+            <Domain item={bookmark} />
+          </CardActions>
+          <CardActions disableSpacing>
+            <FavoriteButton bookmark={bookmark} />
+          </CardActions>
+        </ItemFooter>
       </Card>
     );
   })

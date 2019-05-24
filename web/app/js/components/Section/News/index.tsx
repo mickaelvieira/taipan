@@ -4,6 +4,7 @@ import Item from "./Item";
 import Loader from "../../ui/Loader";
 import NewsQuery, { query, variables, Data } from "../../apollo/Query/News";
 import { Document } from "../../../types/document";
+import FeedContainer from "../../ui/Feed/Container";
 
 const styles = () =>
   createStyles({
@@ -30,9 +31,7 @@ function hasReceivedData(data: Data | undefined): [boolean, Document[]] {
   return [hasResults, results];
 }
 
-export default withStyles(styles)(function News({
-  classes
-}: WithStyles<typeof styles>) {
+export default function News() {
   return (
     <NewsQuery query={query} variables={variables}>
       {({ data, loading, error, fetchMore, networkStatus }) => {
@@ -46,15 +45,15 @@ export default withStyles(styles)(function News({
           <>
             {loading && <Loader />}
             {!loading && hasResults && (
-              <div className={classes.container}>
+              <FeedContainer>
                 {documents.map((document: Document, index) => (
                   <Item document={document} index={index} key={document.id} />
                 ))}
-              </div>
+              </FeedContainer>
             )}
           </>
         );
       }}
     </NewsQuery>
   );
-});
+}

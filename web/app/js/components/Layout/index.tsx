@@ -7,7 +7,6 @@ import {
 } from "@material-ui/core/styles";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
-import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
@@ -26,7 +25,7 @@ const styles = ({ palette, spacing }: Theme) =>
       width: "100%",
       maxWidth: 600
     },
-    paper: {
+    content: {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -63,9 +62,7 @@ export default withStyles(styles)(function Layout({
       <Header toggleDrawer={setIsOpen} />
       <Grid container className={classes.root}>
         <Grid item xs={12} className={classes.inner}>
-          <Paper className={classes.paper} square>
-            {children}
-          </Paper>
+          <div className={classes.content}>{children}</div>
           <Fab
             color="primary"
             size="small"

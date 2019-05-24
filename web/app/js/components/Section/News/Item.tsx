@@ -4,13 +4,14 @@ import { withStyles, WithStyles, createStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
-import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
 import { Document } from "../../../types/document";
 import { truncate } from "../../../helpers/string";
 import { EagerLoadingImage, LazyLoadingImage } from "../../ui/Feed/Image";
 import { BookmarkButton } from "../../ui/Feed/Button";
+import Domain from "../../ui/Domain";
+import ItemFooter from "../../ui/Feed/Item/Footer";
 
 const styles = () =>
   createStyles({
@@ -25,10 +26,6 @@ const styles = () =>
     },
     content: {
       flex: 1
-    },
-    actions: {
-      display: "flex",
-      alignSelf: "flex-end"
     }
   });
 
@@ -79,9 +76,14 @@ export default withStyles(styles)(
             Updated: {moment(document.updatedAt).fromNow()}
           </Typography>
         </CardContent>
-        <CardActions className={classes.actions} disableSpacing>
-          <BookmarkButton document={document} />
-        </CardActions>
+        <ItemFooter>
+          <CardActions disableSpacing>
+            <Domain item={document} />
+          </CardActions>
+          <CardActions disableSpacing>
+            <BookmarkButton document={document} />
+          </CardActions>
+        </ItemFooter>
       </Card>
     );
   })
