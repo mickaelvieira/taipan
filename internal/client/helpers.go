@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 )
 
@@ -40,7 +39,7 @@ func makeRequest(URL *url.URL) (*http.Request, error) {
 	req.Header.Add("Accept-Language", "en-GB,en;q=0.9,en-US;q=0.8")
 	req.Header.Add("Cache-Control", "no-cache")
 	req.Header.Add("Pragma", "no-cache")
-	req.Header.Add("User-Agent", os.Getenv("BOT_USER_AGENT"))
+	// req.Header.Add("User-Agent", os.Getenv("BOT_USER_AGENT"))
 
 	return req, nil
 }

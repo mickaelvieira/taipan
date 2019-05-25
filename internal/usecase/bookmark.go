@@ -45,12 +45,10 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 	// to get the last modified date before fetching the entire document
 	var reader io.Reader
 	var result *client.Result
-	result, reader, err = cl.Fetch(URL)
+	URL, result, reader, err = cl.Fetch(URL)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println(result)
 
 	if result.RespStatusCode != 200 {
 		return nil, fmt.Errorf("Unable to fetch the document: %s", result.RespReasonPhrase)
@@ -79,7 +77,8 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 
 	d.Checksum = result.Checksum
 
-	log.Println(d)
+	fmt.Println("=== DOCUMENTS ===")
+	fmt.Printf("%v", d.URL)
 
 	if d.Image != nil {
 		image, err := s3.Upload(d.Image.URL.String())
@@ -90,6 +89,8 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		}
 	}
 
+	// @TODO there is a bug here
+	// If the document already exists with a URL starting with http:// the document gets duplicated
 	err = repositories.Documents.Upsert(ctx, d)
 	if err != nil {
 		return nil, err

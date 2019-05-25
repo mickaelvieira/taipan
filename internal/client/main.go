@@ -13,29 +13,32 @@ import (
 type Client struct{}
 
 // Fetch fetches the document
-func (f *Client) Fetch(URL *url.URL) (*Result, io.Reader, error) {
+func (f *Client) Fetch(URL *url.URL) (*url.URL, *Result, io.Reader, error) {
 	client := makeClient()
 	req, err := makeRequest(URL)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	var resp *http.Response
 	resp, err = client.Do(req)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	var content []byte
 	content, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	reader := bytes.NewReader(content)
 	cs := checksum.FromBytes(content)
 	result := makeResult(URL, req, resp, cs)
 
-	return result, reader, nil
+	// Modify URL with the final URL
+	URL = resp.Request.URL
+
+	return URL, result, reader, nil
 }
