@@ -20,7 +20,7 @@ type DocumentRepository struct {
 // GetByID find a single entry
 func (r *DocumentRepository) GetByID(ctx context.Context, id string) (*document.Document, error) {
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at
+		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
 		WHERE id = ?
 	`
@@ -36,7 +36,7 @@ func (r *DocumentRepository) GetByID(ctx context.Context, id string) (*document.
 // GetByURL find a single entry
 func (r *DocumentRepository) GetByURL(ctx context.Context, u *uri.URI) (*document.Document, error) {
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at
+		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
 		WHERE url = ?
 	`
@@ -52,7 +52,7 @@ func (r *DocumentRepository) GetByURL(ctx context.Context, u *uri.URI) (*documen
 // GetByChecksum find a single entry
 func (r *DocumentRepository) GetByChecksum(ctx context.Context, c checksum.Checksum) (*document.Document, error) {
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at
+		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
 		WHERE d.checksum = UNHEX(?)
 	`
@@ -75,7 +75,7 @@ func (r *DocumentRepository) GetByIDs(ctx context.Context, ids []string) ([]*doc
 	}
 
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at
+		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
 		WHERE id IN (?%s)
 	`
@@ -105,7 +105,7 @@ func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, curso
 	var results []*document.Document
 
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at
+		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
 		LEFT JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.user_id IS NULL OR b.user_id != ?
@@ -158,7 +158,7 @@ func (r *DocumentRepository) GetDocuments(ctx context.Context, cursor int32, lim
 	var results []*document.Document
 
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at
+		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
 		ORDER BY d.updated_at DESC
 		LIMIT ?, ?
@@ -202,9 +202,9 @@ func (r *DocumentRepository) GetTotal(ctx context.Context) (int32, error) {
 func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) error {
 	query := `
 		INSERT INTO documents
-		(url, checksum, charset, language, title, description, status, created_at, updated_at)
+		(url, checksum, charset, language, title, description, status, created_at, updated_at, deleted)
 		VALUES
-		(?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?)
+		(?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	result, err := r.db.ExecContext(
 		ctx,
@@ -218,6 +218,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 		d.Status,
 		d.CreatedAt,
 		d.UpdatedAt,
+		d.Deleted,
 	)
 
 	if err == nil {
@@ -235,7 +236,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 func (r *DocumentRepository) Update(ctx context.Context, d *document.Document) error {
 	query := `
 		UPDATE documents
-		SET checksum = UNHEX(?), charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?
+		SET checksum = UNHEX(?), charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?, deleted = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
@@ -248,6 +249,7 @@ func (r *DocumentRepository) Update(ctx context.Context, d *document.Document) e
 		d.Description,
 		d.Status,
 		d.UpdatedAt,
+		d.Deleted,
 		d.ID,
 	)
 
@@ -310,6 +312,7 @@ func (r *DocumentRepository) scan(rows Scanable) (*document.Document, error) {
 		&imageFormat,
 		&d.CreatedAt,
 		&d.UpdatedAt,
+		&d.Deleted,
 	)
 
 	if err != nil {

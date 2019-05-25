@@ -22,8 +22,6 @@ const useStyles = makeStyles(({ palette }) => ({
 export default React.memo(function Unbookmark({ bookmark }: Props) {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
-
-  console.log(classes);
   return (
     <UnbookmarkMutation mutation={mutation}>
       {(mutate, { loading }) => (

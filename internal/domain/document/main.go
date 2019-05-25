@@ -33,6 +33,7 @@ type Document struct {
 	Status      Status
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	Deleted     bool
 }
 
 func (d *Document) String() string {

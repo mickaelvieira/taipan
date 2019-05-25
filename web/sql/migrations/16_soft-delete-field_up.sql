@@ -1,0 +1,2 @@
+ALTER TABLE `feeds` ADD COLUMN `deleted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `parsed_at`;
+ALTER TABLE `documents` ADD COLUMN `deleted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `language`;

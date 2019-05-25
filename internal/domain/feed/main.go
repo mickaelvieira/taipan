@@ -57,6 +57,7 @@ type Feed struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	ParsedAt  time.Time
+	Deleted   bool
 }
 
 // New creates a new Feed with a UUID
@@ -67,7 +68,7 @@ func New(url *uri.URI, title string, feedType Type) Feed {
 		Type:      feedType,
 		Status:    NEW,
 		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(), // @TODO rename ParsedAt
+		UpdatedAt: time.Now(),
 	}
 }
 

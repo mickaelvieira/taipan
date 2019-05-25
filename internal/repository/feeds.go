@@ -22,7 +22,7 @@ type FeedRepository struct {
 // GetByID find a single entry
 func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, error) {
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
 		WHERE f.id = ?
 	`
@@ -40,7 +40,7 @@ func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, er
 func (r *FeedRepository) GetDocumentFeeds(ctx context.Context, d *document.Document) ([]*feed.Feed, error) {
 	var results []*feed.Feed
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
 		WHERE document_id = ?
 	`
@@ -68,41 +68,12 @@ func (r *FeedRepository) GetDocumentFeeds(ctx context.Context, d *document.Docum
 func (r *FeedRepository) GetOutdatedFeeds(ctx context.Context) ([]*feed.Feed, error) {
 	var results []*feed.Feed
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
-		WHERE f.parsed_at IS NULL OR f.parsed_at < DATE_SUB(NOW(), INTERVAL 1 DAY)
+		WHERE f.deleted = 0 AND f.parsed_at IS NULL OR f.parsed_at < DATE_SUB(NOW(), INTERVAL 1 DAY)
 		LIMIT ?;
 		`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), 10)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		f, err := r.scan(rows)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, f)
-	}
-
-	if err = rows.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	return results, nil
-}
-
-// GetNewFeeds returns the new created feed entries
-func (r *FeedRepository) GetNewFeeds(ctx context.Context) ([]*feed.Feed, error) {
-	var results []*feed.Feed
-	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
-		FROM feeds AS f
-		WHERE f.status = ?
-		LIMIT 1
-	`
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), feed.NEW)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +98,7 @@ func (r *FeedRepository) FindAll(ctx context.Context, cursor int32, limit int32)
 	var results []*feed.Feed
 
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
 		ORDER BY f.updated_at DESC
 		LIMIT ?, ?
@@ -167,10 +138,10 @@ func (r *FeedRepository) GetTotal(ctx context.Context) (int32, error) {
 	return total, nil
 }
 
-// GetByURL find a single entry by URL and returns its ID
+// GetByURL find a single entry by URL
 func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, error) {
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at
+		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
 		WHERE f.url = ?
 	`
@@ -187,9 +158,9 @@ func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, 
 func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.Document) error {
 	query := `
 		INSERT INTO feeds
-		(document_id, url, title, type, status, created_at, updated_at)
+		(document_id, url, title, type, status, created_at, updated_at, deleted)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	result, err := r.db.ExecContext(
 		ctx,
@@ -201,6 +172,7 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.D
 		f.Status,
 		f.CreatedAt,
 		f.UpdatedAt,
+		f.Deleted,
 	)
 
 	if err == nil {
@@ -218,7 +190,7 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.D
 func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 	query := `
 		UPDATE feeds
-		SET status = ?, updated_at = ?, parsed_at = ?
+		SET status = ?, updated_at = ?, parsed_at = ?, deleted = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
@@ -227,6 +199,7 @@ func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 		f.Status,
 		f.UpdatedAt,
 		f.ParsedAt,
+		f.Deleted,
 		f.ID,
 	)
 
@@ -271,6 +244,7 @@ func (r *FeedRepository) scan(rows Scanable) (*feed.Feed, error) {
 		&feed.CreatedAt,
 		&feed.UpdatedAt,
 		&parsedAt,
+		&feed.Deleted,
 	)
 
 	if parsedAt.Valid {

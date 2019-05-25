@@ -24,7 +24,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE b.linked = 1 AND b.marked_as_read = 0 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 0 AND b.user_id = ?
 		ORDER BY b.updated_at DESC
 		LIMIT ?, ?
 	`
@@ -60,7 +60,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE b.linked = 1 AND b.marked_as_read = 1 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 1 AND b.user_id = ?
 		ORDER BY b.updated_at DESC
 		LIMIT ?, ?
 	`
@@ -96,7 +96,7 @@ func (r *BookmarkRepository) GetTotalFavorites(ctx context.Context, user *user.U
 		SELECT COUNT(d.id) as total
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE b.linked = 1 AND b.marked_as_read = 1 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 1 AND b.user_id = ?
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
@@ -114,7 +114,7 @@ func (r *BookmarkRepository) GetTotalReadingList(ctx context.Context, user *user
 		SELECT COUNT(d.id) as total
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE b.linked = 1 AND b.marked_as_read = 0 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 0 AND b.user_id = ?
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
@@ -196,7 +196,6 @@ func (r *BookmarkRepository) Remove(ctx context.Context, user *user.User, b *boo
 		SET updated_at = ?, linked = ?
 		WHERE user_id = ? AND document_id = ?
 	`
-
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
