@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	strip "github.com/grokify/html-strip-tags-go"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -27,16 +29,14 @@ type Parser struct {
 	document  *goquery.Document
 	docTitle  string
 	docDesc   string
-	lang      string
-	charset   string
 	canonical *url.URL
 	twitter   *social
 	facebook  *social
-	feeds     []*feed.Feed
 }
 
 // Parse parse the document
 func (p *Parser) Parse() *document.Document {
+	// cache relevant tags
 	p.document.Find("meta").Each(func(i int, s *goquery.Selection) {
 		p.metaTags = append(p.metaTags, s)
 	})
@@ -44,24 +44,69 @@ func (p *Parser) Parse() *document.Document {
 		p.linkTags = append(p.linkTags, s)
 	})
 
-	p.lang = p.parseLang()
-	p.charset = p.parseCharset()
+	// gather some data upfront in order to get relevant information
+	isWP := p.isWordpress()
 	p.docTitle = p.parseTitle()
 	p.docDesc = p.parseDescription()
 	p.canonical = p.parseCanonicalURL()
 	p.twitter = p.parseTwitterTags()
 	p.facebook = p.parseFacebookTags()
-	p.feeds = p.parseFeeds()
+
+	// get the data we need
+	var url = p.url()
+	var lang = p.parseLang()
+	var charset = p.parseCharset()
+	var title = p.title()
+	var description = p.description()
+	var image = p.image()
+
+	var feeds []*feed.Feed
+	if isWP {
+		// WP is a bit silly in the way it handles RSS feeds
+		// Usually only the comments feed is available on the page
+		// So we construct the default feed URL ourselves
+		feeds = p.getWordpressFeed()
+	} else {
+		// @TODO I need to include a black list to avoid adding unwanted feeds such as github commits
+		feeds = p.parseFeeds()
+	}
 
 	return document.New(
-		p.url(),
-		p.lang,
-		p.charset,
-		p.title(),
-		p.description(),
-		p.image(),
-		p.feeds,
+		url,
+		lang,
+		charset,
+		title,
+		description,
+		image,
+		feeds,
 	)
+}
+
+func (p *Parser) isWordpress() bool {
+	var isWP bool
+	for _, s := range p.linkTags {
+		rel, exist := s.Attr("rel")
+		url := p.normalizeAttrValue(s.AttrOr("href", ""))
+		rel = p.normalizeAttrValue(rel)
+		if exist && rel == "stylesheet" && strings.Contains(url, "wp-content") {
+			isWP = true
+			break
+		}
+	}
+	return isWP
+}
+
+func (p *Parser) getWordpressFeed() []*feed.Feed {
+	var feeds []*feed.Feed
+	url := &url.URL{Path: "/feed/"} // default WP feed
+	url = p.makeURLAbs(url)
+	feed := feed.New(
+		&uri.URI{URL: url},
+		"wordpress feed",
+		feed.RSS,
+	)
+	feeds = append(feeds, &feed)
+	return feeds
 }
 
 // URL retrieves the URL of the document. It will first try to grab the canonical URL, if there isn't one
@@ -93,8 +138,6 @@ func (p *Parser) title() string {
 	}
 	return t
 }
-
-// @TODO looks I need to clean up further, there are html entities such as <br/>. See "Developers Should Abandon Agile" bookmark
 
 // Description retrieve the description of the document. If there isn't a description meta tag,
 // it will try to get the description from the socual media tags
@@ -155,7 +198,7 @@ func (p *Parser) parseCharset() string {
 func (p *Parser) parseTitle() string {
 	var title string
 	p.document.Find("title").EachWithBreak(func(i int, s *goquery.Selection) bool {
-		title = s.Text()
+		title = strip.StripTags(s.Text())
 		return false
 	})
 	if title == "" {
@@ -196,7 +239,7 @@ func (p *Parser) parseDescription() string {
 		name, exist := s.Attr("name")
 		name = p.normalizeAttrValue(name)
 		if exist && name == "description" {
-			desc = s.AttrOr("content", "")
+			desc = strip.StripTags(s.AttrOr("content", ""))
 			break
 		}
 	}
@@ -220,7 +263,7 @@ func (p *Parser) parseFeeds() []*feed.Feed {
 	var feeds []*feed.Feed
 	for _, s := range p.linkTags {
 		url := p.normalizeAttrValue(s.AttrOr("href", ""))
-		title := p.normalizeAttrValue(s.AttrOr("title", ""))
+		title := p.normalizeAttrValue(p.normalizeHTMLText(s.AttrOr("title", "")))
 		feedType, err := feed.GetFeedType(p.normalizeAttrValue(s.AttrOr("type", "")))
 		urlFeed := p.parseAndNormalizeRawURL(url)
 		if err == nil && urlFeed != nil {
@@ -254,9 +297,9 @@ func (p *Parser) parseSocialTags(prefix string, property string) *social {
 			prop = strings.ToLower(prop[len(prefix):len(prop)])
 			switch prop {
 			case "title":
-				title = val
+				title = p.normalizeHTMLText(val)
 			case "description":
-				desc = val
+				desc = p.normalizeHTMLText(val)
 			case "image":
 				image = val
 			case "url":
