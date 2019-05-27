@@ -1,7 +1,7 @@
 {
-  "name": "My App",
-  "short_name": "My App",
-  "description": "",
+  "name": "Taipan",
+  "short_name": "Taipan",
+  "description": "The killer app",
   "start_url": "./",
   "display": "standalone",
   "dir": "ltr",

@@ -1,8 +1,8 @@
-export default function(navigator) {
+export default function(navigator: Navigator) {
   if ("serviceWorker" in navigator) {
     console.log("Trying to register the service worker...");
     navigator.serviceWorker
-      .register("/sw.js", { useCache: false })
+      .register("/sw.js", { scope: "/" })
       .then(registration => {
         console.log(`Registration succeeded. Scope is ${registration.scope}`);
       })

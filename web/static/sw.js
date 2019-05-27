@@ -1,14 +1,7 @@
-self.importScripts("/caches.js");
-
-/* eslint no-undef: "off" */
-const CACHE_ASSETS_VERSION = "assets-" + manifest.assets.version;
-const CACHE_HTML_VERSION = "html-" + manifest.html.version;
-const CACHE_FONTS_VERSION = "fonts-1";
+const CACHE_LONG_LIVED = "long-lived";
 const CACHE_SHORT_LIVED = "short-lived";
 const activeCaches = [
-  CACHE_ASSETS_VERSION,
-  CACHE_HTML_VERSION,
-  CACHE_FONTS_VERSION,
+  CACHE_LONG_LIVED,
   CACHE_SHORT_LIVED
 ];
 
@@ -23,7 +16,6 @@ function addToCacheIfSuccessful(cache, request, response) {
   if (response.ok) {
     cache.put(request, response.clone());
   }
-
   return response;
 }
 
@@ -43,7 +35,7 @@ async function fetchAndAddToCacheIfSuccessful(request, cache) {
  *
  * @returns Promise<Response, Error>
  */
-async function cacheWithNetworkFallback(request) {
+async function cacheFirstWithNetworkFallback(request) {
   const response = await self.caches.match(request);
   return response || fetch(request);
 }
@@ -68,43 +60,11 @@ async function networkWithCacheFallback(request) {
  *
  * @returns {Promise}
  */
-async function cacheFontsOnTheFly(request) {
-  const cache = await self.caches.open(CACHE_FONTS_VERSION);
+async function cacheOnTheFly(request) {
+  const cache = await self.caches.open(CACHE_LONG_LIVED);
   const fromCache = await cache.match(request);
   return fromCache || fetchAndAddToCacheIfSuccessful(request, cache);
 }
-
-/**
- * @param {Array} files
- *
- * @returns {Promise}
- */
-async function installAssets(files) {
-  const cache = await self.caches.open(CACHE_ASSETS_VERSION);
-  return await Promise.all(files.map(file => cache.add(file)));
-}
-
-/**
- * @param {Array}        files
- *
- * @returns {Promise}
- */
-async function installHTML(files) {
-  const cache = await self.caches.open(CACHE_HTML_VERSION);
-  return await Promise.all(files.map(file => cache.add(file)));
-}
-
-/**
- * Cache application's assets during the install
- */
-self.addEventListener("install", event => {
-  event.waitUntil(
-    Promise.all([
-      installAssets(manifest.assets.files),
-      installHTML(manifest.html.files)
-    ])
-  );
-});
 
 /**
  * Delete outdated caches during the activation
@@ -121,6 +81,42 @@ self.addEventListener("activate", async event => {
 });
 
 /**
+ * @param {String} pathname
+ *
+ * @returns {Boolean}
+ */
+function isFont(pathname) {
+  return /\.(ttf|ttc|otf|eot|woff|woff2)$/.test(pathname);
+}
+
+/**
+ * @param {String} pathname
+ *
+ * @returns {Boolean}
+ */
+function isScript(pathname) {
+  return /\.(css|js)$/.test(pathname);
+}
+
+/**
+ * @param {String} pathname
+ *
+ * @returns {Boolean}
+ */
+function isImage(pathname) {
+  return /\.(jpg|jpeg|gif|png|svg|webm)$/.test(pathname);
+}
+
+/**
+ * @param {String} hostname
+ *
+ * @returns {Boolean}
+ */
+function isHostCacheable(hostname) {
+  return hostname === "fonts.googleapis.com";
+}
+
+/**
  * Handle assets caching on the fly
  */
 self.addEventListener("fetch", event => {
@@ -128,15 +124,13 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(event.request.url);
   const pathname = url.pathname;
+  const hostname = url.hostname;
   const request = event.request;
-  const method = request.method;
 
-  if (/^\/dist\/fonts/.test(pathname)) {
-    response = cacheFontsOnTheFly(request);
-  } else if (/^\/bookmark\/\d+/.test(pathname)) {
-    response = networkWithCacheFallback(request);
+  if (isHostCacheable(hostname) || isImage(pathname) || isScript(pathname) || isFont(pathname)) {
+    response = cacheOnTheFly(request);
   } else {
-    response = cacheWithNetworkFallback(request);
+    response = cacheFirstWithNetworkFallback(request);
   }
 
   event.respondWith(response);
