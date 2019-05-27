@@ -46,7 +46,7 @@ export default function Feed() {
         const [hasResults, documents] = hasReceivedData(data);
         console.log("news");
         console.log(data);
-        console.log(document);
+        console.log(documents);
         console.log(hasResults);
         console.log(loading);
 

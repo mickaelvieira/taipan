@@ -1,4 +1,5 @@
 import React from "react";
+import { withRouter } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 import AppBar from "@material-ui/core/AppBar";
@@ -7,6 +8,8 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import InputBase from "@material-ui/core/InputBase";
 import SearchIcon from "@material-ui/icons/Search";
+import { RouteFeedProps } from "../../../types/routes";
+import { Typography } from "@material-ui/core";
 
 const useStyles = makeStyles(
   ({ shape, palette, spacing, breakpoints, transitions }) => ({
@@ -56,12 +59,21 @@ const useStyles = makeStyles(
   })
 );
 
-interface Props {
+interface Props extends RouteFeedProps {
   toggleDrawer: (status: boolean) => void;
 }
 
-export default function Header({ toggleDrawer }: Props) {
+export default withRouter(function Header({ toggleDrawer, match }: Props) {
   const classes = useStyles();
+  let title = "";
+  if (match.path === "/") {
+    title = "News";
+  } else if (match.path === "/reading-list") {
+    title = "Reading list";
+  } else if (match.path === "/favorites") {
+    title = "Favorites";
+  }
+
   return (
     <>
       <AppBar position="fixed">
@@ -75,7 +87,8 @@ export default function Header({ toggleDrawer }: Props) {
             <MenuIcon />
           </IconButton>
 
-          <div className={classes.search}>
+          <Typography component="h5">{title}</Typography>
+          {/* <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
@@ -89,9 +102,9 @@ export default function Header({ toggleDrawer }: Props) {
                 }}
               />
             </label>
-          </div>
+          </div> */}
         </Toolbar>
       </AppBar>
     </>
   );
-}
+});

@@ -6,7 +6,6 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import getApolloClient from "../../services/apollo";
 import { NewsSection, ReadingListSection, FavoritesSection } from "../Section";
 import uiTheme from "../ui/theme";
-import Layout from "../Layout";
 
 export default function App() {
   const client = getApolloClient();
@@ -19,17 +18,11 @@ export default function App() {
       <CssBaseline />
       <MuiThemeProvider theme={theme}>
         <BrowserRouter>
-          <Layout>
-            <Switch>
-              <Route exact path="/" component={NewsSection} />
-              <Route
-                exact
-                path="/reading-list"
-                component={ReadingListSection}
-              />
-              <Route exact path="/favorites" component={FavoritesSection} />
-            </Switch>
-          </Layout>
+          <Switch>
+            <Route exact path="/" component={NewsSection} />
+            <Route exact path="/reading-list" component={ReadingListSection} />
+            <Route exact path="/favorites" component={FavoritesSection} />
+          </Switch>
         </BrowserRouter>
       </MuiThemeProvider>
     </ApolloProvider>
