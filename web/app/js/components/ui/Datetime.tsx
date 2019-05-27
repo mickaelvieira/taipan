@@ -1,5 +1,6 @@
 import moment from "moment";
 import React from "react";
+import Typography from "@material-ui/core/Typography";
 
 interface Props {
   label: string;
@@ -8,11 +9,8 @@ interface Props {
 
 export default React.memo(function Datetime({ label, value }: Props) {
   return (
-    <>
-      <span className="datetime-label info-label">{label}</span>
-      <span className="datetime-value info-value">
-        {value ? moment(value).fromNow() : "Never"}
-      </span>
-    </>
+    <Typography variant="body2">
+      {label}: {value ? moment(value).fromNow() : "Never"}
+    </Typography>
   );
 });

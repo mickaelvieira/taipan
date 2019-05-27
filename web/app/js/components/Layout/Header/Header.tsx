@@ -87,7 +87,9 @@ export default withRouter(function Header({ toggleDrawer, match }: Props) {
             <MenuIcon />
           </IconButton>
 
-          <Typography component="h5">{title}</Typography>
+          <Typography component="h6" variant="h5">
+            {title}
+          </Typography>
           {/* <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />

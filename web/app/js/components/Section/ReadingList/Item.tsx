@@ -1,32 +1,14 @@
 import React from "react";
-import moment from "moment";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
-import Link from "@material-ui/core/Link";
-import Typography from "@material-ui/core/Typography";
 import { Bookmark } from "../../../types/bookmark";
-import { truncate } from "../../../helpers/string";
-import { EagerLoadingImage, LazyLoadingImage } from "../../ui/Feed/Image";
 import { FavoriteButton, UnbookmarkButton } from "../../ui/Feed/Button";
 import Domain from "../../ui/Domain";
+import Item from "../../ui/Feed/Item/Item";
+import ItemTitle from "../../ui/Feed/Item/Title";
+import ItemDescription from "../../ui/Feed/Item/Description";
+import ItemImage from "../../ui/Feed/Image";
 import ItemFooter from "../../ui/Feed/Item/Footer";
-
-const useStyles = makeStyles({
-  card: {
-    marginBottom: 24,
-    display: "flex",
-    flexDirection: "column"
-  },
-  media: {
-    backgroundSize: "cover",
-    minHeight: 200
-  },
-  content: {
-    flex: 1
-  }
-});
 
 interface Props {
   index: number;
@@ -34,49 +16,12 @@ interface Props {
 }
 
 export default React.memo(function FeedItem({ index, bookmark }: Props) {
-  const classes = useStyles();
-  const ImageComp = index < 5 ? EagerLoadingImage : LazyLoadingImage;
-
   return (
-    <Card className={classes.card}>
-      {bookmark.image && (
-        <Link
-          underline="none"
-          href={bookmark.url}
-          title={bookmark.title}
-          target="_blank"
-          rel="noopener"
-        >
-          <ImageComp
-            className={classes.media}
-            media={bookmark.image}
-            title={bookmark.title}
-          />
-        </Link>
-      )}
-      <CardContent className={classes.content}>
-        <Link
-          underline="none"
-          href={bookmark.url}
-          title={bookmark.title}
-          target="_blank"
-          rel="noopener"
-        >
-          <Typography variant="h6" component="h6">
-            {bookmark.title}
-          </Typography>
-        </Link>
-        {bookmark.description && (
-          <Typography component="p" gutterBottom>
-            {truncate(bookmark.description)}
-          </Typography>
-        )}
-        <Typography variant="body2">
-          Added: {moment(bookmark.addedAt).fromNow()}
-        </Typography>
-        <Typography variant="body2">
-          Updated: {moment(bookmark.updatedAt).fromNow()}
-        </Typography>
+    <Item>
+      <ItemImage index={index} item={bookmark} />
+      <CardContent>
+        <ItemTitle item={bookmark} />
+        <ItemDescription item={bookmark} />
       </CardContent>
       <ItemFooter>
         <CardActions disableSpacing>
@@ -87,6 +32,6 @@ export default React.memo(function FeedItem({ index, bookmark }: Props) {
           <FavoriteButton bookmark={bookmark} />
         </CardActions>
       </ItemFooter>
-    </Card>
+    </Item>
   );
 });
