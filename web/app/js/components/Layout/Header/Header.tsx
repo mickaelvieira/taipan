@@ -79,13 +79,16 @@ export default function Header({ toggleDrawer }: Props) {
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
-            <InputBase
-              placeholder="Search..."
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput
-              }}
-            />
+            <label htmlFor="search-field">
+              <InputBase
+                id="search-field"
+                placeholder="Search..."
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput
+                }}
+              />
+            </label>
           </div>
         </Toolbar>
       </AppBar>
