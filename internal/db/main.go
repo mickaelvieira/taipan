@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -13,7 +14,7 @@ var db *sql.DB
 // GetDB returns a database connection
 func GetDB() *sql.DB {
 	if db == nil {
-		log.Println("init DB")
+		fmt.Println("init DB")
 		dsn := os.Getenv("APP_DB_USER") + ":" + os.Getenv("APP_DB_PWD") + "@tcp(" + os.Getenv("APP_DB_ADDR") + ")/" + os.Getenv("APP_DB_NAME")
 		params := "parseTime=true"
 		var err error
@@ -23,7 +24,7 @@ func GetDB() *sql.DB {
 			log.Fatal(err)
 		}
 	} else {
-		log.Println("reuse DB")
+		fmt.Println("reuse DB")
 	}
 
 	return db

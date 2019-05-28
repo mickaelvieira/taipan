@@ -2,7 +2,6 @@ package loaders
 
 import (
 	"context"
-	"log"
 
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -35,7 +34,6 @@ func GetDocumentLoader(repository *repository.DocumentRepository) *dataloader.Lo
 // GetDocumentsFeedsLoader get the loader
 func GetDocumentsFeedsLoader(repository *repository.FeedRepository) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
-		log.Println("run batch feeds")
 		var results []*dataloader.Result
 		for _, key := range keys {
 			doc, ok := key.Raw().(*document.Document)
@@ -55,8 +53,6 @@ func GetDocumentsFeedsLoader(repository *repository.FeedRepository) *dataloader.
 // GetHTTPClientLogEntriesLoader get the loader
 func GetHTTPClientLogEntriesLoader(repository *repository.BotlogRepository) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
-		log.Println("run batch logs")
-		log.Println(keys.Keys())
 		var results []*dataloader.Result
 		for _, key := range keys {
 			entries, err := repository.FindByURI(ctx, key.String())

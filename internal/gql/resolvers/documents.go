@@ -9,7 +9,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"time"
 
 	"github.com/graph-gophers/dataloader"
@@ -85,7 +84,6 @@ func (r *DocumentResolver) UpdatedAt() string {
 
 // Feeds returns the document's feeds
 func (r *DocumentResolver) Feeds(ctx context.Context) (*[]*FeedResolver, error) {
-	log.Printf("get feeds %s", r.Document.ID)
 	results, err := r.feedsLoader.Load(ctx, r.Document)()
 	if err != nil {
 		return nil, err

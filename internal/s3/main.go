@@ -11,7 +11,6 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -100,7 +99,6 @@ func Upload(URL string) (*image.Image, error) {
 		return nil, fmt.Errorf("status code error: %d %s", resp.StatusCode, resp.Status)
 	}
 
-	log.Println("Fetched")
 	contentType := resp.Header.Get("Content-Type")
 
 	// Get file configuration
@@ -161,7 +159,7 @@ func Upload(URL string) (*image.Image, error) {
 		return nil, err
 	}
 
-	log.Printf("Uploaded %s ", output.Location)
+	fmt.Printf("Uploaded %s ", output.Location)
 
 	s3URL, err := url.ParseRequestURI(output.Location)
 	if err != nil {

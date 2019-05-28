@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -27,8 +28,8 @@ func main() {
 	http.HandleFunc("/graphql", auth.WithUser(server.QueryHandler, server.Repositories.Users))
 
 	// Start the server
-	log.Println("Listening: http://localhost:" + port)
-	log.Println("Environment", env)
+	fmt.Println("Listening: http://localhost:" + port)
+	fmt.Println("Environment", env)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal(err)

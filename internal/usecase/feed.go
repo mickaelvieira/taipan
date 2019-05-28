@@ -25,7 +25,7 @@ func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Re
 	var preLogEntry *client.Result
 	var entries []string
 
-	fmt.Printf("Parsing %s", feed.URL)
+	fmt.Printf("Parsing %s\n", feed.URL)
 	parser := gofeed.NewParser()
 
 	preLogEntry, err = repositories.Botlogs.FindLatestByURI(ctx, feed.URL.String())
