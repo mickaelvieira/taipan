@@ -77,8 +77,7 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 
 	d.Checksum = result.Checksum
 
-	fmt.Println("=== DOCUMENTS ===")
-	fmt.Printf("%v", d.URL)
+	fmt.Printf("Documents: %s\n", d.URL)
 
 	if d.Image != nil {
 		image, err := s3.Upload(d.Image.URL.String())

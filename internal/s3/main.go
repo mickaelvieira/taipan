@@ -159,7 +159,7 @@ func Upload(URL string) (*image.Image, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Uploaded %s ", output.Location)
+	fmt.Printf("Uploaded %s \n", output.Location)
 
 	s3URL, err := url.ParseRequestURI(output.Location)
 	if err != nil {

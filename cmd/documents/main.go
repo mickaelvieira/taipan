@@ -53,7 +53,7 @@ func main() {
 			if err := proto.Unmarshal(d.Body, dm); err != nil {
 				log.Fatalln("Failed to parse document message:", err)
 			}
-			fmt.Printf("Received a message: %s", dm)
+			fmt.Printf("Received a message: %s\n", dm)
 
 			usecase.Document(ctx, dm.Url, repositories)
 		}
