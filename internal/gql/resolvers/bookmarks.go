@@ -37,7 +37,7 @@ func (r *BookmarkResolver) URL() string {
 
 // Image resolves the Image field
 func (r *BookmarkResolver) Image() *BookmarkImageResolver {
-	if r.Bookmark.Image == nil {
+	if r.Bookmark.Image == nil || r.Bookmark.Image.Name == "" {
 		return nil
 	}
 

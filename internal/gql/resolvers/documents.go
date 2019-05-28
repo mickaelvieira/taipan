@@ -44,7 +44,7 @@ func (r *DocumentResolver) URL() string {
 
 // Image resolves the Image field
 func (r *DocumentResolver) Image() *BookmarkImageResolver {
-	if r.Document.Image == nil {
+	if r.Document.Image == nil || r.Document.Image.Name == "" {
 		return nil
 	}
 

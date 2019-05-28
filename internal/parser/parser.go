@@ -17,7 +17,7 @@ import (
 type social struct {
 	Title       string
 	Description string
-	Image       *url.URL
+	Image       *url.URL // @TODO we need to handle base64 encoded images
 	URL         *url.URL
 }
 
