@@ -15,7 +15,7 @@ const useStyles = makeStyles({
   }
 });
 
-export default function EagerLoadingImage({ media, title, className }: Props) {
+export default function EagerLoadingImage({ media, title }: Props) {
   const classes = useStyles();
   const src = media ? media.url : IMAGE_PLACEHOLDER;
   return <CardMedia className={classes.media} image={src} title={title} />;

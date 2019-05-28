@@ -4,8 +4,6 @@ fragment bookmarkFields on Bookmark {
   id
   url
   title
-  lang
-  charset
   description
   image {
     ...imageFields

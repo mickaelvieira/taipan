@@ -17,8 +17,8 @@ const useStyles = makeStyles({
   }
 });
 
-export default function LazyLoadingImage({ media, title, className }: Props) {
-  const classes = useStyles()
+export default function LazyLoadingImage({ media, title }: Props) {
+  const classes = useStyles();
   const divRef = useRef(null);
   const inGap = useWillBeSoonInViewport(divRef);
   const src = inGap && media ? media.url : IMAGE_PLACEHOLDER;

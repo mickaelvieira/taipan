@@ -8,7 +8,7 @@ interface Props {
   item: Document | Bookmark;
 }
 
-export default function Title({ item }: Props) {
+export default function ItemTitle({ item }: Props) {
   return (
     <Link
       underline="none"

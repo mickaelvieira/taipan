@@ -1,7 +1,3 @@
-export interface UserLinks {
-  self: string;
-}
-
 export interface User {
   id: string;
   firstname: string;
@@ -11,5 +7,4 @@ export interface User {
   href: string;
   created_at: string;
   updated_at: string;
-  links: UserLinks;
 }

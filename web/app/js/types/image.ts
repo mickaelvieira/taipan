@@ -1,7 +1,7 @@
 export interface Image {
-  name: string;
+  name?: string;
   url: string;
   width: number;
   height: number;
-  format: string;
+  format?: string;
 }

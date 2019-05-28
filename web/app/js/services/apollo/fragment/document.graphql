@@ -4,8 +4,6 @@ fragment documentFields on Document {
   id
   url
   title
-  lang
-  charset
   description
   image {
     ...imageFields
