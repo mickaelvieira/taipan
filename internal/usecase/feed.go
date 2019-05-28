@@ -50,10 +50,11 @@ func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Re
 		}
 
 		for _, item := range content.Items {
+			fmt.Printf("URL %s\n", item.Link)
 			entries = append(entries, item.Link)
 		}
 	} else {
-		fmt.Println("content has not changed")
+		fmt.Println("Content has not changed")
 	}
 
 	feed.ParsedAt = time.Now()

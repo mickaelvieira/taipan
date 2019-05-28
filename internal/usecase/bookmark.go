@@ -63,6 +63,7 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 	var d *document.Document
 	d, err = repositories.Documents.GetByChecksum(ctx, result.Checksum)
 	if err == nil {
+		fmt.Println("Document has not changed")
 		return d, nil
 	}
 	if err != nil && err != sql.ErrNoRows {
