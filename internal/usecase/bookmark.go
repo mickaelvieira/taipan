@@ -46,6 +46,16 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 	var reader io.Reader
 	var result *client.Result
 	URL, result, reader, err = cl.Fetch(URL)
+
+	// Store the result of HTTP request
+	if result != nil {
+		err = repositories.Botlogs.Insert(ctx, result)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// We might have a non-HTTP error
 	if err != nil {
 		return nil, err
 	}
@@ -101,11 +111,6 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	err = repositories.Botlogs.Insert(ctx, result)
-	if err != nil {
-		return nil, err
 	}
 
 	err = repositories.Feeds.InsertAllIfNotExists(ctx, d.Feeds, d)
