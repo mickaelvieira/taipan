@@ -55,7 +55,10 @@ func main() {
 			}
 			fmt.Printf("Received a message: %s\n", dm)
 
-			usecase.Document(ctx, dm.Url, repositories)
+			_, err := usecase.Document(ctx, dm.Url, repositories)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}()
 

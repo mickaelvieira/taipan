@@ -1,5 +1,6 @@
 /cmd/web/web
 /cmd/feeds/feeds
+/cmd/documents/documents
 /cmd/migration/migration
 /vendor
 node_modules
