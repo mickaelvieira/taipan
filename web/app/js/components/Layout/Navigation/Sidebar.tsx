@@ -1,18 +1,18 @@
 import React from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { NavLink as RouterLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Divider from "@material-ui/core/Divider";
 import Link from "@material-ui/core/Link";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import BookmarkIcon from "@material-ui/icons/BookmarkBorderOutlined";
+import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
 import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
-import FavoriteIcon from "@material-ui/icons/Favorite";
+import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
 import UserQuery, { query } from "../../apollo/Query/User";
+import { RouteFeedProps } from "../../../types/routes";
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   user: {
@@ -31,17 +31,38 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   icon: {
     margin: spacing(1),
-    color: palette.grey[900]
+    marginRight: spacing(3)
   },
   link: {
     display: "block",
     fontWeight: 500,
     fontSize: typography.fontSize,
-    color: palette.grey[900]
+    color: palette.grey[900],
+    "&.active": {
+      color: palette.primary.main
+    }
   }
 }));
 
-interface Props {
+const entries = [
+  {
+    path: "/",
+    label: "News",
+    icon: HomeIcon
+  },
+  {
+    path: "/reading-list",
+    label: "Reading List",
+    icon: LibraryIcon
+  },
+  {
+    path: "/favorites",
+    label: "Favorites",
+    icon: FavoriteIcon
+  }
+];
+
+interface Props extends RouteFeedProps {
   isOpen: boolean;
   toggleDrawer: (status: boolean) => void;
 }
@@ -59,10 +80,12 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props) {
           );
         }}
       </UserQuery>
-      <div className={classes.list}>
-        <List>
+      <List className={classes.list}>
+        {entries.map(entry => (
           <Link
-            to="/"
+            exact
+            key={entry.label}
+            to={entry.path}
             classes={{
               root: classes.link
             }}
@@ -70,66 +93,31 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props) {
             underline="none"
             onClick={() => toggleDrawer(false)}
           >
-            <ListItem button key="Home">
-              <ListItemIcon>
-                <HomeIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText disableTypography>Home</ListItemText>
+            <ListItem button>
+              <entry.icon className={classes.icon} />
+              <ListItemText disableTypography>{entry.label}</ListItemText>
             </ListItem>
           </Link>
-          <Link
-            to="/reading-list"
-            classes={{
-              root: classes.link
-            }}
-            component={RouterLink}
-            underline="none"
-            onClick={() => toggleDrawer(false)}
-          >
-            <ListItem button key="Reading List">
-              <ListItemIcon>
-                <BookmarkIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText disableTypography>Reading List</ListItemText>
-            </ListItem>
-          </Link>
-          <Link
-            to="/favorites"
-            classes={{
-              root: classes.link
-            }}
-            component={RouterLink}
-            underline="none"
-            onClick={() => toggleDrawer(false)}
-          >
-            <ListItem button key="Favorites">
-              <ListItemIcon>
-                <FavoriteIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText disableTypography>Favorites</ListItemText>
-            </ListItem>
-          </Link>
-        </List>
-        <Divider />
-        <List>
-          <Link
-            to="/"
-            classes={{
-              root: classes.link
-            }}
-            component={RouterLink}
-            underline="none"
-            onClick={() => toggleDrawer(false)}
-          >
-            <ListItem button key="Account">
-              <ListItemIcon>
-                <AccountIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText disableTypography>Account</ListItemText>
-            </ListItem>
-          </Link>
-        </List>
-      </div>
+        ))}
+      </List>
+      <Divider />
+      <List>
+        <Link
+          to="/account"
+          exact
+          classes={{
+            root: classes.link
+          }}
+          component={RouterLink}
+          underline="none"
+          onClick={() => toggleDrawer(false)}
+        >
+          <ListItem button key="Account">
+            <AccountIcon className={classes.icon} />
+            <ListItemText disableTypography>Account</ListItemText>
+          </ListItem>
+        </Link>
+      </List>
     </Drawer>
   );
 }
