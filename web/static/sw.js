@@ -69,15 +69,16 @@ async function cacheOnTheFly(request) {
 /**
  * Delete outdated caches during the activation
  */
-self.addEventListener("activate", async event => {
-  const names = await self.caches.keys();
-  event.waitUntil(
-    Promise.all(
-      names
-        .filter(name => !activeCaches.includes(name))
-        .map(name => self.caches.delete(name))
-    )
-  );
+self.addEventListener("activate", event => {
+  self.caches.keys().then(names => {
+    event.waitUntil(
+      Promise.all(
+        names
+          .filter(name => !activeCaches.includes(name))
+          .map(name => self.caches.delete(name))
+      )
+    );
+  });
 });
 
 /**
