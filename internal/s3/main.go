@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/image"
-	"github/mickaelvieira/taipan/internal/domain/uri"
 	img "image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -86,17 +84,17 @@ func getContentTypeFromFormat(i string) string {
 }
 
 // Upload uploads a file to the S3 bucket
-func Upload(URL string) (*image.Image, error) {
+func Upload(i *image.Image) error {
 	bucket := os.Getenv("AWS_BUCKET")
 
-	resp, err := http.Get(URL)
+	resp, err := http.Get(i.URL.String())
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("status code error: %d %s", resp.StatusCode, resp.Status)
+		return fmt.Errorf("status code error: %d %s", resp.StatusCode, resp.Status)
 	}
 
 	contentType := resp.Header.Get("Content-Type")
@@ -104,7 +102,7 @@ func Upload(URL string) (*image.Image, error) {
 	// Get file configuration
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	filename := checksum.FromBytes(b).String()
@@ -113,7 +111,7 @@ func Upload(URL string) (*image.Image, error) {
 
 	if err != nil {
 		if err != img.ErrFormat {
-			return nil, err
+			return err
 		}
 		format = ""
 	}
@@ -131,12 +129,10 @@ func Upload(URL string) (*image.Image, error) {
 		filename = filename + "." + format
 	}
 
-	img := image.Image{
-		Name:   filename,
-		Width:  int32(config.Width),
-		Height: int32(config.Height),
-		Format: format,
-	}
+	i.Name = filename
+	i.Width = int32(config.Width)
+	i.Height = int32(config.Height)
+	i.Format = format
 
 	// Recreate a IO reader from buffered bytes
 	reader = bytes.NewReader(b)
@@ -149,24 +145,17 @@ func Upload(URL string) (*image.Image, error) {
 	output, err := uploader.Upload(&s3manager.UploadInput{
 		ACL:          aws.String("public-read"),
 		Bucket:       aws.String(bucket),
-		Key:          aws.String(img.Name),
+		Key:          aws.String(i.Name),
 		Body:         reader,
 		ContentType:  &contentType,
 		CacheControl: &cacheControl,
 	})
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	fmt.Printf("Uploaded %s \n", output.Location)
 
-	s3URL, err := url.ParseRequestURI(output.Location)
-	if err != nil {
-		return nil, err
-	}
-
-	img.URL = &uri.URI{URL: s3URL}
-
-	return &img, nil
+	return nil
 }

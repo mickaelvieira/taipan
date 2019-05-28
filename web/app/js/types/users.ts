@@ -3,8 +3,4 @@ export interface User {
   firstname: string;
   lastname: string;
   username: string;
-  email: string;
-  href: string;
-  created_at: string;
-  updated_at: string;
 }

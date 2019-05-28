@@ -31,7 +31,7 @@ func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Re
 	preLogEntry, err = repositories.Botlogs.FindLatestByURI(ctx, feed.URL.String())
 
 	http := client.Client{}
-	_, curLogEntry, reader, err = http.Fetch(feed.URL.URL)
+	curLogEntry, reader, err = http.Fetch(feed.URL.URL)
 	if err != nil {
 		return entries, err
 	}

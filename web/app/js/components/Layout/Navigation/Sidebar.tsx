@@ -9,19 +9,35 @@ import Link from "@material-ui/core/Link";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import BookmarkIcon from "@material-ui/icons/BookmarkBorderOutlined";
-import AccountIcon from "@material-ui/icons/AccountCircleRounded";
+import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import FavoriteIcon from "@material-ui/icons/Favorite";
+import UserQuery, { query } from "../../apollo/Query/User";
 
-const useStyles = makeStyles(({ spacing }) => ({
+const useStyles = makeStyles(({ spacing, palette, typography }) => ({
+  user: {
+    fontSize: "1.2rem",
+    fontWeight: 500,
+    lineHeight: 1.33,
+    letterSpacing: "0em",
+    color: palette.grey[900],
+    textAlign: "center",
+    margin: 0,
+    padding: "1.2rem 0",
+    backgroundColor: palette.grey[100]
+  },
   list: {
     width: 220
   },
   icon: {
-    margin: spacing(1)
+    margin: spacing(1),
+    color: palette.grey[900]
   },
   link: {
-    display: "block"
+    display: "block",
+    fontWeight: 500,
+    fontSize: typography.fontSize,
+    color: palette.grey[900]
   }
 }));
 
@@ -34,48 +50,63 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props) {
   const classes = useStyles();
   return (
     <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
+      <UserQuery query={query}>
+        {({ data }) => {
+          return !data || !data.User ? null : (
+            <p className={classes.user}>
+              {data.User.firstname} {data.User.lastname}
+            </p>
+          );
+        }}
+      </UserQuery>
       <div className={classes.list}>
         <List>
           <Link
             to="/"
-            className={classes.link}
+            classes={{
+              root: classes.link
+            }}
             component={RouterLink}
             underline="none"
             onClick={() => toggleDrawer(false)}
           >
             <ListItem button key="Home">
               <ListItemIcon>
-                <HomeIcon color="primary" className={classes.icon} />
+                <HomeIcon className={classes.icon} />
               </ListItemIcon>
-              <ListItemText primary="Home" />
+              <ListItemText disableTypography>Home</ListItemText>
             </ListItem>
           </Link>
           <Link
             to="/reading-list"
-            className={classes.link}
+            classes={{
+              root: classes.link
+            }}
             component={RouterLink}
             underline="none"
             onClick={() => toggleDrawer(false)}
           >
             <ListItem button key="Reading List">
               <ListItemIcon>
-                <BookmarkIcon color="primary" className={classes.icon} />
+                <BookmarkIcon className={classes.icon} />
               </ListItemIcon>
-              <ListItemText primary="Reading List" />
+              <ListItemText disableTypography>Reading List</ListItemText>
             </ListItem>
           </Link>
           <Link
             to="/favorites"
-            className={classes.link}
+            classes={{
+              root: classes.link
+            }}
             component={RouterLink}
             underline="none"
             onClick={() => toggleDrawer(false)}
           >
             <ListItem button key="Favorites">
               <ListItemIcon>
-                <FavoriteIcon color="primary" className={classes.icon} />
+                <FavoriteIcon className={classes.icon} />
               </ListItemIcon>
-              <ListItemText primary="Favorites" />
+              <ListItemText disableTypography>Favorites</ListItemText>
             </ListItem>
           </Link>
         </List>
@@ -83,16 +114,18 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props) {
         <List>
           <Link
             to="/"
-            className={classes.link}
+            classes={{
+              root: classes.link
+            }}
             component={RouterLink}
             underline="none"
             onClick={() => toggleDrawer(false)}
           >
             <ListItem button key="Account">
               <ListItemIcon>
-                <AccountIcon color="primary" className={classes.icon} />
+                <AccountIcon className={classes.icon} />
               </ListItemIcon>
-              <ListItemText primary="Account" />
+              <ListItemText disableTypography>Account</ListItemText>
             </ListItem>
           </Link>
         </List>

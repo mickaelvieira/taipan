@@ -45,7 +45,11 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 	// to get the last modified date before fetching the entire document
 	var reader io.Reader
 	var result *client.Result
-	URL, result, reader, err = cl.Fetch(URL)
+	result, reader, err = cl.Fetch(URL)
+	// We might have a non-HTTP error
+	if err != nil {
+		return nil, err
+	}
 
 	// Store the result of HTTP request
 	if result != nil {
@@ -53,11 +57,6 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	// We might have a non-HTTP error
-	if err != nil {
-		return nil, err
 	}
 
 	if result.RespStatusCode != 200 {
@@ -90,15 +89,6 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 
 	fmt.Printf("Documents: %s\n", d.URL)
 
-	if d.Image != nil {
-		image, err := s3.Upload(d.Image.URL.String())
-		if err != nil {
-			log.Println(err) // @TODO we might eventually better handle this case
-		} else {
-			d.Image = image
-		}
-	}
-
 	// @TODO there is a bug here
 	// If the document already exists with a URL starting with http:// the document gets duplicated
 	err = repositories.Documents.Upsert(ctx, d)
@@ -106,10 +96,16 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		return nil, err
 	}
 
+	// An image was found in the document
 	if d.Image != nil {
-		err = repositories.Documents.UpdateImage(ctx, d)
+		err = s3.Upload(d.Image)
 		if err != nil {
-			return nil, err
+			log.Println(err) // @TODO we might eventually better handle this case
+		} else {
+			err = repositories.Documents.UpdateImage(ctx, d)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
