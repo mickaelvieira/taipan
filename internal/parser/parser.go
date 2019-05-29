@@ -301,6 +301,7 @@ func (p *Parser) parseSocialTags(prefix string, property string) *social {
 			case "description":
 				desc = p.normalizeHTMLText(val)
 			case "image":
+				image = val
 			case "image:src":
 				image = val
 			case "url":
