@@ -16,6 +16,7 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -27,6 +28,14 @@ var (
 	ErrContentHasNotChanged = errors.New("Content has not changed")
 )
 
+func removeFragment(rawURL string) string {
+	var i = strings.LastIndex(rawURL, "#")
+	if i < 0 {
+		return rawURL
+	}
+	return rawURL[0:i]
+}
+
 // Document in this use case, given a provided URL, we will from:
 // - Fetch the corresponding document
 // - Parse the document
@@ -36,10 +45,12 @@ var (
 // - And finally returns the bookmark entity
 func Document(ctx context.Context, rawURL string, repositories *repository.Repositories) (*document.Document, error) {
 	cl := client.Client{}
-	URL, err := url.ParseRequestURI(rawURL)
+	URL, err := url.ParseRequestURI(removeFragment(rawURL))
 	if err != nil || !URL.IsAbs() {
 		return nil, ErrInvalidURI
 	}
+
+	fmt.Printf("Fetch %s\n", URL.String())
 
 	// @TODO that might be nice to do a HEAD request
 	// to get the last modified date before fetching the entire document
