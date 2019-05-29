@@ -14,6 +14,7 @@ type Query {
 }
 
 type Mutation {
+  Feed(url: String!): Feed
   Bookmark(url: String!): Bookmark
   Unbookmark(url: String!): Document
   ChangeBookmarkReadStatus(url: String!, isRead: Boolean!): Bookmark
@@ -78,7 +79,6 @@ type Document implements Node {
   image: Image
   createdAt: String!
   updatedAt: String!
-  feeds: [Feed]
   logEntries: [HTTPClientLog]
 }
 
@@ -103,6 +103,7 @@ type Feed implements Node {
   status: String!
   createdAt: String!
   updatedAt: String!
+  parsedAt: String!
   logEntries: [HTTPClientLog]
 }
 

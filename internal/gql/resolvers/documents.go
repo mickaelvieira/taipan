@@ -6,7 +6,6 @@ import (
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
 	"time"
@@ -26,7 +25,6 @@ type DocumentCollectionResolver struct {
 // DocumentResolver resolves the bookmark entity
 type DocumentResolver struct {
 	*document.Document
-	feedsLoader  *dataloader.Loader
 	logsLoader   *dataloader.Loader
 	repositories *repository.Repositories
 }
@@ -82,26 +80,6 @@ func (r *DocumentResolver) UpdatedAt() string {
 	return r.Document.UpdatedAt.Format(time.RFC3339)
 }
 
-// Feeds returns the document's feeds
-func (r *DocumentResolver) Feeds(ctx context.Context) (*[]*FeedResolver, error) {
-	results, err := r.feedsLoader.Load(ctx, r.Document)()
-	if err != nil {
-		return nil, err
-	}
-	feeds, ok := results.([]*feed.Feed)
-	if !ok {
-		return nil, fmt.Errorf("Invalid data")
-	}
-	var resolvers []*FeedResolver
-	for _, feed := range feeds {
-		resolvers = append(resolvers, &FeedResolver{
-			Feed:       feed,
-			logsLoader: r.logsLoader,
-		})
-	}
-	return &resolvers, nil
-}
-
 // LogEntries returns the document's parser log
 func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
 	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Document.URL.String()))()
@@ -139,13 +117,11 @@ func (r *Resolvers) News(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var feedsLoader = loaders.GetDocumentsFeedsLoader(r.repositories.Feeds)
 	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	var documents []*DocumentResolver
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
-			feedsLoader:  feedsLoader,
 			logsLoader:   logsLoader,
 			repositories: r.repositories,
 		})
@@ -180,13 +156,11 @@ func (r *Resolvers) Documents(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var feedsLoader = loaders.GetDocumentsFeedsLoader(r.repositories.Feeds)
 	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	var documents []*DocumentResolver
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
-			feedsLoader:  feedsLoader,
 			logsLoader:   logsLoader,
 			repositories: r.repositories,
 		})

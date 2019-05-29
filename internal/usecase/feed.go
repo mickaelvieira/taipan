@@ -7,6 +7,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/repository"
 	"io"
+	"log"
 	"time"
 
 	"github.com/mmcdole/gofeed"
@@ -17,7 +18,7 @@ import (
 // - Parses it the document
 // - And returns a list of URLs found in the document
 // The document is not parsed if the document has not changed since the last time it was fetched
-func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Repositories) ([]string, error) {
+func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repositories) ([]string, error) {
 	var err error
 	var reader io.Reader
 	var content *gofeed.Feed
@@ -25,13 +26,13 @@ func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Re
 	var preLogEntry *client.Result
 	var entries []string
 
-	fmt.Printf("Parsing %s\n", feed.URL)
+	fmt.Printf("Parsing %s\n", f.URL)
 	parser := gofeed.NewParser()
 
-	preLogEntry, err = repositories.Botlogs.FindLatestByURI(ctx, feed.URL.String())
+	preLogEntry, err = repositories.Botlogs.FindLatestByURI(ctx, f.URL.String())
 
 	http := client.Client{}
-	curLogEntry, reader, err = http.Fetch(feed.URL.URL)
+	curLogEntry, reader, err = http.Fetch(f.URL.URL)
 	if err != nil {
 		return entries, err
 	}
@@ -43,6 +44,15 @@ func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Re
 
 	if curLogEntry.IsContentDifferent(preLogEntry) {
 		content, err = parser.Parse(reader)
+
+		f.Title = content.Title
+		feedType, errType := feed.FromGoFeedType(content.FeedType)
+		if errType == nil {
+			f.Type = feedType
+		} else {
+			log.Println(errType)
+		}
+
 		// @TODO We are getting a lot of "Failed to detect feed type" errors,
 		// We need to handle this issue
 		if err != nil {
@@ -57,8 +67,12 @@ func ParseFeed(ctx context.Context, feed *feed.Feed, repositories *repository.Re
 		fmt.Println("Content has not changed")
 	}
 
-	feed.ParsedAt = time.Now()
-	repositories.Feeds.Update(ctx, feed)
+	f.ParsedAt = time.Now()
+	err = repositories.Feeds.Update(ctx, f)
+
+	if err != nil {
+		return entries, err
+	}
 
 	return entries, nil
 }

@@ -2,61 +2,49 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { Bookmark } from "../../types/bookmark";
+import { Feed } from "../../types/feed";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import BookmarkMutation, { mutation } from "../apollo/Mutation/Bookmark";
+import FeedMutation, { mutation } from "../apollo/Mutation/Feed";
 import { query, variables } from "../apollo/Query/ReadingList";
 
 const useStyles = makeStyles({
-  dialog: {},
   title: {
     minWidth: 320
   }
 });
 
 interface Props {
-  isOpen: boolean;
+  onFeedCreated: (feed: Feed) => void;
   toggleDialog: (status: boolean) => void;
-  onBookmarkCreated: (bookmark: Bookmark) => void;
 }
 
-export default function AddBookmark({
-  isOpen,
-  toggleDialog,
-  onBookmarkCreated
-}: Props) {
+export default function AddBookmark({ onFeedCreated, toggleDialog }: Props) {
   const classes = useStyles();
   const [url, setUrl] = useState("");
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={() => toggleDialog(false)}
-      aria-labelledby="form-dialog-title"
-      className={classes.dialog}
-    >
-      <BookmarkMutation
+    <div>
+      <FeedMutation
         mutation={mutation}
-        onCompleted={({ Bookmark: bookmark }) => {
+        onCompleted={({ Feed: feed }) => {
           setUrl("");
-          onBookmarkCreated(bookmark);
+          onFeedCreated(feed);
         }}
       >
         {(mutate, { loading, error }) => {
           return (
             <>
               <DialogTitle id="form-dialog-title" className={classes.title}>
-                Bookmark a document
+                Add a feed
               </DialogTitle>
               <DialogContent>
                 <TextField
                   autoFocus
                   margin="dense"
-                  id="bookmark_url"
+                  id="feed_url"
                   label="URL"
                   placeholder="https://"
                   type="url"
@@ -89,13 +77,13 @@ export default function AddBookmark({
                   color="primary"
                   disabled={loading}
                 >
-                  Bookmark
+                  Add
                 </Button>
               </DialogActions>
             </>
           );
         }}
-      </BookmarkMutation>
-    </Dialog>
+      </FeedMutation>
+    </div>
   );
 }

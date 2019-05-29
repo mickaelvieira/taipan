@@ -105,7 +105,7 @@ func (p *Parser) getWordpressFeed() []*feed.Feed {
 		"wordpress feed",
 		feed.RSS,
 	)
-	feeds = append(feeds, &feed)
+	feeds = append(feeds, feed)
 	return feeds
 }
 
@@ -272,7 +272,7 @@ func (p *Parser) parseFeeds() []*feed.Feed {
 				title,
 				feedType,
 			)
-			feeds = append(feeds, &feed)
+			feeds = append(feeds, feed)
 		}
 	}
 	return feeds

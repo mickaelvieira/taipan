@@ -2,10 +2,13 @@ package resolvers
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/domain/uri"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
+	"github/mickaelvieira/taipan/internal/usecase"
 	"time"
 
 	"github.com/graph-gophers/dataloader"
@@ -61,6 +64,11 @@ func (r *FeedResolver) UpdatedAt() string {
 	return r.Feed.UpdatedAt.Format(time.RFC3339)
 }
 
+// ParsedAt resolves the ParsedAt field
+func (r *FeedResolver) ParsedAt() string {
+	return r.Feed.ParsedAt.Format(time.RFC3339)
+}
+
 // LogEntries returns the document's parser log
 func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
 	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Feed.URL.String()))()
@@ -76,6 +84,39 @@ func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolve
 		resolvers = append(resolvers, &HTTPClientLogResolver{Result: result})
 	}
 	return &resolvers, nil
+}
+
+// Feed adds a feed
+func (r *Resolvers) Feed(ctx context.Context, args struct {
+	URL string
+}) (*FeedResolver, error) {
+	url, err := uri.FromRawURL(args.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	var f *feed.Feed
+	f, err = r.repositories.Feeds.GetByURL(ctx, url)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			f = feed.New(url, "", "")
+			err = r.repositories.Feeds.Insert(ctx, f)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+
+	_, err = usecase.ParseFeed(ctx, f, r.repositories)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &FeedResolver{Feed: f}
+
+	return res, nil
 }
 
 // Feeds resolves the query

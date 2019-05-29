@@ -12,7 +12,6 @@ import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
 import UserQuery, { query } from "../../apollo/Query/User";
-import { RouteFeedProps } from "../../../types/routes";
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   user: {
@@ -62,7 +61,7 @@ const entries = [
   }
 ];
 
-interface Props extends RouteFeedProps {
+interface Props {
   isOpen: boolean;
   toggleDrawer: (status: boolean) => void;
 }

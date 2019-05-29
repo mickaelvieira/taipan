@@ -5,7 +5,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Grid from "@material-ui/core/Grid";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
-import AddBookmark from "../AddBookmark";
+import AddForm from "../AddForm";
 import useConnectionStatus from "../../hooks/connection-status";
 import { SnackbarInfo } from "../ui/Snackbar";
 
@@ -44,6 +44,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 
 export default function Layout({ children }: PropsWithChildren<{}>) {
   const classes = useStyles();
+  const [info, setInfo] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isFormBookmarkOpen, setFormBookmarkStatus] = useState(false);
   const isOnline = useConnectionStatus();
@@ -66,12 +67,25 @@ export default function Layout({ children }: PropsWithChildren<{}>) {
           </Fab>
         </Grid>
       </Grid>
-      <AddBookmark
+      <AddForm
         isOpen={isFormBookmarkOpen}
         toggleDialog={setFormBookmarkStatus}
-        onBookmarkCreated={() => setFormBookmarkStatus(false)}
+        onFeedCreated={() => {
+          setInfo("Nice one! The feed was added");
+          setFormBookmarkStatus(false);
+        }}
+        onBookmarkCreated={() => {
+          setInfo("Nice one! The bookmark was added");
+          setFormBookmarkStatus(false);
+        }}
       />
-      <SnackbarInfo isOpen={!isOnline} message="You are offline" />
+      <SnackbarInfo open={!isOnline} info="You are offline" />
+      <SnackbarInfo
+        onClose={() => setInfo("")}
+        autoHideDuration={5000}
+        open={info !== ""}
+        info={info}
+      />
     </>
   );
 }

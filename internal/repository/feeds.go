@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/domain/uri"
 	"log"
@@ -34,34 +33,6 @@ func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, er
 	}
 
 	return f, nil
-}
-
-// GetDocumentFeeds returns the document's feeds
-func (r *FeedRepository) GetDocumentFeeds(ctx context.Context, d *document.Document) ([]*feed.Feed, error) {
-	var results []*feed.Feed
-	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
-		FROM feeds AS f
-		WHERE document_id = ?
-	`
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), d.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		f, err := r.scan(rows)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, f)
-	}
-
-	if err = rows.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	return results, nil
 }
 
 // GetOutdatedFeeds returns the feeds which have been last updated more than 24 hrs
@@ -155,17 +126,16 @@ func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, 
 }
 
 // Insert creates a new feed in the DB
-func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.Document) error {
+func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed) error {
 	query := `
 		INSERT INTO feeds
-		(document_id, url, title, type, status, created_at, updated_at, deleted)
+		(url, title, type, status, created_at, updated_at, deleted)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?)
 	`
 	result, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		d.ID,
 		f.URL,
 		f.Title,
 		f.Type,
@@ -190,12 +160,14 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed, d *document.D
 func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 	query := `
 		UPDATE feeds
-		SET status = ?, updated_at = ?, parsed_at = ?, deleted = ?
+		SET type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
+		f.Type,
+		f.Title,
 		f.Status,
 		f.UpdatedAt,
 		f.ParsedAt,
@@ -207,11 +179,11 @@ func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 }
 
 // InsertIfNotExists stores the feed in the database if there is none with the same URL
-func (r *FeedRepository) InsertIfNotExists(ctx context.Context, f *feed.Feed, d *document.Document) error {
+func (r *FeedRepository) InsertIfNotExists(ctx context.Context, f *feed.Feed) error {
 	feed, err := r.GetByURL(ctx, f.URL)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = r.Insert(ctx, f, d)
+			err = r.Insert(ctx, f)
 		}
 	} else {
 		f.ID = feed.ID
@@ -220,10 +192,10 @@ func (r *FeedRepository) InsertIfNotExists(ctx context.Context, f *feed.Feed, d 
 }
 
 // InsertAllIfNotExists stores feeds in the database if there are none with the same URL
-func (r *FeedRepository) InsertAllIfNotExists(ctx context.Context, feeds []*feed.Feed, d *document.Document) error {
+func (r *FeedRepository) InsertAllIfNotExists(ctx context.Context, feeds []*feed.Feed) error {
 	var err error
 	for _, feed := range feeds {
-		err = r.InsertIfNotExists(ctx, feed, d)
+		err = r.InsertIfNotExists(ctx, feed)
 		if err != nil {
 			break
 		}

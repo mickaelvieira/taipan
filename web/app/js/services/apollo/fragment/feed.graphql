@@ -1,0 +1,10 @@
+fragment feedFields on Feed {
+  id
+  url
+  title
+  type
+  status
+  createdAt
+  updatedAt
+  parsedAt
+}

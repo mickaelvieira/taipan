@@ -37,6 +37,18 @@ func GetFeedType(t string) (Type, error) {
 	return INVALID, fmt.Errorf("Invalid feed type %s", t)
 }
 
+// FromGoFeedType returns the feed type based on the gofeed type
+func FromGoFeedType(t string) (Type, error) {
+	t = strings.ToLower(t)
+	if t == "rss" {
+		return RSS, nil
+	}
+	if t == "atom" {
+		return ATOM, nil
+	}
+	return INVALID, fmt.Errorf("Invalid feed type %s", t)
+}
+
 // Status represents the status of the feed during the fetching process
 type Status string
 
@@ -61,8 +73,8 @@ type Feed struct {
 }
 
 // New creates a new Feed with a UUID
-func New(url *uri.URI, title string, feedType Type) Feed {
-	return Feed{
+func New(url *uri.URI, title string, feedType Type) *Feed {
+	return &Feed{
 		URL:       url,
 		Title:     title,
 		Type:      feedType,

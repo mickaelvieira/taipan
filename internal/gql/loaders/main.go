@@ -3,7 +3,6 @@ package loaders
 import (
 	"context"
 
-	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/repository"
 
 	"github.com/graph-gophers/dataloader"
@@ -26,25 +25,6 @@ func GetDocumentLoader(repository *repository.DocumentRepository) *dataloader.Lo
 		}
 		for _, document := range documents {
 			results = append(results, &dataloader.Result{Data: document})
-		}
-		return results
-	})
-}
-
-// GetDocumentsFeedsLoader get the loader
-func GetDocumentsFeedsLoader(repository *repository.FeedRepository) *dataloader.Loader {
-	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
-		var results []*dataloader.Result
-		for _, key := range keys {
-			doc, ok := key.Raw().(*document.Document)
-			if !ok {
-				return nil
-			}
-			feeds, err := repository.GetDocumentFeeds(ctx, doc)
-			if err != nil {
-				return nil
-			}
-			results = append(results, &dataloader.Result{Data: feeds})
 		}
 		return results
 	})

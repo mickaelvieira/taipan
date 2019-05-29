@@ -1,0 +1,7 @@
+#import "../fragment/feed.graphql"
+
+mutation Feed($url: String!) {
+  Feed(url: $url) {
+    ...feedFields
+  }
+}
