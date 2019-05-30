@@ -94,7 +94,7 @@ func Document(ctx context.Context, rawURL string, forceUpdate bool, repositories
 	// @TODO there is a bug here
 	// If the document already exists with a URL starting with http:// the document gets duplicated
 	var e *document.Document
-	e, err = repositories.Documents.GetByURL(ctx, d.URL)
+	e, err = repositories.Documents.GetByURL(ctx, &uri.URI{URL: URL})
 	if e != nil {
 		fmt.Printf("An existing document was found with the ID %s\n", e.ID)
 		fmt.Printf("Document was deleted %t\n", e.Deleted)
