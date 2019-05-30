@@ -43,7 +43,7 @@ func removeFragment(rawURL string) string {
 // - Insert/Update the bookmark in the DB
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
-func Document(ctx context.Context, rawURL string, forceUpdate bool, repositories *repository.Repositories) (*document.Document, error) {
+func Document(ctx context.Context, rawURL string, repositories *repository.Repositories) (*document.Document, error) {
 	cl := client.Client{}
 	URL, err := url.ParseRequestURI(removeFragment(rawURL))
 	if err != nil || !URL.IsAbs() {
@@ -91,23 +91,6 @@ func Document(ctx context.Context, rawURL string, forceUpdate bool, repositories
 		return nil, err
 	}
 
-	// @TODO there is a bug here
-	// If the document already exists with a URL starting with http:// the document gets duplicated
-	var e *document.Document
-	e, err = repositories.Documents.GetByURL(ctx, &uri.URI{URL: URL})
-	if e != nil {
-		fmt.Printf("An existing document was found with the ID %s\n", e.ID)
-		fmt.Printf("Document was deleted %t\n", e.Deleted)
-
-		// The document already exists and we do not want to update it
-		if !forceUpdate {
-			return d, nil
-		}
-	}
-	if err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-
 	d, err = parser.Parse(URL, reader)
 	if err != nil {
 		return nil, err
@@ -117,40 +100,23 @@ func Document(ctx context.Context, rawURL string, forceUpdate bool, repositories
 
 	fmt.Printf("Document was parsed: %s\n", d.URL)
 
-	if e != nil {
-		d.ID = e.ID
-		d.Deleted = e.Deleted
-	}
-
-	if d.ID == "" {
-		err = repositories.Documents.Insert(ctx, d)
-	} else {
-		err = repositories.Documents.Update(ctx, d)
-	}
+	// @TODO there is a bug here
+	// If the document already exists with a URL starting with http:// the document gets duplicated
+	err = repositories.Documents.Upsert(ctx, d)
 	if err != nil {
 		return nil, err
 	}
 
 	// An image was found in the document
 	if d.Image != nil {
-		// if
-		// - the document did not exit already
-		// - or it did not have an image
-		// - or the image URL is now different
-		hasChanged := e == nil || e.Image == nil || d.Image.URL.String() != e.Image.URL.String()
-
-		if hasChanged {
-			err = s3.Upload(d.Image)
-			if err != nil {
-				log.Println(err) // @TODO we might eventually better handle this case
-			} else {
-				err = repositories.Documents.UpdateImage(ctx, d)
-				if err != nil {
-					return nil, err
-				}
-			}
+		err = s3.Upload(d.Image)
+		if err != nil {
+			log.Println(err) // @TODO we might eventually better handle this case
 		} else {
-			fmt.Printf("Image has not changed: %s\n", d.Image.URL)
+			err = repositories.Documents.UpdateImage(ctx, d)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
