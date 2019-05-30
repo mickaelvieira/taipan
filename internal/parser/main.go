@@ -16,7 +16,7 @@ func Parse(URL *url.URL, r io.Reader) (*document.Document, error) {
 	}
 
 	var p = Parser{origURL: URL, document: document}
-	b := p.Parse()
+	d := p.Parse()
 
-	return b, nil
+	return d, nil
 }

@@ -43,7 +43,7 @@ func removeFragment(rawURL string) string {
 // - Insert/Update the bookmark in the DB
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
-func Document(ctx context.Context, rawURL string, repositories *repository.Repositories) (*document.Document, error) {
+func Document(ctx context.Context, rawURL string, forceUpdate bool, repositories *repository.Repositories) (*document.Document, error) {
 	cl := client.Client{}
 	URL, err := url.ParseRequestURI(removeFragment(rawURL))
 	if err != nil || !URL.IsAbs() {
@@ -52,6 +52,7 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 
 	fmt.Printf("Fetch %s\n", URL.String())
 
+	// @TODO I need to think how I can have a usecase only to handle fetching stuff such as feeds, documents, inamges etc...
 	// @TODO that might be nice to do a HEAD request
 	// to get the last modified date before fetching the entire document
 	var reader io.Reader
@@ -82,41 +83,74 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 	//
 	var d *document.Document
 	d, err = repositories.Documents.GetByChecksum(ctx, result.Checksum)
-	if err == nil {
-		fmt.Println("Document has not changed")
+	if d != nil {
+		fmt.Println("Document's content has not changed")
 		return d, nil
 	}
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 
-	// @TODO I need to check client's result before parsing
+	// @TODO there is a bug here
+	// If the document already exists with a URL starting with http:// the document gets duplicated
+	var e *document.Document
+	e, err = repositories.Documents.GetByURL(ctx, d.URL)
+	if e != nil {
+		fmt.Printf("An existing document was found with the ID %s\n", e.ID)
+		fmt.Printf("Document was deleted %t\n", e.Deleted)
+
+		// The document already exists and we do not want to update it
+		if !forceUpdate {
+			return d, nil
+		}
+	}
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
 	d, err = parser.Parse(URL, reader)
 	if err != nil {
 		return nil, err
 	}
-
+	// Assign document checksum to document
 	d.Checksum = result.Checksum
 
-	fmt.Printf("Documents: %s\n", d.URL)
+	fmt.Printf("Document was parsed: %s\n", d.URL)
 
-	// @TODO there is a bug here
-	// If the document already exists with a URL starting with http:// the document gets duplicated
-	err = repositories.Documents.Upsert(ctx, d)
+	if e != nil {
+		d.ID = e.ID
+		d.Deleted = e.Deleted
+	}
+
+	if d.ID == "" {
+		err = repositories.Documents.Insert(ctx, d)
+	} else {
+		err = repositories.Documents.Update(ctx, d)
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	// An image was found in the document
 	if d.Image != nil {
-		err = s3.Upload(d.Image)
-		if err != nil {
-			log.Println(err) // @TODO we might eventually better handle this case
-		} else {
-			err = repositories.Documents.UpdateImage(ctx, d)
+		// if
+		// - the document did not exit already
+		// - or it did not have an image
+		// - or the image URL is now different
+		hasChanged := e == nil || e.Image == nil || d.Image.URL.String() != e.Image.URL.String()
+
+		if hasChanged {
+			err = s3.Upload(d.Image)
 			if err != nil {
-				return nil, err
+				log.Println(err) // @TODO we might eventually better handle this case
+			} else {
+				err = repositories.Documents.UpdateImage(ctx, d)
+				if err != nil {
+					return nil, err
+				}
 			}
+		} else {
+			fmt.Printf("Image has not changed: %s\n", d.Image.URL)
 		}
 	}
 
