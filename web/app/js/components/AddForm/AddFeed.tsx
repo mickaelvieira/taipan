@@ -8,7 +8,6 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import { Feed } from "../../types/feed";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import FeedMutation, { mutation } from "../apollo/Mutation/Feed";
-import { query, variables } from "../apollo/Query/ReadingList";
 
 const useStyles = makeStyles({
   title: {
@@ -70,8 +69,7 @@ export default function AddBookmark({ onFeedCreated, toggleDialog }: Props) {
                 <Button
                   onClick={() =>
                     mutate({
-                      variables: { url },
-                      refetchQueries: [{ query, variables }]
+                      variables: { url }
                     })
                   }
                   color="primary"

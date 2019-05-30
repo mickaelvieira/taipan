@@ -8,7 +8,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import { Bookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import BookmarkMutation, { mutation } from "../apollo/Mutation/Bookmark";
-import { query, variables } from "../apollo/Query/ReadingList";
+import { queryReadingList, variables } from "../apollo/Query/Feed";
 
 const useStyles = makeStyles({
   title: {
@@ -74,7 +74,7 @@ export default function AddBookmark({
                   onClick={() =>
                     mutate({
                       variables: { url },
-                      refetchQueries: [{ query, variables }]
+                      refetchQueries: [{ query: queryReadingList, variables }]
                     })
                   }
                   color="primary"
