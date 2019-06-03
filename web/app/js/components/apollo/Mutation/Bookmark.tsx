@@ -10,7 +10,11 @@ interface Variables {
   url: string;
 }
 
-class BookmarkMutation extends Mutation<Data, Variables> {}
+class BookmarkMutation extends Mutation<Data, Variables> {
+  static defaultProps = {
+    mutation
+  };
+}
 
 export { mutation };
 

@@ -4,10 +4,11 @@ import IconButton from "@material-ui/core/IconButton";
 import CachedIcon from "@material-ui/icons/Cached";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
-import BookmarkMutation, { mutation } from "../../../apollo/Mutation/Bookmark";
+import BookmarkMutation from "../../../apollo/Mutation/Bookmark";
 
 interface Props {
   bookmark: Bookmark;
+  onSuccess: (bookmark: Bookmark) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -16,10 +17,10 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Bookmark({ bookmark }: Props) {
+export default React.memo(function Bookmark({ bookmark, onSuccess }: Props) {
   const classes = useStyles();
   return (
-    <BookmarkMutation mutation={mutation}>
+    <BookmarkMutation onCompleted={data => onSuccess(data.Bookmark)}>
       {(mutate, { loading }) => (
         <IconButton
           aria-label="Refresh"

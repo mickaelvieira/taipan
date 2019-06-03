@@ -10,7 +10,11 @@ interface Variables {
   url: string;
 }
 
-class FeedMutation extends Mutation<Data, Variables> {}
+class FeedMutation extends Mutation<Data, Variables> {
+  static defaultProps = {
+    mutation
+  };
+}
 
 export { mutation };
 

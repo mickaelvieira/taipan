@@ -3,14 +3,18 @@ import { Document } from "../../../types/document";
 import mutation from "../../../services/apollo/mutation/unbookmark.graphql";
 
 interface Data {
-  UnbookmarkMutation: Document;
+  Unbookmark: Document;
 }
 
 interface Variables {
   url: string;
 }
 
-class UnbookmarkMutation extends Mutation<Data, Variables> {}
+class UnbookmarkMutation extends Mutation<Data, Variables> {
+  static defaultProps = {
+    mutation
+  };
+}
 
 export { mutation };
 

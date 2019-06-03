@@ -4,13 +4,13 @@ import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/DeleteRounded";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
+import { Document } from "../../../../types/document";
 import ConfirmUnbookmark from "../Confirm/Unbookmark";
-import UnbookmarkMutation, {
-  mutation
-} from "../../../apollo/Mutation/Unbookmark";
+import UnbookmarkMutation from "../../../apollo/Mutation/Unbookmark";
 
 interface Props {
   bookmark: Bookmark;
+  onSuccess: (document: Document) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -19,11 +19,11 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Unbookmark({ bookmark }: Props) {
+export default React.memo(function Unbookmark({ bookmark, onSuccess }: Props) {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
   return (
-    <UnbookmarkMutation mutation={mutation}>
+    <UnbookmarkMutation onCompleted={data => onSuccess(data.Unbookmark)}>
       {(mutate, { loading }) => (
         <>
           <IconButton

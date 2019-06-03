@@ -97,6 +97,10 @@ export {
   getFetchMore
 };
 
-class FeedQuery extends Query<Data, Variables> {}
+class FeedQuery extends Query<Data, Variables> {
+  static defaultProps = {
+    fetchPolicy: "no-cache"
+  };
+}
 
 export default FeedQuery;

@@ -10,6 +10,10 @@ const variables = {};
 
 export { query, variables };
 
-class UserQuery extends Query<Data, {}> {}
+class UserQuery extends Query<Data, {}> {
+  static defaultProps = {
+    query
+  };
+}
 
 export default UserQuery;

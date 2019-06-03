@@ -4,7 +4,7 @@ import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
-import FavoriteMutation, { mutation } from "../../../apollo/Mutation/Favorite";
+import FavoriteMutation from "../../../apollo/Mutation/Favorite";
 import ConfirmUnfavorite from "../Confirm/Unfavorite";
 import red from "@material-ui/core/colors/red";
 
@@ -17,22 +17,22 @@ const useStyles = makeStyles({
 
 interface Props {
   bookmark: Bookmark;
+  onSuccess: (bookmark: Bookmark) => void;
 }
 
-// @TODO add/remove the favorite to/from apollo cache
-// @TODO add callback for the oncomplete, it would be nice to add some error/confirmation messages
-
-export default React.memo(function Favorite({ bookmark }: Props) {
+export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
 
   return (
-    <FavoriteMutation mutation={mutation}>
+    <FavoriteMutation
+      onCompleted={data => onSuccess(data.ChangeBookmarkReadStatus)}
+    >
       {(mutate, { loading }) => (
         <>
           <IconButton
             aria-label={
-              bookmark.isRead ? "Mark as favorite" : "Remove from favorite"
+              bookmark.isRead ? "Remove from favorite" : "Mark as favorite"
             }
             className={bookmark.isRead ? classes.active : classes.inactive}
             disabled={loading}

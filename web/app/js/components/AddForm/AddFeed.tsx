@@ -7,7 +7,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Feed } from "../../types/feed";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import FeedMutation, { mutation } from "../apollo/Mutation/Feed";
+import FeedMutation from "../apollo/Mutation/Feed";
 
 const useStyles = makeStyles({
   title: {
@@ -27,7 +27,6 @@ export default function AddBookmark({ onFeedCreated, toggleDialog }: Props) {
   return (
     <div>
       <FeedMutation
-        mutation={mutation}
         onCompleted={({ Feed: feed }) => {
           setUrl("");
           onFeedCreated(feed);

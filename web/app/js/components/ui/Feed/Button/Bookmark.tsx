@@ -4,10 +4,12 @@ import IconButton from "@material-ui/core/IconButton";
 import BookmarkIcon from "@material-ui/icons/BookmarkBorderOutlined";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Document } from "../../../../types/document";
-import BookmarkMutation, { mutation } from "../../../apollo/Mutation/Bookmark";
+import { Bookmark } from "../../../../types/bookmark";
+import BookmarkMutation from "../../../apollo/Mutation/Bookmark";
 
 interface Props {
   document: Document;
+  onSuccess: (bookmark: Bookmark) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -16,10 +18,10 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Bookmark({ document }: Props) {
+export default React.memo(function Bookmark({ document, onSuccess }: Props) {
   const classes = useStyles();
   return (
-    <BookmarkMutation mutation={mutation}>
+    <BookmarkMutation onCompleted={data => onSuccess(data.Bookmark)}>
       {(mutate, { loading }) => (
         <IconButton
           aria-label="Bookmark"

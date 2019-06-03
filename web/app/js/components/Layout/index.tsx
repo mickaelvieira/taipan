@@ -8,6 +8,7 @@ import Sidebar from "./Navigation/Sidebar";
 import AddForm from "../AddForm";
 import useConnectionStatus from "../../hooks/connection-status";
 import { SnackbarInfo } from "../ui/Snackbar";
+import { MessageContext } from "../context";
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
@@ -55,7 +56,9 @@ export default function Layout({ children }: PropsWithChildren<{}>) {
       <Header toggleDrawer={setIsOpen} />
       <Grid container className={classes.root}>
         <Grid item xs={12} className={classes.inner}>
-          <div className={classes.content}>{children}</div>
+          <MessageContext.Provider value={setInfo}>
+            <div className={classes.content}>{children}</div>
+          </MessageContext.Provider>
           <Fab
             color="primary"
             size="small"

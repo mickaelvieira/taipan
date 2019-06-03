@@ -11,7 +11,7 @@ import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
 import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
-import UserQuery, { query } from "../../apollo/Query/User";
+import UserQuery from "../../apollo/Query/User";
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   user: {
@@ -70,7 +70,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props) {
   const classes = useStyles();
   return (
     <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
-      <UserQuery query={query}>
+      <UserQuery>
         {({ data }) => {
           return !data || !data.User ? null : (
             <p className={classes.user}>
