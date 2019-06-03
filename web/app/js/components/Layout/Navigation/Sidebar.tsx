@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { NavLink as RouterLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -11,10 +11,10 @@ import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
 import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
-import UserQuery from "../../apollo/Query/User";
+import { UserContext } from "../../context";
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  user: {
+  userInfo: {
     fontSize: "1.2rem",
     fontWeight: 500,
     lineHeight: 1.33,
@@ -67,18 +67,15 @@ interface Props {
 }
 
 export default function Sidebar({ isOpen, toggleDrawer }: Props) {
+  const user = useContext(UserContext);
   const classes = useStyles();
   return (
     <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
-      <UserQuery>
-        {({ data }) => {
-          return !data || !data.User ? null : (
-            <p className={classes.user}>
-              {data.User.firstname} {data.User.lastname}
-            </p>
-          );
-        }}
-      </UserQuery>
+      {user && (
+        <p className={classes.userInfo}>
+          {user.firstname} {user.lastname}
+        </p>
+      )}
       <List className={classes.list}>
         {entries.map(entry => (
           <Link
