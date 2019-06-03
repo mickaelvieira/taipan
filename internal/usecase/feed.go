@@ -45,18 +45,18 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 	if curLogEntry.IsContentDifferent(preLogEntry) {
 		content, err = parser.Parse(reader)
 
+		// @TODO We are getting a lot of "Failed to detect feed type" errors,
+		// We need to handle this issue
+		if err != nil {
+			return entries, fmt.Errorf("Parsing error: %s - URL %s", err, f.URL)
+		}
+
 		f.Title = content.Title
 		feedType, errType := feed.FromGoFeedType(content.FeedType)
 		if errType == nil {
 			f.Type = feedType
 		} else {
 			log.Println(errType)
-		}
-
-		// @TODO We are getting a lot of "Failed to detect feed type" errors,
-		// We need to handle this issue
-		if err != nil {
-			return entries, err
 		}
 
 		for _, item := range content.Items {
