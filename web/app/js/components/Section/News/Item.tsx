@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import PropTypes from "prop-types";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import { Document } from "../../../types/document";
@@ -14,13 +15,14 @@ import { MessageContext } from "../../context";
 interface Props {
   index: number;
   document: Document;
+  query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({ index, document }: Props) {
+export default React.memo(function FeedItem({ index, document, query }: Props) {
   const setMessageInfo = useContext(MessageContext);
 
   return (
-    <Item>
+    <Item query={query}>
       {({ remove }) => (
         <>
           <ItemImage index={index} item={document} />

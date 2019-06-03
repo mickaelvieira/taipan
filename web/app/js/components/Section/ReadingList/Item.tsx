@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import PropTypes from "prop-types";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import { Bookmark } from "../../../types/bookmark";
@@ -14,12 +15,13 @@ import { MessageContext } from "../../context";
 interface Props {
   index: number;
   bookmark: Bookmark;
+  query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({ index, bookmark }: Props) {
+export default React.memo(function FeedItem({ index, bookmark, query }: Props) {
   const setMessageInfo = useContext(MessageContext);
   return (
-    <Item>
+    <Item query={query}>
       {({ remove }) => (
         <>
           <ItemImage index={index} item={bookmark} />

@@ -6,6 +6,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { Document } from "../../../../types/document";
 import { Bookmark } from "../../../../types/bookmark";
 import BookmarkMutation from "../../../apollo/Mutation/Bookmark";
+import { queryReadingList, variables } from "../../../apollo/Query/Feed";
 
 interface Props {
   document: Document;
@@ -29,7 +30,13 @@ export default React.memo(function Bookmark({ document, onSuccess }: Props) {
           className={classes.button}
           onClick={() =>
             mutate({
-              variables: { url: document.url }
+              variables: { url: document.url },
+              refetchQueries: [
+                {
+                  query: queryReadingList,
+                  variables
+                }
+              ]
             })
           }
         >

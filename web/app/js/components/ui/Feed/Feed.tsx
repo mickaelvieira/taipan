@@ -4,25 +4,24 @@ import Loader from "../Loader";
 import FeedQuery, {
   hasReceivedData,
   getFetchMore,
-  variables,
-  LoadMore,
-  DataKey,
-  DataType
+  LoadMore
 } from "../../apollo/Query/Feed";
 import FeedContainer from "./Container";
 import useWindowBottom from "../../../hooks/window-bottom";
+import { Bookmark } from "../../../types/bookmark";
+import { Document } from "../../../types/document";
 
 interface ListProps {
-  results: DataType;
+  results: Document[] | Bookmark[];
+  query: PropTypes.Validator<object>;
 }
 
 interface Props {
-  dataKey: DataKey;
   List: React.ComponentType<ListProps>;
   query: PropTypes.Validator<object>;
 }
 
-export default function Feed({ query, dataKey, List }: Props) {
+export default function Feed({ query, List }: Props) {
   const isAtTheBottom = useWindowBottom();
   const loadMore = useRef<LoadMore | undefined>();
 
@@ -33,19 +32,19 @@ export default function Feed({ query, dataKey, List }: Props) {
   }, [isAtTheBottom, loadMore]);
 
   return (
-    <FeedQuery query={query} variables={variables}>
+    <FeedQuery query={query}>
       {({ data, loading, fetchMore }) => {
-        const [hasResults, results] = hasReceivedData(dataKey, data);
+        const [hasResults, results] = hasReceivedData(data);
 
         if (hasResults) {
-          loadMore.current = getFetchMore(fetchMore, dataKey, data);
+          loadMore.current = getFetchMore(fetchMore, data);
         }
 
         return (
           <>
             {loading && !hasResults && <Loader />}
             <FeedContainer>
-              <List results={results} />
+              <List results={results} query={query} />
             </FeedContainer>
             {loading && hasResults && <Loader />}
           </>

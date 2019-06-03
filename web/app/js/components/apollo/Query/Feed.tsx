@@ -10,12 +10,6 @@ import queryNews from "../../../services/apollo/query/news.graphql";
 import queryReadingList from "../../../services/apollo/query/reading-list.graphql";
 import queryFavorites from "../../../services/apollo/query/favorites.graphql";
 
-export enum DataKey {
-  FAVORITES = "GetFavorites",
-  READING_LIST = "GetReadingList",
-  NEWS = "News"
-}
-
 export type DataType = Bookmark[] | Document[];
 
 export interface Result {
@@ -45,17 +39,22 @@ const variables = {
   limit: 10
 };
 
-function hasReceivedData(
-  key: DataKey,
-  data: Data | undefined
-): [boolean, DataType] {
+function getDataKey(data: Data): string | null {
+  const keys = Object.keys(data);
+  return keys.length > 0 ? keys[0] : null;
+}
+
+function hasReceivedData(data: Data | undefined): [boolean, DataType] {
   let hasResults = false;
   let results: DataType = [];
 
-  if (data && key in data && "results" in data[key]) {
-    results = data[key].results;
-    if (results.length > 0) {
-      hasResults = true;
+  if (data) {
+    const key = getDataKey(data);
+    if (key && "results" in data[key]) {
+      results = data[key].results;
+      if (results.length > 0) {
+        hasResults = true;
+      }
     }
   }
 
@@ -64,10 +63,19 @@ function hasReceivedData(
 
 function getFetchMore(
   fetchMore: FetchMore,
-  key: DataKey,
   data: Data | undefined
 ): LoadMore | undefined {
-  return data && data[key].results.length === data[key].total
+  if (!data) {
+    return undefined;
+  }
+
+  const key = getDataKey(data);
+
+  if (!key) {
+    return undefined;
+  }
+
+  return data[key].results.length === data[key].total
     ? undefined
     : () =>
         fetchMore({
@@ -94,12 +102,14 @@ export {
   queryNews,
   variables,
   hasReceivedData,
-  getFetchMore
+  getFetchMore,
+  getDataKey
 };
 
 class FeedQuery extends Query<Data, Variables> {
   static defaultProps = {
-    fetchPolicy: "no-cache"
+    fetchPolicy: "cache-first",
+    variables
   };
 }
 
