@@ -289,6 +289,11 @@ func (r *DocumentRepository) Upsert(ctx context.Context, d *document.Document) e
 
 	d.ID = e.ID
 
+	// Populate the document with the existing image to avoid refetching it
+	if d.Image != nil && d.Image.URL.String() == e.Image.URL.String() {
+		d.Image = e.Image
+	}
+
 	return r.Update(ctx, d)
 }
 
