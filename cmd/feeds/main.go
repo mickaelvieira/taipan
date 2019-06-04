@@ -51,10 +51,9 @@ func main() {
 				var entries []string
 				entries, err = usecase.ParseFeed(ctx, feed, repositories)
 				if err != nil {
-					// We just log the parsing errors for now
-					log.Println(err)
+					log.Println(err) // We just log the parsing errors for now
+					continue
 				}
-
 				for _, entry := range entries {
 					e := client.PublishDocument(entry)
 					if e != nil {

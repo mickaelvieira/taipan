@@ -31,15 +31,9 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 
 	preLogEntry, err = repositories.Botlogs.FindLatestByURL(ctx, f.URL.String())
 
-	http := client.Client{}
-	curLogEntry, reader, err = http.Fetch(f.URL)
+	curLogEntry, reader, err = FetchResource(ctx, f.URL, repositories)
 	if err != nil {
-		return entries, err
-	}
-
-	err = repositories.Botlogs.Insert(ctx, curLogEntry)
-	if err != nil {
-		return entries, err
+		return nil, err
 	}
 
 	if curLogEntry.IsContentDifferent(preLogEntry) {
@@ -48,7 +42,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 		// @TODO We are getting a lot of "Failed to detect feed type" errors,
 		// We need to handle this issue
 		if err != nil {
-			return entries, fmt.Errorf("Parsing error: %s - URL %s", err, f.URL)
+			return nil, fmt.Errorf("Parsing error: %s - URL %s", err, f.URL)
 		}
 
 		f.Title = content.Title
@@ -71,7 +65,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 	err = repositories.Feeds.Update(ctx, f)
 
 	if err != nil {
-		return entries, err
+		return nil, err
 	}
 
 	return entries, nil

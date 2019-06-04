@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -55,7 +56,12 @@ func main() {
 			}
 			fmt.Printf("Received a message: %s\n", dm)
 
-			_, err := usecase.Document(ctx, dm.Url, repositories)
+			var u *url.URL
+			u, err = url.FromRawURL(dm.Url)
+			if err == nil {
+				_, err = usecase.Document(ctx, u, repositories)
+			}
+
 			if err != nil {
 				log.Println(err)
 			}

@@ -1,16 +1,14 @@
 package s3
 
 import (
-	"bytes"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/checksum"
+	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/image"
 	img "image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"io/ioutil"
-	"net/http"
+	"io"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -84,29 +82,13 @@ func getContentTypeFromFormat(i string) string {
 }
 
 // Upload uploads a file to the S3 bucket
-func Upload(i *image.Image) error {
+func Upload(i *image.Image, result *client.Result, reader io.Reader) error {
 	bucket := os.Getenv("AWS_BUCKET")
 
-	resp, err := http.Get(i.URL.String())
-	if err != nil {
-		return err
-	}
+	contentType := result.ContentType
+	filename := result.Checksum.String()
 
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("status code error: %d %s", resp.StatusCode, resp.Status)
-	}
-
-	contentType := resp.Header.Get("Content-Type")
-
-	// Get file configuration
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	filename := checksum.FromBytes(b).String()
-	reader := bytes.NewReader(b)
+	// Read image configuration from IO
 	config, format, err := img.DecodeConfig(reader)
 
 	if err != nil {
@@ -124,7 +106,7 @@ func Upload(i *image.Image) error {
 		contentType = getContentTypeFromFormat(format)
 	}
 
-	// image's filename
+	// append image's extension
 	if format != "" {
 		filename = filename + "." + format
 	}
@@ -133,9 +115,6 @@ func Upload(i *image.Image) error {
 	i.Width = int32(config.Width)
 	i.Height = int32(config.Height)
 	i.Format = format
-
-	// Recreate a IO reader from buffered bytes
-	reader = bytes.NewReader(b)
 
 	// Upload file to AWS S3
 	sess := session.Must(session.NewSession())

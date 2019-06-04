@@ -5,16 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/s3"
-	"io"
-	"log"
 	"time"
 )
 
@@ -33,36 +29,12 @@ var (
 // - Insert/Update the bookmark in the DB
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
-func Document(ctx context.Context, rawURL string, repositories *repository.Repositories) (*document.Document, error) {
-	cl := client.Client{}
-	URL, err := url.FromRawURL(rawURL)
-	if err != nil || !URL.IsAbs() {
-		return nil, ErrInvalidURI
-	}
+func Document(ctx context.Context, URL *url.URL, repositories *repository.Repositories) (*document.Document, error) {
+	fmt.Printf("Fetching %s\n", URL.String())
 
-	fmt.Printf("Fetch %s\n", URL.String())
-
-	// @TODO I need to think how I can have a usecase only to handle fetching stuff such as feeds, documents, inamges etc...
-	// @TODO that might be nice to do a HEAD request
-	// to get the last modified date before fetching the entire document
-	var reader io.Reader
-	var result *client.Result
-	result, reader, err = cl.Fetch(URL)
-	// We might have a non-HTTP error
+	result, reader, err := FetchResource(ctx, URL, repositories)
 	if err != nil {
 		return nil, err
-	}
-
-	// Store the result of HTTP request
-	if result != nil {
-		err = repositories.Botlogs.Insert(ctx, result)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if result.RespStatusCode != 200 {
-		return nil, fmt.Errorf("Unable to fetch the document: %s", result.RespReasonPhrase)
 	}
 
 	// The problem that we have here is the URL provided by the user or in the feed might be different from
@@ -97,17 +69,9 @@ func Document(ctx context.Context, rawURL string, repositories *repository.Repos
 		return nil, err
 	}
 
-	// An image was found in the document
-	if d.Image != nil {
-		err = s3.Upload(d.Image)
-		if err != nil {
-			log.Println(err) // @TODO we might eventually better handle this case
-		} else {
-			err = repositories.Documents.UpdateImage(ctx, d)
-			if err != nil {
-				return nil, err
-			}
-		}
+	err = HandleImage(ctx, d, repositories)
+	if err != nil {
+		return nil, err
 	}
 
 	err = repositories.Feeds.InsertAllIfNotExists(ctx, d.Feeds)

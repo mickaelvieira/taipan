@@ -177,8 +177,12 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
+	url, err := url.FromRawURL(args.URL)
+	if err != nil {
+		return nil, err
+	}
 
-	d, err := usecase.Document(ctx, args.URL, r.repositories)
+	d, err := usecase.Document(ctx, url, r.repositories)
 	if err != nil {
 		return nil, err
 	}

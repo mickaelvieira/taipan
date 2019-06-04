@@ -252,7 +252,6 @@ func (p *Parser) parseCanonicalURL() *url.URL {
 			break
 		}
 	}
-
 	return p.parseAndNormalizeRawURL(rawURL)
 }
 
@@ -306,7 +305,6 @@ func (p *Parser) parseSocialTags(prefix string, property string) *social {
 			}
 		}
 	}
-
 	return &social{
 		Title:       title,
 		Description: desc,
