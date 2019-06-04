@@ -35,7 +35,7 @@ func GetHTTPClientLogEntriesLoader(repository *repository.BotlogRepository) *dat
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
 		for _, key := range keys {
-			entries, err := repository.FindByURI(ctx, key.String())
+			entries, err := repository.FindByURL(ctx, key.String())
 			if err != nil {
 				return nil
 			}

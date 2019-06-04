@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github/mickaelvieira/taipan/internal/domain/feed"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"log"
 	"strconv"
 
@@ -110,7 +110,7 @@ func (r *FeedRepository) GetTotal(ctx context.Context) (int32, error) {
 }
 
 // GetByURL find a single entry by URL
-func (r *FeedRepository) GetByURL(ctx context.Context, u *uri.URI) (*feed.Feed, error) {
+func (r *FeedRepository) GetByURL(ctx context.Context, u *url.URL) (*feed.Feed, error) {
 	query := `
 		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f

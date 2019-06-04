@@ -29,10 +29,10 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 	fmt.Printf("Parsing %s\n", f.URL)
 	parser := gofeed.NewParser()
 
-	preLogEntry, err = repositories.Botlogs.FindLatestByURI(ctx, f.URL.String())
+	preLogEntry, err = repositories.Botlogs.FindLatestByURL(ctx, f.URL.String())
 
 	http := client.Client{}
-	curLogEntry, reader, err = http.Fetch(f.URL.URL)
+	curLogEntry, reader, err = http.Fetch(f.URL)
 	if err != nil {
 		return entries, err
 	}

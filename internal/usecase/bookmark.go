@@ -8,15 +8,13 @@ import (
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/s3"
 	"io"
 	"log"
-	"net/url"
-	"strings"
 	"time"
 )
 
@@ -28,14 +26,6 @@ var (
 	ErrContentHasNotChanged = errors.New("Content has not changed")
 )
 
-func removeFragment(rawURL string) string {
-	var i = strings.LastIndex(rawURL, "#")
-	if i < 0 {
-		return rawURL
-	}
-	return rawURL[0:i]
-}
-
 // Document in this use case, given a provided URL, we will from:
 // - Fetch the corresponding document
 // - Parse the document
@@ -45,7 +35,7 @@ func removeFragment(rawURL string) string {
 // - And finally returns the bookmark entity
 func Document(ctx context.Context, rawURL string, repositories *repository.Repositories) (*document.Document, error) {
 	cl := client.Client{}
-	URL, err := url.ParseRequestURI(removeFragment(rawURL))
+	URL, err := url.FromRawURL(rawURL)
 	if err != nil || !URL.IsAbs() {
 		return nil, ErrInvalidURI
 	}
@@ -147,7 +137,7 @@ func Bookmark(ctx context.Context, user *user.User, d *document.Document, reposi
 }
 
 // ReadStatus bla
-func ReadStatus(ctx context.Context, user *user.User, URL *uri.URI, isRead bookmark.ReadStatus, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
+func ReadStatus(ctx context.Context, user *user.User, URL *url.URL, isRead bookmark.ReadStatus, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
 	var err error
 	var b *bookmark.Bookmark
 
@@ -168,7 +158,7 @@ func ReadStatus(ctx context.Context, user *user.User, URL *uri.URI, isRead bookm
 }
 
 // Unbookmark removes bookmark from user list
-func Unbookmark(ctx context.Context, user *user.User, URL *uri.URI, repositories *repository.Repositories) (*document.Document, error) {
+func Unbookmark(ctx context.Context, user *user.User, URL *url.URL, repositories *repository.Repositories) (*document.Document, error) {
 	var err error
 	var b *bookmark.Bookmark
 	var d *document.Document

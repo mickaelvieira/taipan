@@ -3,7 +3,7 @@ package client
 import (
 	"fmt"
 	"net/http"
-	"net/url"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
 

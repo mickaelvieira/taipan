@@ -4,9 +4,9 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/domain/image"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"html"
-	"net/url"
+	neturl "net/url"
 	"strings"
 
 	strip "github.com/grokify/html-strip-tags-go"
@@ -98,20 +98,16 @@ func (p *Parser) isWordpress() bool {
 
 func (p *Parser) getWordpressFeed() []*feed.Feed {
 	var feeds []*feed.Feed
-	url := &url.URL{Path: "/feed/"} // default WP feed
-	url = p.makeURLAbs(url)
-	feed := feed.New(
-		&uri.URI{URL: url},
-		"wordpress feed",
-		feed.RSS,
-	)
+	u := &url.URL{URL: &neturl.URL{Path: "/feed/"}} // default WP feed
+	u = p.makeURLAbs(u)
+	feed := feed.New(u, "wordpress feed", feed.RSS)
 	feeds = append(feeds, feed)
 	return feeds
 }
 
 // URL retrieves the URL of the document. It will first try to grab the canonical URL, if there isn't one
 // it will try to get one from the social media tags. If it can find any it will return the URL provided by the user
-func (p *Parser) url() *uri.URI {
+func (p *Parser) url() *url.URL {
 	var du *url.URL
 	if p.canonical != nil {
 		du = p.canonical
@@ -120,9 +116,9 @@ func (p *Parser) url() *uri.URI {
 	} else if p.twitter.URL != nil {
 		du = p.twitter.URL
 	} else {
-		du = p.removeFragment(p.origURL)
+		du = p.origURL
 	}
-	return &uri.URI{URL: du}
+	return du
 }
 
 // Title retrieve the title of the document. If there isn't a title tag,
@@ -167,7 +163,7 @@ func (p *Parser) image() *image.Image {
 	}
 
 	return &image.Image{
-		URL: &uri.URI{URL: iu},
+		URL: iu,
 	}
 }
 
@@ -256,19 +252,20 @@ func (p *Parser) parseCanonicalURL() *url.URL {
 			break
 		}
 	}
+
 	return p.parseAndNormalizeRawURL(rawURL)
 }
 
 func (p *Parser) parseFeeds() []*feed.Feed {
 	var feeds []*feed.Feed
 	for _, s := range p.linkTags {
-		url := p.normalizeAttrValue(s.AttrOr("href", ""))
+		u := p.normalizeAttrValue(s.AttrOr("href", ""))
 		title := p.normalizeAttrValue(p.normalizeHTMLText(s.AttrOr("title", "")))
 		feedType, err := feed.GetFeedType(p.normalizeAttrValue(s.AttrOr("type", "")))
-		urlFeed := p.parseAndNormalizeRawURL(url)
+		urlFeed := p.parseAndNormalizeRawURL(u)
 		if err == nil && urlFeed != nil {
 			feed := feed.New(
-				&uri.URI{URL: urlFeed},
+				urlFeed,
 				title,
 				feedType,
 			)
@@ -287,7 +284,7 @@ func (p *Parser) parseTwitterTags() *social {
 }
 
 func (p *Parser) parseSocialTags(prefix string, property string) *social {
-	var title, desc, image, url string
+	var title, desc, image, u string
 	for _, s := range p.metaTags {
 		var exist bool
 		var prop string
@@ -305,7 +302,7 @@ func (p *Parser) parseSocialTags(prefix string, property string) *social {
 			case "image:src":
 				image = val
 			case "url":
-				url = val
+				u = val
 			}
 		}
 	}
@@ -314,7 +311,7 @@ func (p *Parser) parseSocialTags(prefix string, property string) *social {
 		Title:       title,
 		Description: desc,
 		Image:       p.parseAndNormalizeRawURL(image),
-		URL:         p.parseAndNormalizeRawURL(url),
+		URL:         p.parseAndNormalizeRawURL(u),
 	}
 }
 
@@ -332,9 +329,9 @@ func (p *Parser) makeURLAbs(u *url.URL) *url.URL {
 		password, _ := p.origURL.User.Password()
 		if username != "" {
 			if password != "" {
-				u.User = url.UserPassword(username, password)
+				u.User = neturl.UserPassword(username, password)
 			} else {
-				u.User = url.User(username)
+				u.User = neturl.User(username)
 			}
 		}
 		u.Scheme = p.origURL.Scheme
@@ -344,15 +341,9 @@ func (p *Parser) makeURLAbs(u *url.URL) *url.URL {
 }
 
 func (p *Parser) parseAndNormalizeRawURL(rawURL string) *url.URL {
-	URL, _ := url.ParseRequestURI(rawURL)
+	URL, _ := url.FromRawURL(rawURL)
 	if URL != nil {
 		p.makeURLAbs(URL)
-		p.removeFragment(URL)
 	}
 	return URL
-}
-
-func (p *Parser) removeFragment(u *url.URL) *url.URL {
-	u.Fragment = ""
-	return u
 }

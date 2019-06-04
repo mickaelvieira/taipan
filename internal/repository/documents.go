@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"strconv"
 	"strings"
@@ -34,7 +34,7 @@ func (r *DocumentRepository) GetByID(ctx context.Context, id string) (*document.
 }
 
 // GetByURL find a single entry
-func (r *DocumentRepository) GetByURL(ctx context.Context, u *uri.URI) (*document.Document, error) {
+func (r *DocumentRepository) GetByURL(ctx context.Context, u *url.URL) (*document.Document, error) {
 	query := `
 		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d

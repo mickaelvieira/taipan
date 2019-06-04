@@ -1,11 +1,11 @@
 package image
 
-import "github/mickaelvieira/taipan/internal/domain/uri"
+import "github/mickaelvieira/taipan/internal/domain/url"
 
 // Image represents a bookmark's image
 type Image struct {
 	Name   string
-	URL    *uri.URI
+	URL    *url.URL
 	Width  int32
 	Height int32
 	Format string

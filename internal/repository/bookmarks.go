@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"time"
 )
@@ -125,7 +125,7 @@ func (r *BookmarkRepository) GetTotalReadingList(ctx context.Context, user *user
 }
 
 // GetByURL find a single entry
-func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *uri.URI) (*bookmark.Bookmark, error) {
+func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *url.URL) (*bookmark.Bookmark, error) {
 	query := `
 		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
 		FROM documents AS d

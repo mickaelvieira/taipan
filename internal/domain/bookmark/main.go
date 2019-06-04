@@ -3,7 +3,7 @@ package bookmark
 import (
 	"errors"
 	"github/mickaelvieira/taipan/internal/domain/image"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
 
@@ -53,7 +53,7 @@ func ReadStatusFromBoolean(status bool) ReadStatus {
 // Bookmark struct represents what is a bookmark from a user's perspective
 type Bookmark struct {
 	ID          string
-	URL         *uri.URI
+	URL         *url.URL
 	Lang        string
 	Charset     string
 	Title       string

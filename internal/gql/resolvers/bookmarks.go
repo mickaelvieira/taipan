@@ -4,9 +4,8 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/usecase"
-	"net/url"
 	"time"
 
 	graphql "github.com/graph-gophers/graphql-go"
@@ -87,13 +86,13 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 
-	u, err := url.ParseRequestURI(args.URL)
+	u, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
 
 	var b *bookmark.Bookmark
-	b, err = r.repositories.Bookmarks.GetByURL(ctx, user, &uri.URI{URL: u})
+	b, err = r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +201,7 @@ func (r *Resolvers) ChangeBookmarkReadStatus(ctx context.Context, args struct {
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	isRead := bookmark.ReadStatus(args.IsRead)
-	url, err := uri.FromRawURL(args.URL)
+	url, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +221,7 @@ func (r *Resolvers) Unbookmark(ctx context.Context, args struct {
 	URL string
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)
-	url, err := uri.FromRawURL(args.URL)
+	url, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}

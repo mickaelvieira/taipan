@@ -2,8 +2,8 @@ package parser
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"io"
-	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
 )

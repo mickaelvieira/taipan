@@ -3,10 +3,10 @@ package client
 import (
 	"bytes"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 // Client bot
@@ -38,7 +38,7 @@ func (f *Client) Fetch(URL *url.URL) (*Result, io.Reader, error) {
 	result := makeResult(URL, req, resp, cs)
 
 	// Modify URL with the final URL
-	*URL = *resp.Request.URL
+	*URL = url.URL{URL: &*resp.Request.URL}
 
 	return result, reader, nil
 }

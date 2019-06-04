@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/feed"
-	"github/mickaelvieira/taipan/internal/domain/uri"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"time"
@@ -90,7 +90,7 @@ func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolve
 func (r *Resolvers) Feed(ctx context.Context, args struct {
 	URL string
 }) (*FeedResolver, error) {
-	url, err := uri.FromRawURL(args.URL)
+	url, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}

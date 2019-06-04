@@ -32,8 +32,8 @@ func (r *HTTPClientLogResolver) StatusCode() int32 {
 	return int32(r.Result.RespStatusCode)
 }
 
-// URI resolves the URI field
-func (r *HTTPClientLogResolver) URI() string {
+// RequestURI resolves the RequestURI field
+func (r *HTTPClientLogResolver) RequestURI() string {
 	return r.Result.ReqURI
 }
 

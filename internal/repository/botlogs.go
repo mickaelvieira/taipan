@@ -36,8 +36,8 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *client.Result) error {
 	return err
 }
 
-// FindLatestByURI find the latest log entry for a given URI
-func (r *BotlogRepository) FindLatestByURI(ctx context.Context, URI string) (*client.Result, error) {
+// FindLatestByURL find the latest log entry for a given URL
+func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL string) (*client.Result, error) {
 	query := `
 		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
@@ -45,7 +45,7 @@ func (r *BotlogRepository) FindLatestByURI(ctx context.Context, URI string) (*cl
 		ORDER BY l.created_at DESC
 		LIMIT 1
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), URI)
+	row := r.db.QueryRowContext(ctx, formatQuery(query), URL)
 	log, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -54,8 +54,8 @@ func (r *BotlogRepository) FindLatestByURI(ctx context.Context, URI string) (*cl
 	return log, nil
 }
 
-// FindByURI finds the log entries for a give URI
-func (r *BotlogRepository) FindByURI(ctx context.Context, URI string) ([]*client.Result, error) {
+// FindByURL finds the log entries for a give URL
+func (r *BotlogRepository) FindByURL(ctx context.Context, URL string) ([]*client.Result, error) {
 	var logs []*client.Result
 
 	query := `
@@ -64,7 +64,7 @@ func (r *BotlogRepository) FindByURI(ctx context.Context, URI string) ([]*client
 		WHERE l.request_uri = ?
 		ORDER BY created_at DESC
 	`
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), URI)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), URL)
 	if err != nil {
 		return nil, err
 	}

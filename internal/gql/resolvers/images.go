@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/image"
-	"net/url"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"os"
 )
 

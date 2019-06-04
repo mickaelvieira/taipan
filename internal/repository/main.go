@@ -3,8 +3,7 @@ package repository
 import (
 	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/image"
-	"github/mickaelvieira/taipan/internal/domain/uri"
-	"net/url"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"strings"
 )
 
@@ -36,13 +35,13 @@ func GetRepositories() *Repositories {
 }
 
 func getImageEntity(rawURL string, name string, width int32, height int32, format string) (*image.Image, error) {
-	URL, err := url.ParseRequestURI(rawURL)
+	URL, err := url.FromRawURL(rawURL)
 	if err != nil {
 		return nil, err
 	}
 
 	var image = image.Image{
-		URL:    &uri.URI{URL: URL},
+		URL:    URL,
 		Name:   name,
 		Width:  width,
 		Height: height,
