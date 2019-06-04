@@ -19,7 +19,7 @@ func HandleImage(ctx context.Context, d *document.Document, repositories *reposi
 	}
 
 	if d.Image.Name != "" {
-		fmt.Printf("Image has already been fetch with name %s\n", d.Image.Name)
+		fmt.Printf("Image has already been fetched with name %s\n", d.Image.Name)
 		return nil
 	}
 
