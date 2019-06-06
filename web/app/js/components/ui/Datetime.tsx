@@ -1,4 +1,4 @@
-import moment from "moment";
+// import moment from "moment";
 import React from "react";
 import Typography from "@material-ui/core/Typography";
 
@@ -10,7 +10,7 @@ interface Props {
 export default React.memo(function Datetime({ label, value }: Props) {
   return (
     <Typography variant="body2">
-      {label}: {value ? moment(value).fromNow() : "Never"}
+      {/* {label}: {value ? moment(value).fromNow() : "Never"} */}
     </Typography>
   );
 });

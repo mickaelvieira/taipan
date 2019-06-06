@@ -18,8 +18,7 @@ module.exports = {
         [
           "@babel/env",
           {
-            modules: false,
-            targets: ["last 2 versions"]
+            modules: false
           }
         ],
         ["@babel/typescript"],
@@ -31,9 +30,8 @@ module.exports = {
         [
           "@babel/env",
           {
-            debug: true,
-            modules: false,
-            targets: ["last 2 versions"]
+            debug: false,
+            modules: false
           }
         ],
         ["@babel/typescript"],
@@ -50,8 +48,7 @@ module.exports = {
         [
           "@babel/env",
           {
-            modules: false,
-            targets: ["last 2 versions"]
+            modules: false
           }
         ],
         ["@babel/typescript"],

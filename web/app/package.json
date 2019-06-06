@@ -7,21 +7,22 @@
   "license": "MIT",
   "private": true,
   "browserslist": [
-    "last 2 versions"
+    "last 2 versions",
+    "not ie < 11"
   ],
   "scripts": {
     "build:client": "webpack --config webpack.config.js",
     "watch:client": "webpack --watch --config webpack.config.js",
     "lint": "eslint js  -c .eslintrc.js --ext ts,tsx,graphql",
     "lint:fix": "eslint js -c .eslintrc.js --fix --ext ts,tsx,graphql",
-    "schema:json": "apollo service:download --endpoint=http://localhost:9000/graphql"
+    "gen:graphql:schema": "apollo service:download --endpoint=http://localhost:9000/graphql",
+    "gen:bundle:profile": "NODE_ENV=production webpack --profile --json > bundler-profiler.json"
   },
   "dependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "@babel/plugin-syntax-class-properties": "^7.0.0",
     "@babel/plugin-transform-regenerator": "^7.0.0",
-    "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.1.0",
@@ -30,14 +31,11 @@
     "@types/lodash": "^4.14.119",
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.7",
-    "@types/react-redux": "^7.0",
     "@types/react-router": "^5.0",
     "@types/react-router-dom": "^4.3.1",
-    "@types/redux-logger": "^3.0.6",
     "apollo-boost": "^0.4",
     "babel-jest": "^24.0",
     "babel-loader": "^8.0.5",
-    "babel-plugin-external-helpers": "^6.22.0",
     "babel-plugin-lodash": "^3.3.2",
     "babel-plugin-syntax-object-rest-spread": "^6.13.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -46,20 +44,13 @@
     "jest": "^24.0",
     "lodash": "^4.17.4",
     "mini-css-extract-plugin": "^0.7",
-    "moment": "^2.21.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "react": "^16.8",
     "react-apollo": "^2.5.4",
     "react-dom": "^16.8",
-    "react-redux": "^7.0",
     "react-router": "^5.0",
     "react-router-dom": "^5.0",
-    "react-swipeable-views": "^0.13.1",
-    "redux": "^4.0",
-    "redux-logger": "^3.0.6",
-    "reselect": "^4.0.0",
     "roboto-fontface": "^0.10.0",
-    "simulant": "^0.2.2",
     "terser-webpack-plugin": "^1.2.3",
     "typescript": "^3.0.3",
     "uglify-js": "^3.0",
@@ -84,6 +75,6 @@
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^1.6.0",
     "prettier": "^1.16.4",
-    "redux-devtools": "^3.4.0"
+    "webpack-visualizer-plugin": "^0.1.11"
   }
 }

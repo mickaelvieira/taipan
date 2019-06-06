@@ -5,6 +5,8 @@
 /vendor
 node_modules
 web/app/schema.json
+web/app/bundler-profiler.json
+web/app/yarn-error.log
 web/static/js/
 web/static/css/
 web/static/hashes.json

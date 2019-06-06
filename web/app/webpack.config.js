@@ -19,7 +19,10 @@ module.exports = {
   devtool: "source-map",
   entry: {
     app: srcDir + "/app.ts"
-    // login: srcDir + "/login.ts"
+  },
+  performance: {
+    maxEntrypointSize: 614400, // 600 KiB
+    maxAssetSize: 614400 // 600 KiB
   },
   output: {
     filename: `js/${patternJsFiles}`,
@@ -27,23 +30,17 @@ module.exports = {
     path: tgtDir
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js"],
-    alias: {
-      lib: path.resolve(srcDir, "lib/"),
-      components: path.resolve(srcDir, "components/"),
-      store: path.resolve(srcDir, "store/"),
-      services: path.resolve(srcDir, "services/"),
-      collection: path.resolve(srcDir, "collection/")
-    }
+    extensions: [".ts", ".tsx", ".js"]
   },
   optimization: {
     splitChunks: {
+      name: "vendor",
+      chunks: "all",
       cacheGroups: {
-        vendor: {
+        default: {
           test: /[\\/]node_modules[\\/]/,
           name: "vendor",
-          chunks: "all"
-        }
+        },
       }
     },
     minimize: isProduction,
