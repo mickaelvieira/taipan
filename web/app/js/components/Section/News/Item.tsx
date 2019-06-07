@@ -13,19 +13,18 @@ import ItemFooter from "../../ui/Feed/Item/Footer";
 import { MessageContext } from "../../context";
 
 interface Props {
-  index: number;
   document: Document;
   query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({ index, document, query }: Props) {
+export default React.memo(function FeedItem({ document, query }: Props) {
   const setMessageInfo = useContext(MessageContext);
 
   return (
     <Item query={query} item={document}>
       {({ remove }) => (
         <>
-          <ItemImage index={index} item={document} />
+          <ItemImage item={document} />
           <CardContent>
             <ItemTitle item={document} />
             <ItemDescription item={document} />

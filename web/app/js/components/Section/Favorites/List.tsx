@@ -6,13 +6,8 @@ import { ListProps } from "../../ui/Feed/Feed";
 export default function BookmarkList({ results, query }: ListProps) {
   return (
     <>
-      {results.map((result, index) => (
-        <Item
-          bookmark={result as Bookmark}
-          index={index}
-          key={result.id}
-          query={query}
-        />
+      {results.map(result => (
+        <Item bookmark={result as Bookmark} key={result.id} query={query} />
       ))}
     </>
   );

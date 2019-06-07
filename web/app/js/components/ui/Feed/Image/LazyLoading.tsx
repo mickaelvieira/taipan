@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import RootRef from "@material-ui/core/RootRef";
 import CardMedia, { CardMediaProps } from "@material-ui/core/CardMedia";
-import useWillBeSoonInViewport from "../../../../hooks/will-be-soon-in-viewport";
+import useLazyLoadedImage from "../../../../hooks/lazy-loaded-image";
 import { IMAGE_PLACEHOLDER } from "../../../../constant/image";
 import { Image } from "../../../../types/image";
 
@@ -20,8 +20,8 @@ const useStyles = makeStyles({
 export default function LazyLoadingImage({ media, title }: Props) {
   const classes = useStyles();
   const divRef = useRef(null);
-  const inGap = useWillBeSoonInViewport(divRef);
-  const src = inGap && media ? media.url : IMAGE_PLACEHOLDER;
+  const isVisible = useLazyLoadedImage(divRef);
+  const src = isVisible && media ? media.url : IMAGE_PLACEHOLDER;
 
   return (
     <RootRef rootRef={divRef}>

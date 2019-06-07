@@ -17,18 +17,17 @@ import ItemFooter from "../../ui/Feed/Item/Footer";
 import { MessageContext } from "../../context";
 
 interface Props {
-  index: number;
   bookmark: Bookmark;
   query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({ index, bookmark, query }: Props) {
+export default React.memo(function FeedItem({ bookmark, query }: Props) {
   const setMessageInfo = useContext(MessageContext);
   return (
     <Item query={query} item={bookmark}>
       {({ remove }) => (
         <>
-          <ItemImage index={index} item={bookmark} />
+          <ItemImage item={bookmark} />
           <CardContent>
             <ItemTitle item={bookmark} />
             <ItemDescription item={bookmark} />

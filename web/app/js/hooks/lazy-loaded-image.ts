@@ -1,8 +1,18 @@
 import { useEffect, useState, RefObject } from "react";
-import { isInViewport } from "../helpers/window";
 
-export default function useIsInViewport(ref: RefObject<HTMLElement>) {
-  const [isVisible, setIsVisible] = useState(isInViewport(ref.current));
+const shouldBeShown = (element: HTMLElement | null) => {
+  if (!element) {
+    return false;
+  }
+
+  const bounding = element.getBoundingClientRect();
+  const bottom = window.innerHeight || document.documentElement.clientHeight;
+
+  return bounding.top <= bottom + 200;
+};
+
+export default function useLazyLoadedImage(ref: RefObject<HTMLElement>) {
+  const [isVisible, setIsVisible] = useState(shouldBeShown(ref.current));
 
   useEffect(() => {
     let timeout: number | undefined = undefined;
@@ -15,14 +25,14 @@ export default function useIsInViewport(ref: RefObject<HTMLElement>) {
 
     function onScrollStop() {
       if (!isVisible) {
-        setIsVisible(isInViewport(ref.current));
+        setIsVisible(shouldBeShown(ref.current));
       }
     }
 
     function onScrollHandler() {
       clearTimer();
       if (!isVisible) {
-        setIsVisible(isInViewport(ref.current));
+        setIsVisible(shouldBeShown(ref.current));
         timeout = window.setTimeout(onScrollStop, 400);
       } else {
         window.removeEventListener("scroll", onScrollHandler);
@@ -31,7 +41,7 @@ export default function useIsInViewport(ref: RefObject<HTMLElement>) {
 
     window.addEventListener("scroll", onScrollHandler);
 
-    setIsVisible(isInViewport(ref.current));
+    setIsVisible(shouldBeShown(ref.current));
 
     return () => {
       clearTimer();

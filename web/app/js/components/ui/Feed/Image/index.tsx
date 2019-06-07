@@ -1,18 +1,14 @@
 import React from "react";
-import EagerLoadingImage from "./EagerLoading";
 import LazyLoadingImage from "./LazyLoading";
 import Link from "@material-ui/core/Link";
 import { Bookmark } from "../../../../types/bookmark";
 import { Document } from "../../../../types/document";
 
 interface Props {
-  index: number;
   item: Bookmark | Document;
 }
 
-export default function ItemImage({ index, item }: Props) {
-  const ImageComp = index < 5 ? EagerLoadingImage : LazyLoadingImage;
-
+export default function ItemImage({ item }: Props) {
   return !item.image ? null : (
     <Link
       underline="none"
@@ -21,7 +17,7 @@ export default function ItemImage({ index, item }: Props) {
       target="_blank"
       rel="noopener"
     >
-      <ImageComp media={item.image} title={item.title} />
+      <LazyLoadingImage media={item.image} title={item.title} />
     </Link>
   );
 }
