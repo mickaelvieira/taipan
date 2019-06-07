@@ -37,7 +37,7 @@ func (f *Client) Fetch(URL *url.URL) (*Result, io.Reader, error) {
 	cs := checksum.FromBytes(content)
 	result := makeResult(URL, req, resp, cs)
 
-	// Modify URL with the final URL
+	// Modify URL with the final URL .ie after all redirects
 	*URL = url.URL{URL: &*resp.Request.URL}
 
 	return result, reader, nil

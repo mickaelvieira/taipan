@@ -236,12 +236,13 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 func (r *DocumentRepository) Update(ctx context.Context, d *document.Document) error {
 	query := `
 		UPDATE documents
-		SET checksum = UNHEX(?), charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?, deleted = ?
+		SET url = ?, checksum = UNHEX(?), charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?, deleted = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
+		d.URL,
 		d.Checksum,
 		d.Charset,
 		d.Lang,

@@ -160,12 +160,13 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed) error {
 func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 	query := `
 		UPDATE feeds
-		SET type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?
+		SET url = ?, type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
+		f.URL,
 		f.Type,
 		f.Title,
 		f.Status,

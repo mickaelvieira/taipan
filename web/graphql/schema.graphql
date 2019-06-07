@@ -109,6 +109,7 @@ type Feed implements Node {
 
 type HTTPClientLog implements Node {
   id: ID!
+  checksum: String!
   requestURI: String!
   statusCode: Int!
   contentType: String!
