@@ -47,16 +47,20 @@ export default function Item({ children, query, item }: Props) {
             exit: 500
           }}
           onExited={() => {
-            const data = client.readQuery({ query });
-            if (data) {
-              const key = getDataKey(data);
-              if (key) {
-                const result = removeItemFromFeedResults(data[key], item);
-                client.writeQuery({
-                  query,
-                  data: { [key]: result }
-                });
+            try {
+              const data = client.readQuery({ query });
+              if (data) {
+                const key = getDataKey(data);
+                if (key) {
+                  const result = removeItemFromFeedResults(data[key], item);
+                  client.writeQuery({
+                    query,
+                    data: { [key]: result }
+                  });
+                }
               }
+            } catch (e) {
+              console.warn(e)
             }
           }}
         >
