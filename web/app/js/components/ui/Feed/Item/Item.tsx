@@ -4,7 +4,11 @@ import { ApolloConsumer } from "react-apollo";
 import { makeStyles } from "@material-ui/core/styles";
 import Fade from "@material-ui/core/Fade";
 import Card from "@material-ui/core/Card";
-import { getDataKey } from "../../../apollo/Query/Feed";
+import {
+  getDataKey,
+  removeItemFromFeedResults,
+  FeedItem
+} from "../../../apollo/Query/Feed";
 
 const useStyles = makeStyles(({ breakpoints }) => ({
   card: {
@@ -23,11 +27,12 @@ interface RenderProps {
 }
 
 interface Props {
+  item: FeedItem;
   children: (props: RenderProps) => ReactNode;
   query: PropTypes.Validator<object>;
 }
 
-export default function Item({ children, query }: Props) {
+export default function Item({ children, query, item }: Props) {
   const classes = useStyles();
   const [visible, setIsVisible] = useState(true);
 
@@ -46,13 +51,10 @@ export default function Item({ children, query }: Props) {
             if (data) {
               const key = getDataKey(data);
               if (key) {
-                client.query({
+                const result = removeItemFromFeedResults(data[key], item);
+                client.writeQuery({
                   query,
-                  variables: {
-                    offset: 0,
-                    limit: data[key].results.length - 1
-                  },
-                  fetchPolicy: "network-only"
+                  data: { [key]: result }
                 });
               }
             }

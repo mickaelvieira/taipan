@@ -22,7 +22,7 @@ export default React.memo(function FeedItem({ index, document, query }: Props) {
   const setMessageInfo = useContext(MessageContext);
 
   return (
-    <Item query={query}>
+    <Item query={query} item={document}>
       {({ remove }) => (
         <>
           <ItemImage index={index} item={document} />

@@ -25,7 +25,7 @@ interface Props {
 export default React.memo(function FeedItem({ index, bookmark, query }: Props) {
   const setMessageInfo = useContext(MessageContext);
   return (
-    <Item query={query}>
+    <Item query={query} item={bookmark}>
       {({ remove }) => (
         <>
           <ItemImage index={index} item={bookmark} />
@@ -56,7 +56,7 @@ export default React.memo(function FeedItem({ index, bookmark, query }: Props) {
                   remove();
                 }}
               />
-              <RefreshButton bookmark={bookmark} />
+              <RefreshButton bookmark={bookmark} onSuccess={() => {}} />
             </CardActions>
           </ItemFooter>
         </>

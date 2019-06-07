@@ -4,15 +4,14 @@ import Loader from "../Loader";
 import FeedQuery, {
   hasReceivedData,
   getFetchMore,
-  LoadMore
+  LoadMore,
+  FeedItem
 } from "../../apollo/Query/Feed";
 import FeedContainer from "./Container";
 import useWindowBottom from "../../../hooks/window-bottom";
-import { Bookmark } from "../../../types/bookmark";
-import { Document } from "../../../types/document";
 
-interface ListProps {
-  results: Document[] | Bookmark[];
+export interface ListProps {
+  results: FeedItem[];
   query: PropTypes.Validator<object>;
 }
 

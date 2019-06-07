@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash";
 import { Query } from "react-apollo";
 import {
   ApolloQueryResult,
@@ -10,13 +11,13 @@ import queryNews from "../../../services/apollo/query/news.graphql";
 import queryReadingList from "../../../services/apollo/query/reading-list.graphql";
 import queryFavorites from "../../../services/apollo/query/favorites.graphql";
 
-export type DataType = Bookmark[] | Document[];
+export type FeedItem = Bookmark | Document;
 
-export interface Result {
+export interface FeedResult {
   total: number;
   offset: number;
   limit: number;
-  results: DataType;
+  results: FeedItem[];
 }
 
 export interface Variables {
@@ -25,7 +26,7 @@ export interface Variables {
 }
 
 export interface Data {
-  [key: string]: Result;
+  [key: string]: FeedResult;
 }
 
 export type FetchMore = <K extends keyof Variables>(
@@ -44,9 +45,29 @@ function getDataKey(data: Data): string | null {
   return keys.length > 0 ? keys[0] : null;
 }
 
-function hasReceivedData(data: Data | undefined): [boolean, DataType] {
+const removeItemFromFeedResults = (
+  result: FeedResult,
+  item: FeedItem
+): FeedResult => {
+  if (!item) {
+    return result;
+  }
+
+  const index = result.results.findIndex(i => i.id === item.id);
+  if (index < 0) {
+    return result;
+  }
+
+  const cloned = cloneDeep(result);
+  cloned.total = result.total - 1;
+  cloned.results = cloned.results.filter(i => i.id !== item.id);
+
+  return cloned;
+};
+
+function hasReceivedData(data: Data | undefined): [boolean, FeedItem[]] {
   let hasResults = false;
-  let results: DataType = [];
+  let results: FeedItem[] = [];
 
   if (data) {
     const key = getDataKey(data);
@@ -101,6 +122,7 @@ export {
   queryReadingList,
   queryNews,
   variables,
+  removeItemFromFeedResults,
   hasReceivedData,
   getFetchMore,
   getDataKey
