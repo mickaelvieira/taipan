@@ -44,7 +44,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 				if err != nil {
 					return nil, err
 				}
-				fmt.Printf("Feed %s was marked as deleted", f.URL)
+				fmt.Printf("Feed %s was marked as deleted\n", f.URL)
 				return entries, nil
 			}
 		}

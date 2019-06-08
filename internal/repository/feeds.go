@@ -44,7 +44,7 @@ func (r *FeedRepository) GetOutdatedFeeds(ctx context.Context) ([]*feed.Feed, er
 		WHERE f.deleted = 0 AND (f.parsed_at IS NULL OR f.parsed_at < DATE_SUB(NOW(), INTERVAL 1 HOUR))
 		LIMIT ?;
 		`
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), 10)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), 50)
 	if err != nil {
 		return nil, err
 	}
