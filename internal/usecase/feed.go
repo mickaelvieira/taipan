@@ -33,7 +33,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 
 	curLogEntry, reader, err = FetchResource(ctx, f.URL, repositories)
 	if err != nil {
-		if curLogEntry.RespStatusCode == 404 {
+		if curLogEntry != nil && curLogEntry.RespStatusCode == 404 {
 			var logs []*client.Result
 			logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, curLogEntry.ReqURI, curLogEntry.RespStatusCode)
 			if err != nil {

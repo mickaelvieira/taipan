@@ -27,7 +27,7 @@ func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Rep
 
 	// We only want successful requests
 	if result.RespStatusCode != 200 {
-		return nil, nil, fmt.Errorf("Unable to fetch the document: %s", result.RespReasonPhrase)
+		return result, nil, fmt.Errorf("Unable to fetch the document: %s", result.RespReasonPhrase)
 	}
 
 	return result, reader, err
