@@ -63,6 +63,7 @@ func main() {
 			}
 
 			if err != nil {
+				log.Printf("Document Parser: URL %s\n", u)
 				log.Println(err)
 			}
 		}

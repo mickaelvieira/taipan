@@ -37,7 +37,6 @@ func main() {
 	ticker := time.NewTicker(5 * time.Minute)
 
 	for {
-		fmt.Println("loop")
 		select {
 		case t := <-ticker.C:
 			fmt.Println("Tick at", t)
@@ -51,6 +50,7 @@ func main() {
 				var entries []string
 				entries, err = usecase.ParseFeed(ctx, feed, repositories)
 				if err != nil {
+					log.Printf("Feed Parser: URL %s\n", feed.URL)
 					log.Println(err) // We just log the parsing errors for now
 					continue
 				}
