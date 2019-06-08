@@ -32,7 +32,7 @@ var (
 func Document(ctx context.Context, URL *url.URL, repositories *repository.Repositories) (*document.Document, error) {
 	fmt.Printf("Fetching %s\n", URL.String())
 
-	result, reader, err := FetchResource(ctx, URL, repositories)
+	result, err := FetchResource(ctx, URL, repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func Document(ctx context.Context, URL *url.URL, repositories *repository.Reposi
 		return nil, err
 	}
 
-	d, err = parser.Parse(URL, reader)
+	d, err = parser.Parse(URL, result.Content)
 	if err != nil {
 		return nil, err
 	}

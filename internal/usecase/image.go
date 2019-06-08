@@ -12,31 +12,27 @@ import (
 // - fetches the document image
 // - uploads it to AWS S3
 // - Updates the DB
-func HandleImage(ctx context.Context, d *document.Document, repositories *repository.Repositories) error {
+func HandleImage(ctx context.Context, d *document.Document, repositories *repository.Repositories) (err error) {
 	if d.Image == nil {
 		fmt.Println("Document does not have an image associated")
-		return nil
+		return
 	}
 
 	if d.Image.Name != "" {
 		fmt.Printf("Image has already been fetched with name %s\n", d.Image.Name)
-		return nil
+		return
 	}
 
-	result, reader, err := FetchResource(ctx, d.Image.URL, repositories)
+	result, err := FetchResource(ctx, d.Image.URL, repositories)
 	if err != nil {
-		return err
+		return
 	}
 
-	err = s3.Upload(d.Image, result, reader)
+	err = s3.Upload(d.Image, result, result.Content)
 	if err != nil {
-		return err
+		return
 	}
 
 	err = repositories.Documents.UpdateImage(ctx, d)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return
 }

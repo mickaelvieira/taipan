@@ -1,23 +1,40 @@
 package client
 
 import (
+	"bytes"
 	"fmt"
-	"net/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"net/http"
 	"time"
 )
 
-func makeResult(URL *url.URL, req *http.Request, resp *http.Response, checksum []byte) *Result {
+func checkRedirection(req *http.Request, resp *http.Response) (r bool, u string) {
+	u = req.RequestURI
+	if resp.Request != nil {
+		r = req.RequestURI != resp.Request.URL.String()
+		if r {
+			u = resp.Request.URL.String()
+		}
+	}
+	return
+}
+
+func makeResult(req *http.Request, resp *http.Response, reader *bytes.Reader, checksum []byte) *Result {
+	redirected, finalURI := checkRedirection(req, resp)
+
 	return &Result{
 		Checksum:         checksum,
+		WasRedirected:    redirected,
 		ContentType:      resp.Header.Get("Content-Type"),
-		ReqURI:           URL.String(),
+		ReqURI:           req.RequestURI,
+		FinalURI:         finalURI,
 		ReqMethod:        req.Method,
 		ReqHeaders:       fmt.Sprintf("%s", req.Header),
 		RespStatusCode:   resp.StatusCode,
 		RespReasonPhrase: resp.Status,
 		RespHeaders:      fmt.Sprintf("%s", resp.Header),
 		CreatedAt:        time.Now(),
+		Content:          reader,
 	}
 }
 
@@ -29,10 +46,10 @@ func makeClient() *http.Client {
 	}
 }
 
-func makeRequest(URL *url.URL) (*http.Request, error) {
-	req, err := http.NewRequest("GET", URL.String(), nil)
+func makeRequest(URL *url.URL) (req *http.Request, err error) {
+	req, err = http.NewRequest("GET", URL.String(), nil)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	req.Header.Add("Accept", "text/html,application/xhtml+xml")
@@ -41,5 +58,5 @@ func makeRequest(URL *url.URL) (*http.Request, error) {
 	req.Header.Add("Pragma", "no-cache")
 	// req.Header.Add("User-Agent", os.Getenv("BOT_USER_AGENT"))
 
-	return req, nil
+	return
 }

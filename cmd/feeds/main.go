@@ -47,15 +47,14 @@ func main() {
 			}
 
 			for _, feed := range feeds {
-				var entries []string
-				entries, err = usecase.ParseFeed(ctx, feed, repositories)
+				var urls []string
+				urls, err = usecase.ParseFeed(ctx, feed, repositories)
 				if err != nil {
 					log.Printf("Feed Parser: URL %s\n", feed.URL)
 					log.Println(err) // We just log the parsing errors for now
-					continue
 				}
-				for _, entry := range entries {
-					e := client.PublishDocument(entry)
+				for _, url := range urls {
+					e := client.PublishDocument(url)
 					if e != nil {
 						log.Println(e)
 					}

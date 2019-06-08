@@ -6,29 +6,28 @@ import (
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
-	"io"
 )
 
 // FetchResource fetches the related resource
-func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Repositories) (*client.Result, io.Reader, error) {
+func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Repositories) (r *client.Result, err error) {
 	// @TODO that might be nice to do a HEAD request
 	// to get the last modified date before fetching the entire document
 	http := client.Client{}
-	result, reader, err := http.Fetch(u)
+	r, err = http.Fetch(u)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
 
 	// Store the result of HTTP request
-	err = repositories.Botlogs.Insert(ctx, result)
+	err = repositories.Botlogs.Insert(ctx, r)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
 
 	// We only want successful requests
-	if result.RespStatusCode != 200 {
-		return result, nil, fmt.Errorf("Unable to fetch the document: %s", result.RespReasonPhrase)
+	if r.RespStatusCode != 200 {
+		err = fmt.Errorf("Unable to fetch the document: %s", r.RespReasonPhrase)
 	}
 
-	return result, reader, err
+	return
 }
