@@ -179,6 +179,23 @@ func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 	return err
 }
 
+// Delete soft deletes the feed
+func (r *FeedRepository) Delete(ctx context.Context, f *feed.Feed) error {
+	query := `
+		UPDATE feeds
+		SET deleted = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		1,
+		f.ID,
+	)
+
+	return err
+}
+
 // InsertIfNotExists stores the feed in the database if there is none with the same URL
 func (r *FeedRepository) InsertIfNotExists(ctx context.Context, f *feed.Feed) error {
 	feed, err := r.GetByURL(ctx, f.URL)

@@ -33,6 +33,21 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 
 	curLogEntry, reader, err = FetchResource(ctx, f.URL, repositories)
 	if err != nil {
+		if curLogEntry.RespStatusCode == 404 {
+			var logs []*client.Result
+			logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, curLogEntry.ReqURI, curLogEntry.RespStatusCode)
+			if err != nil {
+				return nil, err
+			}
+			if len(logs) >= 5 {
+				err = repositories.Feeds.Delete(ctx, f)
+				if err != nil {
+					return nil, err
+				}
+				fmt.Printf("Feed %s was marked as deleted", f.URL)
+				return entries, nil
+			}
+		}
 		return nil, err
 	}
 

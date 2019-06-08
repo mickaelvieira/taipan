@@ -54,7 +54,7 @@ func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL string) (*cl
 	return log, nil
 }
 
-// FindByURL finds the log entries for a give URL
+// FindByURL finds the log entries for a given URL
 func (r *BotlogRepository) FindByURL(ctx context.Context, URL string) ([]*client.Result, error) {
 	var logs []*client.Result
 
@@ -65,6 +65,37 @@ func (r *BotlogRepository) FindByURL(ctx context.Context, URL string) ([]*client
 		ORDER BY created_at DESC
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), URL)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var log *client.Result
+		log, err = r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return logs, nil
+}
+
+// FindByURLAndStatus finds the log entries for a given URL and status
+func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL string, status int) ([]*client.Result, error) {
+	var logs []*client.Result
+
+	query := `
+		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		FROM bot_logs AS l
+		WHERE l.request_uri = ? AND l.response_status_code = ?
+		ORDER BY created_at DESC
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), URL, status)
 	if err != nil {
 		return nil, err
 	}
