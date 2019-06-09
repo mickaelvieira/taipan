@@ -3,6 +3,7 @@ const { StatsWriterPlugin } = require("webpack-stats-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const Dotenv = require("dotenv-webpack");
 
 const srcDir = path.resolve(__dirname, "js");
 const tgtDir = path.resolve(__dirname, "../static");
@@ -39,8 +40,8 @@ module.exports = {
       cacheGroups: {
         default: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendor",
-        },
+          name: "vendor"
+        }
       }
     },
     minimize: isProduction,
@@ -52,6 +53,9 @@ module.exports = {
     ]
   },
   plugins: [
+    new Dotenv({
+      path: "../../.env"
+    }),
     new MiniCssExtractPlugin({
       filename: `css/${patternCssFiles}`,
       chunkFilename: `css/${patternCssFiles}`

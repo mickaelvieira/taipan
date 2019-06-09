@@ -25,6 +25,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     padding: "1.2rem 0",
     backgroundColor: palette.grey[100]
   },
+  appInfo: {
+    lineHeight: 1.33,
+    color: palette.grey[500],
+    textAlign: "center",
+    margin: 0,
+    padding: "1.2rem 0"
+  },
   list: {
     width: 220
   },
@@ -114,6 +121,8 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props) {
           </ListItem>
         </Link>
       </List>
+      <Divider />
+      <p className={classes.appInfo}>Taipan {process.env.APP_VERSION}</p>
     </Drawer>
   );
 }
