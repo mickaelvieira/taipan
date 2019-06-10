@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github/mickaelvieira/taipan/internal/app"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -47,7 +48,7 @@ func main() {
 			}
 
 			for _, feed := range feeds {
-				var urls []string
+				var urls []*url.URL
 				urls, err = usecase.ParseFeed(ctx, feed, repositories)
 				if err != nil {
 					log.Printf("Feed Parser: URL %s\n", feed.URL)
