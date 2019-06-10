@@ -111,6 +111,7 @@ type HTTPClientLog implements Node {
   id: ID!
   checksum: String!
   requestURI: String!
+  finalURI: String!
   statusCode: Int!
   contentType: String!
   createdAt: String!

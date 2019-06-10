@@ -109,6 +109,7 @@ func (r *Resolvers) Feed(ctx context.Context, args struct {
 		}
 	}
 
+	// @TODO push URLs to the queue
 	_, err = usecase.ParseFeed(ctx, f, r.repositories)
 	if err != nil {
 		return nil, err

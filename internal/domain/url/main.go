@@ -43,6 +43,8 @@ func removeFragment(rawURL string) string {
 	return rawURL[0:i]
 }
 
+// @TODO remove analytics params
+
 // FromRawURL returns an URL struct only when the raw URL is absolute. It also removes the URL fragment
 func FromRawURL(rawURL string) (*URL, error) {
 	u, err := neturl.ParseRequestURI(removeFragment(rawURL))

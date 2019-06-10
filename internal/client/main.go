@@ -11,17 +11,44 @@ import (
 // Client bot
 type Client struct{}
 
-// Fetch fetches the document and returns the result of the request
+// Head fetches the document and returns the result of the request
 // if there is no result, that means:
 // - we could not build the request
 // - a network error occured
 // - we could not read the body
-func (f *Client) Fetch(URL *url.URL) (result *Result, err error) {
+func (f *Client) Head(URL *url.URL) (result *Result, err error) {
 	var req *http.Request
 	var resp *http.Response
 
 	client := makeClient()
-	req, err = makeRequest(URL)
+	req, err = makeRequest("HEAD", URL)
+	if err != nil {
+		return
+	}
+
+	resp, err = client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	var checksum []byte
+	result = makeResult(req, resp, nil, checksum)
+
+	return
+}
+
+// Get fetches the document and returns the result of the request
+// if there is no result, that means:
+// - we could not build the request
+// - a network error occured
+// - we could not read the body
+func (f *Client) Get(URL *url.URL) (result *Result, err error) {
+	var req *http.Request
+	var resp *http.Response
+
+	client := makeClient()
+	req, err = makeRequest("GET", URL)
 	if err != nil {
 		return
 	}

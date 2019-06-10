@@ -3,6 +3,8 @@ package loaders
 import (
 	"context"
 
+	"github/mickaelvieira/taipan/internal/client"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 
 	"github.com/graph-gophers/dataloader"
@@ -34,8 +36,13 @@ func GetDocumentLoader(repository *repository.DocumentRepository) *dataloader.Lo
 func GetHTTPClientLogEntriesLoader(repository *repository.BotlogRepository) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
+		var entries []*client.Result
 		for _, key := range keys {
-			entries, err := repository.FindByURL(ctx, key.String())
+			url, err := url.FromRawURL(key.String())
+			if err != nil {
+				return nil
+			}
+			entries, err = repository.FindByURL(ctx, url)
 			if err != nil {
 				return nil
 			}

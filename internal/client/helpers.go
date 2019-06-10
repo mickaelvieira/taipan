@@ -4,30 +4,39 @@ import (
 	"bytes"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"log"
 	"net/http"
 	"time"
 )
 
-func checkRedirection(req *http.Request, resp *http.Response) (r bool, u string) {
-	u = req.RequestURI
+func checkRedirection(req *http.Request, resp *http.Response) (o *url.URL, f *url.URL, r bool) {
+	var err error
+	o, err = url.FromRawURL(req.RequestURI)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fianl is the original URL
+	// before an redirect happened
+	f = o
 	if resp.Request != nil {
-		r = req.RequestURI != resp.Request.URL.String()
+		r = o.String() != resp.Request.URL.String()
 		if r {
-			u = resp.Request.URL.String()
+			f = &url.URL{URL: resp.Request.URL}
 		}
 	}
 	return
 }
 
 func makeResult(req *http.Request, resp *http.Response, reader *bytes.Reader, checksum []byte) *Result {
-	redirected, finalURI := checkRedirection(req, resp)
+	originalURL, finalURL, redirected := checkRedirection(req, resp)
 
 	return &Result{
 		Checksum:         checksum,
 		WasRedirected:    redirected,
 		ContentType:      resp.Header.Get("Content-Type"),
-		ReqURI:           req.RequestURI,
-		FinalURI:         finalURI,
+		ReqURI:           originalURL,
+		FinalURI:         finalURL,
 		ReqMethod:        req.Method,
 		ReqHeaders:       fmt.Sprintf("%s", req.Header),
 		RespStatusCode:   resp.StatusCode,
@@ -46,8 +55,8 @@ func makeClient() *http.Client {
 	}
 }
 
-func makeRequest(URL *url.URL) (req *http.Request, err error) {
-	req, err = http.NewRequest("GET", URL.String(), nil)
+func makeRequest(method string, URL *url.URL) (req *http.Request, err error) {
+	req, err = http.NewRequest(method, URL.String(), nil)
 	if err != nil {
 		return
 	}

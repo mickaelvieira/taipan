@@ -5,16 +5,12 @@ import (
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/image"
 	img "image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"io"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	_ "golang.org/x/image/webp"
 )
 
 // Format image formats available
@@ -49,10 +45,10 @@ var format = &Format{
 	WEBP: "webp",
 }
 
-func getFormatFromContentType(i string) string {
-	var o string
+func getFormatFromContentType(i string) (o string) {
 	switch i {
 	case contentType.JPG:
+		o = format.JPEG
 	case contentType.JPEG:
 		o = format.JPEG
 	case contentType.GIF:
@@ -62,11 +58,10 @@ func getFormatFromContentType(i string) string {
 	case contentType.WEBP:
 		o = format.WEBP
 	}
-	return o
+	return
 }
 
-func getContentTypeFromFormat(i string) string {
-	var o string
+func getContentTypeFromFormat(i string) (o string) {
 	switch i {
 	case format.JPEG:
 		o = contentType.JPEG
@@ -77,9 +72,58 @@ func getContentTypeFromFormat(i string) string {
 	case format.WEBP:
 		o = contentType.WEBP
 	}
-
-	return o
+	return
 }
+
+// func resizeImage(ct string, in io.Reader) (out io.Reader, err error) {
+// 	var i img.Image
+// 	switch ct {
+// 	case contentType.JPG:
+// 		i, err = jpeg.Decode(in)
+// 	case contentType.JPEG:
+// 		i, err = jpeg.Decode(in)
+// 	case contentType.GIF:
+// 		i, err = gif.Decode(in)
+// 	case contentType.PNG:
+// 		i, err = png.Decode(in)
+// 	default:
+// 		err = fmt.Errorf("Cannot decode type %s", ct)
+// 	}
+
+// 	if err != nil {
+// 		log.Printf("Decode %s", err)
+// 		return
+// 	}
+
+// 	i = imaging.Resize(i, 800, 0, imaging.Lanczos)
+
+// 	var b bytes.Buffer
+// 	w := bufio.NewWriter(&b)
+
+// 	switch ct {
+// 	case contentType.JPG:
+// 		err = jpeg.Encode(w, i, &jpeg.Options{Quality: 100})
+// 	case contentType.JPEG:
+// 		err = jpeg.Encode(w, i, &jpeg.Options{Quality: 100})
+// 	case contentType.GIF:
+// 		err = gif.Encode(w, i, &gif.Options{})
+// 	case contentType.PNG:
+// 		err = png.Encode(w, i)
+// 	default:
+// 		err = fmt.Errorf("Cannot encode type %s", ct)
+// 	}
+
+// 	if err != nil {
+// 		log.Printf("Encode %s", err)
+// 		return
+// 	}
+
+// 	out = bytes.NewReader(b.Bytes())
+
+// 	log.Println("Image was resized")
+
+// 	return
+// }
 
 // Upload uploads a file to the S3 bucket
 func Upload(i *image.Image, result *client.Result, reader io.Reader) error {
@@ -87,6 +131,13 @@ func Upload(i *image.Image, result *client.Result, reader io.Reader) error {
 
 	contentType := result.ContentType
 	filename := result.Checksum.String()
+
+	// @TODO DO I need to update the checksum?
+	// var err error
+	// reader, err = resizeImage(contentType, reader)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// Read image configuration from IO
 	config, format, err := img.DecodeConfig(reader)
@@ -102,9 +153,14 @@ func Upload(i *image.Image, result *client.Result, reader io.Reader) error {
 		format = getFormatFromContentType(contentType)
 	}
 
-	if contentType == "" && format != "" {
-		contentType = getContentTypeFromFormat(format)
-	}
+	// if contentType == "" && format != "" {
+	// 	contentType = getContentTypeFromFormat(format)
+	// }
+
+	// log.Printf("Content type %s", contentType)
+	// log.Printf("Format %s", format)
+	// log.Printf("Width %d", config.Width)
+	// log.Printf("Height %d", config.Height)
 
 	// append image's extension
 	if format != "" {

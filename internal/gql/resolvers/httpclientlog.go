@@ -34,7 +34,12 @@ func (r *HTTPClientLogResolver) StatusCode() int32 {
 
 // RequestURI resolves the RequestURI field
 func (r *HTTPClientLogResolver) RequestURI() string {
-	return r.Result.ReqURI
+	return r.Result.ReqURI.String()
+}
+
+// FinalURI resolves the FinalURI field
+func (r *HTTPClientLogResolver) FinalURI() string {
+	return r.Result.FinalURI.String()
 }
 
 // CreatedAt resolves the CreatedAt field

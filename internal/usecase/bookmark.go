@@ -53,7 +53,7 @@ func Document(ctx context.Context, URL *url.URL, repositories *repository.Reposi
 		return nil, err
 	}
 
-	d, err = parser.Parse(URL, result.Content)
+	d, err = parser.Parse(result.FinalURI, result.Content)
 	if err != nil {
 		return nil, err
 	}

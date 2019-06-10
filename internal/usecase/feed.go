@@ -2,9 +2,11 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
 	"time"
@@ -38,12 +40,12 @@ func HandleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, 
 // - Parses it the document
 // - And returns a list of URLs found in the document
 // The document is not parsed if the document has not changed since the last time it was fetched
-func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repositories) (urls []string, err error) {
+func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repositories) (urls []*url.URL, err error) {
 	fmt.Printf("Parsing %s\n", f.URL)
 	parser := gofeed.NewParser()
 
 	var result, prevResult *client.Result
-	prevResult, err = repositories.Botlogs.FindLatestByURL(ctx, f.URL.String())
+	prevResult, err = repositories.Botlogs.FindLatestByURL(ctx, f.URL)
 	result, err = FetchResource(ctx, f.URL, repositories)
 	if err != nil {
 		if result != nil {
@@ -72,8 +74,26 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 		}
 
 		for _, item := range content.Items {
-			fmt.Printf("URL %s\n", item.Link)
-			urls = append(urls, item.Link)
+			u, e := url.FromRawURL(item.Link)
+			if e != nil {
+				continue // Just skip invalid URLs
+			}
+
+			// @TODO we can probable do it in a concurrent way
+			r, e := ResolveURL(u)
+			if e != nil {
+				continue // Just skip URLs we could not resolve
+			}
+
+			if r.RespStatusCode != 200 {
+				continue // Just skip unsuccessful request
+			}
+
+			_, e = repositories.Documents.GetByURL(ctx, r.FinalURI)
+			if e != nil && e == sql.ErrNoRows {
+				fmt.Printf("URL %s\n", r.FinalURI)
+				urls = append(urls, r.FinalURI)
+			}
 		}
 	} else {
 		fmt.Println("Content has not changed")

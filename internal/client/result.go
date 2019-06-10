@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
 
@@ -12,8 +13,8 @@ type Result struct {
 	WasRedirected    bool
 	Checksum         checksum.Checksum
 	ContentType      string
-	ReqURI           string
-	FinalURI         string
+	ReqURI           *url.URL
+	FinalURI         *url.URL
 	ReqMethod        string
 	ReqHeaders       string
 	RespStatusCode   int

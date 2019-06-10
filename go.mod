@@ -6,6 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/aws/aws-sdk-go v1.17.7
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
+	github.com/disintegration/imaging v1.6.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang-migrate/migrate/v4 v4.3.0
