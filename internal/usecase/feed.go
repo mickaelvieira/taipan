@@ -57,6 +57,31 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 		return
 	}
 
+	if result.WasRedirected {
+		// Is there already a feed with the new URL?
+		_, err = repositories.Feeds.GetByURL(ctx, result.FinalURI)
+		if err != nil {
+			// There is no duplicate
+			if err == sql.ErrNoRows {
+				// We can update the feed with the new URL safely
+				f.URL = result.FinalURI
+				err = repositories.Feeds.UpdateURL(ctx, f)
+				if err != nil {
+					return
+				}
+			} else {
+				// there is a different SQL error
+				return
+			}
+		} else {
+			// There is a duplicate
+			// Delete this feed
+			err = repositories.Feeds.Delete(ctx, f)
+			// and stop processing, we get data from the duplicate
+			return
+		}
+	}
+
 	if result.IsContentDifferent(prevResult) {
 		fmt.Println("Feed's content has changed")
 		var content *gofeed.Feed

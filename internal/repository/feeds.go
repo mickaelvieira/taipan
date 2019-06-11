@@ -176,6 +176,23 @@ func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 	return err
 }
 
+// UpdateURL updates a feed in the DB
+func (r *FeedRepository) UpdateURL(ctx context.Context, f *feed.Feed) error {
+	query := `
+		UPDATE feeds
+		SET url = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		f.URL,
+		f.ID,
+	)
+
+	return err
+}
+
 // Delete soft deletes the feed
 func (r *FeedRepository) Delete(ctx context.Context, f *feed.Feed) error {
 	query := `
