@@ -23,12 +23,12 @@ func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Rep
 	// @TODO that might be nice to do a HEAD request
 	// to get the last modified date before fetching the entire document
 	http := client.Client{}
-	r, err = http.Head(u)
-	if err != nil {
-		return
-	}
+	// r, err = http.Head(u)
+	// if err != nil {
+	// 	return
+	// }
 
-	r, err = http.Get(r.FinalURI)
+	r, err = http.Get(u)
 	if err != nil {
 		return
 	}

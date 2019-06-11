@@ -18,7 +18,7 @@ type Client struct{}
 // - a network error occured
 // - we could not read the body
 func (f *Client) Head(URL *url.URL) (result *Result, err error) {
-	fmt.Printf("Preforning HEAD request %s\n", URL)
+	fmt.Printf("Preforming HEAD request %s\n", URL)
 	var req *http.Request
 	var resp *http.Response
 
@@ -46,7 +46,7 @@ func (f *Client) Head(URL *url.URL) (result *Result, err error) {
 // - a network error occured
 // - we could not read the body
 func (f *Client) Get(URL *url.URL) (result *Result, err error) {
-	fmt.Printf("Preforning GETs request %s\n", URL)
+	fmt.Printf("Preforming GET request %s\n", URL)
 	var req *http.Request
 	var resp *http.Response
 

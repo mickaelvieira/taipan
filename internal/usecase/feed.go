@@ -16,7 +16,7 @@ import (
 
 // HandleFeedHTTPErrors handles HTTP errors
 func HandleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, repositories *repository.Repositories) (err error) {
-	if rs.RespStatusCode == 404 || rs.RespStatusCode == 500 {
+	if rs.RespStatusCode == 404 || rs.RespStatusCode == 429 || rs.RespStatusCode == 500 {
 		var logs []*client.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
 		if err != nil {
@@ -87,8 +87,9 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 				continue // Just skip URLs we could not resolve
 			}
 
+			// @TODO I need to see how I can handle servers that don't allow HEAD method
 			if r.RespStatusCode != 200 {
-				log.Println(e)
+				log.Printf("Incorrect status code: %d %s", r.RespStatusCode, r.RespReasonPhrase)
 				continue // Just skip unsuccessful request
 			}
 
