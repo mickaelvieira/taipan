@@ -49,6 +49,18 @@ func FromGoFeedType(t string) (Type, error) {
 	return INVALID, fmt.Errorf("Invalid feed type %s", t)
 }
 
+var blacklist = []string{"github.com"}
+
+// IsBlacklisted checks whether the feed's URL matches a pattern that is black listed
+func IsBlacklisted(url string) bool {
+	for _, v := range blacklist {
+		if strings.Index(url, v) != -1 {
+			return true
+		}
+	}
+	return false
+}
+
 // Status represents the status of the feed during the fetching process
 type Status string
 

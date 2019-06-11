@@ -90,6 +90,10 @@ func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolve
 func (r *Resolvers) Feed(ctx context.Context, args struct {
 	URL string
 }) (*FeedResolver, error) {
+	if feed.IsBlacklisted(args.URL) {
+		return nil, fmt.Errorf("URL %s is blacklisted", args.URL)
+	}
+
 	url, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err

@@ -14,8 +14,7 @@ type URL struct {
 	*neturl.URL
 }
 
-// RemoveGAParams removes Google Analytics parameters
-func (url *URL) RemoveGAParams() {
+func (url *URL) removeGAParams() {
 	params := strings.Split(url.RawQuery, "&")
 	var p []string
 	for _, param := range params {
@@ -68,17 +67,23 @@ func removeFragment(rawURL string) string {
 }
 
 // FromRawURL returns an URL struct only when the raw URL is absolute. It also removes the URL fragment
-func FromRawURL(rawURL string) (*URL, error) {
-	u, err := neturl.ParseRequestURI(removeFragment(rawURL))
-	if err != nil || !u.IsAbs() {
-		return nil, fmt.Errorf("Invalid URL '%s'", rawURL)
+func FromRawURL(rawURL string) (u *URL, err error) {
+	t, err := neturl.ParseRequestURI(removeFragment(rawURL))
+	if err != nil {
+		err = fmt.Errorf("Invalid URL '%s'", rawURL)
+		return
 	}
 
-	n := &URL{
-		URL: u,
+	if !t.IsAbs() {
+		err = fmt.Errorf("URL must be absolute '%s'", rawURL)
+		return
 	}
 
-	n.RemoveGAParams()
+	u = &URL{
+		URL: t,
+	}
 
-	return n, nil
+	u.removeGAParams()
+
+	return
 }

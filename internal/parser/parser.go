@@ -67,7 +67,6 @@ func (p *Parser) Parse() *document.Document {
 		// So we construct the default feed URL ourselves
 		feeds = p.getWordpressFeed()
 	} else {
-		// @TODO I need to include a black list to avoid adding unwanted feeds such as github commits
 		feeds = p.parseFeeds()
 	}
 
@@ -83,17 +82,15 @@ func (p *Parser) Parse() *document.Document {
 }
 
 func (p *Parser) isWordpress() bool {
-	var isWP bool
 	for _, s := range p.linkTags {
 		rel, exist := s.Attr("rel")
 		url := p.normalizeAttrValue(s.AttrOr("href", ""))
 		rel = p.normalizeAttrValue(rel)
 		if exist && rel == "stylesheet" && strings.Contains(url, "wp-content") {
-			isWP = true
-			break
+			return true
 		}
 	}
-	return isWP
+	return false
 }
 
 func (p *Parser) getWordpressFeed() []*feed.Feed {
@@ -261,14 +258,16 @@ func (p *Parser) parseFeeds() []*feed.Feed {
 		u := p.normalizeAttrValue(s.AttrOr("href", ""))
 		title := p.normalizeAttrValue(p.normalizeHTMLText(s.AttrOr("title", "")))
 		feedType, err := feed.GetFeedType(p.normalizeAttrValue(s.AttrOr("type", "")))
-		urlFeed := p.parseAndNormalizeRawURL(u)
-		if err == nil && urlFeed != nil {
-			feed := feed.New(
-				urlFeed,
-				title,
-				feedType,
-			)
-			feeds = append(feeds, feed)
+		if !feed.IsBlacklisted(u) {
+			urlFeed := p.parseAndNormalizeRawURL(u)
+			if err == nil && urlFeed != nil {
+				feed := feed.New(
+					urlFeed,
+					title,
+					feedType,
+				)
+				feeds = append(feeds, feed)
+			}
 		}
 	}
 	return feeds
@@ -338,10 +337,10 @@ func (p *Parser) makeURLAbs(u *url.URL) *url.URL {
 	return u
 }
 
-func (p *Parser) parseAndNormalizeRawURL(rawURL string) *url.URL {
-	URL, _ := url.FromRawURL(rawURL)
-	if URL != nil {
-		p.makeURLAbs(URL)
+func (p *Parser) parseAndNormalizeRawURL(rawURL string) (u *url.URL) {
+	u, _ = url.FromRawURL(rawURL)
+	if u != nil {
+		p.makeURLAbs(u)
 	}
-	return URL
+	return u
 }
