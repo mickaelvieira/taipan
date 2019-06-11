@@ -58,6 +58,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 	}
 
 	if result.IsContentDifferent(prevResult) {
+		fmt.Println("Feed's content has changed")
 		var content *gofeed.Feed
 		content, err = parser.Parse(result.Content)
 		if err != nil {
@@ -82,21 +83,29 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 			// @TODO we can probable do it in a concurrent way
 			r, e := ResolveURL(u)
 			if e != nil {
+				log.Println(e)
 				continue // Just skip URLs we could not resolve
 			}
 
 			if r.RespStatusCode != 200 {
+				log.Println(e)
 				continue // Just skip unsuccessful request
 			}
 
 			_, e = repositories.Documents.GetByURL(ctx, r.FinalURI)
-			if e != nil && e == sql.ErrNoRows {
-				fmt.Printf("URL %s\n", r.FinalURI)
-				urls = append(urls, r.FinalURI)
+			if e != nil {
+				if e == sql.ErrNoRows {
+					fmt.Printf("URL %s\n", r.FinalURI)
+					urls = append(urls, r.FinalURI)
+				} else {
+					log.Println(e)
+				}
+			} else {
+				fmt.Printf("Document already exist %s\n", r.FinalURI)
 			}
 		}
 	} else {
-		fmt.Println("Content has not changed")
+		fmt.Println("Feed's content has not changed")
 	}
 
 	f.ParsedAt = time.Now()

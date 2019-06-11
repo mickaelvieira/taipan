@@ -4,21 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"log"
 	"net/http"
 	"time"
 )
 
-func checkRedirection(req *http.Request, resp *http.Response) (o *url.URL, f *url.URL, r bool) {
-	var err error
-	o, err = url.FromRawURL(req.RequestURI)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Fianl is the original URL
-	// before an redirect happened
-	f = o
+func checkRedirection(URL *url.URL, resp *http.Response) (o *url.URL, f *url.URL, r bool) {
+	o = URL
+	f = URL
 	if resp.Request != nil {
 		r = o.String() != resp.Request.URL.String()
 		if r {
@@ -28,9 +20,8 @@ func checkRedirection(req *http.Request, resp *http.Response) (o *url.URL, f *ur
 	return
 }
 
-func makeResult(req *http.Request, resp *http.Response, reader *bytes.Reader, checksum []byte) *Result {
-	originalURL, finalURL, redirected := checkRedirection(req, resp)
-
+func makeResult(URL *url.URL, req *http.Request, resp *http.Response, reader *bytes.Reader, checksum []byte) *Result {
+	originalURL, finalURL, redirected := checkRedirection(URL, resp)
 	return &Result{
 		Checksum:         checksum,
 		WasRedirected:    redirected,
@@ -48,11 +39,7 @@ func makeResult(req *http.Request, resp *http.Response, reader *bytes.Reader, ch
 }
 
 func makeClient() *http.Client {
-	return &http.Client{
-		// CheckRedirect: func(req *http.Request, via []*http.Request) error {
-		// 	return http.ErrUseLastResponse // @TODO I need to double check this. It does not seem to work
-		// },
-	}
+	return &http.Client{}
 }
 
 func makeRequest(method string, URL *url.URL) (req *http.Request, err error) {

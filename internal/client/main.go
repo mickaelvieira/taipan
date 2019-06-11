@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"io/ioutil"
@@ -17,6 +18,7 @@ type Client struct{}
 // - a network error occured
 // - we could not read the body
 func (f *Client) Head(URL *url.URL) (result *Result, err error) {
+	fmt.Printf("Preforning HEAD request %s\n", URL)
 	var req *http.Request
 	var resp *http.Response
 
@@ -33,7 +35,7 @@ func (f *Client) Head(URL *url.URL) (result *Result, err error) {
 	defer resp.Body.Close()
 
 	var checksum []byte
-	result = makeResult(req, resp, nil, checksum)
+	result = makeResult(URL, req, resp, nil, checksum)
 
 	return
 }
@@ -44,6 +46,7 @@ func (f *Client) Head(URL *url.URL) (result *Result, err error) {
 // - a network error occured
 // - we could not read the body
 func (f *Client) Get(URL *url.URL) (result *Result, err error) {
+	fmt.Printf("Preforning GETs request %s\n", URL)
 	var req *http.Request
 	var resp *http.Response
 
@@ -68,7 +71,7 @@ func (f *Client) Get(URL *url.URL) (result *Result, err error) {
 	reader := bytes.NewReader(content)
 	checksum := checksum.FromBytes(content)
 
-	result = makeResult(req, resp, reader, checksum)
+	result = makeResult(URL, req, resp, reader, checksum)
 
 	// Modify URL with the final URL .ie after all redirects
 	// @TODO remove this shyte

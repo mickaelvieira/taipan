@@ -3,6 +3,7 @@ package url
 import (
 	"database/sql/driver"
 	"errors"
+	"fmt"
 	neturl "net/url"
 	"strings"
 )
@@ -10,6 +11,19 @@ import (
 // URL represents a URL within the application
 type URL struct {
 	*neturl.URL
+}
+
+// RemoveGAParams removes Google Analytics parameters
+func (url *URL) RemoveGAParams() {
+	params := strings.Split(url.RawQuery, "&")
+	var p []string
+	for _, param := range params {
+		s := strings.Split(param, "=")
+		if strings.Index(s[0], "utm_") == -1 {
+			p = append(p, param)
+		}
+	}
+	url.RawQuery = strings.Join(p, "&")
 }
 
 // Value converts the value going into the DB
@@ -43,13 +57,18 @@ func removeFragment(rawURL string) string {
 	return rawURL[0:i]
 }
 
-// @TODO remove analytics params
-
 // FromRawURL returns an URL struct only when the raw URL is absolute. It also removes the URL fragment
 func FromRawURL(rawURL string) (*URL, error) {
 	u, err := neturl.ParseRequestURI(removeFragment(rawURL))
 	if err != nil || !u.IsAbs() {
-		return nil, errors.New("Invalid URL")
+		return nil, fmt.Errorf("Invalid URL '%s'", rawURL)
 	}
-	return &URL{URL: u}, nil
+
+	n := &URL{
+		URL: u,
+	}
+
+	n.RemoveGAParams()
+
+	return n, nil
 }
