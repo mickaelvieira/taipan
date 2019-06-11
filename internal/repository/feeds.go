@@ -123,6 +123,18 @@ func (r *FeedRepository) GetByURL(ctx context.Context, u *url.URL) (*feed.Feed, 
 	return f, nil
 }
 
+// ExistWithURL checks whether a feed already exists this the same URL
+func (r *FeedRepository) ExistWithURL(ctx context.Context, u *url.URL) (bool, error) {
+	_, err := r.GetByURL(ctx, u)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, err
+}
+
 // Insert creates a new feed in the DB
 func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed) error {
 	query := `

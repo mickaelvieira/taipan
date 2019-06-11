@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/feed"
@@ -59,25 +58,28 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 
 	if result.WasRedirected {
 		// Is there already a feed with the new URL?
-		_, err = repositories.Feeds.GetByURL(ctx, result.FinalURI)
+		var b bool
+		b, err = repositories.Feeds.ExistWithURL(ctx, result.FinalURI)
 		if err != nil {
+			return
+		}
+
+		if !b {
 			// There is no duplicate
-			if err == sql.ErrNoRows {
-				// We can update the feed with the new URL safely
-				f.URL = result.FinalURI
-				err = repositories.Feeds.UpdateURL(ctx, f)
-				if err != nil {
-					return
-				}
-			} else {
-				// there is a different SQL error
+			// We can update the feed with the new URL safely
+			fmt.Printf("Feed's URL needs to be updated %s => %s\n", f.URL, result.FinalURI)
+			f.URL = result.FinalURI
+			err = repositories.Feeds.UpdateURL(ctx, f)
+			if err != nil {
 				return
 			}
 		} else {
+			fmt.Printf("Delete duplicate feed %s\n", f.URL)
 			// There is a duplicate
-			// Delete this feed
+			// delete this feed
 			err = repositories.Feeds.Delete(ctx, f)
-			// and stop processing, we get data from the duplicate
+			// and stop processing
+			// we get data from the duplicate
 			return
 		}
 	}
@@ -106,28 +108,29 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 			}
 
 			// @TODO we can probable do it in a concurrent way
-			r, e := ResolveURL(u)
-			if e != nil {
-				log.Println(e)
-				continue // Just skip URLs we could not resolve
-			}
+			// r, e := ResolveURL(u)
+			// if e != nil {
+			// 	log.Println(e)
+			// 	continue // Just skip URLs we could not resolve
+			// }
 
 			// @TODO I need to see how I can handle servers that don't allow HEAD method
-			if r.RespStatusCode != 200 {
-				log.Printf("Incorrect status code: %d %s", r.RespStatusCode, r.RespReasonPhrase)
-				continue // Just skip unsuccessful request
-			}
+			// if r.RespStatusCode != 200 {
+			// 	log.Printf("Incorrect status code: %d %s", r.RespStatusCode, r.RespReasonPhrase)
+			// 	continue // Just skip unsuccessful request
+			// }
 
-			_, e = repositories.Documents.GetByURL(ctx, r.FinalURI)
+			var b bool
+			b, e = repositories.Documents.ExistWithURL(ctx, u)
 			if e != nil {
-				if e == sql.ErrNoRows {
-					fmt.Printf("URL %s\n", r.FinalURI)
-					urls = append(urls, r.FinalURI)
-				} else {
-					log.Println(e)
-				}
+				log.Println(e)
+				continue
+			}
+			if !b {
+				fmt.Printf("===> ADD URL %s\n", u)
+				urls = append(urls, u)
 			} else {
-				fmt.Printf("Document already exist %s\n", r.FinalURI)
+				fmt.Printf("Document already exists %s\n", u)
 			}
 		}
 	} else {

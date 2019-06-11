@@ -49,6 +49,18 @@ func (r *DocumentRepository) GetByURL(ctx context.Context, u *url.URL) (*documen
 	return d, nil
 }
 
+// ExistWithURL checks whether a document already exists this the same URL
+func (r *DocumentRepository) ExistWithURL(ctx context.Context, u *url.URL) (bool, error) {
+	_, err := r.GetByURL(ctx, u)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, err
+}
+
 // GetByChecksum find a single entry
 func (r *DocumentRepository) GetByChecksum(ctx context.Context, c checksum.Checksum) (*document.Document, error) {
 	query := `
