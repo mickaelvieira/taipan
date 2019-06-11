@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"log"
 	neturl "net/url"
 	"strings"
 )
@@ -24,6 +25,15 @@ func (url *URL) RemoveGAParams() {
 		}
 	}
 	url.RawQuery = strings.Join(p, "&")
+}
+
+// UnescapeString returns the URL as string but without being escaped
+func (url *URL) UnescapeString() string {
+	value, err := neturl.QueryUnescape(url.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	return value
 }
 
 // Value converts the value going into the DB

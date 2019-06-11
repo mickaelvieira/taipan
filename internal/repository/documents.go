@@ -40,7 +40,7 @@ func (r *DocumentRepository) GetByURL(ctx context.Context, u *url.URL) (*documen
 		FROM documents AS d
 		WHERE url = ?
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), u.String())
+	row := r.db.QueryRowContext(ctx, formatQuery(query), u.UnescapeString())
 	d, err := r.scan(row)
 	if err != nil {
 		return nil, err

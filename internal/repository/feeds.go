@@ -116,7 +116,7 @@ func (r *FeedRepository) GetByURL(ctx context.Context, u *url.URL) (*feed.Feed, 
 		FROM feeds AS f
 		WHERE f.url = ?
 	`
-	rows := r.db.QueryRowContext(ctx, formatQuery(query), u.String())
+	rows := r.db.QueryRowContext(ctx, formatQuery(query), u.UnescapeString())
 	f, err := r.scan(rows)
 	if err != nil {
 		return nil, err

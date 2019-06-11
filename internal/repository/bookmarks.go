@@ -132,7 +132,7 @@ func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *u
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.user_id = ? AND d.url = ?
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), user.ID, u.String())
+	row := r.db.QueryRowContext(ctx, formatQuery(query), user.ID, u.UnescapeString())
 	b, err := r.scan(row)
 	if err != nil {
 		return nil, err
