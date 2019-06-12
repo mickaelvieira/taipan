@@ -11,6 +11,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
+	"log"
 	"time"
 )
 
@@ -21,6 +22,50 @@ var (
 	ErrInvalidURI           = errors.New("Invalid URL")
 	ErrContentHasNotChanged = errors.New("Content has not changed")
 )
+
+// DeleteDocument soft deletes a document
+func DeleteDocument(ctx context.Context, d *document.Document, r *repository.DocumentRepository) (err error) {
+	fmt.Printf("Soft deleting document '%s'\n", d.URL)
+	d.Deleted = true
+	d.UpdatedAt = time.Now()
+	return r.Delete(ctx, d)
+}
+
+func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI *url.URL, repositories *repository.Repositories) (err error) {
+	var b bool
+	var e *document.Document
+	log.Printf("Request was redirected %s => %s", originalURI, finalURI)
+	log.Println("Let's check for duplicate")
+	// Let's check whether there a document with the requested URI
+	e, err = repositories.Documents.GetByURL(ctx, originalURI)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		log.Println("A duplicate was found")
+
+		// There is a document with the old URL
+		// Let's check whether there a document with the final URI
+		b, err = repositories.Documents.ExistWithURL(ctx, finalURI)
+		if err != nil {
+			return err
+		}
+
+		if b {
+			// Delete the old one
+			// @TODO recreate the users' bookmark with the new URL
+			return DeleteDocument(ctx, e, repositories.Documents)
+		}
+
+		fmt.Printf("Document's URL needs to be updated %s => %s\n", e.URL, finalURI)
+		e.URL = finalURI
+		e.UpdatedAt = time.Now()
+		repositories.Documents.UpdateURL(ctx, e)
+	} else {
+		log.Println("There is no duplicate")
+	}
+	return nil
+}
 
 // Document in this use case, given a provided URL, we will from:
 // - Fetch the corresponding document
@@ -62,9 +107,12 @@ func Document(ctx context.Context, URL *url.URL, repositories *repository.Reposi
 
 	fmt.Printf("Document was parsed: %s\n", d.URL)
 
-	// @TODO there is a bug here
-	// If the document already exists with a URL starting with http:// the document gets duplicated
+	if result.WasRedirected {
+		err = handleDuplicateDocument(ctx, result.ReqURI, result.FinalURI, repositories)
+	}
+
 	err = repositories.Documents.Upsert(ctx, d)
+
 	if err != nil {
 		return nil, err
 	}

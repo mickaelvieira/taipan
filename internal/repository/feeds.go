@@ -188,17 +188,18 @@ func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 	return err
 }
 
-// UpdateURL updates a feed in the DB
+// UpdateURL updates the feed's URL and UpdatedAt fields
 func (r *FeedRepository) UpdateURL(ctx context.Context, f *feed.Feed) error {
 	query := `
 		UPDATE feeds
-		SET url = ?
+		SET url = ?, updated_at = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
 		f.URL,
+		f.UpdatedAt,
 		f.ID,
 	)
 
@@ -209,13 +210,14 @@ func (r *FeedRepository) UpdateURL(ctx context.Context, f *feed.Feed) error {
 func (r *FeedRepository) Delete(ctx context.Context, f *feed.Feed) error {
 	query := `
 		UPDATE feeds
-		SET deleted = ?
+		SET deleted = ?, updated_at = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		1,
+		f.Deleted,
+		f.UpdatedAt,
 		f.ID,
 	)
 

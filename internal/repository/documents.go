@@ -248,13 +248,12 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 func (r *DocumentRepository) Update(ctx context.Context, d *document.Document) error {
 	query := `
 		UPDATE documents
-		SET url = ?, checksum = UNHEX(?), charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?, deleted = ?
+		SET checksum = UNHEX(?), charset = ?, language = ?, title = ?, description = ?, status = ?, updated_at = ?, deleted = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		d.URL,
 		d.Checksum,
 		d.Charset,
 		d.Lang,
@@ -269,11 +268,29 @@ func (r *DocumentRepository) Update(ctx context.Context, d *document.Document) e
 	return err
 }
 
+// UpdateURL updates the document's URL and UpdatedAt fields
+func (r *DocumentRepository) UpdateURL(ctx context.Context, d *document.Document) error {
+	query := `
+		UPDATE documents
+		SET url = ?, updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		d.URL,
+		d.UpdatedAt,
+		d.ID,
+	)
+
+	return err
+}
+
 // UpdateImage updates a document's image in the DB
 func (r *DocumentRepository) UpdateImage(ctx context.Context, d *document.Document) error {
 	query := `
 		UPDATE documents
-		SET image_url = ?, image_name = ?, image_width = ?, image_height = ?, image_format = ?
+		SET image_url = ?, image_name = ?, image_width = ?, image_height = ?, image_format = ?, updated_at = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
@@ -284,6 +301,7 @@ func (r *DocumentRepository) UpdateImage(ctx context.Context, d *document.Docume
 		d.Image.Width,
 		d.Image.Height,
 		d.Image.Format,
+		d.UpdatedAt,
 		d.ID,
 	)
 
@@ -308,6 +326,24 @@ func (r *DocumentRepository) Upsert(ctx context.Context, d *document.Document) e
 	}
 
 	return r.Update(ctx, d)
+}
+
+// Delete soft deletes the document
+func (r *DocumentRepository) Delete(ctx context.Context, d *document.Document) error {
+	query := `
+		UPDATE documents
+		SET deleted = ? updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		d.Deleted,
+		d.UpdatedAt,
+		d.ID,
+	)
+
+	return err
 }
 
 func (r *DocumentRepository) scan(rows Scanable) (*document.Document, error) {

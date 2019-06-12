@@ -13,8 +13,15 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-// HandleFeedHTTPErrors handles HTTP errors
-func HandleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, repositories *repository.Repositories) (err error) {
+// DeleteFeed soft deletes a feed
+func DeleteFeed(ctx context.Context, f *feed.Feed, r *repository.FeedRepository) (err error) {
+	fmt.Printf("Soft deleting feed '%s'\n", f.URL)
+	f.Deleted = true
+	f.UpdatedAt = time.Now()
+	return r.Delete(ctx, f)
+}
+
+func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, repositories *repository.Repositories) (err error) {
 	if rs.RespStatusCode == 404 || rs.RespStatusCode == 429 || rs.RespStatusCode == 500 {
 		var logs []*client.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
@@ -23,15 +30,37 @@ func HandleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, 
 		}
 		// @TODO Should we check whether they are actually 5 successive errors?
 		if len(logs) >= 5 {
-			err = repositories.Feeds.Delete(ctx, f)
+			fmt.Printf("Too many '%d' errors\n", rs.RespStatusCode)
+			err = DeleteFeed(ctx, f, repositories.Feeds)
 			if err != nil {
 				return
 			}
-			fmt.Printf("Too many %d errors\n", rs.RespStatusCode)
-			fmt.Printf("Feed %s was marked as deleted\n", f.URL)
+			fmt.Printf("Feed '%s' was marked as deleted\n", f.URL)
 		}
 	}
 	return
+}
+
+func handleDuplicateFeed(ctx context.Context, FinalURI *url.URL, f *feed.Feed, repositories *repository.Repositories) (*feed.Feed, error) {
+	var b bool
+	var err error
+	b, err = repositories.Feeds.ExistWithURL(ctx, FinalURI)
+	if err != nil {
+		return f, err
+	}
+
+	if !b {
+		fmt.Printf("Feed's URL needs to be updated %s => %s\n", f.URL, FinalURI)
+		f.URL = FinalURI
+		f.UpdatedAt = time.Now()
+		err = repositories.Feeds.UpdateURL(ctx, f)
+	} else {
+		err = DeleteFeed(ctx, f, repositories.Feeds)
+		if err == nil {
+			err = fmt.Errorf("Feed '%s' was a duplicate. It's been deleted", f.URL)
+		}
+	}
+	return f, err
 }
 
 // ParseFeed in this usecase given an feed entity:
@@ -48,7 +77,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 	result, err = FetchResource(ctx, f.URL, repositories)
 	if err != nil {
 		if result != nil {
-			err = HandleFeedHTTPErrors(ctx, result, f, repositories)
+			err = handleFeedHTTPErrors(ctx, result, f, repositories)
 			if err != nil {
 				return
 			}
@@ -57,29 +86,8 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 	}
 
 	if result.WasRedirected {
-		// Is there already a feed with the new URL?
-		var b bool
-		b, err = repositories.Feeds.ExistWithURL(ctx, result.FinalURI)
+		f, err = handleDuplicateFeed(ctx, result.FinalURI, f, repositories)
 		if err != nil {
-			return
-		}
-
-		if !b {
-			// There is no duplicate
-			// We can update the feed with the new URL safely
-			fmt.Printf("Feed's URL needs to be updated %s => %s\n", f.URL, result.FinalURI)
-			f.URL = result.FinalURI
-			err = repositories.Feeds.UpdateURL(ctx, f)
-			if err != nil {
-				return
-			}
-		} else {
-			fmt.Printf("Delete duplicate feed %s\n", f.URL)
-			// There is a duplicate
-			// delete this feed
-			err = repositories.Feeds.Delete(ctx, f)
-			// and stop processing
-			// we get data from the duplicate
 			return
 		}
 	}
@@ -127,10 +135,10 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 				continue
 			}
 			if !b {
-				fmt.Printf("===> ADD URL %s\n", u)
+				fmt.Printf("New document '%s'\n", u)
 				urls = append(urls, u)
 			} else {
-				fmt.Printf("Document already exists %s\n", u)
+				fmt.Printf("Document already exists '%s'\n", u)
 			}
 		}
 	} else {

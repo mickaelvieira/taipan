@@ -6,6 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/s3"
+	"time"
 )
 
 // HandleImage this usecase:
@@ -32,6 +33,9 @@ func HandleImage(ctx context.Context, d *document.Document, repositories *reposi
 	if err != nil {
 		return
 	}
+
+	// Image was uploaded at the point so we can update the document
+	d.UpdatedAt = time.Now()
 
 	err = repositories.Documents.UpdateImage(ctx, d)
 	return
