@@ -38,7 +38,8 @@ analyse:
 # 	cd cmd/migration && ./migration
 
 fmt:
-	gofmt -s -w ./**/*.go
+	gofmt -s -w -l internal/**/*.go
+	gofmt -s -w -l cmd/**/*.go
 
 clean:
 	go mod tidy
