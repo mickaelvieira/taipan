@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
@@ -167,20 +166,13 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.Us
 func (r *BookmarkRepository) ChangeReadStatus(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET updated_at = ?, marked_as_read = %s
+		SET marked_as_read = ?, updated_at = ?
 		WHERE user_id = ? AND document_id = ?
 	`
-
-	// Workaround to overcome MySQL driver limitation
-	isRead := "0"
-	if b.IsRead == bookmark.READ {
-		isRead = "1"
-	}
-	query = fmt.Sprintf(query, isRead)
-
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
+		b.IsRead,
 		b.UpdatedAt,
 		user.ID,
 		b.ID,

@@ -204,7 +204,7 @@ func (r *Resolvers) ChangeBookmarkReadStatus(ctx context.Context, args struct {
 	IsRead bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	isRead := bookmark.ReadStatus(args.IsRead)
+	isRead := args.IsRead
 	url, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err

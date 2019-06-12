@@ -147,8 +147,8 @@ func Bookmark(ctx context.Context, user *user.User, d *document.Document, reposi
 	return b, nil
 }
 
-// ReadStatus bla
-func ReadStatus(ctx context.Context, user *user.User, URL *url.URL, isRead bookmark.ReadStatus, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
+// ReadStatus changes the bookmark read status
+func ReadStatus(ctx context.Context, user *user.User, URL *url.URL, isRead bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
 	var err error
 	var b *bookmark.Bookmark
 

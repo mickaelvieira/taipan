@@ -115,18 +115,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 				continue // Just skip invalid URLs
 			}
 
-			// @TODO we can probable do it in a concurrent way
-			// r, e := ResolveURL(u)
-			// if e != nil {
-			// 	log.Println(e)
-			// 	continue // Just skip URLs we could not resolve
-			// }
-
-			// @TODO I need to see how I can handle servers that don't allow HEAD method
-			// if r.RespStatusCode != 200 {
-			// 	log.Printf("Incorrect status code: %d %s", r.RespStatusCode, r.RespReasonPhrase)
-			// 	continue // Just skip unsuccessful request
-			// }
+			// @TODO Add a list of Feed proxy and resolve feed's URLs before pushing to the queue
 
 			var b bool
 			b, e = repositories.Documents.ExistWithURL(ctx, u)

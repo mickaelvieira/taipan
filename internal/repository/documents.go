@@ -163,8 +163,6 @@ func (r *DocumentRepository) GetTotalNew(ctx context.Context, user *user.User) (
 	return total, nil
 }
 
-// @TODO should I add a soft delete function?
-
 // GetDocuments returns the paginated documents
 func (r *DocumentRepository) GetDocuments(ctx context.Context, cursor int32, limit int32) ([]*document.Document, error) {
 	var results []*document.Document
