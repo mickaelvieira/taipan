@@ -181,7 +181,7 @@ func (p *Parser) parseCharset() string {
 			if he == "content-type" && strings.Contains(ct, "charset") {
 				var c = "charset="
 				var i = strings.LastIndex(ct, "charset")
-				charset = ct[i+len(c) : len(ct)]
+				charset = ct[i+len(c):]
 			}
 		}
 	}
@@ -289,7 +289,7 @@ func (p *Parser) parseSocialTags(prefix string, property string) *social {
 		prop, exist = s.Attr(property)
 		val := s.AttrOr("content", "")
 		if exist && strings.HasPrefix(prop, prefix) && val != "" {
-			prop = strings.ToLower(prop[len(prefix):len(prop)])
+			prop = strings.ToLower(prop[len(prefix):])
 			switch prop {
 			case "title":
 				title = p.normalizeHTMLText(val)
