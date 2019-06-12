@@ -180,7 +180,7 @@ func Unbookmark(ctx context.Context, user *user.User, URL *url.URL, repositories
 	}
 
 	b.IsLinked = false
-	// b.IsRead = false // @TODO
+	b.IsRead = false
 	b.UpdatedAt = time.Now()
 
 	err = repositories.Bookmarks.Remove(ctx, user, b)

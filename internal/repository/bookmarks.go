@@ -185,14 +185,15 @@ func (r *BookmarkRepository) ChangeReadStatus(ctx context.Context, user *user.Us
 func (r *BookmarkRepository) Remove(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET updated_at = ?, linked = ?
+		SET marked_as_read = ?, linked = ?, updated_at = ?
 		WHERE user_id = ? AND document_id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		b.UpdatedAt,
+		b.IsRead,
 		b.IsLinked,
+		b.UpdatedAt,
 		user.ID,
 		b.ID,
 	)
