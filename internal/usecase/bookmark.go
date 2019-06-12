@@ -11,7 +11,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"time"
 )
 
@@ -34,17 +33,17 @@ func DeleteDocument(ctx context.Context, d *document.Document, r *repository.Doc
 func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI *url.URL, repositories *repository.Repositories) (err error) {
 	var b bool
 	var e *document.Document
-	log.Printf("Request was redirected %s => %s", originalURI, finalURI)
-	log.Println("Let's check for duplicate")
+	fmt.Printf("Request was redirected %s => %s", originalURI, finalURI)
+	fmt.Println("Let's check for duplicate")
 	// Let's check whether there a document with the requested URI
 	e, err = repositories.Documents.GetByURL(ctx, originalURI)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
-		log.Println("There is no duplicate")
+		fmt.Println("There is no duplicate")
 	} else {
-		log.Printf("A duplicate was found %v\n", e)
+		fmt.Printf("A duplicate was found %v\n", e)
 
 		// There is a document with the old URL
 		// Let's check whether there a document with the final URI
