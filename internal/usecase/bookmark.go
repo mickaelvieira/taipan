@@ -42,7 +42,9 @@ func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI
 		if err != sql.ErrNoRows {
 			return err
 		}
-		log.Println("A duplicate was found")
+		log.Println("There is no duplicate")
+	} else {
+		log.Printf("A duplicate was found %v\n", e)
 
 		// There is a document with the old URL
 		// Let's check whether there a document with the final URI
@@ -61,8 +63,6 @@ func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI
 		e.URL = finalURI
 		e.UpdatedAt = time.Now()
 		repositories.Documents.UpdateURL(ctx, e)
-	} else {
-		log.Println("There is no duplicate")
 	}
 	return nil
 }

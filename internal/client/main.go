@@ -73,9 +73,5 @@ func (f *Client) Get(URL *url.URL) (result *Result, err error) {
 
 	result = makeResult(URL, req, resp, reader, checksum)
 
-	// Modify URL with the final URL .ie after all redirects
-	// @TODO remove this shyte
-	*URL = url.URL{URL: &*resp.Request.URL}
-
 	return
 }
