@@ -37,28 +37,25 @@ func main() {
 
 	ticker := time.NewTicker(5 * time.Minute)
 
-	for {
-		select {
-		case t := <-ticker.C:
-			fmt.Println("Tick at", t)
+	for t := range ticker.C {
+		fmt.Println("Tick at", t)
 
-			feeds, err := repositories.Feeds.GetOutdatedFeeds(ctx)
+		feeds, err := repositories.Feeds.GetOutdatedFeeds(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, feed := range feeds {
+			var urls []*url.URL
+			urls, err = usecase.ParseFeed(ctx, feed, repositories)
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Feed Parser: URL %s\n", feed.URL)
+				log.Println(err) // We just log the parsing errors for now
 			}
-
-			for _, feed := range feeds {
-				var urls []*url.URL
-				urls, err = usecase.ParseFeed(ctx, feed, repositories)
-				if err != nil {
-					log.Printf("Feed Parser: URL %s\n", feed.URL)
-					log.Println(err) // We just log the parsing errors for now
-				}
-				for _, url := range urls {
-					e := client.PublishDocument(url)
-					if e != nil {
-						log.Println(e)
-					}
+			for _, url := range urls {
+				e := client.PublishDocument(url)
+				if e != nil {
+					log.Println(e)
 				}
 			}
 		}
