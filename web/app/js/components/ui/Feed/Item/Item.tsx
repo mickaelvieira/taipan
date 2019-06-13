@@ -60,7 +60,7 @@ export default function Item({ children, query, item }: Props) {
                 }
               }
             } catch (e) {
-              console.warn(e)
+              console.warn(e);
             }
           }}
         >

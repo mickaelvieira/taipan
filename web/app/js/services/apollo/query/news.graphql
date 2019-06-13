@@ -1,7 +1,7 @@
 #import "../fragment/document.graphql"
 
-query News($from: String, $to: String, $limit: Int) {
-  News(from: $from, to: $to, limit: $limit) @connection(key: "feed_news") {
+query News($pagination: CursorPaginationInput!) {
+  News(pagination: $pagination) @connection(key: "feed_news") {
     total
     first
     last

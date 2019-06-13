@@ -105,12 +105,14 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 
 // GetFavorites resolves the query
 func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
-	From  *string
-	To    *string
-	Limit *int32
+	Pagination CursorPaginationInput
 }) (*BookmarkCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.From, args.To, args.Limit)
+	from, to, limit := fromArgs(
+		args.Pagination.From,
+		args.Pagination.To,
+		args.Pagination.Limit,
+	)
 	user := auth.FromContext(ctx)
 
 	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, from, to, limit)
@@ -144,12 +146,14 @@ func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
 
 // GetReadingList resolves the query
 func (r *Resolvers) GetReadingList(ctx context.Context, args struct {
-	From  *string
-	To    *string
-	Limit *int32
+	Pagination CursorPaginationInput
 }) (*BookmarkCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.From, args.To, args.Limit)
+	from, to, limit := fromArgs(
+		args.Pagination.From,
+		args.Pagination.To,
+		args.Pagination.Limit,
+	)
 	user := auth.FromContext(ctx)
 
 	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, from, to, limit)

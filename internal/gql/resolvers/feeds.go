@@ -126,11 +126,13 @@ func (r *Resolvers) Feed(ctx context.Context, args struct {
 
 // Feeds resolves the query
 func (r *Resolvers) Feeds(ctx context.Context, args struct {
-	Offset *int32
-	Limit  *int32
+	Pagination OffsetPaginationInput
 }) (*FeedCollectionResolver, error) {
 	fromArgs := GetOffsetBasedPagination(10)
-	offset, limit := fromArgs(args.Offset, args.Limit)
+	offset, limit := fromArgs(
+		args.Pagination.Offset,
+		args.Pagination.Limit,
+	)
 
 	results, err := r.repositories.Feeds.FindAll(ctx, offset, limit)
 	if err != nil {

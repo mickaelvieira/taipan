@@ -13,6 +13,12 @@ import queryFavorites from "../../../services/apollo/query/favorites.graphql";
 
 export type FeedItem = Bookmark | Document;
 
+export interface CursorPagination {
+  from?: string;
+  to?: string;
+  limit?: number;
+}
+
 export interface FeedResult {
   total: number;
   first: string;
@@ -22,9 +28,7 @@ export interface FeedResult {
 }
 
 export interface Variables {
-  from?: string;
-  to?: string;
-  limit?: number;
+  pagination: CursorPagination;
 }
 
 export interface Data {
@@ -39,7 +43,9 @@ export type FetchMore = <K extends keyof Variables>(
 export type LoadMore = () => Promise<ApolloQueryResult<Data>>;
 
 const variables = {
-  limit: 10
+  pagination: {
+    limit: 10
+  }
 };
 
 function getDataKey(data: Data): string | null {
@@ -103,16 +109,19 @@ function getFetchMore(
     : () =>
         fetchMore({
           variables: {
-            from: data ? data[key].last : ""
+            pagination: { from: data ? data[key].last : "" }
           },
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) {
+          updateQuery: (prev, { fetchMoreResult: next }) => {
+            if (!next) {
               return prev;
             }
+
             return {
               [key]: {
-                ...fetchMoreResult[key],
-                results: [...prev[key].results, ...fetchMoreResult[key].results]
+                ...prev[key],
+                last: next[key].last,
+                limit: next[key].limit,
+                results: [...prev[key].results, ...next[key].results]
               }
             };
           }

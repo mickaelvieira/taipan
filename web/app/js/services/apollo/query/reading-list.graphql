@@ -1,7 +1,7 @@
 #import "../fragment/bookmark.graphql"
 
-query ReadingList($from: String, $to: String, $limit: Int) {
-  GetReadingList(from: $from, to: $to, limit: $limit) @connection(key: "feed_reading_list") {
+query ReadingList($pagination: CursorPaginationInput!) {
+  GetReadingList(pagination: $pagination) @connection(key: "feed_reading_list") {
     total
     first
     last

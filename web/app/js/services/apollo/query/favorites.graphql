@@ -1,7 +1,7 @@
 #import "../fragment/bookmark.graphql"
 
-query Favorites($from: String, $to: String, $limit: Int) {
-  GetFavorites(from: $from, to: $to, limit: $limit) @connection(key: "feed_favorites") {
+query Favorites($pagination: CursorPaginationInput!) {
+  GetFavorites(pagination: $pagination) @connection(key: "feed_favorites") {
     total
     first
     last

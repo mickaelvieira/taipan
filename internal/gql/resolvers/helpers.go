@@ -8,6 +8,19 @@ import (
 
 const maxLimit = 100
 
+// CursorPaginationInput graphQL input to handle cursor based pagination
+type CursorPaginationInput struct {
+	From  *string
+	To    *string
+	Limit *int32
+}
+
+// OffsetPaginationInput graphQL input to handle offset based pagination
+type OffsetPaginationInput struct {
+	Offset *int32
+	Limit  *int32
+}
+
 // GetOffsetBasedPagination prepare the default offset and limit for the SQL query
 // provide a default limit value and get back a closure to prepare the boundaries
 // Example:

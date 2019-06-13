@@ -1,16 +1,17 @@
 schema {
   query: Query
   mutation: Mutation
+  # subscription: Subscription
 }
 
 type Query {
   User(): User
   GetBookmark(url: String!): Bookmark
-  News(from: String, to: String, limit: Int): DocumentCollection
-  GetFavorites(from: String, to: String, limit: Int): BookmarkCollection
-  GetReadingList(from: String, to: String, limit: Int): BookmarkCollection
-  Feeds(offset: Int, limit: Int): FeedCollection
-  Documents(from: String, to: String, limit: Int): DocumentCollection
+  News(pagination: CursorPaginationInput!): DocumentCollection
+  GetFavorites(pagination: CursorPaginationInput!): BookmarkCollection
+  GetReadingList(pagination: CursorPaginationInput!): BookmarkCollection
+  Feeds(pagination: OffsetPaginationInput!): FeedCollection
+  Documents(pagination: CursorPaginationInput!): DocumentCollection
 }
 
 type Mutation {
@@ -20,6 +21,12 @@ type Mutation {
   ChangeBookmarkReadStatus(url: String!, isRead: Boolean!): Bookmark
 }
 
+# type Subscription {
+#   latestNews(from: String, to: String, limit: Int): DocumentCollection
+# }
+
+
+# @TODO Remove this status
 enum BookmarkStatus {
   FETCHED
   PENDING
@@ -28,6 +35,17 @@ enum BookmarkStatus {
 }
 
 # https://www.apollographql.com/docs/graphql-tools/scalars
+
+input CursorPaginationInput {
+  from: String
+  to: String
+  limit: Int
+}
+
+input OffsetPaginationInput {
+  offset: Int
+  limit: Int
+}
 
 type DocumentCollection {
   first: String!
