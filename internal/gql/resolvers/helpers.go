@@ -26,22 +26,22 @@ type OffsetPaginationInput struct {
 // Example:
 // 		fromArgs := GetOffsetBasedPagination(10)
 // 		offset, limit := fromArgs(args.Offset, args.Limit)
-func GetOffsetBasedPagination(defLimit int32) func(*int32, *int32) (int32, int32) {
+func GetOffsetBasedPagination(defLimit int32) func(OffsetPaginationInput) (int32, int32) {
 	if defLimit <= 0 {
 		log.Fatal("the default limit must be greater than zero")
 	}
 
-	return func(o *int32, l *int32) (offset int32, limit int32) {
-		if o != nil {
-			offset = *o
+	return func(i OffsetPaginationInput) (offset int32, limit int32) {
+		if i.Offset != nil {
+			offset = *i.Offset
 		}
 
 		if offset < 0 {
 			offset = 0
 		}
 
-		if l != nil {
-			limit = *l
+		if i.Limit != nil {
+			limit = *i.Limit
 		}
 
 		if limit <= 0 || limit > maxLimit {
@@ -57,22 +57,22 @@ func GetOffsetBasedPagination(defLimit int32) func(*int32, *int32) (int32, int32
 // Example:
 // 		fromArgs := GetCursorBasedPagination(10)
 // 		from, to, limit := fromArgs(args.First, args.Last, args.Limit)
-func GetCursorBasedPagination(defLimit int32) func(*string, *string, *int32) (string, string, int32) {
+func GetCursorBasedPagination(defLimit int32) func(i CursorPaginationInput) (string, string, int32) {
 	if defLimit <= 0 {
 		log.Fatal("the default limit must be greater than zero")
 	}
 
-	return func(f *string, t *string, l *int32) (from string, to string, limit int32) {
-		if f != nil {
-			from = *f
+	return func(i CursorPaginationInput) (from string, to string, limit int32) {
+		if i.From != nil {
+			from = *i.From
 		}
 
-		if t != nil {
-			to = *t
+		if i.To != nil {
+			to = *i.To
 		}
 
-		if l != nil {
-			limit = *l
+		if i.Limit != nil {
+			limit = *i.Limit
 		}
 
 		if limit <= 0 || limit > maxLimit {

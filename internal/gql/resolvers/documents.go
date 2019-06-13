@@ -103,11 +103,7 @@ func (r *Resolvers) News(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)
-	from, to, limit := fromArgs(
-		args.Pagination.From,
-		args.Pagination.To,
-		args.Pagination.Limit,
-	)
+	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
 
 	results, err := r.repositories.Documents.FindNew(ctx, user, from, to, limit)
@@ -149,11 +145,7 @@ func (r *Resolvers) Documents(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)
-	from, to, limit := fromArgs(
-		args.Pagination.From,
-		args.Pagination.To,
-		args.Pagination.Limit,
-	)
+	from, to, limit := fromArgs(args.Pagination)
 
 	results, err := r.repositories.Documents.GetDocuments(ctx, from, to, limit)
 	if err != nil {

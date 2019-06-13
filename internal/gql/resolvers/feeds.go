@@ -129,10 +129,7 @@ func (r *Resolvers) Feeds(ctx context.Context, args struct {
 	Pagination OffsetPaginationInput
 }) (*FeedCollectionResolver, error) {
 	fromArgs := GetOffsetBasedPagination(10)
-	offset, limit := fromArgs(
-		args.Pagination.Offset,
-		args.Pagination.Limit,
-	)
+	offset, limit := fromArgs(args.Pagination)
 
 	results, err := r.repositories.Feeds.FindAll(ctx, offset, limit)
 	if err != nil {
