@@ -8,7 +8,7 @@ const shouldBeShown = (element: HTMLElement | null) => {
   const bounding = element.getBoundingClientRect();
   const bottom = window.innerHeight || document.documentElement.clientHeight;
 
-  return bounding.top <= bottom + 200;
+  return bounding.top <= bottom + 400;
 };
 
 export default function useLazyLoadedImage(ref: RefObject<HTMLElement>) {
