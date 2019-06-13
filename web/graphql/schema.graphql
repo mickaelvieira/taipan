@@ -1,7 +1,7 @@
 schema {
   query: Query
   mutation: Mutation
-  # subscription: Subscription
+  subscription: Subscription
 }
 
 type Query {
@@ -21,10 +21,16 @@ type Mutation {
   ChangeBookmarkReadStatus(url: String!, isRead: Boolean!): Bookmark
 }
 
-# type Subscription {
-#   latestNews(from: String, to: String, limit: Int): DocumentCollection
-# }
+type Subscription {
+  latestNews(): Event
 
+  # latestNews(from: String, to: String, limit: Int): DocumentCollection
+}
+
+type Event {
+  id: String!
+  msg: String!
+}
 
 # @TODO Remove this status
 enum BookmarkStatus {

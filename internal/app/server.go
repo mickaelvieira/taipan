@@ -9,6 +9,7 @@ import (
 	graphql "github.com/graph-gophers/graphql-go"
 
 	"github.com/graph-gophers/graphql-go/relay"
+	"github.com/graph-gophers/graphql-transport-ws/graphqlws"
 )
 
 // Server is the main application
@@ -47,6 +48,6 @@ func (s *Server) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	handler := &relay.Handler{Schema: s.schema}
+	handler := graphqlws.NewHandlerFunc(s.schema, &relay.Handler{Schema: s.schema})
 	handler.ServeHTTP(w, req)
 }

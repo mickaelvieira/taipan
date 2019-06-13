@@ -13,8 +13,10 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/google/pprof v0.0.0-20190515194954-54271f7e092f // indirect
 	github.com/google/uuid v1.1.1
+	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
 	github.com/graph-gophers/graphql-go v0.0.0-20190225005345-3e8838d4614c
+	github.com/graph-gophers/graphql-transport-ws v0.0.0-20190611222414-40c048432299
 	github.com/grokify/html-strip-tags-go v0.0.0-20190424092004-025bd760b278
 	github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6 // indirect
 	github.com/joho/godotenv v1.3.0
