@@ -6,11 +6,11 @@ schema {
 type Query {
   User(): User
   GetBookmark(url: String!): Bookmark
-  News(offset: Int, limit: Int): DocumentCollection
-  GetFavorites(offset: Int, limit: Int): BookmarkCollection
-  GetReadingList(offset: Int, limit: Int): BookmarkCollection
+  News(from: String, to: String, limit: Int): DocumentCollection
+  GetFavorites(from: String, to: String, limit: Int): BookmarkCollection
+  GetReadingList(from: String, to: String, limit: Int): BookmarkCollection
   Feeds(offset: Int, limit: Int): FeedCollection
-  Documents(offset: Int, limit: Int): DocumentCollection
+  Documents(from: String, to: String, limit: Int): DocumentCollection
 }
 
 type Mutation {
@@ -30,14 +30,16 @@ enum BookmarkStatus {
 # https://www.apollographql.com/docs/graphql-tools/scalars
 
 type DocumentCollection {
-  offset: Int!
+  first: String!
+  last: String!
   total: Int!
   limit: Int!
   results: [Document]
 }
 
 type BookmarkCollection {
-  offset: Int!
+  first: String!
+  last: String!
   total: Int!
   limit: Int!
   results: [Bookmark]

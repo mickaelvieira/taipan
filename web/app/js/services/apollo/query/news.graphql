@@ -1,9 +1,10 @@
 #import "../fragment/document.graphql"
 
-query News($offset: Int, $limit: Int) {
-  News(offset: $offset, limit: $limit) @connection(key: "feed_news") {
+query News($from: String, $to: String, $limit: Int) {
+  News(from: $from, to: $to, limit: $limit) @connection(key: "feed_news") {
     total
-    offset
+    first
+    last
     limit
     results {
       ...documentFields

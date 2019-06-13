@@ -15,13 +15,15 @@ export type FeedItem = Bookmark | Document;
 
 export interface FeedResult {
   total: number;
-  offset: number;
+  first: string;
+  last: string;
   limit: number;
   results: FeedItem[];
 }
 
 export interface Variables {
-  offset?: number;
+  from?: string;
+  to?: string;
   limit?: number;
 }
 
@@ -101,7 +103,7 @@ function getFetchMore(
     : () =>
         fetchMore({
           variables: {
-            offset: data ? data[key].results.length : 0
+            from: data ? data[key].last : ""
           },
           updateQuery: (prev, { fetchMoreResult }) => {
             if (!fetchMoreResult) {

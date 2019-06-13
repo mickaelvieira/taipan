@@ -18,7 +18,8 @@ import (
 type DocumentCollectionResolver struct {
 	Results *[]*DocumentResolver
 	Total   int32
-	Offset  int32
+	First   string
+	Last    string
 	Limit   int32
 }
 
@@ -99,17 +100,20 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 
 // News resolves the query
 func (r *Resolvers) News(ctx context.Context, args struct {
-	Offset *int32
-	Limit  *int32
+	From  *string
+	To    *string
+	Limit *int32
 }) (*DocumentCollectionResolver, error) {
-	fromArgs := GetBoundariesFromArgs(10)
-	offset, limit := fromArgs(args.Offset, args.Limit)
+	fromArgs := GetCursorBasedPagination(10)
+	from, to, limit := fromArgs(args.From, args.To, args.Limit)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Documents.FindNew(ctx, user, offset, limit)
+	results, err := r.repositories.Documents.FindNew(ctx, user, from, to, limit)
 	if err != nil {
 		return nil, err
 	}
+
+	first, last := GetDocumentsBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Documents.GetTotalNew(ctx, user)
@@ -130,7 +134,8 @@ func (r *Resolvers) News(ctx context.Context, args struct {
 	reso := DocumentCollectionResolver{
 		Results: &documents,
 		Total:   total,
-		Offset:  offset,
+		First:   first,
+		Last:    last,
 		Limit:   limit,
 	}
 
@@ -139,16 +144,19 @@ func (r *Resolvers) News(ctx context.Context, args struct {
 
 // Documents resolves the query
 func (r *Resolvers) Documents(ctx context.Context, args struct {
-	Offset *int32
-	Limit  *int32
+	From  *string
+	To    *string
+	Limit *int32
 }) (*DocumentCollectionResolver, error) {
-	fromArgs := GetBoundariesFromArgs(10)
-	offset, limit := fromArgs(args.Offset, args.Limit)
+	fromArgs := GetCursorBasedPagination(10)
+	from, to, limit := fromArgs(args.From, args.To, args.Limit)
 
-	results, err := r.repositories.Documents.GetDocuments(ctx, offset, limit)
+	results, err := r.repositories.Documents.GetDocuments(ctx, from, to, limit)
 	if err != nil {
 		return nil, err
 	}
+
+	first, last := GetDocumentsBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Documents.GetTotal(ctx)
@@ -169,7 +177,8 @@ func (r *Resolvers) Documents(ctx context.Context, args struct {
 	reso := DocumentCollectionResolver{
 		Results: &documents,
 		Total:   total,
-		Offset:  offset,
+		First:   first,
+		Last:    last,
 		Limit:   limit,
 	}
 

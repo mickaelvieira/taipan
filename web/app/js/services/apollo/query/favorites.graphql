@@ -1,9 +1,10 @@
 #import "../fragment/bookmark.graphql"
 
-query Favorites($offset: Int, $limit: Int) {
-  GetFavorites(offset: $offset, limit: $limit) @connection(key: "feed_favorites") {
+query Favorites($from: String, $to: String, $limit: Int) {
+  GetFavorites(from: $from, to: $to, limit: $limit) @connection(key: "feed_favorites") {
     total
-    offset
+    first
+    last
     limit
     results {
       ...bookmarkFields

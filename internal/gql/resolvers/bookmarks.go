@@ -15,7 +15,8 @@ import (
 type BookmarkCollectionResolver struct {
 	Results *[]*BookmarkResolver
 	Total   int32
-	Offset  int32
+	First   string
+	Last    string
 	Limit   int32
 }
 
@@ -104,17 +105,20 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 
 // GetFavorites resolves the query
 func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
-	Offset *int32
-	Limit  *int32
+	From  *string
+	To    *string
+	Limit *int32
 }) (*BookmarkCollectionResolver, error) {
-	fromArgs := GetBoundariesFromArgs(10)
-	offset, limit := fromArgs(args.Offset, args.Limit)
+	fromArgs := GetCursorBasedPagination(10)
+	from, to, limit := fromArgs(args.From, args.To, args.Limit)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, offset, limit)
+	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, from, to, limit)
 	if err != nil {
 		return nil, err
 	}
+
+	first, last := GetBookmarksBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Bookmarks.GetTotalFavorites(ctx, user)
@@ -130,7 +134,8 @@ func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
 	reso := BookmarkCollectionResolver{
 		Results: &bookmarks,
 		Total:   total,
-		Offset:  offset,
+		First:   first,
+		Last:    last,
 		Limit:   limit,
 	}
 
@@ -139,17 +144,20 @@ func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
 
 // GetReadingList resolves the query
 func (r *Resolvers) GetReadingList(ctx context.Context, args struct {
-	Offset *int32
-	Limit  *int32
+	From  *string
+	To    *string
+	Limit *int32
 }) (*BookmarkCollectionResolver, error) {
-	fromArgs := GetBoundariesFromArgs(10)
-	offset, limit := fromArgs(args.Offset, args.Limit)
+	fromArgs := GetCursorBasedPagination(10)
+	from, to, limit := fromArgs(args.From, args.To, args.Limit)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, offset, limit)
+	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, from, to, limit)
 	if err != nil {
 		return nil, err
 	}
+
+	first, last := GetBookmarksBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Bookmarks.GetTotalReadingList(ctx, user)
@@ -165,7 +173,8 @@ func (r *Resolvers) GetReadingList(ctx context.Context, args struct {
 	reso := BookmarkCollectionResolver{
 		Results: &bookmarks,
 		Total:   total,
-		Offset:  offset,
+		First:   first,
+		Last:    last,
 		Limit:   limit,
 	}
 

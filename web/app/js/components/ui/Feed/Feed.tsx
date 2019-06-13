@@ -3,9 +3,9 @@ import PropTypes from "prop-types";
 import Loader from "../Loader";
 import FeedQuery, {
   hasReceivedData,
-  getFetchMore,
   LoadMore,
-  FeedItem
+  FeedItem,
+  getFetchMore
 } from "../../apollo/Query/Feed";
 import FeedContainer from "./Container";
 import useWindowBottom from "../../../hooks/window-bottom";

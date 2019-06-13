@@ -1,9 +1,10 @@
 #import "../fragment/bookmark.graphql"
 
-query ReadingList($offset: Int, $limit: Int) {
-  GetReadingList(offset: $offset, limit: $limit) @connection(key: "feed_reading_list") {
+query ReadingList($from: String, $to: String, $limit: Int) {
+  GetReadingList(from: $from, to: $to, limit: $limit) @connection(key: "feed_reading_list") {
     total
-    offset
+    first
+    last
     limit
     results {
       ...bookmarkFields
