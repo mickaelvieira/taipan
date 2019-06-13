@@ -53,6 +53,16 @@ function getDataKey(data: Data): string | null {
   return keys.length > 0 ? keys[0] : null;
 }
 
+function getBoundaries(results: FeedItem[]): [string, string] {
+  let first = "";
+  let last = "";
+  if (results.length > 0) {
+    first = results[0].id;
+    last = results[results.length - 1].id;
+  }
+  return [first, last];
+}
+
 const removeItemFromFeedResults = (
   result: FeedResult,
   item: FeedItem
@@ -67,10 +77,17 @@ const removeItemFromFeedResults = (
   }
 
   const cloned = cloneDeep(result);
-  cloned.total = result.total - 1;
-  cloned.results = cloned.results.filter(i => i.id !== item.id);
+  const total = result.total - 1;
+  const results = cloned.results.filter(i => i.id !== item.id);
+  const [first, last] = getBoundaries(results);
 
-  return cloned;
+  return {
+    ...cloned,
+    first,
+    last,
+    total,
+    results
+  };
 };
 
 function hasReceivedData(data: Data | undefined): [boolean, FeedItem[]] {

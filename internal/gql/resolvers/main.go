@@ -90,7 +90,7 @@ func GetRootResolver(repositories *repository.Repositories) (r *Resolvers) {
 	}
 
 	// initialiaze subscriptions
-	go r.broadcast()
+	// go r.broadcast()
 
 	return
 }

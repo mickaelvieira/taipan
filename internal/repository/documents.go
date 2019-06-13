@@ -10,7 +10,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // DocumentRepository the User Bookmark repository
@@ -48,26 +47,6 @@ func (r *DocumentRepository) GetByURL(ctx context.Context, u *url.URL) (*documen
 	}
 
 	return d, nil
-}
-
-// GetCursorDate find a single entry
-func (r *DocumentRepository) getCursorDate(ctx context.Context, id string) (t time.Time, err error) {
-	query := `
-		SELECT d.created_at
-		FROM documents AS d
-		WHERE id = ?
-	`
-	t = time.Now()
-	if id == "" {
-		return t, err
-	}
-
-	err = r.db.QueryRowContext(ctx, formatQuery(query), id).Scan(&t)
-	if err != nil && err != sql.ErrNoRows {
-		return time.Now(), err
-	}
-
-	return t, nil
 }
 
 // ExistWithURL checks whether a document already exists this the same URL
@@ -133,38 +112,23 @@ func (r *DocumentRepository) GetByIDs(ctx context.Context, ids []string) ([]*doc
 	return results, nil
 }
 
-func (r *DocumentRepository) getPagination(ctx context.Context, fromID string, toID string) (where []string, args []interface{}, err error) {
-	var fromDate, toDate time.Time
-	fromDate, err = r.getCursorDate(ctx, fromID)
-	if err != nil {
-		return
-	}
-
-	toDate, err = r.getCursorDate(ctx, toID)
-	if err != nil {
-		return
-	}
-
-	var query string
+func (r *DocumentRepository) getPagination(fromID string, toID string) (where []string, args []interface{}) {
+	var clause string
 	if fromID != "" && toID != "" {
-		query = "d.created_at <= ? AND d.created_at >= ? AND d.id NOT IN (?, ?)"
-		args = append(args, fromDate)
-		args = append(args, toDate)
+		clause = "d.id < ? AND d.id > ?"
 		args = append(args, fromID)
 		args = append(args, toID)
 	} else if fromID != "" && toID == "" {
-		query = "d.created_at <= ? AND d.id != ?"
-		args = append(args, fromDate)
+		clause = "d.id < ?"
 		args = append(args, fromID)
 	} else if fromID == "" && toID != "" {
-		query = "d.created_at >= ? AND d.id != ?"
-		args = append(args, toDate)
+		clause = "d.id > ?"
 		args = append(args, toID)
 	} else {
 		return
 	}
 
-	where = append(where, query)
+	where = append(where, clause)
 
 	return
 }
@@ -178,14 +142,10 @@ func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, fromI
 		FROM documents AS d
 		LEFT JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
-		ORDER BY d.created_at DESC
+		ORDER BY d.id DESC
 		LIMIT ?
 	`
-	where, args, err := r.getPagination(ctx, fromID, toID)
-	if err != nil {
-		return nil, err
-	}
-
+	where, args := r.getPagination(fromID, toID)
 	where = append(where, "(b.user_id IS NULL OR b.user_id != ?)")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
@@ -237,13 +197,14 @@ func (r *DocumentRepository) GetDocuments(ctx context.Context, fromID string, to
 	query := `
 		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
-		ORDER BY d.updated_at DESC
-		LIMIT ?, ?
+		WHERE %s
+		ORDER BY d.id DESC
+		LIMIT ?
 	`
-	where, args, err := r.getPagination(ctx, fromID, toID)
+	where, args := r.getPagination(fromID, toID)
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
-	args = append(args, limit)
 
+	args = append(args, limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
 		return nil, err
