@@ -88,9 +88,6 @@ const addItemsFromFeedResults = (
     results: []
   };
 
-  console.log(newsResults);
-  console.log(latestNewsResults);
-
   return [newsResults, latestNewsResults];
 };
 

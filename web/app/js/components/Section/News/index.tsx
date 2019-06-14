@@ -23,8 +23,7 @@ const mergeResults = client => {
   try {
     const oldData = client.readQuery({ query: queryNews });
     const newData = client.readQuery({ query: queryLatestNews });
-    console.log(oldData);
-    console.log(newData);
+
     if (oldData && newData) {
       const [newsResult, latestNewsResults] = addItemsFromFeedResults(
         oldData.News,
@@ -50,15 +49,9 @@ export default function News() {
   const [toId, setToId] = useState("");
   const poll = useRef<(time: number) => void | undefined>();
 
-  // console.log("toId");
-  // console.log(toId);
-
   useEffect(() => {
     if (toId && poll.current) {
-      console.log("start polling");
-      console.log("toId");
-      console.log(toId);
-      poll.current(5000);
+      poll.current(30000);
     }
   }, [toId]);
 
@@ -71,11 +64,11 @@ export default function News() {
             variables={{ pagination: { limit: 10, to: toId } }}
           >
             {({ data, client, startPolling, stopPolling }) => {
-              console.log("data");
-              console.log(data);
               poll.current = startPolling;
 
-              return !data || !data.News ? null : (
+              return !data ||
+                !data.News ||
+                data.News.results.length === 0 ? null : (
                 <div>
                   <Button
                     className={classes.button}
