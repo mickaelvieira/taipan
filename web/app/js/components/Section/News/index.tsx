@@ -26,16 +26,13 @@ export default function News() {
     <Layout>
       <ScrollToTop>
         <NewsContext.Provider value={setToId}>
-          <LatestNewsQuery
-            skip
-            variables={{ pagination: { limit: 10, to: toId } }}
-          >
+          <LatestNewsQuery variables={{ pagination: { limit: 10, to: toId } }}>
             {({ data, client, startPolling }) => {
               console.log("data");
               console.log(data);
               poll.current = startPolling;
 
-              return !data ? null : (
+              return !data || !data.News ? null : (
                 <div>See {data.News.results.length} news documents</div>
               );
             }}
