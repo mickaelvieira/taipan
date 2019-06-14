@@ -5,6 +5,7 @@ import {
   FetchMoreQueryOptions,
   FetchMoreOptions
 } from "apollo-boost";
+import { NewsResult } from "./LatestNews";
 import { Bookmark } from "../../../types/bookmark";
 import { Document } from "../../../types/document";
 import queryNews from "../../../services/apollo/query/news.graphql";
@@ -62,6 +63,36 @@ function getBoundaries(results: FeedItem[]): [string, string] {
   }
   return [first, last];
 }
+
+const addItemsFromFeedResults = (
+  result: FeedResult,
+  items: FeedResult
+): [FeedResult, NewsResult] => {
+  const cloned = cloneDeep(result);
+  const total = result.total + items.results.length;
+  cloned.results.unshift(...items.results);
+
+  const results = cloned.results;
+  const [first, last] = getBoundaries(results);
+
+  const newsResults = {
+    ...cloned,
+    first,
+    last,
+    total,
+    results
+  };
+
+  const latestNewsResults = {
+    ...items,
+    results: []
+  };
+
+  console.log(newsResults);
+  console.log(latestNewsResults);
+
+  return [newsResults, latestNewsResults];
+};
 
 const addItemFromFeedResults = (
   result: FeedResult,
@@ -174,6 +205,7 @@ export {
   queryReadingList,
   queryNews,
   variables,
+  addItemsFromFeedResults,
   addItemFromFeedResults,
   removeItemFromFeedResults,
   hasReceivedData,

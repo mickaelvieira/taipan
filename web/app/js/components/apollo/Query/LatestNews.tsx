@@ -12,10 +12,6 @@ export interface CursorPagination {
 }
 
 export interface NewsResult {
-  total: number;
-  first: string;
-  last: string;
-  limit: number;
   results: Document[];
 }
 
@@ -32,12 +28,13 @@ const variables = {
     limit: 10
   }
 };
+export { query, variables };
 
 class LatestNewsQuery extends Query<Data, Variables> {
   static defaultProps = {
     query,
     variables,
-    pollInterval: 10000
+    pollInterval: 0
   };
 }
 
