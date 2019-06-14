@@ -82,7 +82,7 @@ func (r *BookmarkResolver) IsRead() bool {
 }
 
 // GetBookmark resolves the query
-func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
+func (r *RootResolver) GetBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
@@ -104,7 +104,7 @@ func (r *Resolvers) GetBookmark(ctx context.Context, args struct {
 }
 
 // GetFavorites resolves the query
-func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
+func (r *RootResolver) GetFavorites(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*BookmarkCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)
@@ -140,8 +140,30 @@ func (r *Resolvers) GetFavorites(ctx context.Context, args struct {
 	return &reso, nil
 }
 
+// LatestFavorite subscription
+func (r *RootResolver) LatestFavorite(ctx context.Context) <-chan *BookmarkEvent {
+	c := make(chan *BookmarkEvent)
+	r.subscription <- &Subscriber{
+		events: c,
+		stop:   ctx.Done(),
+		topic:  Favorite,
+	}
+	return c
+}
+
+// LatestReadingList subscription
+func (r *RootResolver) LatestReadingList(ctx context.Context) <-chan *BookmarkEvent {
+	c := make(chan *BookmarkEvent)
+	r.subscription <- &Subscriber{
+		events: c,
+		stop:   ctx.Done(),
+		topic:  ReadingList,
+	}
+	return c
+}
+
 // GetReadingList resolves the query
-func (r *Resolvers) GetReadingList(ctx context.Context, args struct {
+func (r *RootResolver) GetReadingList(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*BookmarkCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)
@@ -178,7 +200,7 @@ func (r *Resolvers) GetReadingList(ctx context.Context, args struct {
 }
 
 // Bookmark bookmarks a URL
-func (r *Resolvers) Bookmark(ctx context.Context, args struct {
+func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
@@ -198,13 +220,26 @@ func (r *Resolvers) Bookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
+	e := &BookmarkEvent{
+		bookmark: b,
+		id:       randomID(),
+		topic:    ReadingList,
+	}
+
+	go func() {
+		select {
+		case r.events <- e:
+		case <-time.After(1 * time.Second):
+		}
+	}()
+
 	res := &BookmarkResolver{Bookmark: b}
 
 	return res, nil
 }
 
 // ChangeBookmarkReadStatus marks the bookmark as read or unread
-func (r *Resolvers) ChangeBookmarkReadStatus(ctx context.Context, args struct {
+func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct {
 	URL    string
 	IsRead bool
 }) (*BookmarkResolver, error) {
@@ -220,13 +255,31 @@ func (r *Resolvers) ChangeBookmarkReadStatus(ctx context.Context, args struct {
 		return nil, err
 	}
 
+	var topic = Favorite
+	if !b.IsRead {
+		topic = ReadingList
+	}
+
+	e := &BookmarkEvent{
+		bookmark: b,
+		id:       randomID(),
+		topic:    topic,
+	}
+
+	go func() {
+		select {
+		case r.events <- e:
+		case <-time.After(1 * time.Second):
+		}
+	}()
+
 	res := &BookmarkResolver{Bookmark: b}
 
 	return res, nil
 }
 
 // Unbookmark removes bookmark from user's list
-func (r *Resolvers) Unbookmark(ctx context.Context, args struct {
+func (r *RootResolver) Unbookmark(ctx context.Context, args struct {
 	URL string
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)

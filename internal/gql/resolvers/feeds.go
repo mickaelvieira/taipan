@@ -87,7 +87,7 @@ func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolve
 }
 
 // Feed adds a feed
-func (r *Resolvers) Feed(ctx context.Context, args struct {
+func (r *RootResolver) Feed(ctx context.Context, args struct {
 	URL string
 }) (*FeedResolver, error) {
 	if feed.IsBlacklisted(args.URL) {
@@ -125,7 +125,7 @@ func (r *Resolvers) Feed(ctx context.Context, args struct {
 }
 
 // Feeds resolves the query
-func (r *Resolvers) Feeds(ctx context.Context, args struct {
+func (r *RootResolver) Feeds(ctx context.Context, args struct {
 	Pagination OffsetPaginationInput
 }) (*FeedCollectionResolver, error) {
 	fromArgs := GetOffsetBasedPagination(10)

@@ -1,8 +1,8 @@
 package resolvers
 
 import (
+	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"math/rand"
 	"time"
 )
@@ -17,14 +17,14 @@ func randomID() string {
 	return string(b)
 }
 
-// Resolvers resolvers
-type Resolvers struct {
+// RootResolver resolvers
+type RootResolver struct {
 	repositories *repository.Repositories
-	subscriber   chan *Subscriber
-	events       chan *SubEvent
+	subscription chan *Subscriber
+	events       chan *BookmarkEvent
 }
 
-func (r *Resolvers) broadcast() {
+func (r *RootResolver) broadcast() {
 	subscribers := map[string]*Subscriber{} // map of subscribers
 	unsubscribe := make(chan string)        // unsubscribe channel
 
@@ -32,13 +32,16 @@ func (r *Resolvers) broadcast() {
 		select {
 		case id := <-unsubscribe:
 			delete(subscribers, id)
-		case s := <-r.subscriber:
-			id := randomID()
-			log.Printf("new subscriber %s\n", id)
-			subscribers[id] = s
-			log.Printf("subscribers %d\n", len(subscribers))
+		case s := <-r.subscription:
+			subscribers[randomID()] = s
 		case e := <-r.events:
 			for id, s := range subscribers {
+				// log.Printf("Event topic %s", e.topic)
+				// log.Printf("Subsciber topic %s", s.topic)
+				if e.topic != s.topic {
+					continue
+				}
+
 				go func(id string, s *Subscriber) {
 					select {
 					case <-s.stop:
@@ -59,38 +62,49 @@ func (r *Resolvers) broadcast() {
 	}
 }
 
-// SubEvent is a subscription event
-type SubEvent struct {
-	id  string
-	msg string
+// BookmarkEvent is a subscription event
+type BookmarkEvent struct {
+	id       string
+	bookmark *bookmark.Bookmark
+	topic    Topic
 }
 
-// Msg returns the event's message
-func (r *SubEvent) Msg() string {
-	return r.msg
+// Bookmark returns the event's message
+func (r *BookmarkEvent) Bookmark() *BookmarkResolver {
+	return &BookmarkResolver{Bookmark: r.bookmark}
 }
 
 // ID returns the event's ID
-func (r *SubEvent) ID() string {
+func (r *BookmarkEvent) ID() string {
 	return r.id
 }
 
 // Subscriber handles the pool of events
 type Subscriber struct {
 	stop   <-chan struct{}
-	events chan<- *SubEvent
+	events chan<- *BookmarkEvent
+	topic  Topic
 }
 
+// Topic Subscription topics
+type Topic string
+
+// List of topics
+const (
+	Favorite    Topic = "Favorite"
+	ReadingList Topic = "ReadingList"
+)
+
 // GetRootResolver returns the root resolver. Queries and mutations are methods of this resolver
-func GetRootResolver(repositories *repository.Repositories) (r *Resolvers) {
-	r = &Resolvers{
+func GetRootResolver(repositories *repository.Repositories) (r *RootResolver) {
+	r = &RootResolver{
 		repositories: repositories,
-		events:       make(chan *SubEvent),
-		subscriber:   make(chan *Subscriber),
+		events:       make(chan *BookmarkEvent),
+		subscription: make(chan *Subscriber),
 	}
 
 	// initialiaze subscriptions
-	// go r.broadcast()
+	go r.broadcast()
 
 	return
 }

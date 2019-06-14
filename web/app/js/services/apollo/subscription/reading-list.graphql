@@ -1,0 +1,10 @@
+#import "../fragment/bookmark.graphql"
+
+subscription onReadingList {
+  LatestReadingList {
+    id
+    bookmark {
+      ...bookmarkFields
+    }
+  }
+}

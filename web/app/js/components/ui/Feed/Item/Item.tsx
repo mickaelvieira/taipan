@@ -43,8 +43,8 @@ export default function Item({ children, query, item }: Props) {
           in={visible}
           unmountOnExit
           timeout={{
-            enter: 1000,
-            exit: 500
+            enter: 500,
+            exit: 400
           }}
           onExited={() => {
             try {

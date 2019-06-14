@@ -34,7 +34,7 @@ func (r *UserResolver) Lastname() string {
 }
 
 // User resolves the query
-func (r *Resolvers) User(ctx context.Context) (*UserResolver, error) {
+func (r *RootResolver) User(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 
 	res := UserResolver{User: user}

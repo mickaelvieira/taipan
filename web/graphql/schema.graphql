@@ -22,14 +22,13 @@ type Mutation {
 }
 
 type Subscription {
-  latestNews(): Event
-
-  # latestNews(from: String, to: String, limit: Int): DocumentCollection
+  LatestFavorite(): BookmarkEvent!
+  LatestReadingList(): BookmarkEvent!
 }
 
-type Event {
+type BookmarkEvent {
   id: String!
-  msg: String!
+  bookmark: Bookmark!
 }
 
 # @TODO Remove this status

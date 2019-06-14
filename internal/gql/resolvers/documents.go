@@ -8,7 +8,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/gql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"time"
 
 	"github.com/graph-gophers/dataloader"
@@ -99,17 +98,8 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 	return &resolvers, nil
 }
 
-// LatestNews subscription
-func (r *Resolvers) LatestNews(ctx context.Context) <-chan *SubEvent {
-	log.Println("Subscription started")
-	c := make(chan *SubEvent)
-	r.subscriber <- &Subscriber{events: c, stop: ctx.Done()}
-	log.Println("Subscription added")
-	return c
-}
-
 // News resolves the query
-func (r *Resolvers) News(ctx context.Context, args struct {
+func (r *RootResolver) News(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)
@@ -151,7 +141,7 @@ func (r *Resolvers) News(ctx context.Context, args struct {
 }
 
 // Documents resolves the query
-func (r *Resolvers) Documents(ctx context.Context, args struct {
+func (r *RootResolver) Documents(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollectionResolver, error) {
 	fromArgs := GetCursorBasedPagination(10)

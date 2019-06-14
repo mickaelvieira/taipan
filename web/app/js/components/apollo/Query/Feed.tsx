@@ -63,6 +63,30 @@ function getBoundaries(results: FeedItem[]): [string, string] {
   return [first, last];
 }
 
+const addItemFromFeedResults = (
+  result: FeedResult,
+  item: FeedItem
+): FeedResult => {
+  if (!item) {
+    return result;
+  }
+
+  const cloned = cloneDeep(result);
+  const total = result.total + 1;
+  cloned.results.unshift(item);
+
+  const results = cloned.results;
+  const [first, last] = getBoundaries(results);
+
+  return {
+    ...cloned,
+    first,
+    last,
+    total,
+    results
+  };
+};
+
 const removeItemFromFeedResults = (
   result: FeedResult,
   item: FeedItem
@@ -150,6 +174,7 @@ export {
   queryReadingList,
   queryNews,
   variables,
+  addItemFromFeedResults,
   removeItemFromFeedResults,
   hasReceivedData,
   getFetchMore,
