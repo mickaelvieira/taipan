@@ -18,13 +18,14 @@ export default () => {
       ? process.env.APP_GRAPHQL_ENDPOINT
       : "//localhost:9000/graphql";
 
-  const protocol = process.env.NODE_ENV === "production" ? "https:" : "http:";
+  const http = process.env.NODE_ENV === "production" ? "https:" : "http:";
+  const ws = process.env.NODE_ENV === "production" ? "wss:" : "ws:";
 
   const httpLink = new HttpLink({
-    uri: `${protocol}${endpoint}`
+    uri: `${http}${endpoint}`
   });
   const wsLink = new WebSocketLink({
-    uri: `ws:${endpoint}`,
+    uri: `${ws}${endpoint}`,
     options: {
       reconnect: true
     }
