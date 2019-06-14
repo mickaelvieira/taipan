@@ -1,0 +1,9 @@
+#import "../fragment/document.graphql"
+
+query News($pagination: CursorPaginationInput!) {
+  News(pagination: $pagination) @connection(key: "latest_news") {
+    results {
+      ...documentFields
+    }
+  }
+}
