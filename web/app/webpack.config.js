@@ -8,6 +8,7 @@ const Dotenv = require("dotenv-webpack");
 const srcDir = path.resolve(__dirname, "js");
 const tgtDir = path.resolve(__dirname, "../static");
 
+const isProd = process.env.NODE_ENV === "production";
 const isProduction = process.env.NODE_ENV === "production";
 const patternJsFiles = isProduction ? "[name].[contenthash].js" : "[name].js";
 const patternCssFiles = isProduction
@@ -54,7 +55,7 @@ module.exports = {
   },
   plugins: [
     new Dotenv({
-      path: "../../.env"
+      path: isProd ? "../../.env" : "../../.env.local"
     }),
     new MiniCssExtractPlugin({
       filename: `css/${patternCssFiles}`,

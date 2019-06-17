@@ -13,19 +13,14 @@ export default () => {
       id && __typename ? `${__typename}@${id}` : null
   });
 
-  const endpoint =
-    process.env.NODE_ENV === "production"
-      ? process.env.APP_GRAPHQL_ENDPOINT
-      : "//localhost:9000/graphql";
-
-  const http = process.env.NODE_ENV === "production" ? "https:" : "http:";
-  const ws = process.env.NODE_ENV === "production" ? "wss:" : "ws:";
+  const isEncrypted = process.env.APP_GRAPHQL_ENCRYPTED === "true";
+  const endpoint = process.env.APP_GRAPHQL_ENDPOINT;
 
   const httpLink = new HttpLink({
-    uri: `${http}${endpoint}`
+    uri: `http${isEncrypted ? "s" : ""}:${endpoint}`
   });
   const wsLink = new WebSocketLink({
-    uri: `${ws}${endpoint}`,
+    uri: `ws${isEncrypted ? "s" : ""}:${endpoint}`,
     options: {
       reconnect: true
     }
