@@ -256,19 +256,17 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 		return nil, err
 	}
 
-	var topic1 = Favorites
+	var removeFrom = ReadingList
+	var addTo = Favorites
 	if !b.IsRead {
-		topic1 = ReadingList
-	}
-	var topic2 = ReadingList
-	if !b.IsRead {
-		topic1 = Favorites
+		removeFrom = Favorites
+		addTo = ReadingList
 	}
 
 	e1 := &BookmarkEvent{
 		bookmark: b,
 		id:       randomID(),
-		topic:    topic1,
+		topic:    addTo,
 		action:   Add,
 	}
 
@@ -282,7 +280,7 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 	e2 := &BookmarkEvent{
 		bookmark: b,
 		id:       randomID(),
-		topic:    topic2,
+		topic:    removeFrom,
 		action:   Remove,
 	}
 
