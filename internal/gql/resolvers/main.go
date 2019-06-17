@@ -67,6 +67,7 @@ type BookmarkEvent struct {
 	id       string
 	bookmark *bookmark.Bookmark
 	topic    Topic
+	action   Action
 }
 
 // Bookmark returns the event's message
@@ -77,6 +78,16 @@ func (r *BookmarkEvent) Bookmark() *BookmarkResolver {
 // ID returns the event's ID
 func (r *BookmarkEvent) ID() string {
 	return r.id
+}
+
+// Topic returns the event's topic
+func (r *BookmarkEvent) Topic() string {
+	return string(r.topic)
+}
+
+// Action returns the event's action
+func (r *BookmarkEvent) Action() string {
+	return string(r.action)
 }
 
 // Subscriber handles the pool of events
@@ -91,8 +102,18 @@ type Topic string
 
 // List of topics
 const (
-	Favorite    Topic = "Favorite"
+	News        Topic = "News"
+	Favorites   Topic = "Favorites"
 	ReadingList Topic = "ReadingList"
+)
+
+// Action what type of action we want to perform the feed
+type Action string
+
+// List of actions
+const (
+	Add    Action = "Add"
+	Remove Action = "Remove"
 )
 
 // GetRootResolver returns the root resolver. Queries and mutations are methods of this resolver

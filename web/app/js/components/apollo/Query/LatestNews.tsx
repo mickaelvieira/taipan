@@ -2,6 +2,7 @@ import { Query } from "react-apollo";
 import { Bookmark } from "../../../types/bookmark";
 import { Document } from "../../../types/document";
 import query from "../../../services/apollo/query/latest-news.graphql";
+import { FeedData, FeedVariables } from "../../../types/feed";
 
 export type FeedItem = Bookmark | Document;
 
@@ -11,18 +12,6 @@ export interface CursorPagination {
   limit?: number;
 }
 
-export interface NewsResult {
-  results: Document[];
-}
-
-export interface Variables {
-  pagination: CursorPagination;
-}
-
-export interface Data {
-  [key: string]: NewsResult;
-}
-
 const variables = {
   pagination: {
     limit: 10
@@ -30,7 +19,7 @@ const variables = {
 };
 export { query, variables };
 
-class LatestNewsQuery extends Query<Data, Variables> {
+class LatestNewsQuery extends Query<FeedData, FeedVariables> {
   static defaultProps = {
     query,
     variables,

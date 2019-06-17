@@ -3,6 +3,8 @@
 subscription onReadingList {
   LatestReadingList {
     id
+    topic
+    action
     bookmark {
       ...bookmarkFields
     }

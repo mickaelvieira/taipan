@@ -146,7 +146,7 @@ func (r *RootResolver) LatestFavorite(ctx context.Context) <-chan *BookmarkEvent
 	r.subscription <- &Subscriber{
 		events: c,
 		stop:   ctx.Done(),
-		topic:  Favorite,
+		topic:  Favorites,
 	}
 	return c
 }
@@ -224,6 +224,7 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 		bookmark: b,
 		id:       randomID(),
 		topic:    ReadingList,
+		action:   Add,
 	}
 
 	go func() {
@@ -255,20 +256,39 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 		return nil, err
 	}
 
-	var topic = Favorite
+	var topic1 = Favorites
 	if !b.IsRead {
-		topic = ReadingList
+		topic1 = ReadingList
+	}
+	var topic2 = ReadingList
+	if !b.IsRead {
+		topic1 = Favorites
 	}
 
-	e := &BookmarkEvent{
+	e1 := &BookmarkEvent{
 		bookmark: b,
 		id:       randomID(),
-		topic:    topic,
+		topic:    topic1,
+		action:   Add,
 	}
 
 	go func() {
 		select {
-		case r.events <- e:
+		case r.events <- e1:
+		case <-time.After(1 * time.Second):
+		}
+	}()
+
+	e2 := &BookmarkEvent{
+		bookmark: b,
+		id:       randomID(),
+		topic:    topic2,
+		action:   Remove,
+	}
+
+	go func() {
+		select {
+		case r.events <- e2:
 		case <-time.After(1 * time.Second):
 		}
 	}()

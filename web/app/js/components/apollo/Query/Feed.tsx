@@ -1,47 +1,21 @@
-import { cloneDeep } from "lodash";
 import { Query } from "react-apollo";
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
   FetchMoreOptions
 } from "apollo-boost";
-import { NewsResult } from "./LatestNews";
-import { Bookmark } from "../../../types/bookmark";
-import { Document } from "../../../types/document";
+import { FeedVariables, FeedData } from "../../../types/feed";
+import { getDataKey } from "../helpers/data";
 import queryNews from "../../../services/apollo/query/news.graphql";
 import queryReadingList from "../../../services/apollo/query/reading-list.graphql";
 import queryFavorites from "../../../services/apollo/query/favorites.graphql";
 
-export type FeedItem = Bookmark | Document;
+export type FetchMore = <K extends keyof FeedVariables>(
+  fetchMoreOptions: FetchMoreQueryOptions<FeedVariables, K> &
+    FetchMoreOptions<FeedData, FeedVariables>
+) => Promise<ApolloQueryResult<FeedData>>;
 
-export interface CursorPagination {
-  from?: string;
-  to?: string;
-  limit?: number;
-}
-
-export interface FeedResult {
-  total: number;
-  first: string;
-  last: string;
-  limit: number;
-  results: FeedItem[];
-}
-
-export interface Variables {
-  pagination: CursorPagination;
-}
-
-export interface Data {
-  [key: string]: FeedResult;
-}
-
-export type FetchMore = <K extends keyof Variables>(
-  fetchMoreOptions: FetchMoreQueryOptions<Variables, K> &
-    FetchMoreOptions<Data, Variables>
-) => Promise<ApolloQueryResult<Data>>;
-
-export type LoadMore = () => Promise<ApolloQueryResult<Data>>;
+export type LoadMore = () => Promise<ApolloQueryResult<FeedData>>;
 
 const variables = {
   pagination: {
@@ -49,119 +23,9 @@ const variables = {
   }
 };
 
-function getDataKey(data: Data): string | null {
-  const keys = Object.keys(data);
-  return keys.length > 0 ? keys[0] : null;
-}
-
-function getBoundaries(results: FeedItem[]): [string, string] {
-  let first = "";
-  let last = "";
-  if (results.length > 0) {
-    first = results[0].id;
-    last = results[results.length - 1].id;
-  }
-  return [first, last];
-}
-
-const addItemsFromFeedResults = (
-  result: FeedResult,
-  items: FeedResult
-): [FeedResult, NewsResult] => {
-  const cloned = cloneDeep(result);
-  const total = result.total + items.results.length;
-  cloned.results.unshift(...items.results);
-
-  const results = cloned.results;
-  const [first, last] = getBoundaries(results);
-
-  const newsResults = {
-    ...cloned,
-    first,
-    last,
-    total,
-    results
-  };
-
-  const latestNewsResults = {
-    ...items,
-    results: []
-  };
-
-  return [newsResults, latestNewsResults];
-};
-
-const addItemFromFeedResults = (
-  result: FeedResult,
-  item: FeedItem
-): FeedResult => {
-  if (!item) {
-    return result;
-  }
-
-  const cloned = cloneDeep(result);
-  const total = result.total + 1;
-  cloned.results.unshift(item);
-
-  const results = cloned.results;
-  const [first, last] = getBoundaries(results);
-
-  return {
-    ...cloned,
-    first,
-    last,
-    total,
-    results
-  };
-};
-
-const removeItemFromFeedResults = (
-  result: FeedResult,
-  item: FeedItem
-): FeedResult => {
-  if (!item) {
-    return result;
-  }
-
-  const index = result.results.findIndex(i => i.id === item.id);
-  if (index < 0) {
-    return result;
-  }
-
-  const cloned = cloneDeep(result);
-  const total = result.total - 1;
-  const results = cloned.results.filter(i => i.id !== item.id);
-  const [first, last] = getBoundaries(results);
-
-  return {
-    ...cloned,
-    first,
-    last,
-    total,
-    results
-  };
-};
-
-function hasReceivedData(data: Data | undefined): [boolean, FeedItem[]] {
-  let hasResults = false;
-  let results: FeedItem[] = [];
-
-  if (data) {
-    const key = getDataKey(data);
-    if (key && "results" in data[key]) {
-      results = data[key].results;
-      if (results.length > 0) {
-        hasResults = true;
-      }
-    }
-  }
-
-  return [hasResults, results];
-}
-
 function getFetchMore(
   fetchMore: FetchMore,
-  data: Data | undefined
+  data: FeedData | undefined
 ): LoadMore | undefined {
   if (!data) {
     return undefined;
@@ -202,15 +66,11 @@ export {
   queryReadingList,
   queryNews,
   variables,
-  addItemsFromFeedResults,
-  addItemFromFeedResults,
-  removeItemFromFeedResults,
-  hasReceivedData,
   getFetchMore,
   getDataKey
 };
 
-class FeedQuery extends Query<Data, Variables> {
+class FeedQuery extends Query<FeedData, FeedVariables> {
   static defaultProps = {
     fetchPolicy: "cache-first",
     variables

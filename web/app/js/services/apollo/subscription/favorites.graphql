@@ -3,6 +3,8 @@
 subscription onFavorite {
   LatestFavorite {
     id
+    topic
+    action
     bookmark {
       ...bookmarkFields
     }

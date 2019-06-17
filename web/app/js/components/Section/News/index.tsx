@@ -5,7 +5,8 @@ import Layout from "../../Layout";
 import ScrollToTop from "../../ui/ScrollToTop";
 import Feed from "../../ui/Feed/Feed";
 import List from "./List";
-import { queryNews, addItemsFromFeedResults } from "../../apollo/Query/Feed";
+import { queryNews } from "../../apollo/Query/Feed";
+import { addItemsFromFeedResults } from "../../apollo/helpers/feed";
 import LatestNewsQuery, {
   query as queryLatestNews
 } from "../../apollo/Query/LatestNews";

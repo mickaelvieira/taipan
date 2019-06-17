@@ -1,17 +1,11 @@
 import { Subscription, OnSubscriptionDataOptions } from "react-apollo";
 import subscription from "../../../services/apollo/subscription/favorites.graphql";
-import {
-  queryFavorites as query,
-  addItemFromFeedResults,
-  getDataKey
-} from "../Query/Feed";
-import { Bookmark } from "../../../types/bookmark";
+import { queryFavorites as query, getDataKey } from "../Query/Feed";
+import { BookmarkEvent } from "../../../types/feed";
+import { feedResultsAction } from "../helpers/feed";
 
 export interface Data {
-  LatestFavorite: {
-    id: string;
-    bookmark: Bookmark;
-  };
+  LatestFavorite: BookmarkEvent;
 }
 
 const variables = {};
@@ -26,12 +20,14 @@ class LatestFavoriteSubscription extends Subscription<Data, {}> {
       subscriptionData
     }: OnSubscriptionDataOptions<Data>) => {
       if (subscriptionData.data) {
-        const item = subscriptionData.data.LatestFavorite.bookmark;
+        console.log(subscriptionData.data.LatestFavorite);
+        const { bookmark, action } = subscriptionData.data.LatestFavorite;
         const data = client.readQuery({ query });
+        const updateResult = feedResultsAction[action];
         if (data) {
           const key = getDataKey(data);
           if (key) {
-            const result = addItemFromFeedResults(data[key], item);
+            const result = updateResult(data[key], bookmark);
             client.writeQuery({
               query,
               data: { [key]: result }

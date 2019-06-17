@@ -29,6 +29,8 @@ type Subscription {
 type BookmarkEvent {
   id: String!
   bookmark: Bookmark!
+  topic: String!
+  action: String!
 }
 
 # @TODO Remove this status
