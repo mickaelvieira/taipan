@@ -4,14 +4,17 @@ import ScrollToTop from "../../ui/ScrollToTop";
 import Feed from "../../ui/Feed/Feed";
 import List from "./List";
 import { queryReadingList } from "../../apollo/Query/Feed";
-import ReadingListSubscription from "../../apollo/Subscription/ReadingList";
+import { subscriptionReadingList } from "../../apollo/Subscription/Feed";
 
 export default function ReadingList() {
   return (
     <Layout>
       <ScrollToTop>
-        <ReadingListSubscription>{() => <></>}</ReadingListSubscription>
-        <Feed List={List} query={queryReadingList} />
+        <Feed
+          List={List}
+          query={queryReadingList}
+          subscription={subscriptionReadingList}
+        />
       </ScrollToTop>
     </Layout>
   );

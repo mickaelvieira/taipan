@@ -1,12 +1,17 @@
-import { FeedData, FeedItem } from "../../../types/feed";
+import {
+  FeedQueryData,
+  FeedEventData,
+  FeedItem,
+  FeedEvent
+} from "../../../types/feed";
 
-export function getDataKey(data: FeedData): string | null {
+export function getDataKey(data: FeedQueryData | FeedEventData): string | null {
   const keys = Object.keys(data);
   return keys.length > 0 ? keys[0] : null;
 }
 
 export function hasReceivedData(
-  data: FeedData | undefined
+  data: FeedQueryData | undefined
 ): [boolean, FeedItem[]] {
   let hasResults = false;
   let results: FeedItem[] = [];
@@ -22,4 +27,23 @@ export function hasReceivedData(
   }
 
   return [hasResults, results];
+}
+
+export function hasReceivedEvent(
+  data: FeedEventData | undefined
+): [boolean, FeedEvent | null] {
+  let isReceived = false;
+  let event: FeedEvent | null = null;
+
+  if (data) {
+    const key = getDataKey(data);
+    if (key) {
+      event = data[key];
+      if (Object.keys(event).length > 0) {
+        isReceived = true;
+      }
+    }
+  }
+
+  return [isReceived, event];
 }

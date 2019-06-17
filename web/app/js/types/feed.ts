@@ -20,7 +20,7 @@ export interface CursorPagination {
   limit?: number;
 }
 
-export interface FeedQueryResult {
+export interface FeedResults {
   total: number;
   first: string;
   last: string;
@@ -28,9 +28,9 @@ export interface FeedQueryResult {
   results: FeedItem[];
 }
 
-export interface BookmarkEvent {
+export interface FeedEvent {
   id: string;
-  bookmark: Bookmark;
+  item: FeedItem;
   action: FeedAction;
   topic: FeedTopic;
 }
@@ -39,13 +39,17 @@ export interface FeedVariables {
   pagination: CursorPagination;
 }
 
-export interface FeedData {
-  [key: string]: FeedQueryResult;
+export interface FeedQueryData {
+  [key: string]: FeedResults;
+}
+
+export interface FeedEventData {
+  [key: string]: FeedEvent;
 }
 
 export type FeedTopic = "News" | "Favorites" | "ReadingList";
 export type FeedAction = "Add" | "Remove";
 
 export type FeedActions<T extends string> = {
-  [index in T]: (result: FeedQueryResult, item: FeedItem) => FeedQueryResult;
+  [index in T]: (result: FeedResults, item: FeedItem) => FeedResults;
 };

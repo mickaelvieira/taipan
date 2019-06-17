@@ -70,8 +70,8 @@ type BookmarkEvent struct {
 	action   Action
 }
 
-// Bookmark returns the event's message
-func (r *BookmarkEvent) Bookmark() *BookmarkResolver {
+// Item returns the event's message
+func (r *BookmarkEvent) Item() *BookmarkResolver {
 	return &BookmarkResolver{Bookmark: r.bookmark}
 }
 

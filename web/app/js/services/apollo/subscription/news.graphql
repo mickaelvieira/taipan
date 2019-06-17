@@ -1,0 +1,12 @@
+#import "../fragment/document.graphql"
+
+subscription onDocument {
+  LatestDocument {
+    id
+    topic
+    action
+    item {
+      ...documentFields
+    }
+  }
+}

@@ -5,7 +5,7 @@ subscription onReadingList {
     id
     topic
     action
-    bookmark {
+    item {
       ...bookmarkFields
     }
   }

@@ -28,7 +28,7 @@ type Subscription {
 
 type BookmarkEvent {
   id: String!
-  bookmark: Bookmark!
+  item: Bookmark!
   topic: String!
   action: String!
 }

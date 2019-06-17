@@ -2,7 +2,7 @@ import { Query } from "react-apollo";
 import { Bookmark } from "../../../types/bookmark";
 import { Document } from "../../../types/document";
 import query from "../../../services/apollo/query/latest-news.graphql";
-import { FeedData, FeedVariables } from "../../../types/feed";
+import { FeedQueryData, FeedVariables } from "../../../types/feed";
 
 export type FeedItem = Bookmark | Document;
 
@@ -19,7 +19,7 @@ const variables = {
 };
 export { query, variables };
 
-class LatestNewsQuery extends Query<FeedData, FeedVariables> {
+class LatestNewsQuery extends Query<FeedQueryData, FeedVariables> {
   static defaultProps = {
     query,
     variables,

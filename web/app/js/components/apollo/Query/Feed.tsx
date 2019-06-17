@@ -4,7 +4,7 @@ import {
   FetchMoreQueryOptions,
   FetchMoreOptions
 } from "apollo-boost";
-import { FeedVariables, FeedData } from "../../../types/feed";
+import { FeedVariables, FeedQueryData } from "../../../types/feed";
 import { getDataKey } from "../helpers/data";
 import queryNews from "../../../services/apollo/query/news.graphql";
 import queryReadingList from "../../../services/apollo/query/reading-list.graphql";
@@ -12,10 +12,10 @@ import queryFavorites from "../../../services/apollo/query/favorites.graphql";
 
 export type FetchMore = <K extends keyof FeedVariables>(
   fetchMoreOptions: FetchMoreQueryOptions<FeedVariables, K> &
-    FetchMoreOptions<FeedData, FeedVariables>
-) => Promise<ApolloQueryResult<FeedData>>;
+    FetchMoreOptions<FeedQueryData, FeedVariables>
+) => Promise<ApolloQueryResult<FeedQueryData>>;
 
-export type LoadMore = () => Promise<ApolloQueryResult<FeedData>>;
+export type LoadMore = () => Promise<ApolloQueryResult<FeedQueryData>>;
 
 const variables = {
   pagination: {
@@ -25,7 +25,7 @@ const variables = {
 
 function getFetchMore(
   fetchMore: FetchMore,
-  data: FeedData | undefined
+  data: FeedQueryData | undefined
 ): LoadMore | undefined {
   if (!data) {
     return undefined;
@@ -70,7 +70,7 @@ export {
   getDataKey
 };
 
-class FeedQuery extends Query<FeedData, FeedVariables> {
+class FeedQuery extends Query<FeedQueryData, FeedVariables> {
   static defaultProps = {
     fetchPolicy: "cache-first",
     variables

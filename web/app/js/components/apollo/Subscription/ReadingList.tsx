@@ -1,11 +1,11 @@
 import { Subscription, OnSubscriptionDataOptions } from "react-apollo";
 import subscription from "../../../services/apollo/subscription/reading-list.graphql";
-import { BookmarkEvent } from "../../../types/feed";
+import { FeedEvent } from "../../../types/feed";
 import { queryReadingList as query, getDataKey } from "../Query/Feed";
 import { feedResultsAction } from "../helpers/feed";
 
 export interface Data {
-  LatestReadingList: BookmarkEvent;
+  LatestReadingList: FeedEvent;
 }
 
 const variables = {};

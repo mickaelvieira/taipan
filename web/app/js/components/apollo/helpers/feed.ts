@@ -2,7 +2,7 @@ import { cloneDeep } from "lodash";
 import {
   FeedActions,
   FeedAction,
-  FeedQueryResult,
+  FeedResults,
   FeedItem
 } from "../../../types/feed";
 
@@ -17,9 +17,9 @@ function getBoundaries(results: FeedItem[]): [string, string] {
 }
 
 export function addItemsFromFeedResults(
-  result: FeedQueryResult,
-  items: FeedQueryResult
-): [FeedQueryResult, FeedQueryResult] {
+  result: FeedResults,
+  items: FeedResults
+): [FeedResults, FeedResults] {
   const cloned = cloneDeep(result);
   const total = result.total + items.results.length;
   cloned.results.unshift(...items.results);
@@ -44,9 +44,9 @@ export function addItemsFromFeedResults(
 }
 
 function addItemToFeedResults(
-  result: FeedQueryResult,
+  result: FeedResults,
   item: FeedItem
-): FeedQueryResult {
+): FeedResults {
   // @TODO I might have to add a condition to check whether the item is already in the cache
   if (!item) {
     return result;
@@ -69,9 +69,9 @@ function addItemToFeedResults(
 }
 
 function removeItemFromFeedResults(
-  result: FeedQueryResult,
+  result: FeedResults,
   item: FeedItem
-): FeedQueryResult {
+): FeedResults {
   if (!item) {
     return result;
   }

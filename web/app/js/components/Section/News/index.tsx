@@ -11,6 +11,7 @@ import LatestNewsQuery, {
   query as queryLatestNews
 } from "../../apollo/Query/LatestNews";
 import { NewsContext } from "../../context";
+import { subscriptionNews } from "../../apollo/Subscription/Feed";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -84,7 +85,7 @@ export default function News() {
               );
             }}
           </LatestNewsQuery>
-          <Feed List={List} query={queryNews} />
+          <Feed List={List} query={queryNews} subscription={subscriptionNews} />
         </NewsContext.Provider>
       </ScrollToTop>
     </Layout>
