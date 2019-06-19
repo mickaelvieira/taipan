@@ -7,7 +7,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Bookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import BookmarkMutation from "../apollo/Mutation/Bookmark";
+import CreateBookmarkMutation from "../apollo/Mutation/CreateBookmark";
 import { queryReadingList, variables } from "../apollo/Query/Feed";
 
 const useStyles = makeStyles({
@@ -30,8 +30,8 @@ export default function AddBookmark({
 
   return (
     <div>
-      <BookmarkMutation
-        onCompleted={({ Bookmark: bookmark }) => {
+      <CreateBookmarkMutation
+        onCompleted={({ CreateBookmark: bookmark }) => {
           setUrl("");
           onBookmarkCreated(bookmark);
         }}
@@ -72,8 +72,7 @@ export default function AddBookmark({
                 <Button
                   onClick={() =>
                     mutate({
-                      variables: { url },
-                      refetchQueries: [{ query: queryReadingList, variables }]
+                      variables: { url }
                     })
                   }
                   color="primary"
@@ -85,7 +84,7 @@ export default function AddBookmark({
             </>
           );
         }}
-      </BookmarkMutation>
+      </CreateBookmarkMutation>
     </div>
   );
 }

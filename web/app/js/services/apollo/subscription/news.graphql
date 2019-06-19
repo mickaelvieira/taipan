@@ -1,7 +1,7 @@
 #import "../fragment/document.graphql"
 
-subscription onDocument {
-  LatestDocument {
+subscription onNewsFeedChange {
+  NewsFeed {
     id
     topic
     action

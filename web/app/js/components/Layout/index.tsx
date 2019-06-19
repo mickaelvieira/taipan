@@ -85,7 +85,7 @@ export default function Layout({ children }: PropsWithChildren<{}>) {
       <SnackbarInfo open={!isOnline} info="You are offline" />
       <SnackbarInfo
         onClose={() => setInfo("")}
-        autoHideDuration={5000}
+        autoHideDuration={3000}
         open={info !== ""}
         info={info}
       />

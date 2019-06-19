@@ -4,6 +4,7 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"time"
@@ -140,10 +141,10 @@ func (r *RootResolver) GetFavorites(ctx context.Context, args struct {
 	return &reso, nil
 }
 
-// LatestFavorite subscription
-func (r *RootResolver) LatestFavorite(ctx context.Context) <-chan *BookmarkEvent {
+// FavoritesFeed subscribes to favorites feed bookmarksEvents
+func (r *RootResolver) FavoritesFeed(ctx context.Context) <-chan *BookmarkEvent {
 	c := make(chan *BookmarkEvent)
-	r.subscription <- &Subscriber{
+	r.bookmarksSubscription <- &BookmarkSubscriber{
 		events: c,
 		stop:   ctx.Done(),
 		topic:  Favorites,
@@ -151,10 +152,10 @@ func (r *RootResolver) LatestFavorite(ctx context.Context) <-chan *BookmarkEvent
 	return c
 }
 
-// LatestReadingList subscription
-func (r *RootResolver) LatestReadingList(ctx context.Context) <-chan *BookmarkEvent {
+// ReadingListFeed subscribes to reading list feed bookmarksEvents
+func (r *RootResolver) ReadingListFeed(ctx context.Context) <-chan *BookmarkEvent {
 	c := make(chan *BookmarkEvent)
-	r.subscription <- &Subscriber{
+	r.bookmarksSubscription <- &BookmarkSubscriber{
 		events: c,
 		stop:   ctx.Done(),
 		topic:  ReadingList,
@@ -199,8 +200,8 @@ func (r *RootResolver) GetReadingList(ctx context.Context, args struct {
 	return &reso, nil
 }
 
-// Bookmark bookmarks a URL
-func (r *RootResolver) Bookmark(ctx context.Context, args struct {
+// CreateBookmark creates a new document and add it to user's bookmarks
+func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
@@ -209,7 +210,8 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	d, err := usecase.Document(ctx, url, r.repositories)
+	var d *document.Document
+	d, err = usecase.Document(ctx, url, r.repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +222,7 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	e := &BookmarkEvent{
+	e1 := &BookmarkEvent{
 		bookmark: b,
 		id:       randomID(),
 		topic:    ReadingList,
@@ -229,7 +231,62 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 
 	go func() {
 		select {
-		case r.events <- e:
+		case r.bookmarksEvents <- e1:
+		case <-time.After(1 * time.Second):
+		}
+	}()
+
+	res := &BookmarkResolver{Bookmark: b}
+
+	return res, nil
+}
+
+// Bookmark bookmarks a URL
+func (r *RootResolver) Bookmark(ctx context.Context, args struct {
+	URL string
+}) (*BookmarkResolver, error) {
+	user := auth.FromContext(ctx)
+	url, err := url.FromRawURL(args.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	var d *document.Document
+	d, err = r.repositories.Documents.GetByURL(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+
+	var b *bookmark.Bookmark
+	b, err = usecase.Bookmark(ctx, user, d, r.repositories)
+	if err != nil {
+		return nil, err
+	}
+
+	e1 := &BookmarkEvent{
+		bookmark: b,
+		id:       randomID(),
+		topic:    ReadingList,
+		action:   Add,
+	}
+
+	go func() {
+		select {
+		case r.bookmarksEvents <- e1:
+		case <-time.After(1 * time.Second):
+		}
+	}()
+
+	e2 := &DocumentEvent{
+		document: d,
+		id:       randomID(),
+		topic:    News,
+		action:   Remove,
+	}
+
+	go func() {
+		select {
+		case r.documentsEvents <- e2:
 		case <-time.After(1 * time.Second):
 		}
 	}()
@@ -272,7 +329,7 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 
 	go func() {
 		select {
-		case r.events <- e1:
+		case r.bookmarksEvents <- e1:
 		case <-time.After(1 * time.Second):
 		}
 	}()
@@ -286,7 +343,7 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 
 	go func() {
 		select {
-		case r.events <- e2:
+		case r.bookmarksEvents <- e2:
 		case <-time.After(1 * time.Second):
 		}
 	}()

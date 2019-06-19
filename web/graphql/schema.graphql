@@ -17,14 +17,23 @@ type Query {
 
 type Mutation {
   Feed(url: String!): Feed
+  CreateBookmark(url: String!): Bookmark
   Bookmark(url: String!): Bookmark
   Unbookmark(url: String!): Document
   ChangeBookmarkReadStatus(url: String!, isRead: Boolean!): Bookmark
 }
 
 type Subscription {
-  LatestFavorite(): BookmarkEvent!
-  LatestReadingList(): BookmarkEvent!
+  NewsFeed(): DocumentEvent!
+  FavoritesFeed(): BookmarkEvent!
+  ReadingListFeed(): BookmarkEvent!
+}
+
+type DocumentEvent {
+  id: String!
+  item: Document!
+  topic: String!
+  action: String!
 }
 
 type BookmarkEvent {

@@ -98,6 +98,17 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 	return &resolvers, nil
 }
 
+// NewsFeed subscribes to news feed bookmarksEvents
+func (r *RootResolver) NewsFeed(ctx context.Context) <-chan *DocumentEvent {
+	c := make(chan *DocumentEvent)
+	r.documentsSubscription <- &DocumentSubscriber{
+		events: c,
+		stop:   ctx.Done(),
+		topic:  News,
+	}
+	return c
+}
+
 // News resolves the query
 func (r *RootResolver) News(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
