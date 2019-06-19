@@ -68,20 +68,20 @@ interface State {
 type Payload = string | FeedItem[] | undefined;
 
 enum QueueActions {
-  SET_FETCH_UNTIL = "to_id",
-  SET_FETCH_FROM = "from_id",
+  SET_FETCH_TO_ID = "to_id",
+  SET_FETCH_FROM_ID = "from_id",
   PUSH_DOCUMENTS = "documents",
   RESET = "reset"
 }
 
 function reducer(state: State, [type, payload]: [QueueActions, Payload]) {
   switch (type) {
-    case QueueActions.SET_FETCH_UNTIL:
+    case QueueActions.SET_FETCH_TO_ID:
       return {
         ...state,
         toId: payload as string
       };
-    case QueueActions.SET_FETCH_FROM:
+    case QueueActions.SET_FETCH_FROM_ID:
       return {
         ...state,
         fromId: payload as string
@@ -94,7 +94,7 @@ function reducer(state: State, [type, payload]: [QueueActions, Payload]) {
     case QueueActions.RESET:
       return { ...initialState };
     default:
-      throw new Error();
+      throw new Error(`Invalid action type '${type}'`);
   }
 }
 
@@ -119,28 +119,28 @@ export default withApollo(function Latest({
     // so we take the greatest ID in the feed
     // which is the first ID since the collection is in a descending order
     if (toId == "" && firstId !== "") {
-      dispatch([QueueActions.SET_FETCH_UNTIL, firstId]);
+      dispatch([QueueActions.SET_FETCH_TO_ID, firstId]);
     }
   }, [firstId, toId]);
 
   useEffect(() => {
-    const FREQUENCY = 5000;
-    let timeout: number | undefined = undefined;
+    const POLLING_FREQUENCY = 5000;
+    const POLLING_QUANTITY = 10;
+    let interval: number | undefined = undefined;
 
     function clearTimer() {
-      if (timeout) {
-        window.clearTimeout(timeout);
+      if (interval) {
+        window.clearTimeout(interval);
       }
     }
 
-    async function fetchData() {
-      const LIMIT = 10;
+    async function poll() {
       const result = await client.query({
         query,
         fetchPolicy: "no-cache",
         variables: {
           pagination: {
-            limit: LIMIT,
+            limit: POLLING_QUANTITY,
             to: toId
           }
         }
@@ -155,11 +155,16 @@ export default withApollo(function Latest({
       dispatch([QueueActions.PUSH_DOCUMENTS, results]);
       // the results are in an ascending order
       // so the last ID is the greatest ID
-      dispatch([QueueActions.SET_FETCH_UNTIL, last]);
+      dispatch([QueueActions.SET_FETCH_TO_ID, last]);
     }
 
     if (toId) {
-      timeout = window.setInterval(fetchData, FREQUENCY);
+      // we have the greatest ID we can start polling
+      // documents having a greater ID
+      interval = window.setInterval(poll, POLLING_FREQUENCY);
+    } else {
+      // we stop polling if we don't have the greatest ID
+      clearTimer();
     }
 
     return () => {
