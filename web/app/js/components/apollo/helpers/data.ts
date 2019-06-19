@@ -1,8 +1,8 @@
 import {
   FeedQueryData,
   FeedEventData,
-  FeedItem,
-  FeedEvent
+  FeedEvent,
+  FeedResults
 } from "../../../types/feed";
 
 export function getDataKey(data: FeedQueryData | FeedEventData): string | null {
@@ -12,15 +12,21 @@ export function getDataKey(data: FeedQueryData | FeedEventData): string | null {
 
 export function hasReceivedData(
   data: FeedQueryData | undefined
-): [boolean, FeedItem[]] {
+): [boolean, FeedResults] {
   let hasResults = false;
-  let results: FeedItem[] = [];
+  let results: FeedResults = {
+    first: "",
+    last: "",
+    results: [],
+    total: 0,
+    limit: 0
+  };
 
   if (data) {
     const key = getDataKey(data);
     if (key && "results" in data[key]) {
-      results = data[key].results;
-      if (results.length > 0) {
+      results = data[key];
+      if (data[key].results.length > 0) {
         hasResults = true;
       }
     }

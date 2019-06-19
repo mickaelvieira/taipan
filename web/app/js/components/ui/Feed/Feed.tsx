@@ -3,13 +3,15 @@ import PropTypes from "prop-types";
 import Loader from "../Loader";
 import FeedQuery, { LoadMore, getFetchMore } from "../../apollo/Query/Feed";
 import FeedSubscription from "../../apollo/Subscription/Feed";
-import { FeedItem } from "../../../types/feed";
+import { FeedItem, FeedResults } from "../../../types/feed";
 import { hasReceivedData } from "../../apollo/helpers/data";
 import FeedContainer from "./Container";
 import useWindowBottom from "../../../hooks/window-bottom";
 
 export interface ListProps {
   results: FeedItem[];
+  firstId: string;
+  lastId: string;
   query: PropTypes.Validator<object>;
 }
 
@@ -34,7 +36,8 @@ export default function Feed({ query, subscription, List }: Props) {
       <FeedSubscription query={query} subscription={subscription} />
       <FeedQuery query={query}>
         {({ data, loading, fetchMore }) => {
-          const [hasResults, results] = hasReceivedData(data);
+          const [hasResults, result] = hasReceivedData(data);
+          const { results = [], first = "", last = "" } = result;
 
           if (hasResults) {
             loadMore.current = getFetchMore(fetchMore, data);
@@ -44,7 +47,12 @@ export default function Feed({ query, subscription, List }: Props) {
             <>
               {loading && !hasResults && <Loader />}
               <FeedContainer>
-                <List results={results} query={query} />
+                <List
+                  results={results}
+                  firstId={first}
+                  lastId={last}
+                  query={query}
+                />
               </FeedContainer>
               {loading && hasResults && <Loader />}
             </>

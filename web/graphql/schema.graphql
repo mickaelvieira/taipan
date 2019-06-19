@@ -8,6 +8,7 @@ type Query {
   User(): User
   GetBookmark(url: String!): Bookmark
   News(pagination: CursorPaginationInput!): DocumentCollection
+  LatestNews(pagination: CursorPaginationInput!): DocumentCollection
   GetFavorites(pagination: CursorPaginationInput!): BookmarkCollection
   GetReadingList(pagination: CursorPaginationInput!): BookmarkCollection
   Feeds(pagination: OffsetPaginationInput!): FeedCollection

@@ -2,14 +2,7 @@ module.exports = {
   plugins: [
     ["lodash"],
     ["@babel/plugin-syntax-class-properties"],
-    [
-      "@babel/plugin-transform-regenerator",
-      {
-        asyncGenerators: false,
-        generators: false,
-        async: false
-      }
-    ],
+    ["@babel/plugin-transform-regenerator"],
     ["transform-class-properties"]
   ],
   env: {

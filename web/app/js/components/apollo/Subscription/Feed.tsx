@@ -15,7 +15,7 @@ interface Data extends OnSubscriptionDataOptions<FeedEventData> {
   query: PropTypes.Validator<object>;
 }
 
-export function onReceivedData({ client, subscriptionData, query }: Data) {
+function onReceivedData({ client, subscriptionData, query }: Data) {
   const [isReceived, event] = hasReceivedEvent(subscriptionData.data);
   console.log(event);
   if (isReceived) {
@@ -36,10 +36,10 @@ export function onReceivedData({ client, subscriptionData, query }: Data) {
 }
 
 export {
+  variables,
   subscriptionNews,
   subscriptionFavorites,
-  subscriptionReadingList,
-  variables
+  subscriptionReadingList
 };
 
 class FeedSubscription extends Subscription<FeedEventData, {}> {}

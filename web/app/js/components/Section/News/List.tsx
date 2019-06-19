@@ -1,23 +1,18 @@
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import { Document } from "../../../types/document";
 import Item from "./Item";
 import { ListProps } from "../../ui/Feed/Feed";
+import Latest from "./Latest";
 
-import { NewsContext } from "../../context";
-
-export default function DocumentList({ results, query }: ListProps) {
-  const setToId = useContext(NewsContext);
-  let firstId = "";
-  if (results.length > 0) {
-    firstId = results[0].id;
-  }
-
-  useEffect(() => {
-    setToId(firstId);
-  }, [firstId, setToId]);
-
+export default function DocumentList({
+  results,
+  firstId,
+  lastId,
+  query
+}: ListProps) {
   return (
     <>
+      <Latest firstId={firstId} lastId={lastId} />
       {results.map(result => (
         <Item document={result as Document} key={result.id} query={query} />
       ))}

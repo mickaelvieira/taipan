@@ -6,7 +6,7 @@ import {
   FeedItem
 } from "../../../types/feed";
 
-function getBoundaries(results: FeedItem[]): [string, string] {
+export function getBoundaries(results: FeedItem[]): [string, string] {
   let first = "";
   let last = "";
   if (results.length > 0) {
@@ -14,33 +14,6 @@ function getBoundaries(results: FeedItem[]): [string, string] {
     last = results[results.length - 1].id;
   }
   return [first, last];
-}
-
-export function addItemsFromFeedResults(
-  result: FeedResults,
-  items: FeedResults
-): [FeedResults, FeedResults] {
-  const cloned = cloneDeep(result);
-  const total = result.total + items.results.length;
-  cloned.results.unshift(...items.results);
-
-  const results = cloned.results;
-  const [first, last] = getBoundaries(results);
-
-  const newsResults = {
-    ...cloned,
-    first,
-    last,
-    total,
-    results
-  };
-
-  const latestNewsResults = {
-    ...items,
-    results: []
-  };
-
-  return [newsResults, latestNewsResults];
 }
 
 function addItemToFeedResults(

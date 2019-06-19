@@ -17,6 +17,7 @@ const variables = {
     limit: 10
   }
 };
+
 export { query, variables };
 
 class LatestNewsQuery extends Query<FeedQueryData, FeedVariables> {

@@ -133,8 +133,8 @@ func (r *DocumentRepository) getPagination(fromID string, toID string) (where []
 	return
 }
 
-// FindNew find newest entries
-func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, fromID string, toID string, limit int32) ([]*document.Document, error) {
+// GetNews find newest entries
+func (r *DocumentRepository) GetNews(ctx context.Context, user *user.User, fromID string, toID string, limit int32, isDescending bool) ([]*document.Document, error) {
 	var results []*document.Document
 
 	query := `
@@ -142,12 +142,17 @@ func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, fromI
 		FROM documents AS d
 		LEFT JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
-		ORDER BY d.id DESC
+		ORDER BY d.id %s
 		LIMIT ?
 	`
+	dir := "ASC"
+	if isDescending {
+		dir = "DESC"
+	}
+
 	where, args := r.getPagination(fromID, toID)
 	where = append(where, "(b.user_id IS NULL OR b.user_id != ?)")
-	query = fmt.Sprintf(query, strings.Join(where, " AND "))
+	query = fmt.Sprintf(query, strings.Join(where, " AND "), dir)
 
 	args = append(args, user.ID)
 	args = append(args, limit)
@@ -169,6 +174,35 @@ func (r *DocumentRepository) FindNew(ctx context.Context, user *user.User, fromI
 	}
 
 	return results, nil
+}
+
+// GetTotalLatestNews returns the number of latest news
+func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, user *user.User, fromID string, toID string, isDescending bool) (int32, error) {
+	var total int32
+
+	query := `
+		SELECT COUNT(d.id) AS total
+		FROM documents AS d
+		LEFT JOIN bookmarks AS b ON b.document_id = d.id
+		WHERE %s
+		ORDER BY d.id %s
+	`
+	dir := "ASC"
+	if isDescending {
+		dir = "DESC"
+	}
+
+	where, args := r.getPagination(fromID, toID)
+	where = append(where, "(b.user_id IS NULL OR b.user_id != ?)")
+	query = fmt.Sprintf(query, strings.Join(where, " AND "), dir)
+
+	args = append(args, user.ID)
+	err := r.db.QueryRowContext(ctx, formatQuery(query), args...).Scan(&total)
+	if err != nil {
+		return total, err
+	}
+
+	return total, nil
 }
 
 // GetTotalNew returns the total of new documents

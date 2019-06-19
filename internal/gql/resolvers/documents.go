@@ -106,7 +106,7 @@ func (r *RootResolver) News(ctx context.Context, args struct {
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Documents.FindNew(ctx, user, from, to, limit)
+	results, err := r.repositories.Documents.GetNews(ctx, user, from, to, limit, true)
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +115,48 @@ func (r *RootResolver) News(ctx context.Context, args struct {
 
 	var total int32
 	total, err = r.repositories.Documents.GetTotalNew(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
+	var documents []*DocumentResolver
+	for _, result := range results {
+		documents = append(documents, &DocumentResolver{
+			Document:     result,
+			logsLoader:   logsLoader,
+			repositories: r.repositories,
+		})
+	}
+
+	reso := DocumentCollectionResolver{
+		Results: &documents,
+		Total:   total,
+		First:   first,
+		Last:    last,
+		Limit:   limit,
+	}
+
+	return &reso, nil
+}
+
+// LatestNews resolves the query
+func (r *RootResolver) LatestNews(ctx context.Context, args struct {
+	Pagination CursorPaginationInput
+}) (*DocumentCollectionResolver, error) {
+	fromArgs := GetCursorBasedPagination(10)
+	from, to, limit := fromArgs(args.Pagination)
+	user := auth.FromContext(ctx)
+
+	results, err := r.repositories.Documents.GetNews(ctx, user, from, to, limit, false)
+	if err != nil {
+		return nil, err
+	}
+
+	first, last := GetDocumentsBoundaryIDs(results)
+
+	var total int32
+	total, err = r.repositories.Documents.GetTotalLatestNews(ctx, user, from, to, false)
 	if err != nil {
 		return nil, err
 	}
