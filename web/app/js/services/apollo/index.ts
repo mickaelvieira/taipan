@@ -1,7 +1,8 @@
 import ApolloClient from "apollo-client";
 import { IdGetterObj } from "apollo-boost";
 import { InMemoryCache } from "apollo-cache-inmemory";
-import { split } from "apollo-link";
+import { split, concat } from "apollo-link";
+import { onError } from "apollo-link-error";
 import { HttpLink } from "apollo-link-http";
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
@@ -26,7 +27,7 @@ export default () => {
     }
   });
 
-  const link = split(
+  const transportLink = split(
     ({ query }) => {
       const definition = getMainDefinition(query);
       return (
@@ -38,6 +39,19 @@ export default () => {
     httpLink
   );
 
+  const errorLink = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors)
+      graphQLErrors.map(({ message, locations, path }) =>
+        console.log(
+          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+        )
+      );
+    if (networkError) {
+      console.log(`[Network error]: ${networkError}`);
+    }
+  });
+
+  const link = concat(errorLink, transportLink);
   const client = new ApolloClient({
     link,
     cache

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Loader from "../Loader";
 import FeedQuery, { LoadMore, getFetchMore } from "../../apollo/Query/Feed";
 import FeedSubscription from "../../apollo/Subscription/Feed";
-import { FeedItem, FeedResults } from "../../../types/feed";
+import { FeedItem } from "../../../types/feed";
 import { hasReceivedData } from "../../apollo/helpers/data";
 import FeedContainer from "./Container";
 import useWindowBottom from "../../../hooks/window-bottom";

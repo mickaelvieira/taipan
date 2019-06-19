@@ -1,5 +1,8 @@
 import React from "react";
-import { Subscription, OnSubscriptionDataOptions } from "react-apollo";
+import {
+  Subscription as SubscriptionBase,
+  OnSubscriptionDataOptions
+} from "react-apollo";
 import PropTypes from "prop-types";
 import subscriptionNews from "../../../services/apollo/subscription/news.graphql";
 import subscriptionFavorites from "../../../services/apollo/subscription/favorites.graphql";
@@ -42,20 +45,20 @@ export {
   subscriptionReadingList
 };
 
-class FeedSubscription extends Subscription<FeedEventData, {}> {}
+class Subscription extends SubscriptionBase<FeedEventData, {}> {}
 
 interface Props {
   query: PropTypes.Validator<object>;
   subscription: PropTypes.Validator<object>;
 }
 
-export default function({ subscription, query }: Props) {
+export default function FeedSubscription({ subscription, query }: Props) {
   return (
-    <FeedSubscription
+    <Subscription
       subscription={subscription}
       onSubscriptionData={options => onReceivedData({ ...options, query })}
     >
       {() => null}
-    </FeedSubscription>
+    </Subscription>
   );
 }
