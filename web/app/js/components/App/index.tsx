@@ -4,7 +4,12 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import getApolloClient from "../../services/apollo";
-import { NewsSection, ReadingListSection, FavoritesSection } from "../Section";
+import {
+  ErrorSection,
+  NewsSection,
+  ReadingListSection,
+  FavoritesSection
+} from "../Section";
 import uiTheme from "../ui/theme";
 import Loader from "../ui/Loader";
 import UserQuery from "../apollo/Query/User";
@@ -28,7 +33,7 @@ export default function App() {
               }
 
               if (error) {
-                return <p>Oops</p>;
+                return <ErrorSection error={error} />;
               }
 
               return !data || !data.User ? null : (
