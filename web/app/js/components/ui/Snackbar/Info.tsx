@@ -23,10 +23,10 @@ export default function SnackbarInfo({ info, ...rest }: Props) {
     <Snackbar
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       ContentProps={{
-        "aria-describedby": "offline-message-snackbar"
+        "aria-describedby": "message-snackbar"
       }}
       message={
-        <span id="offline-message-snackbar" className={classes.message}>
+        <span id="message-snackbar" className={classes.message}>
           <InfoIcon className={classes.icon} />
           {info}
         </span>
