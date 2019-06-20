@@ -56,26 +56,34 @@ function updateFeed(client: ApolloClient<object>, documents: FeedItem[]) {
 const initialState = {
   fromId: "",
   toId: "",
-  documents: []
+  documents: [],
+  shouldWait: true
 };
 
 interface State {
   fromId: string;
   toId: string;
   documents: FeedItem[];
+  shouldWait: boolean;
 }
 
-type Payload = string | FeedItem[] | undefined;
+type Payload = string | boolean | FeedItem[] | undefined;
 
 enum QueueActions {
   SET_FETCH_TO_ID = "to_id",
   SET_FETCH_FROM_ID = "from_id",
+  SET_SHOULD_WAIT = "waiting",
   PUSH_DOCUMENTS = "documents",
   RESET = "reset"
 }
 
 function reducer(state: State, [type, payload]: [QueueActions, Payload]) {
   switch (type) {
+    case QueueActions.SET_SHOULD_WAIT:
+      return {
+        ...state,
+        shouldWait: payload as boolean
+      };
     case QueueActions.SET_FETCH_TO_ID:
       return {
         ...state,
@@ -112,7 +120,7 @@ export default withApollo(function Latest({
     reducer,
     initialState
   );
-  const { toId, documents } = state;
+  const { shouldWait, toId, documents } = state;
 
   useEffect(() => {
     // We don't have yet the greatest ID in the queue
@@ -124,13 +132,22 @@ export default withApollo(function Latest({
   }, [firstId, toId]);
 
   useEffect(() => {
-    const POLLING_FREQUENCY = 5000;
+    const WAITING_TIME = 30000;
+    const POLLING_FREQUENCY = 10000;
     const POLLING_QUANTITY = 10;
+    const MAX_QUEUE_LENGTH = 50;
+    let timeout: number | undefined = undefined;
     let interval: number | undefined = undefined;
 
-    function clearTimer() {
+    function stopPolling() {
       if (interval) {
-        window.clearTimeout(interval);
+        window.clearInterval(interval);
+      }
+    }
+
+    function stopWaiting() {
+      if (timeout) {
+        window.clearTimeout(timeout);
       }
     }
 
@@ -158,19 +175,30 @@ export default withApollo(function Latest({
       dispatch([QueueActions.SET_FETCH_TO_ID, last]);
     }
 
-    if (toId) {
+    if (shouldWait) {
+      // We need to wait before starting polling
+      // otherwise it is overwhelming for the user
+      timeout = window.setTimeout(
+        () => dispatch([QueueActions.SET_SHOULD_WAIT, false]),
+        WAITING_TIME
+      );
+    } else if (documents.length >= MAX_QUEUE_LENGTH) {
+      // No need to load the queue with hundreds of documents
+      stopPolling();
+    } else if (toId) {
       // we have the greatest ID we can start polling
       // documents having a greater ID
       interval = window.setInterval(poll, POLLING_FREQUENCY);
     } else {
       // we stop polling if we don't have the greatest ID
-      clearTimer();
+      stopPolling();
     }
 
     return () => {
-      clearTimer();
+      stopPolling();
+      stopWaiting();
     };
-  }, [client, toId]);
+  }, [client, documents.length, shouldWait, toId]);
 
   return documents.length === 0 ? null : (
     <div className={classes.container}>
