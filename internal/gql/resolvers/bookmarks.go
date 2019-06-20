@@ -142,24 +142,18 @@ func (r *RootResolver) GetFavorites(ctx context.Context, args struct {
 }
 
 // FavoritesFeed subscribes to favorites feed bookmarksEvents
-func (r *RootResolver) FavoritesFeed(ctx context.Context) <-chan *BookmarkEvent {
-	c := make(chan *BookmarkEvent)
-	s := &BookmarkSubscriber{
-		Events: c,
-	}
-	r.bookmarksSubscription.Subscribe(Favorites, s, ctx.Done())
-
+func (r *RootResolver) FavoritesFeed(ctx context.Context) <-chan *BookmarkEventResolver {
+	c := make(chan *BookmarkEventResolver)
+	s := &BookmarkSubscriber{events: c}
+	r.subscriptions.Subscribe(Favorites, s, ctx.Done())
 	return c
 }
 
 // ReadingListFeed subscribes to reading list feed bookmarksEvents
-func (r *RootResolver) ReadingListFeed(ctx context.Context) <-chan *BookmarkEvent {
-	c := make(chan *BookmarkEvent)
-	s := &BookmarkSubscriber{
-		Events: c,
-	}
-	r.bookmarksSubscription.Subscribe(ReadingList, s, ctx.Done())
-
+func (r *RootResolver) ReadingListFeed(ctx context.Context) <-chan *BookmarkEventResolver {
+	c := make(chan *BookmarkEventResolver)
+	s := &BookmarkSubscriber{events: c}
+	r.subscriptions.Subscribe(ReadingList, s, ctx.Done())
 	return c
 }
 
@@ -223,8 +217,7 @@ func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	e := NewEvent(ReadingList, Add, b)
-	r.documentsSubscription.Publish(e)
+	r.subscriptions.Publish(NewFeedEvent(ReadingList, Add, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -260,11 +253,8 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 		addTo = Favorites
 	}
 
-	e1 := NewEvent(addTo, Add, b)
-	r.bookmarksSubscription.Publish(e1)
-
-	e2 := NewEvent(removeFrom, Remove, b)
-	r.bookmarksSubscription.Publish(e2)
+	r.subscriptions.Publish(NewFeedEvent(addTo, Add, b))
+	r.subscriptions.Publish(NewFeedEvent(removeFrom, Remove, d))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -294,11 +284,8 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 		addTo = ReadingList
 	}
 
-	e1 := NewEvent(addTo, Add, b)
-	r.bookmarksSubscription.Publish(e1)
-
-	e2 := NewEvent(removeFrom, Remove, b)
-	r.bookmarksSubscription.Publish(e2)
+	r.subscriptions.Publish(NewFeedEvent(addTo, Add, b))
+	r.subscriptions.Publish(NewFeedEvent(removeFrom, Remove, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 

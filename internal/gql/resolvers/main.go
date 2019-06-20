@@ -6,16 +6,18 @@ import (
 
 // RootResolver resolvers
 type RootResolver struct {
-	repositories          *repository.Repositories
-	bookmarksSubscription *Subscription
-	documentsSubscription *Subscription
+	repositories  *repository.Repositories
+	subscriptions *Subscription
 }
 
-// GetRootResolver returns the root resolver. Queries and mutations are methods of this resolver
+// GetRootResolver returns the root resolver.
+// Queries, Mutations and Subscriptions are methods of this resolver
+// The root resolver owns a subscription bus to broadcast feed events
 func GetRootResolver(repositories *repository.Repositories) *RootResolver {
 	return &RootResolver{
-		repositories:          repositories,
-		bookmarksSubscription: &Subscription{subscribers: make(map[Topic]map[string]Subscriber)},
-		documentsSubscription: &Subscription{subscribers: make(map[Topic]map[string]Subscriber)},
+		repositories: repositories,
+		subscriptions: &Subscription{
+			subscribers: make(map[FeedTopic]Subscribers),
+		},
 	}
 }
