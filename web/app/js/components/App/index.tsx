@@ -4,12 +4,7 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import getApolloClient from "../../services/apollo";
-import {
-  ErrorSection,
-  NewsSection,
-  ReadingListSection,
-  FavoritesSection
-} from "../Section";
+import { ErrorPage, NewsPage, ReadingListPage, FavoritesPage } from "../Page";
 import uiTheme from "../ui/theme";
 import Loader from "../ui/Loader";
 import UserQuery from "../apollo/Query/User";
@@ -33,23 +28,19 @@ export default function App() {
               }
 
               if (error) {
-                return <ErrorSection error={error} />;
+                return <ErrorPage error={error} />;
               }
 
               return !data || !data.User ? null : (
                 <UserContext.Provider value={data.User}>
                   <Switch>
-                    <Route exact path="/" component={NewsSection} />
+                    <Route exact path="/" component={NewsPage} />
                     <Route
                       exact
                       path="/reading-list"
-                      component={ReadingListSection}
+                      component={ReadingListPage}
                     />
-                    <Route
-                      exact
-                      path="/favorites"
-                      component={FavoritesSection}
-                    />
+                    <Route exact path="/favorites" component={FavoritesPage} />
                   </Switch>
                 </UserContext.Provider>
               );
