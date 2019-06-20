@@ -1,10 +1,10 @@
 import dbFeed from "./feed";
 import dbUser from "./user";
 import dbBookmarks from "./bookmarks";
-import defaultState, { RootState } from "store/reducer/default";
-import { Bookmark } from "types/bookmark";
+import { Bookmark } from "../../types/bookmark";
 
-export async function getDBState(): Promise<RootState> {
+/* eslint @typescript-eslint/no-explicit-any: off */
+export async function getDBState(): Promise<any> {
   const bkmks = await dbBookmarks.all();
   const feed = await dbFeed.all();
   const user = await dbUser.get();
@@ -15,15 +15,8 @@ export async function getDBState(): Promise<RootState> {
   });
 
   return {
-    ...defaultState,
-    index: {
-      ...defaultState.index,
-      bookmarks
-    },
-    feed: {
-      ...defaultState.feed,
-      items: feed.results
-    },
+    bookmarks,
+    feed,
     user
   };
 }

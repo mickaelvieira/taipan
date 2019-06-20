@@ -1,8 +1,8 @@
 {
-  "name": "fe",
-  "version": "0.0.1",
-  "main": "server.js",
-  "repository": "git@github.com:mickaelvieira/fe.git",
+  "name": "taipan",
+  "version": "0.0.2",
+  "main": "js/app.ts",
+  "repository": "git@github.com:mickaelvieira/taipan.git",
   "author": "Mickael Vieira <contact@mickael-vieira.com>",
   "license": "MIT",
   "private": true,

@@ -1,5 +1,5 @@
-import { Bookmark } from "types/bookmark";
-import { ResultsFilter, StoreName, Mode } from "services/db/types";
+import { Bookmark } from "../../types/bookmark";
+import { ResultsFilter, StoreName, Mode } from "../db/types";
 import { getDBStore } from "../idb";
 
 export async function upsert(item: Bookmark) {
@@ -19,7 +19,7 @@ export async function all(): Promise<Bookmark[]> {
 
 export async function unread(): Promise<Bookmark[]> {
   const store = await getDBStore(StoreName.BOOKMARKS);
-  return store.select((item: Bookmark) => !item.is_read);
+  return store.select((item: Bookmark) => !item.isRead);
 }
 
 export async function select(filter: ResultsFilter): Promise<Bookmark[]> {
@@ -27,7 +27,8 @@ export async function select(filter: ResultsFilter): Promise<Bookmark[]> {
   return store.select(filter);
 }
 
-export async function remove(id: string): Promise<{}> {
+/* eslint @typescript-eslint/no-explicit-any: off */
+export async function remove(id: string): Promise<any> {
   const store = await getDBStore(StoreName.BOOKMARKS, Mode.READWRITE);
   return store.delete(id);
 }
