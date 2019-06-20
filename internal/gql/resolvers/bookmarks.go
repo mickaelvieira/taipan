@@ -144,22 +144,22 @@ func (r *RootResolver) GetFavorites(ctx context.Context, args struct {
 // FavoritesFeed subscribes to favorites feed bookmarksEvents
 func (r *RootResolver) FavoritesFeed(ctx context.Context) <-chan *BookmarkEvent {
 	c := make(chan *BookmarkEvent)
-	r.bookmarksSubscription <- &BookmarkSubscriber{
-		events: c,
-		stop:   ctx.Done(),
-		topic:  Favorites,
+	s := &BookmarkSubscriber{
+		Events: c,
 	}
+	r.bookmarksSubscription.Subscribe(Favorites, s, ctx.Done())
+
 	return c
 }
 
 // ReadingListFeed subscribes to reading list feed bookmarksEvents
 func (r *RootResolver) ReadingListFeed(ctx context.Context) <-chan *BookmarkEvent {
 	c := make(chan *BookmarkEvent)
-	r.bookmarksSubscription <- &BookmarkSubscriber{
-		events: c,
-		stop:   ctx.Done(),
-		topic:  ReadingList,
+	s := &BookmarkSubscriber{
+		Events: c,
 	}
+	r.bookmarksSubscription.Subscribe(ReadingList, s, ctx.Done())
+
 	return c
 }
 
@@ -223,19 +223,8 @@ func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	e1 := &BookmarkEvent{
-		bookmark: b,
-		id:       randomID(),
-		topic:    ReadingList,
-		action:   Add,
-	}
-
-	go func() {
-		select {
-		case r.bookmarksEvents <- e1:
-		case <-time.After(1 * time.Second):
-		}
-	}()
+	e := NewEvent(ReadingList, Add, b)
+	r.documentsSubscription.Publish(e)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -271,33 +260,11 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 		addTo = Favorites
 	}
 
-	e1 := &BookmarkEvent{
-		bookmark: b,
-		id:       randomID(),
-		topic:    addTo,
-		action:   Add,
-	}
+	e1 := NewEvent(addTo, Add, b)
+	r.bookmarksSubscription.Publish(e1)
 
-	go func() {
-		select {
-		case r.bookmarksEvents <- e1:
-		case <-time.After(1 * time.Second):
-		}
-	}()
-
-	e2 := &DocumentEvent{
-		document: d,
-		id:       randomID(),
-		topic:    removeFrom,
-		action:   Remove,
-	}
-
-	go func() {
-		select {
-		case r.documentsEvents <- e2:
-		case <-time.After(1 * time.Second):
-		}
-	}()
+	e2 := NewEvent(removeFrom, Remove, b)
+	r.bookmarksSubscription.Publish(e2)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -327,33 +294,11 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 		addTo = ReadingList
 	}
 
-	e1 := &BookmarkEvent{
-		bookmark: b,
-		id:       randomID(),
-		topic:    addTo,
-		action:   Add,
-	}
+	e1 := NewEvent(addTo, Add, b)
+	r.bookmarksSubscription.Publish(e1)
 
-	go func() {
-		select {
-		case r.bookmarksEvents <- e1:
-		case <-time.After(1 * time.Second):
-		}
-	}()
-
-	e2 := &BookmarkEvent{
-		bookmark: b,
-		id:       randomID(),
-		topic:    removeFrom,
-		action:   Remove,
-	}
-
-	go func() {
-		select {
-		case r.bookmarksEvents <- e2:
-		case <-time.After(1 * time.Second):
-		}
-	}()
+	e2 := NewEvent(removeFrom, Remove, b)
+	r.bookmarksSubscription.Publish(e2)
 
 	res := &BookmarkResolver{Bookmark: b}
 

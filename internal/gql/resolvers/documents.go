@@ -101,11 +101,11 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 // NewsFeed subscribes to news feed bookmarksEvents
 func (r *RootResolver) NewsFeed(ctx context.Context) <-chan *DocumentEvent {
 	c := make(chan *DocumentEvent)
-	r.documentsSubscription <- &DocumentSubscriber{
-		events: c,
-		stop:   ctx.Done(),
-		topic:  News,
+	s := &DocumentSubscriber{
+		Events: c,
 	}
+	r.documentsSubscription.Subscribe(News, s, ctx.Done())
+
 	return c
 }
 
