@@ -7,10 +7,10 @@ schema {
 type Query {
   User(): User
   GetBookmark(url: String!): Bookmark
-  News(pagination: CursorPaginationInput!): DocumentCollection
-  LatestNews(pagination: CursorPaginationInput!): DocumentCollection
-  GetFavorites(pagination: CursorPaginationInput!): BookmarkCollection
-  GetReadingList(pagination: CursorPaginationInput!): BookmarkCollection
+  News(pagination: CursorPaginationInput!): FeedDocumentResults
+  LatestNews(pagination: CursorPaginationInput!): FeedDocumentResults
+  GetFavorites(pagination: CursorPaginationInput!): FeedBookmarkResults
+  GetReadingList(pagination: CursorPaginationInput!): FeedBookmarkResults
   Feeds(pagination: OffsetPaginationInput!): FeedCollection
   Documents(pagination: CursorPaginationInput!): DocumentCollection
 }
@@ -29,20 +29,7 @@ type Subscription {
   ReadingListFeed(): BookmarkEvent!
 }
 
-type DocumentEvent {
-  id: String!
-  item: Document!
-  topic: String!
-  action: String!
-}
-
-type BookmarkEvent {
-  id: String!
-  item: Bookmark!
-  topic: String!
-  action: String!
-}
-
+# Custom Input Types
 input CursorPaginationInput {
   from: String
   to: String
@@ -54,29 +41,7 @@ input OffsetPaginationInput {
   limit: Int
 }
 
-type DocumentCollection {
-  first: String!
-  last: String!
-  total: Int!
-  limit: Int!
-  results: [Document]
-}
-
-type BookmarkCollection {
-  first: String!
-  last: String!
-  total: Int!
-  limit: Int!
-  results: [Bookmark]
-}
-
-type FeedCollection {
-  offset: Int!
-  total: Int!
-  limit: Int!
-  results: [Feed]
-}
-
+# Base Entities
 interface Node {
   id: ID!
 }
@@ -142,4 +107,80 @@ type HTTPClientLog implements Node {
   statusCode: Int!
   contentType: String!
   createdAt: String!
+}
+
+type DocumentCollection {
+  first: String!
+  last: String!
+  total: Int!
+  limit: Int!
+  results: [Document]
+}
+
+type FeedCollection {
+  offset: Int!
+  total: Int!
+  limit: Int!
+  results: [Feed]
+}
+
+# NewsFeed, ReadingListFeed and FavoritesFeed
+union FeedItem = Bookmark | Document
+
+interface FeedResults {
+  first: String!
+  last: String!
+  total: Int!
+  limit: Int!
+  results: [FeedItem]
+}
+
+type FeedDocumentResults implements FeedResults {
+  first: String!
+  last: String!
+  total: Int!
+  limit: Int!
+  results: [Document]
+}
+
+type FeedBookmarkResults implements FeedResults {
+  first: String!
+  last: String!
+  total: Int!
+  limit: Int!
+  results: [Bookmark]
+}
+
+# Feeds Subscription
+# @TODO I need to double check those enums
+enum FeedTopic {
+  News
+  Favorites
+  ReadingList
+}
+
+enum FeedAction {
+  Add
+  Remove
+}
+
+interface FeedEvent {
+  id: String!
+  item: FeedItem!
+  topic: FeedTopic!
+  action: FeedAction!
+}
+
+type DocumentEvent implements FeedEvent {
+  id: String!
+  item: Document!
+  topic: FeedTopic!
+  action: FeedAction!
+}
+
+type BookmarkEvent implements FeedEvent {
+  id: String!
+  item: Bookmark!
+  topic: FeedTopic!
+  action: FeedAction!
 }
