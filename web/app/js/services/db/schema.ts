@@ -7,11 +7,11 @@ export default function(db: IDBDatabase) {
   bookmarks.createIndex("hash", "hash", { unique: true });
   bookmarks.createIndex("href", "href", { unique: true });
 
-  const user = db.createObjectStore(StoreName.USER, {
+  db.createObjectStore(StoreName.USER, {
     keyPath: KeyPaths.ID
   });
 
-  const feed = db.createObjectStore(StoreName.FEED, {
+  db.createObjectStore(StoreName.FEED, {
     keyPath: KeyPaths.TYPE
   });
 }

@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import PropTypes from "prop-types";
 import { ApolloConsumer } from "react-apollo";
 import { makeStyles } from "@material-ui/core/styles";
@@ -32,13 +32,12 @@ interface Props {
 
 export default function Item({ children, query, item }: Props) {
   const classes = useStyles();
-  const [visible, setIsVisible] = useState(true);
 
   return (
     <ApolloConsumer>
       {client => (
         <Fade
-          in={visible}
+          in
           unmountOnExit
           timeout={{
             enter: 500,

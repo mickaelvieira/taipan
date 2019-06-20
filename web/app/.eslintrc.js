@@ -5,6 +5,7 @@ module.exports = {
   },
   parser: "@typescript-eslint/parser",
   extends: [
+    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
@@ -17,12 +18,17 @@ module.exports = {
     },
   },
   rules: {
-    // both rules don"t seem to be working as expected
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/explicit-member-accessibility": ["off", {
+    // This rule makes sense with helpers function but it is silly with React components
+    "@typescript-eslint/explicit-function-return-type": ["off", {
+      allowExpressions: true
+    }],
+    "@typescript-eslint/explicit-member-accessibility": ["error", {
       accessibility: "no-public"
     }],
+    "@typescript-eslint/no-unused-vars": ["error", {
+      argsIgnorePattern: "_"
+    }],
+    "react/display-name": "off",
     "graphql/template-strings": ["error", {
       // Import default settings for your GraphQL client. Supported values:
       // "apollo", "relay", "lokka", "fraql", "literal"
