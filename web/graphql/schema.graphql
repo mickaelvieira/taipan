@@ -43,16 +43,6 @@ type BookmarkEvent {
   action: String!
 }
 
-# @TODO Remove this status
-enum BookmarkStatus {
-  FETCHED
-  PENDING
-  FETCHING
-  FAILED
-}
-
-# https://www.apollographql.com/docs/graphql-tools/scalars
-
 input CursorPaginationInput {
   from: String
   to: String
