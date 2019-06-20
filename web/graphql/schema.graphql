@@ -18,7 +18,7 @@ type Query {
 type Mutation {
   Feed(url: String!): Feed
   CreateBookmark(url: String!): Bookmark
-  Bookmark(url: String!): Bookmark
+  Bookmark(url: String!, isRead: Boolean!): Bookmark
   Unbookmark(url: String!): Document
   ChangeBookmarkReadStatus(url: String!, isRead: Boolean!): Bookmark
 }

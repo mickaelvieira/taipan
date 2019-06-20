@@ -8,6 +8,7 @@ interface Data {
 
 interface Variables {
   url: string;
+  isRead: boolean;
 }
 
 class BookmarkMutation extends Mutation<Data, Variables> {

@@ -1,7 +1,7 @@
 #import "../fragment/bookmark.graphql"
 
-mutation Bookmark($url: String!) {
-  Bookmark(url: $url) {
+mutation Bookmark($url: String!, $isRead: Boolean!) {
+  Bookmark(url: $url, isRead: $isRead) {
     ...bookmarkFields
   }
 }

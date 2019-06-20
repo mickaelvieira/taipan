@@ -133,8 +133,8 @@ func Document(ctx context.Context, URL *url.URL, repositories *repository.Reposi
 // - Link the document to the user
 // - Save it in the DB
 // - And finally return the user's bookmark
-func Bookmark(ctx context.Context, user *user.User, d *document.Document, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
-	err := repositories.Bookmarks.BookmarkDocument(ctx, user, d)
+func Bookmark(ctx context.Context, user *user.User, d *document.Document, isRead bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
+	err := repositories.Bookmarks.BookmarkDocument(ctx, user, d, isRead)
 	if err != nil {
 		return nil, err
 	}

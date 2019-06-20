@@ -225,12 +225,12 @@ func (r *BookmarkRepository) getPagination(ctx context.Context, fromID string, t
 }
 
 // BookmarkDocument the bookmark to the user
-func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.User, d *document.Document) error {
+func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.User, d *document.Document, isRead bool) error {
 	query := `
 		INSERT INTO bookmarks
 		(user_id, document_id, added_at, updated_at, marked_as_read, linked)
 		VALUES
-		(?, ?, ?, ?, 0, 1)
+		(?, ?, ?, ?, ?, 1)
 		ON DUPLICATE KEY UPDATE updated_at = ?, linked = 1
 	`
 	_, err := r.db.ExecContext(
@@ -240,6 +240,7 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.Us
 		d.ID,
 		time.Now(),
 		time.Now(),
+		isRead,
 		time.Now(),
 	)
 

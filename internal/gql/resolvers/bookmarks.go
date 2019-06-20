@@ -216,8 +216,9 @@ func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 		return nil, err
 	}
 
+	var isRead = false
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, user, d, r.repositories)
+	b, err = usecase.Bookmark(ctx, user, d, isRead, r.repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +244,8 @@ func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 
 // Bookmark bookmarks a URL
 func (r *RootResolver) Bookmark(ctx context.Context, args struct {
-	URL string
+	URL    string
+	IsRead bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	url, err := url.FromRawURL(args.URL)
@@ -258,15 +260,21 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 	}
 
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, user, d, r.repositories)
+	b, err = usecase.Bookmark(ctx, user, d, args.IsRead, r.repositories)
 	if err != nil {
 		return nil, err
+	}
+
+	var removeFrom = News
+	var addTo = ReadingList
+	if b.IsRead {
+		addTo = Favorites
 	}
 
 	e1 := &BookmarkEvent{
 		bookmark: b,
 		id:       randomID(),
-		topic:    ReadingList,
+		topic:    addTo,
 		action:   Add,
 	}
 
@@ -280,7 +288,7 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 	e2 := &DocumentEvent{
 		document: d,
 		id:       randomID(),
-		topic:    News,
+		topic:    removeFrom,
 		action:   Remove,
 	}
 
@@ -302,13 +310,12 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 	IsRead bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	isRead := args.IsRead
 	url, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := usecase.ReadStatus(ctx, user, url, isRead, r.repositories)
+	b, err := usecase.ReadStatus(ctx, user, url, args.IsRead, r.repositories)
 	if err != nil {
 		return nil, err
 	}

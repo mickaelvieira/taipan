@@ -3,7 +3,10 @@ import PropTypes from "prop-types";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import { Document } from "../../../types/document";
-import { BookmarkButton } from "../../ui/Feed/Button";
+import {
+  BookmarkButton,
+  BookmarkAndFavoriteButton
+} from "../../ui/Feed/Button";
 import Domain from "../../ui/Domain";
 import Item from "../../ui/Feed/Item/Item";
 import ItemTitle from "../../ui/Feed/Item/Title";
@@ -34,6 +37,13 @@ export default React.memo(function FeedItem({ document, query }: Props) {
               <Domain item={document} />
             </CardActions>
             <CardActions disableSpacing>
+              <BookmarkAndFavoriteButton
+                document={document}
+                onSuccess={() => {
+                  setMessageInfo("The document was added to your favorites");
+                  remove();
+                }}
+              />
               <BookmarkButton
                 document={document}
                 onSuccess={() => {
