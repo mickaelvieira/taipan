@@ -22,7 +22,7 @@ func DeleteFeed(ctx context.Context, f *feed.Feed, r *repository.FeedRepository)
 }
 
 func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, repositories *repository.Repositories) (err error) {
-	if rs.RespStatusCode == 404 || rs.RespStatusCode == 429 || rs.RespStatusCode == 500 {
+	if rs.RespStatusCode == 404 || rs.RespStatusCode == 406 || rs.RespStatusCode == 429 || rs.RespStatusCode == 500 {
 		var logs []*client.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
 		if err != nil {
