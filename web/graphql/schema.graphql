@@ -1,3 +1,9 @@
+
+# Custom scalars
+scalar URL
+scalar DateTime
+
+# Schema
 schema {
   query: Query
   mutation: Mutation
@@ -40,10 +46,6 @@ input OffsetPaginationInput {
   offset: Int
   limit: Int
 }
-
-# Custom scalars
-scalar URL
-scalar DateTime
 
 # Base Entities
 interface Node {
@@ -118,14 +120,14 @@ type DocumentCollection {
   last: String!
   total: Int!
   limit: Int!
-  results: [Document]
+  results: [Document!]!
 }
 
 type FeedCollection {
   offset: Int!
   total: Int!
   limit: Int!
-  results: [Feed]
+  results: [Feed!]!
 }
 
 # NewsFeed, ReadingListFeed and FavoritesFeed
@@ -136,7 +138,7 @@ interface FeedResults {
   last: String!
   total: Int!
   limit: Int!
-  results: [FeedItem]
+  results: [FeedItem!]!
 }
 
 type FeedDocumentResults implements FeedResults {
@@ -144,7 +146,7 @@ type FeedDocumentResults implements FeedResults {
   last: String!
   total: Int!
   limit: Int!
-  results: [Document]
+  results: [Document!]!
 }
 
 type FeedBookmarkResults implements FeedResults {
@@ -152,7 +154,7 @@ type FeedBookmarkResults implements FeedResults {
   last: String!
   total: Int!
   limit: Int!
-  results: [Bookmark]
+  results: [Bookmark!]!
 }
 
 # Feeds Subscription

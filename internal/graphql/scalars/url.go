@@ -21,7 +21,7 @@ func (URL) ImplementsGraphQLType(name string) bool {
 // UnmarshalGraphQL is a custom unmarshaler for URL
 //
 // This function will be called whenever you use the
-// time scalar as an input
+// URL scalar as an input
 func (u *URL) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
 	case string:

@@ -17,7 +17,7 @@ import (
 
 // FeedCollectionResolver resolver
 type FeedCollectionResolver struct {
-	Results *[]*FeedResolver
+	Results []*FeedResolver
 	Total   int32
 	Offset  int32
 	Limit   int32
@@ -94,16 +94,16 @@ func (r *RootResolver) Feed(ctx context.Context, args struct {
 		return nil, fmt.Errorf("URL %s is blacklisted", args.URL)
 	}
 
-	url, err := url.FromRawURL(args.URL)
+	u, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
 
 	var f *feed.Feed
-	f, err = r.repositories.Feeds.GetByURL(ctx, url)
+	f, err = r.repositories.Feeds.GetByURL(ctx, u)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			f = feed.New(url, "", "")
+			f = feed.New(u, "", "")
 			err = r.repositories.Feeds.Insert(ctx, f)
 			if err != nil {
 				return nil, err
@@ -152,7 +152,7 @@ func (r *RootResolver) Feeds(ctx context.Context, args struct {
 	}
 
 	reso := FeedCollectionResolver{
-		Results: &feeds,
+		Results: feeds,
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,

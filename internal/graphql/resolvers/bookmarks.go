@@ -14,7 +14,7 @@ import (
 
 // BookmarkCollectionResolver resolver
 type BookmarkCollectionResolver struct {
-	Results *[]*BookmarkResolver
+	Results []*BookmarkResolver
 	Total   int32
 	First   string
 	Last    string
@@ -125,13 +125,13 @@ func (r *RootResolver) GetFavorites(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var bookmarks []*BookmarkResolver
+	var bookmarks = make([]*BookmarkResolver, 0)
 	for _, result := range results {
 		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
 	}
 
 	reso := BookmarkCollectionResolver{
-		Results: &bookmarks,
+		Results: bookmarks,
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -178,13 +178,13 @@ func (r *RootResolver) GetReadingList(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var bookmarks []*BookmarkResolver
+	var bookmarks = make([]*BookmarkResolver, 0)
 	for _, result := range results {
 		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
 	}
 
 	reso := BookmarkCollectionResolver{
-		Results: &bookmarks,
+		Results: bookmarks,
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -199,13 +199,13 @@ func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 	URL string
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	url, err := url.FromRawURL(args.URL)
+	u, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
 
 	var d *document.Document
-	d, err = usecase.Document(ctx, url, r.repositories)
+	d, err = usecase.Document(ctx, u, r.repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -230,13 +230,13 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 	IsRead bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	url, err := url.FromRawURL(args.URL)
+	u, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
 
 	var d *document.Document
-	d, err = r.repositories.Documents.GetByURL(ctx, url)
+	d, err = r.repositories.Documents.GetByURL(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -267,12 +267,12 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 	IsRead bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	url, err := url.FromRawURL(args.URL)
+	u, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := usecase.ReadStatus(ctx, user, url, args.IsRead, r.repositories)
+	b, err := usecase.ReadStatus(ctx, user, u, args.IsRead, r.repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -297,12 +297,12 @@ func (r *RootResolver) Unbookmark(ctx context.Context, args struct {
 	URL string
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)
-	url, err := url.FromRawURL(args.URL)
+	u, err := url.FromRawURL(args.URL)
 	if err != nil {
 		return nil, err
 	}
 
-	d, err := usecase.Unbookmark(ctx, user, url, r.repositories)
+	d, err := usecase.Unbookmark(ctx, user, u, r.repositories)
 	if err != nil {
 		return nil, err
 	}

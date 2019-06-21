@@ -16,7 +16,7 @@ import (
 
 // DocumentCollectionResolver resolver
 type DocumentCollectionResolver struct {
-	Results *[]*DocumentResolver
+	Results []*DocumentResolver
 	Total   int32
 	First   string
 	Last    string
@@ -128,7 +128,7 @@ func (r *RootResolver) News(ctx context.Context, args struct {
 	}
 
 	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
-	var documents []*DocumentResolver
+	var documents = make([]*DocumentResolver, 0)
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
@@ -138,7 +138,7 @@ func (r *RootResolver) News(ctx context.Context, args struct {
 	}
 
 	reso := DocumentCollectionResolver{
-		Results: &documents,
+		Results: documents,
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -170,7 +170,7 @@ func (r *RootResolver) LatestNews(ctx context.Context, args struct {
 	}
 
 	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
-	var documents []*DocumentResolver
+	var documents = make([]*DocumentResolver, 0)
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
@@ -180,7 +180,7 @@ func (r *RootResolver) LatestNews(ctx context.Context, args struct {
 	}
 
 	reso := DocumentCollectionResolver{
-		Results: &documents,
+		Results: documents,
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -211,7 +211,7 @@ func (r *RootResolver) Documents(ctx context.Context, args struct {
 	}
 
 	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
-	var documents []*DocumentResolver
+	var documents = make([]*DocumentResolver, 0)
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
@@ -221,7 +221,7 @@ func (r *RootResolver) Documents(ctx context.Context, args struct {
 	}
 
 	reso := DocumentCollectionResolver{
-		Results: &documents,
+		Results: documents,
 		Total:   total,
 		First:   first,
 		Last:    last,
