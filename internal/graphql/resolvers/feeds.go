@@ -8,8 +8,8 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/graphql/loaders"
+	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/usecase"
-	"time"
 
 	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
@@ -35,8 +35,8 @@ func (r *FeedResolver) ID() gql.ID {
 }
 
 // URL resolves the URL
-func (r *FeedResolver) URL() string {
-	return r.Feed.URL.String()
+func (r *FeedResolver) URL() scalars.URL {
+	return scalars.URL{URL: r.Feed.URL}
 }
 
 // Title resolves the Title field
@@ -55,18 +55,18 @@ func (r *FeedResolver) Status() string {
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *FeedResolver) CreatedAt() string {
-	return r.Feed.CreatedAt.Format(time.RFC3339)
+func (r *FeedResolver) CreatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Feed.CreatedAt}
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *FeedResolver) UpdatedAt() string {
-	return r.Feed.UpdatedAt.Format(time.RFC3339)
+func (r *FeedResolver) UpdatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Feed.UpdatedAt}
 }
 
 // ParsedAt resolves the ParsedAt field
-func (r *FeedResolver) ParsedAt() string {
-	return r.Feed.ParsedAt.Format(time.RFC3339)
+func (r *FeedResolver) ParsedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Feed.ParsedAt}
 }
 
 // LogEntries returns the document's parser log

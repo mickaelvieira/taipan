@@ -6,8 +6,8 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/usecase"
-	"time"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
@@ -32,8 +32,8 @@ func (r *BookmarkResolver) ID() gql.ID {
 }
 
 // URL resolves the URL
-func (r *BookmarkResolver) URL() string {
-	return r.Bookmark.URL.String()
+func (r *BookmarkResolver) URL() scalars.URL {
+	return scalars.URL{URL: r.Bookmark.URL}
 }
 
 // Image resolves the Image field
@@ -68,13 +68,13 @@ func (r *BookmarkResolver) Description() string {
 }
 
 // AddedAt resolves the AddedAt field
-func (r *BookmarkResolver) AddedAt() string {
-	return r.Bookmark.AddedAt.Format(time.RFC3339)
+func (r *BookmarkResolver) AddedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Bookmark.AddedAt}
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *BookmarkResolver) UpdatedAt() string {
-	return r.Bookmark.UpdatedAt.Format(time.RFC3339)
+func (r *BookmarkResolver) UpdatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Bookmark.UpdatedAt}
 }
 
 // IsRead resolves the IsRead field

@@ -7,8 +7,8 @@ import (
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/graphql/loaders"
+	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/repository"
-	"time"
 
 	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
@@ -36,8 +36,8 @@ func (r *DocumentResolver) ID() gql.ID {
 }
 
 // URL resolves the URL
-func (r *DocumentResolver) URL() string {
-	return r.Document.URL.String()
+func (r *DocumentResolver) URL() scalars.URL {
+	return scalars.URL{URL: r.Document.URL}
 }
 
 // Image resolves the Image field
@@ -72,13 +72,13 @@ func (r *DocumentResolver) Description() string {
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *DocumentResolver) CreatedAt() string {
-	return r.Document.CreatedAt.Format(time.RFC3339)
+func (r *DocumentResolver) CreatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Document.CreatedAt}
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *DocumentResolver) UpdatedAt() string {
-	return r.Document.UpdatedAt.Format(time.RFC3339)
+func (r *DocumentResolver) UpdatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Document.UpdatedAt}
 }
 
 // LogEntries returns the document's parser log

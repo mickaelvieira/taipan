@@ -2,7 +2,9 @@ package resolvers
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/image"
-	"net/url"
+	"github/mickaelvieira/taipan/internal/domain/url"
+	"github/mickaelvieira/taipan/internal/graphql/scalars"
+	neturl "net/url"
 	"os"
 )
 
@@ -12,13 +14,13 @@ type BookmarkImageResolver struct {
 }
 
 // URL resolves the URL
-func (r *BookmarkImageResolver) URL() string {
-	var URL = &url.URL{}
+func (r *BookmarkImageResolver) URL() scalars.URL {
+	var URL = &neturl.URL{}
 	URL.Scheme = "https"
 	URL.Host = os.Getenv("AWS_BUCKET")
 	URL.Path = r.Image.Name
 
-	return URL.String()
+	return scalars.URL{URL: &url.URL{URL: URL}}
 }
 
 // Name resolves the Name field

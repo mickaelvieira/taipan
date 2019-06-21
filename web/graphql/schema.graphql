@@ -41,6 +41,10 @@ input OffsetPaginationInput {
   limit: Int
 }
 
+# Custom scalars
+scalar URL
+scalar DateTime
+
 # Base Entities
 interface Node {
   id: ID!
@@ -55,7 +59,7 @@ type User implements Node {
 
 type Image {
   name: String!
-  url: String!
+  url: URL!
   width: Int!
   height: Int!
   format: String!
@@ -63,50 +67,50 @@ type Image {
 
 type Document implements Node {
   id: ID!
-  url: String!
+  url: URL!
   lang: String!
   charset: String!
   title: String!
   description: String!
   image: Image
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   logEntries: [HTTPClientLog]
 }
 
 type Bookmark implements Node {
   id: ID!
-  url: String!
+  url: URL!
   lang: String!
   charset: String!
   title: String!
   description: String!
   image: Image
-  updatedAt: String!
-  addedAt: String!
+  updatedAt: DateTime!
+  addedAt: DateTime!
   isRead: Boolean!
 }
 
 type Feed implements Node {
   id: ID!
-  url: String!
+  url: URL!
   type: String!
   title: String!
   status: String!
-  createdAt: String!
-  updatedAt: String!
-  parsedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  parsedAt: DateTime!
   logEntries: [HTTPClientLog]
 }
 
 type HTTPClientLog implements Node {
   id: ID!
   checksum: String!
-  requestURI: String!
-  finalURI: String!
+  requestURI: URL!
+  finalURI: URL!
   statusCode: Int!
   contentType: String!
-  createdAt: String!
+  createdAt: DateTime!
 }
 
 type DocumentCollection {

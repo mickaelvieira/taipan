@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"github/mickaelvieira/taipan/internal/client"
-	"time"
+	"github/mickaelvieira/taipan/internal/graphql/scalars"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
@@ -33,16 +33,16 @@ func (r *HTTPClientLogResolver) StatusCode() int32 {
 }
 
 // RequestURI resolves the RequestURI field
-func (r *HTTPClientLogResolver) RequestURI() string {
-	return r.Result.ReqURI.String()
+func (r *HTTPClientLogResolver) RequestURI() scalars.URL {
+	return scalars.URL{URL: r.Result.ReqURI}
 }
 
 // FinalURI resolves the FinalURI field
-func (r *HTTPClientLogResolver) FinalURI() string {
-	return r.Result.FinalURI.String()
+func (r *HTTPClientLogResolver) FinalURI() scalars.URL {
+	return scalars.URL{URL: r.Result.FinalURI}
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *HTTPClientLogResolver) CreatedAt() string {
-	return r.Result.CreatedAt.Format(time.RFC3339)
+func (r *HTTPClientLogResolver) CreatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Result.CreatedAt}
 }
