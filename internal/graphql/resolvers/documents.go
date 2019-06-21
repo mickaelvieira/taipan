@@ -6,12 +6,12 @@ import (
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/gql/loaders"
+	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
 	"time"
 
 	"github.com/graph-gophers/dataloader"
-	graphql "github.com/graph-gophers/graphql-go"
+	gql "github.com/graph-gophers/graphql-go"
 )
 
 // DocumentCollectionResolver resolver
@@ -31,8 +31,8 @@ type DocumentResolver struct {
 }
 
 // ID resolves the ID field
-func (r *DocumentResolver) ID() graphql.ID {
-	return graphql.ID(r.Document.ID)
+func (r *DocumentResolver) ID() gql.ID {
+	return gql.ID(r.Document.ID)
 }
 
 // URL resolves the URL

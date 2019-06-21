@@ -2,7 +2,7 @@ package app
 
 import (
 	"github/mickaelvieira/taipan/internal/assets"
-	"github/mickaelvieira/taipan/internal/gql"
+	"github/mickaelvieira/taipan/internal/graphql"
 	"github/mickaelvieira/taipan/internal/repository"
 	"html/template"
 	"os"
@@ -32,7 +32,7 @@ func Bootstrap() *Server {
 	var webDir = os.Getenv("APP_WEB_DIR")
 	var templates = template.Must(template.New("html-tmpl").ParseGlob(webDir + "/templates/*.html"))
 	var repositories = repository.GetRepositories()
-	var schema = gql.LoadAndParseSchema(webDir+"/graphql/schema.graphql", repositories)
+	var schema = graphql.LoadAndParseSchema(webDir+"/graphql/schema.graphql", repositories)
 	var assetsDef = assets.LoadAssetsDefinition(webDir + "/static/hashes.json")
 
 	var server = Server{

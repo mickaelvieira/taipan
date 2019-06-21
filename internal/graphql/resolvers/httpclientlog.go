@@ -4,7 +4,7 @@ import (
 	"github/mickaelvieira/taipan/internal/client"
 	"time"
 
-	graphql "github.com/graph-gophers/graphql-go"
+	gql "github.com/graph-gophers/graphql-go"
 )
 
 // HTTPClientLogResolver resolves the bookmark's image entity
@@ -13,8 +13,8 @@ type HTTPClientLogResolver struct {
 }
 
 // ID resolves the ID
-func (r *HTTPClientLogResolver) ID() graphql.ID {
-	return graphql.ID(r.Result.ID)
+func (r *HTTPClientLogResolver) ID() gql.ID {
+	return gql.ID(r.Result.ID)
 }
 
 // Checksum resolves the Checksum

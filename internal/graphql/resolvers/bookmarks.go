@@ -9,7 +9,7 @@ import (
 	"github/mickaelvieira/taipan/internal/usecase"
 	"time"
 
-	graphql "github.com/graph-gophers/graphql-go"
+	gql "github.com/graph-gophers/graphql-go"
 )
 
 // BookmarkCollectionResolver resolver
@@ -27,8 +27,8 @@ type BookmarkResolver struct {
 }
 
 // ID resolves the ID field
-func (r *BookmarkResolver) ID() graphql.ID {
-	return graphql.ID(r.Bookmark.ID)
+func (r *BookmarkResolver) ID() gql.ID {
+	return gql.ID(r.Bookmark.ID)
 }
 
 // URL resolves the URL

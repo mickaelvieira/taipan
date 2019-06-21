@@ -5,7 +5,7 @@ import (
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/user"
 
-	graphql "github.com/graph-gophers/graphql-go"
+	gql "github.com/graph-gophers/graphql-go"
 )
 
 // UserResolver resolves the user entity
@@ -14,8 +14,8 @@ type UserResolver struct {
 }
 
 // ID resolves the ID field
-func (r *UserResolver) ID() graphql.ID {
-	return graphql.ID(r.User.ID)
+func (r *UserResolver) ID() gql.ID {
+	return gql.ID(r.User.ID)
 }
 
 // Username resolves the Username field

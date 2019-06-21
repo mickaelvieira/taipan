@@ -7,12 +7,12 @@ import (
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/gql/loaders"
+	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"time"
 
 	"github.com/graph-gophers/dataloader"
-	graphql "github.com/graph-gophers/graphql-go"
+	gql "github.com/graph-gophers/graphql-go"
 )
 
 // FeedCollectionResolver resolver
@@ -30,8 +30,8 @@ type FeedResolver struct {
 }
 
 // ID resolves the ID field
-func (r *FeedResolver) ID() graphql.ID {
-	return graphql.ID(r.Feed.ID)
+func (r *FeedResolver) ID() gql.ID {
+	return gql.ID(r.Feed.ID)
 }
 
 // URL resolves the URL
