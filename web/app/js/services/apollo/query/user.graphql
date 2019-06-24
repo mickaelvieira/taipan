@@ -1,5 +1,5 @@
-query User {
-  User {
+query user {
+  user {
     id
     username
     firstname

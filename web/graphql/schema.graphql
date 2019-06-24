@@ -11,7 +11,7 @@ schema {
 }
 
 type Query {
-  User(): User
+  user(): User
   documents: DocumentsQuery
   bookmarks: BookmarksQuery
   feeds: FeedsQuery
@@ -24,9 +24,9 @@ type Mutation {
 }
 
 type Subscription {
-  newsFeed(): DocumentEvent!
-  favoritesFeed(): BookmarkEvent!
-  readingListFeed(): BookmarkEvent!
+  news(): DocumentEvent!
+  favorites(): BookmarkEvent!
+  readingList(): BookmarkEvent!
 }
 
 # Documents queries and mutations
@@ -57,11 +57,11 @@ type FeedsQuery {
 
 # Syndication queries and mutations
 type SyndicationQuery {
-  sources(pagination: OffsetPaginationInput!): FeedCollection
+  sources(pagination: OffsetPaginationInput!): SourceCollection
 }
 
 type SyndicationMutation {
-  source(url: URL!): Feed
+  source(url: URL!): Source
 }
 
 # Custom Input Types
@@ -122,7 +122,7 @@ type Bookmark implements Node {
   isRead: Boolean!
 }
 
-type Feed implements Node {
+type Source implements Node {
   id: ID!
   url: URL!
   type: String!
@@ -152,11 +152,11 @@ type DocumentCollection {
   results: [Document!]!
 }
 
-type FeedCollection {
+type SourceCollection {
   offset: Int!
   total: Int!
   limit: Int!
-  results: [Feed!]!
+  results: [Source!]!
 }
 
 # NewsFeed, ReadingListFeed and FavoritesFeed

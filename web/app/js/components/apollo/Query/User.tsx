@@ -3,7 +3,7 @@ import query from "../../../services/apollo/query/user.graphql";
 import { User } from "../../../types/users";
 
 export interface Data {
-  User: User;
+  user: User;
 }
 
 const variables = {};

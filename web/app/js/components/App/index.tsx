@@ -31,8 +31,8 @@ export default function App() {
                 return <ErrorPage error={error} />;
               }
 
-              return !data || !data.User ? null : (
-                <UserContext.Provider value={data.User}>
+              return !data || !data.user ? null : (
+                <UserContext.Provider value={data.user}>
                   <Switch>
                     <Route exact path="/" component={NewsPage} />
                     <Route

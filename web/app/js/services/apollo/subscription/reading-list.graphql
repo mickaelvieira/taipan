@@ -1,7 +1,7 @@
 #import "../fragment/bookmark.graphql"
 
 subscription onReadingListFeedChange {
-  readingListFeed {
+  readingList {
     id
     topic
     action
