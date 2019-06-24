@@ -28,10 +28,15 @@ function onReceivedData({ client, subscriptionData, query }: Data) {
     if (data) {
       const key = getDataKey(data);
       if (key) {
-        const result = updateResult(data[key], item);
+        const result = updateResult(data.feeds[key], item);
         client.writeQuery({
           query,
-          data: { [key]: result }
+          data: {
+            feeds: {
+              __typename: "FeedsQuery",
+              [key]: result
+            }
+          }
         });
       }
     }

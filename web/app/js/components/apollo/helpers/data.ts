@@ -6,7 +6,7 @@ import {
 } from "../../../types/feed";
 
 export function getDataKey(data: FeedQueryData | FeedEventData): string | null {
-  const keys = Object.keys(data);
+  const keys = "feeds" in data ? Object.keys(data.feeds) : [];
   return keys.length > 0 ? keys[0] : null;
 }
 
@@ -24,15 +24,22 @@ export function hasReceivedData(
 
   if (data) {
     const key = getDataKey(data);
-    if (key && "results" in data[key]) {
-      results = data[key];
-      if (data[key].results.length > 0) {
+    if (key) {
+      results = data.feeds[key];
+      if (results.results.length > 0) {
         hasResults = true;
       }
     }
   }
 
   return [hasResults, results];
+}
+
+export function getEventKey(
+  data: FeedQueryData | FeedEventData
+): string | null {
+  const keys = Object.keys(data);
+  return keys.length > 0 ? keys[0] : null;
 }
 
 export function hasReceivedEvent(
@@ -42,7 +49,7 @@ export function hasReceivedEvent(
   let event: FeedEvent | null = null;
 
   if (data) {
-    const key = getDataKey(data);
+    const key = getEventKey(data);
     if (key) {
       event = data[key];
       if (Object.keys(event).length > 0) {

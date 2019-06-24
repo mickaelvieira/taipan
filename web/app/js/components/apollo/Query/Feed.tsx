@@ -6,9 +6,9 @@ import {
 } from "apollo-boost";
 import { FeedVariables, FeedQueryData } from "../../../types/feed";
 import { getDataKey } from "../helpers/data";
-import queryNews from "../../../services/apollo/query/news.graphql";
-import queryReadingList from "../../../services/apollo/query/reading-list.graphql";
-import queryFavorites from "../../../services/apollo/query/favorites.graphql";
+import queryNews from "../../../services/apollo/query/feeds/news.graphql";
+import queryReadingList from "../../../services/apollo/query/feeds/reading-list.graphql";
+import queryFavorites from "../../../services/apollo/query/feeds/favorites.graphql";
 
 export type FetchMore = <K extends keyof FeedVariables>(
   fetchMoreOptions: FetchMoreQueryOptions<FeedVariables, K> &
@@ -37,12 +37,12 @@ function getFetchMore(
     return undefined;
   }
 
-  return data[key].results.length === data[key].total
+  return data.feeds[key].results.length === data.feeds[key].total
     ? undefined
     : () =>
         fetchMore({
           variables: {
-            pagination: { from: data ? data[key].last : "" }
+            pagination: { from: data ? data.feeds[key].last : "" }
           },
           updateQuery: (prev, { fetchMoreResult: next }) => {
             if (!next) {
@@ -50,11 +50,16 @@ function getFetchMore(
             }
 
             return {
-              [key]: {
-                ...prev[key],
-                last: next[key].last,
-                limit: next[key].limit,
-                results: [...prev[key].results, ...next[key].results]
+              feeds: {
+                [key]: {
+                  ...prev.feeds[key],
+                  last: next.feeds[key].last,
+                  limit: next.feeds[key].limit,
+                  results: [
+                    ...prev.feeds[key].results,
+                    ...next.feeds[key].results
+                  ]
+                }
               }
             };
           }

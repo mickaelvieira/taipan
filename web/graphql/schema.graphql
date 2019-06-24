@@ -12,27 +12,56 @@ schema {
 
 type Query {
   User(): User
-  GetBookmark(url: URL!): Bookmark
-  News(pagination: CursorPaginationInput!): FeedDocumentResults
-  LatestNews(pagination: CursorPaginationInput!): FeedDocumentResults
-  GetFavorites(pagination: CursorPaginationInput!): FeedBookmarkResults
-  GetReadingList(pagination: CursorPaginationInput!): FeedBookmarkResults
-  Feeds(pagination: OffsetPaginationInput!): FeedCollection
-  Documents(pagination: CursorPaginationInput!): DocumentCollection
+  documents: DocumentsQuery
+  bookmarks: BookmarksQuery
+  feeds: FeedsQuery
+  syndication: SyndicationQuery
 }
 
 type Mutation {
-  Feed(url: URL!): Feed
-  CreateBookmark(url: URL!): Bookmark
-  Bookmark(url: URL!, isRead: Boolean!): Bookmark
-  Unbookmark(url: URL!): Document
-  ChangeBookmarkReadStatus(url: URL!, isRead: Boolean!): Bookmark
+  bookmarks: BookmarksMutation
+  syndication: SyndicationMutation
 }
 
 type Subscription {
-  NewsFeed(): DocumentEvent!
-  FavoritesFeed(): BookmarkEvent!
-  ReadingListFeed(): BookmarkEvent!
+  newsFeed(): DocumentEvent!
+  favoritesFeed(): BookmarkEvent!
+  readingListFeed(): BookmarkEvent!
+}
+
+# Documents queries and mutations
+type DocumentsQuery {
+  documents(pagination: CursorPaginationInput!): DocumentCollection
+}
+
+# Bookmarks queries and mutations
+type BookmarksQuery {
+  bookmark(url: URL!): Bookmark
+}
+
+type BookmarksMutation {
+  create(url: URL!): Bookmark
+  add(url: URL!, isRead: Boolean!): Bookmark
+  remove(url: URL!): Document
+  read(url: URL!): Bookmark
+  unread(url: URL!): Bookmark
+}
+
+# Feeds queries
+type FeedsQuery {
+  news(pagination: CursorPaginationInput!): FeedDocumentResults
+  latestNews(pagination: CursorPaginationInput!): FeedDocumentResults
+  favorites(pagination: CursorPaginationInput!): FeedBookmarkResults
+  readingList(pagination: CursorPaginationInput!): FeedBookmarkResults
+}
+
+# Syndication queries and mutations
+type SyndicationQuery {
+  sources(pagination: OffsetPaginationInput!): FeedCollection
+}
+
+type SyndicationMutation {
+  source(url: URL!): Feed
 }
 
 # Custom Input Types

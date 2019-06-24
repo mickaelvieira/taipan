@@ -5,7 +5,7 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Document } from "../../../../types/document";
 import { Bookmark } from "../../../../types/bookmark";
-import BookmarkMutation from "../../../apollo/Mutation/Bookmark";
+import BookmarkMutation from "../../../apollo/Mutation/Bookmarks/Bookmark";
 import { queryFavorites, variables } from "../../../apollo/Query/Feed";
 
 interface Props {
@@ -25,7 +25,7 @@ export default React.memo(function BookmarkAndFavorite({
 }: Props) {
   const classes = useStyles();
   return (
-    <BookmarkMutation onCompleted={data => onSuccess(data.Bookmark)}>
+    <BookmarkMutation onCompleted={data => onSuccess(data.bookmarks.bookmark)}>
       {(mutate, { loading }) => (
         <IconButton
           aria-label="Bookmark and mark as favorite"

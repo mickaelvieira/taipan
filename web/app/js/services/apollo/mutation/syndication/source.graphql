@@ -1,0 +1,9 @@
+#import "../../fragment/feed.graphql"
+
+mutation feed($url: URL!) {
+  syndication {
+    source(url: $url) {
+      ...feedFields
+    }
+  }
+}

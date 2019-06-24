@@ -6,7 +6,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
 import { Document } from "../../../../types/document";
 import ConfirmUnbookmark from "../Confirm/Unbookmark";
-import UnbookmarkMutation from "../../../apollo/Mutation/Unbookmark";
+import UnbookmarkMutation from "../../../apollo/Mutation/Bookmarks/Unbookmark";
 import {
   queryReadingList,
   queryFavorites,
@@ -28,7 +28,9 @@ export default React.memo(function Unbookmark({ bookmark, onSuccess }: Props) {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
   return (
-    <UnbookmarkMutation onCompleted={data => onSuccess(data.Unbookmark)}>
+    <UnbookmarkMutation
+      onCompleted={data => onSuccess(data.bookmarks.unbookmark)}
+    >
       {(mutate, { loading }) => (
         <>
           <IconButton

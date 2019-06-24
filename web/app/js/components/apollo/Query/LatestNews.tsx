@@ -1,7 +1,7 @@
 import { Query } from "react-apollo";
 import { Bookmark } from "../../../types/bookmark";
 import { Document } from "../../../types/document";
-import query from "../../../services/apollo/query/latest-news.graphql";
+import query from "../../../services/apollo/query/feeds/latest-news.graphql";
 import { FeedQueryData, FeedVariables } from "../../../types/feed";
 
 export type FeedItem = Bookmark | Document;

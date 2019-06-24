@@ -1,0 +1,9 @@
+#import "../../fragment/bookmark.graphql"
+
+mutation bookmark($url: URL!, $isRead: Boolean!) {
+  bookmarks {
+    add(url: $url, isRead: $isRead) {
+      ...bookmarkFields
+    }
+  }
+}

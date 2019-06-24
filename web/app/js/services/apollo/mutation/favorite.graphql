@@ -1,7 +1,0 @@
-#import "../fragment/bookmark.graphql"
-
-mutation ChangeBookmarkReadStatus($url: URL!, $isFavorite: Boolean!) {
-  ChangeBookmarkReadStatus(url: $url, isRead: $isFavorite) {
-    ...bookmarkFields
-  }
-}

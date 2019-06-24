@@ -164,7 +164,7 @@ export default withApollo(function Latest({
       });
 
       const { data } = result;
-      const { results, last } = data.LatestNews;
+      const { results, last } = data.feeds.latestNews;
       if (results.length === 0) {
         return;
       }

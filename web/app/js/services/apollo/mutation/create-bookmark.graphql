@@ -1,7 +1,0 @@
-#import "../fragment/bookmark.graphql"
-
-mutation CreateBookmark($url: URL!) {
-  CreateBookmark(url: $url) {
-    ...bookmarkFields
-  }
-}

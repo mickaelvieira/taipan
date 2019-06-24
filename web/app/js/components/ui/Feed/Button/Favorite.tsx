@@ -3,7 +3,7 @@ import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
-import FavoriteMutation from "../../../apollo/Mutation/Favorite";
+import FavoriteMutation from "../../../apollo/Mutation/Bookmarks/Favorite";
 import { queryFavorites, variables } from "../../../apollo/Query/Feed";
 
 interface Props {
@@ -13,9 +13,7 @@ interface Props {
 
 export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
   return (
-    <FavoriteMutation
-      onCompleted={data => onSuccess(data.ChangeBookmarkReadStatus)}
-    >
+    <FavoriteMutation onCompleted={data => onSuccess(data.bookmarks.read)}>
       {(mutate, { loading }) => (
         <>
           <IconButton

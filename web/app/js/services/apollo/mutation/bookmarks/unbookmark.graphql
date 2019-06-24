@@ -1,0 +1,9 @@
+#import "../../fragment/document.graphql"
+
+mutation unbookmark($url: URL!) {
+  bookmarks {
+    remove(url: $url) {
+      ...documentFields
+    }
+  }
+}

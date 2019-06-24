@@ -73,7 +73,7 @@ export default function Layout({ children }: PropsWithChildren<{}>) {
       <AddForm
         isOpen={isFormBookmarkOpen}
         toggleDialog={setFormBookmarkStatus}
-        onFeedCreated={() => {
+        onSyndicationSourceCreated={() => {
           setInfo("Nice one! The feed was added");
           setFormBookmarkStatus(false);
         }}

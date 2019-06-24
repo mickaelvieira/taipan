@@ -5,10 +5,17 @@ import (
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
+	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
+
+// BookmarksResolver bookmarks' root resolver
+type BookmarksResolver struct {
+	repositories  *repository.Repositories
+	subscriptions *Subscription
+}
 
 // BookmarkCollectionResolver resolver
 type BookmarkCollectionResolver struct {
@@ -80,8 +87,8 @@ func (r *BookmarkResolver) IsRead() bool {
 	return bool(r.Bookmark.IsRead)
 }
 
-// GetBookmark resolves the query
-func (r *RootResolver) GetBookmark(ctx context.Context, args struct {
+// Bookmark resolves the query
+func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
@@ -97,98 +104,8 @@ func (r *RootResolver) GetBookmark(ctx context.Context, args struct {
 	return &res, nil
 }
 
-// GetFavorites resolves the query
-func (r *RootResolver) GetFavorites(ctx context.Context, args struct {
-	Pagination CursorPaginationInput
-}) (*BookmarkCollectionResolver, error) {
-	fromArgs := GetCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.Pagination)
-	user := auth.FromContext(ctx)
-
-	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, from, to, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	first, last := GetBookmarksBoundaryIDs(results)
-
-	var total int32
-	total, err = r.repositories.Bookmarks.GetTotalFavorites(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-
-	var bookmarks = make([]*BookmarkResolver, 0)
-	for _, result := range results {
-		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
-	}
-
-	reso := BookmarkCollectionResolver{
-		Results: bookmarks,
-		Total:   total,
-		First:   first,
-		Last:    last,
-		Limit:   limit,
-	}
-
-	return &reso, nil
-}
-
-// FavoritesFeed subscribes to favorites feed bookmarksEvents
-func (r *RootResolver) FavoritesFeed(ctx context.Context) <-chan *BookmarkEventResolver {
-	c := make(chan *BookmarkEventResolver)
-	s := &BookmarkSubscriber{events: c}
-	r.subscriptions.Subscribe(Favorites, s, ctx.Done())
-	return c
-}
-
-// ReadingListFeed subscribes to reading list feed bookmarksEvents
-func (r *RootResolver) ReadingListFeed(ctx context.Context) <-chan *BookmarkEventResolver {
-	c := make(chan *BookmarkEventResolver)
-	s := &BookmarkSubscriber{events: c}
-	r.subscriptions.Subscribe(ReadingList, s, ctx.Done())
-	return c
-}
-
-// GetReadingList resolves the query
-func (r *RootResolver) GetReadingList(ctx context.Context, args struct {
-	Pagination CursorPaginationInput
-}) (*BookmarkCollectionResolver, error) {
-	fromArgs := GetCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.Pagination)
-	user := auth.FromContext(ctx)
-
-	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, from, to, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	first, last := GetBookmarksBoundaryIDs(results)
-
-	var total int32
-	total, err = r.repositories.Bookmarks.GetTotalReadingList(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-
-	var bookmarks = make([]*BookmarkResolver, 0)
-	for _, result := range results {
-		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
-	}
-
-	reso := BookmarkCollectionResolver{
-		Results: bookmarks,
-		Total:   total,
-		First:   first,
-		Last:    last,
-		Limit:   limit,
-	}
-
-	return &reso, nil
-}
-
-// CreateBookmark creates a new document and add it to user's bookmarks
-func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
+// Create creates a new document and add it to user's bookmarks
+func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
@@ -213,8 +130,8 @@ func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 	return res, nil
 }
 
-// Bookmark bookmarks a URL
-func (r *RootResolver) Bookmark(ctx context.Context, args struct {
+// Add bookmarks a URL
+func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 	URL    scalars.URL
 	IsRead bool
 }) (*BookmarkResolver, error) {
@@ -246,36 +163,48 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 	return res, nil
 }
 
-// ChangeBookmarkReadStatus marks the bookmark as read or unread
-func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct {
-	URL    scalars.URL
-	IsRead bool
+// Read marks the bookmark as read or unread
+func (r *BookmarksResolver) Read(ctx context.Context, args struct {
+	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	b, err := usecase.ReadStatus(ctx, user, u, args.IsRead, r.repositories)
+	b, err := usecase.ReadStatus(ctx, user, u, true, r.repositories)
 	if err != nil {
 		return nil, err
 	}
 
-	var removeFrom = ReadingList
-	var addTo = Favorites
-	if !b.IsRead {
-		removeFrom = Favorites
-		addTo = ReadingList
-	}
-
-	r.subscriptions.Publish(NewFeedEvent(addTo, Add, b))
-	r.subscriptions.Publish(NewFeedEvent(removeFrom, Remove, b))
+	r.subscriptions.Publish(NewFeedEvent(Favorites, Add, b))
+	r.subscriptions.Publish(NewFeedEvent(ReadingList, Remove, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 
 	return res, nil
 }
 
-// Unbookmark removes bookmark from user's list
-func (r *RootResolver) Unbookmark(ctx context.Context, args struct {
+// Unread marks the bookmark as read or unread
+func (r *BookmarksResolver) Unread(ctx context.Context, args struct {
+	URL scalars.URL
+}) (*BookmarkResolver, error) {
+	user := auth.FromContext(ctx)
+	u := args.URL.URL
+
+	b, err := usecase.ReadStatus(ctx, user, u, false, r.repositories)
+	if err != nil {
+		return nil, err
+	}
+
+	r.subscriptions.Publish(NewFeedEvent(ReadingList, Add, b))
+	r.subscriptions.Publish(NewFeedEvent(Favorites, Remove, b))
+
+	res := &BookmarkResolver{Bookmark: b}
+
+	return res, nil
+}
+
+// Remove removes bookmark from user's list
+func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)

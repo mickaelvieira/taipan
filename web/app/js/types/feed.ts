@@ -1,17 +1,6 @@
 import { Bookmark } from "./bookmark";
 import { Document } from "./document";
 
-export interface Feed {
-  id: string;
-  url: string;
-  title: string;
-  type: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  parsedAt: string;
-}
-
 export type FeedItem = Bookmark | Document;
 
 export interface CursorPagination {
@@ -40,7 +29,9 @@ export interface FeedVariables {
 }
 
 export interface FeedQueryData {
-  [key: string]: FeedResults;
+  feeds: {
+    [key: string]: FeedResults;
+  };
 }
 
 export interface FeedEventData {

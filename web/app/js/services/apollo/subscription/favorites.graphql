@@ -1,7 +1,7 @@
 #import "../fragment/bookmark.graphql"
 
 subscription onFavoritesFeedChange {
-  FavoritesFeed {
+  favoritesFeed {
     id
     topic
     action

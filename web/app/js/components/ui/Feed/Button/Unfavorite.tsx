@@ -4,7 +4,7 @@ import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
-import FavoriteMutation from "../../../apollo/Mutation/Favorite";
+import UnfavoriteMutation from "../../../apollo/Mutation/Bookmarks/Unfavorite";
 import { queryReadingList, variables } from "../../../apollo/Query/Feed";
 import ConfirmUnfavorite from "../Confirm/Unfavorite";
 import red from "@material-ui/core/colors/red";
@@ -25,9 +25,7 @@ export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
 
   return (
-    <FavoriteMutation
-      onCompleted={data => onSuccess(data.ChangeBookmarkReadStatus)}
-    >
+    <UnfavoriteMutation onCompleted={data => onSuccess(data.bookmarks.unread)}>
       {(mutate, { loading }) => (
         <>
           <IconButton
@@ -59,6 +57,6 @@ export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
           />
         </>
       )}
-    </FavoriteMutation>
+    </UnfavoriteMutation>
   );
 });

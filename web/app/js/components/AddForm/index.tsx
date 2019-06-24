@@ -6,13 +6,13 @@ import Tab from "@material-ui/core/Tab";
 import AddBookmark from "./AddBookmark";
 import AddFeed from "./AddFeed";
 import { Bookmark } from "../../types/bookmark";
-import { Feed } from "../../types/feed";
+import { Source } from "../../types/syndication";
 
 interface Props {
   isOpen: boolean;
   toggleDialog: (status: boolean) => void;
   onBookmarkCreated: (bookmark: Bookmark) => void;
-  onFeedCreated: (feed: Feed) => void;
+  onSyndicationSourceCreated: (source: Source) => void;
 }
 
 const useStyles = makeStyles(() => ({
@@ -23,7 +23,7 @@ export default function AddForm({
   isOpen,
   toggleDialog,
   onBookmarkCreated,
-  onFeedCreated
+  onSyndicationSourceCreated
 }: Props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
@@ -56,7 +56,10 @@ export default function AddForm({
         />
       )}
       {value === 1 && (
-        <AddFeed onFeedCreated={onFeedCreated} toggleDialog={toggleDialog} />
+        <AddFeed
+          onSyndicationSourceCreated={onSyndicationSourceCreated}
+          toggleDialog={toggleDialog}
+        />
       )}
     </Dialog>
   );

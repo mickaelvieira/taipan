@@ -7,7 +7,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Bookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CreateBookmarkMutation from "../apollo/Mutation/CreateBookmark";
+import CreateBookmarkMutation from "../apollo/Mutation/Bookmarks/Create";
 
 const useStyles = makeStyles({
   title: {

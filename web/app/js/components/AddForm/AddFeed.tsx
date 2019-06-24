@@ -5,9 +5,9 @@ import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { Feed } from "../../types/feed";
+import { Source } from "../../types/syndication";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import FeedMutation from "../apollo/Mutation/Feed";
+import SourceMutation from "../apollo/Mutation/Syndication/Source";
 
 const useStyles = makeStyles({
   title: {
@@ -16,20 +16,23 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  onFeedCreated: (feed: Feed) => void;
+  onSyndicationSourceCreated: (source: Source) => void;
   toggleDialog: (status: boolean) => void;
 }
 
-export default function AddBookmark({ onFeedCreated, toggleDialog }: Props) {
+export default function AddBookmark({
+  onSyndicationSourceCreated,
+  toggleDialog
+}: Props) {
   const classes = useStyles();
   const [url, setUrl] = useState("");
 
   return (
     <div>
-      <FeedMutation
-        onCompleted={({ Feed: feed }) => {
+      <SourceMutation
+        onCompleted={({ syndication: { source } }) => {
           setUrl("");
-          onFeedCreated(feed);
+          onSyndicationSourceCreated(source);
         }}
       >
         {(mutate, { loading, error }) => {
@@ -80,7 +83,7 @@ export default function AddBookmark({ onFeedCreated, toggleDialog }: Props) {
             </>
           );
         }}
-      </FeedMutation>
+      </SourceMutation>
     </div>
   );
 }
