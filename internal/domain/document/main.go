@@ -2,8 +2,8 @@ package document
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/checksum"
-	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/domain/image"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
@@ -29,7 +29,7 @@ type Document struct {
 	Title       string
 	Description string
 	Image       *image.Image
-	Feeds       []*feed.Feed
+	Feeds       []*syndication.Source
 	Status      Status
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -46,7 +46,7 @@ func (d *Document) Raw() interface{} {
 }
 
 // New creates a new document
-func New(url *url.URL, lang string, charset string, title string, desc string, image *image.Image, feeds []*feed.Feed) *Document {
+func New(url *url.URL, lang string, charset string, title string, desc string, image *image.Image, feeds []*syndication.Source) *Document {
 	return &Document{
 		URL:         url,
 		Lang:        lang,

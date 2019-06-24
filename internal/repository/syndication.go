@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"log"
 	"strconv"
@@ -11,13 +11,13 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-// FeedRepository the Feed repository
-type FeedRepository struct {
+// SyndicationRepository the Feed repository
+type SyndicationRepository struct {
 	db *sql.DB
 }
 
 // GetByID find a single entry
-func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, error) {
+func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndication.Source, error) {
 	query := `
 		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
@@ -33,9 +33,9 @@ func (r *FeedRepository) GetByID(ctx context.Context, id string) (*feed.Feed, er
 	return f, nil
 }
 
-// GetOutdatedFeeds returns the feeds which have been last updated more than 24 hrs
-func (r *FeedRepository) GetOutdatedFeeds(ctx context.Context) ([]*feed.Feed, error) {
-	var results []*feed.Feed
+// GetOutdatedSources returns the feeds which have been last updated more than 24 hrs
+func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context) ([]*syndication.Source, error) {
+	var results []*syndication.Source
 	query := `
 		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
@@ -64,8 +64,8 @@ func (r *FeedRepository) GetOutdatedFeeds(ctx context.Context) ([]*feed.Feed, er
 }
 
 // FindAll find newest entries
-func (r *FeedRepository) FindAll(ctx context.Context, cursor int32, limit int32) ([]*feed.Feed, error) {
-	var results []*feed.Feed
+func (r *SyndicationRepository) FindAll(ctx context.Context, cursor int32, limit int32) ([]*syndication.Source, error) {
+	var results []*syndication.Source
 
 	query := `
 		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
@@ -94,7 +94,7 @@ func (r *FeedRepository) FindAll(ctx context.Context, cursor int32, limit int32)
 }
 
 // GetTotal count latest entries
-func (r *FeedRepository) GetTotal(ctx context.Context) (int32, error) {
+func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 	var total int32
 
 	query := `
@@ -109,7 +109,7 @@ func (r *FeedRepository) GetTotal(ctx context.Context) (int32, error) {
 }
 
 // GetByURL find a single entry by URL
-func (r *FeedRepository) GetByURL(ctx context.Context, u *url.URL) (*feed.Feed, error) {
+func (r *SyndicationRepository) GetByURL(ctx context.Context, u *url.URL) (*syndication.Source, error) {
 	query := `
 		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
 		FROM feeds AS f
@@ -125,7 +125,7 @@ func (r *FeedRepository) GetByURL(ctx context.Context, u *url.URL) (*feed.Feed, 
 }
 
 // ExistWithURL checks whether a feed already exists this the same URL
-func (r *FeedRepository) ExistWithURL(ctx context.Context, u *url.URL) (bool, error) {
+func (r *SyndicationRepository) ExistWithURL(ctx context.Context, u *url.URL) (bool, error) {
 	_, err := r.GetByURL(ctx, u)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -137,7 +137,7 @@ func (r *FeedRepository) ExistWithURL(ctx context.Context, u *url.URL) (bool, er
 }
 
 // Insert creates a new feed in the DB
-func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed) error {
+func (r *SyndicationRepository) Insert(ctx context.Context, f *syndication.Source) error {
 	query := `
 		INSERT INTO feeds
 		(url, title, type, status, created_at, updated_at, deleted)
@@ -168,7 +168,7 @@ func (r *FeedRepository) Insert(ctx context.Context, f *feed.Feed) error {
 }
 
 // Update updates a feed in the DB
-func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
+func (r *SyndicationRepository) Update(ctx context.Context, f *syndication.Source) error {
 	query := `
 		UPDATE feeds
 		SET type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?
@@ -190,7 +190,7 @@ func (r *FeedRepository) Update(ctx context.Context, f *feed.Feed) error {
 }
 
 // UpdateURL updates the feed's URL and UpdatedAt fields
-func (r *FeedRepository) UpdateURL(ctx context.Context, f *feed.Feed) error {
+func (r *SyndicationRepository) UpdateURL(ctx context.Context, f *syndication.Source) error {
 	query := `
 		UPDATE feeds
 		SET url = ?, updated_at = ?
@@ -208,7 +208,7 @@ func (r *FeedRepository) UpdateURL(ctx context.Context, f *feed.Feed) error {
 }
 
 // Delete soft deletes the feed
-func (r *FeedRepository) Delete(ctx context.Context, f *feed.Feed) error {
+func (r *SyndicationRepository) Delete(ctx context.Context, f *syndication.Source) error {
 	query := `
 		UPDATE feeds
 		SET deleted = ?, updated_at = ?
@@ -226,7 +226,7 @@ func (r *FeedRepository) Delete(ctx context.Context, f *feed.Feed) error {
 }
 
 // InsertIfNotExists stores the feed in the database if there is none with the same URL
-func (r *FeedRepository) InsertIfNotExists(ctx context.Context, f *feed.Feed) error {
+func (r *SyndicationRepository) InsertIfNotExists(ctx context.Context, f *syndication.Source) error {
 	feed, err := r.GetByURL(ctx, f.URL)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -239,7 +239,7 @@ func (r *FeedRepository) InsertIfNotExists(ctx context.Context, f *feed.Feed) er
 }
 
 // InsertAllIfNotExists stores feeds in the database if there are none with the same URL
-func (r *FeedRepository) InsertAllIfNotExists(ctx context.Context, feeds []*feed.Feed) error {
+func (r *SyndicationRepository) InsertAllIfNotExists(ctx context.Context, feeds []*syndication.Source) error {
 	var err error
 	for _, feed := range feeds {
 		err = r.InsertIfNotExists(ctx, feed)
@@ -250,8 +250,8 @@ func (r *FeedRepository) InsertAllIfNotExists(ctx context.Context, feeds []*feed
 	return err
 }
 
-func (r *FeedRepository) scan(rows Scanable) (*feed.Feed, error) {
-	var feed feed.Feed
+func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error) {
+	var feed syndication.Source
 	var parsedAt mysql.NullTime
 
 	err := rows.Scan(

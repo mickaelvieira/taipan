@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting feeds worker")
+	fmt.Println("Starting syndication worker")
 	app.LoadEnvironment()
 	ctx, cancel := context.WithCancel(context.Background())
 	repositories := repository.GetRepositories()
@@ -40,16 +40,16 @@ func main() {
 	for t := range ticker.C {
 		fmt.Println("Tick at", t)
 
-		feeds, err := repositories.Feeds.GetOutdatedFeeds(ctx)
+		sources, err := repositories.Syndication.GetOutdatedSources(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		for _, feed := range feeds {
+		for _, s := range sources {
 			var urls []*url.URL
-			urls, err = usecase.ParseFeed(ctx, feed, repositories)
+			urls, err = usecase.ParseSyndicationSource(ctx, s, repositories)
 			if err != nil {
-				log.Printf("Feed Parser: URL %s\n", feed.URL)
+				log.Printf("Syndication Parser: URL %s\n", s.URL)
 				log.Println(err) // We just log the parsing errors for now
 			}
 			for _, url := range urls {

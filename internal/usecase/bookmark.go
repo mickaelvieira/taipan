@@ -121,7 +121,7 @@ func Document(ctx context.Context, URL *url.URL, repositories *repository.Reposi
 		return nil, err
 	}
 
-	err = repositories.Feeds.InsertAllIfNotExists(ctx, d.Feeds)
+	err = repositories.Syndication.InsertAllIfNotExists(ctx, d.Feeds)
 	if err != nil {
 		return nil, err
 	}

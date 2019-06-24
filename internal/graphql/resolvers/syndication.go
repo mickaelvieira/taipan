@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
-	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -14,63 +14,63 @@ import (
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// FeedCollectionResolver resolver
-type FeedCollectionResolver struct {
-	Results []*FeedResolver
+// SyndicationCollectionResolver resolver
+type SyndicationCollectionResolver struct {
+	Results []*SyndicationResolver
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
-// FeedResolver resolves the bookmark entity
-type FeedResolver struct {
-	*feed.Feed
+// SyndicationResolver resolves the bookmark entity
+type SyndicationResolver struct {
+	*syndication.Source
 	logsLoader *dataloader.Loader
 }
 
 // ID resolves the ID field
-func (r *FeedResolver) ID() gql.ID {
-	return gql.ID(r.Feed.ID)
+func (r *SyndicationResolver) ID() gql.ID {
+	return gql.ID(r.Source.ID)
 }
 
 // URL resolves the URL
-func (r *FeedResolver) URL() scalars.URL {
-	return scalars.URL{URL: r.Feed.URL}
+func (r *SyndicationResolver) URL() scalars.URL {
+	return scalars.URL{URL: r.Source.URL}
 }
 
 // Title resolves the Title field
-func (r *FeedResolver) Title() string {
-	return r.Feed.Title
+func (r *SyndicationResolver) Title() string {
+	return r.Source.Title
 }
 
 // Type resolves the Type field
-func (r *FeedResolver) Type() string {
-	return string(r.Feed.Type)
+func (r *SyndicationResolver) Type() string {
+	return string(r.Source.Type)
 }
 
 // Status resolves the Status field
-func (r *FeedResolver) Status() string {
-	return string(r.Feed.Status)
+func (r *SyndicationResolver) Status() string {
+	return string(r.Source.Status)
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *FeedResolver) CreatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Feed.CreatedAt}
+func (r *SyndicationResolver) CreatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Source.CreatedAt}
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *FeedResolver) UpdatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Feed.UpdatedAt}
+func (r *SyndicationResolver) UpdatedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Source.UpdatedAt}
 }
 
 // ParsedAt resolves the ParsedAt field
-func (r *FeedResolver) ParsedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Feed.ParsedAt}
+func (r *SyndicationResolver) ParsedAt() scalars.DateTime {
+	return scalars.DateTime{Time: r.Source.ParsedAt}
 }
 
 // LogEntries returns the document's parser log
-func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
-	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Feed.URL.String()))()
+func (r *SyndicationResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
+	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Source.URL.String()))()
 	if err != nil {
 		return nil, err
 	}
@@ -88,17 +88,17 @@ func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolve
 // Feed adds a feed
 func (r *RootResolver) Feed(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*FeedResolver, error) {
+}) (*SyndicationResolver, error) {
 	u := args.URL.URL
-	if feed.IsBlacklisted(u.String()) {
+	if syndication.IsBlacklisted(u.String()) {
 		return nil, fmt.Errorf("URL %s is blacklisted", args.URL)
 	}
 
-	f, err := r.repositories.Feeds.GetByURL(ctx, u)
+	f, err := r.repositories.Syndication.GetByURL(ctx, u)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			f = feed.New(u, "", "")
-			err = r.repositories.Feeds.Insert(ctx, f)
+			f = syndication.NewSource(u, "", "")
+			err = r.repositories.Syndication.Insert(ctx, f)
 			if err != nil {
 				return nil, err
 			}
@@ -108,12 +108,12 @@ func (r *RootResolver) Feed(ctx context.Context, args struct {
 	}
 
 	// @TODO push URLs to the queue
-	_, err = usecase.ParseFeed(ctx, f, r.repositories)
+	_, err = usecase.ParseSyndicationSource(ctx, f, r.repositories)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &FeedResolver{Feed: f}
+	res := &SyndicationResolver{Source: f}
 
 	return res, nil
 }
@@ -121,32 +121,32 @@ func (r *RootResolver) Feed(ctx context.Context, args struct {
 // Feeds resolves the query
 func (r *RootResolver) Feeds(ctx context.Context, args struct {
 	Pagination OffsetPaginationInput
-}) (*FeedCollectionResolver, error) {
+}) (*SyndicationCollectionResolver, error) {
 	fromArgs := GetOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 
-	results, err := r.repositories.Feeds.FindAll(ctx, offset, limit)
+	results, err := r.repositories.Syndication.FindAll(ctx, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
 	var total int32
-	total, err = r.repositories.Feeds.GetTotal(ctx)
+	total, err = r.repositories.Syndication.GetTotal(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var feeds []*FeedResolver
+	var sources []*SyndicationResolver
 	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	for _, result := range results {
-		feeds = append(feeds, &FeedResolver{
-			Feed:       result,
+		sources = append(sources, &SyndicationResolver{
+			Source:     result,
 			logsLoader: logsLoader,
 		})
 	}
 
-	reso := FeedCollectionResolver{
-		Results: feeds,
+	reso := SyndicationCollectionResolver{
+		Results: sources,
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,

@@ -2,8 +2,8 @@ package parser
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/feed"
 	"github/mickaelvieira/taipan/internal/domain/image"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"html"
 	neturl "net/url"
@@ -60,7 +60,7 @@ func (p *Parser) Parse() *document.Document {
 	var description = p.description()
 	var image = p.image()
 
-	var feeds []*feed.Feed
+	var feeds []*syndication.Source
 	if isWP {
 		// WP is a bit silly in the way it handles RSS feeds
 		// Usually only the comments feed is available on the page
@@ -93,11 +93,11 @@ func (p *Parser) isWordpress() bool {
 	return false
 }
 
-func (p *Parser) getWordpressFeed() []*feed.Feed {
-	var feeds []*feed.Feed
+func (p *Parser) getWordpressFeed() []*syndication.Source {
+	var feeds []*syndication.Source
 	u := &url.URL{URL: &neturl.URL{Path: "/feed/"}} // default WP feed
 	u = p.makeURLAbs(u)
-	feed := feed.New(u, "wordpress feed", feed.RSS)
+	feed := syndication.NewSource(u, "wordpress feed", syndication.RSS)
 	feeds = append(feeds, feed)
 	return feeds
 }
@@ -252,16 +252,16 @@ func (p *Parser) parseCanonicalURL() *url.URL {
 	return p.parseAndNormalizeRawURL(rawURL)
 }
 
-func (p *Parser) parseFeeds() []*feed.Feed {
-	var feeds []*feed.Feed
+func (p *Parser) parseFeeds() []*syndication.Source {
+	var feeds []*syndication.Source
 	for _, s := range p.linkTags {
 		u := p.normalizeAttrValue(s.AttrOr("href", ""))
 		title := p.normalizeAttrValue(p.normalizeHTMLText(s.AttrOr("title", "")))
-		feedType, err := feed.GetFeedType(p.normalizeAttrValue(s.AttrOr("type", "")))
-		if !feed.IsBlacklisted(u) {
+		feedType, err := syndication.GetSourceType(p.normalizeAttrValue(s.AttrOr("type", "")))
+		if !syndication.IsBlacklisted(u) {
 			urlFeed := p.parseAndNormalizeRawURL(u)
 			if err == nil && urlFeed != nil {
-				feed := feed.New(
+				feed := syndication.NewSource(
 					urlFeed,
 					title,
 					feedType,

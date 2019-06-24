@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
-	"github/mickaelvieira/taipan/internal/domain/feed"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
@@ -13,15 +13,15 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-// DeleteFeed soft deletes a feed
-func DeleteFeed(ctx context.Context, f *feed.Feed, r *repository.FeedRepository) (err error) {
+// DeleteSyndicationSource soft deletes a feed
+func DeleteSyndicationSource(ctx context.Context, f *syndication.Source, r *repository.SyndicationRepository) (err error) {
 	fmt.Printf("Soft deleting feed '%s'\n", f.URL)
 	f.Deleted = true
 	f.UpdatedAt = time.Now()
 	return r.Delete(ctx, f)
 }
 
-func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, repositories *repository.Repositories) (err error) {
+func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *syndication.Source, repositories *repository.Repositories) (err error) {
 	if rs.RespStatusCode == 404 || rs.RespStatusCode == 406 || rs.RespStatusCode == 429 || rs.RespStatusCode == 500 {
 		var logs []*client.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
@@ -31,7 +31,7 @@ func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, 
 		// @TODO Should we check whether they are actually 5 successive errors?
 		if len(logs) >= 5 {
 			fmt.Printf("Too many '%d' errors\n", rs.RespStatusCode)
-			err = DeleteFeed(ctx, f, repositories.Feeds)
+			err = DeleteSyndicationSource(ctx, f, repositories.Syndication)
 			if err != nil {
 				return
 			}
@@ -41,10 +41,10 @@ func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, f *feed.Feed, 
 	return
 }
 
-func handleDuplicateFeed(ctx context.Context, FinalURI *url.URL, f *feed.Feed, repositories *repository.Repositories) (*feed.Feed, error) {
+func handleDuplicateFeed(ctx context.Context, FinalURI *url.URL, f *syndication.Source, repositories *repository.Repositories) (*syndication.Source, error) {
 	var b bool
 	var err error
-	b, err = repositories.Feeds.ExistWithURL(ctx, FinalURI)
+	b, err = repositories.Syndication.ExistWithURL(ctx, FinalURI)
 	if err != nil {
 		return f, err
 	}
@@ -53,9 +53,9 @@ func handleDuplicateFeed(ctx context.Context, FinalURI *url.URL, f *feed.Feed, r
 		fmt.Printf("Feed's URL needs to be updated %s => %s\n", f.URL, FinalURI)
 		f.URL = FinalURI
 		f.UpdatedAt = time.Now()
-		err = repositories.Feeds.UpdateURL(ctx, f)
+		err = repositories.Syndication.UpdateURL(ctx, f)
 	} else {
-		err = DeleteFeed(ctx, f, repositories.Feeds)
+		err = DeleteSyndicationSource(ctx, f, repositories.Syndication)
 		if err == nil {
 			err = fmt.Errorf("Feed '%s' was a duplicate. It's been deleted", f.URL)
 		}
@@ -63,12 +63,12 @@ func handleDuplicateFeed(ctx context.Context, FinalURI *url.URL, f *feed.Feed, r
 	return f, err
 }
 
-// ParseFeed in this usecase given an feed entity:
+// ParseSyndicationSource in this usecase given an feed entity:
 // - Fetches the related RSS/ATOM document
 // - Parses it the document
 // - And returns a list of URLs found in the document
 // The document is not parsed if the document has not changed since the last time it was fetched
-func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repositories) (urls []*url.URL, err error) {
+func ParseSyndicationSource(ctx context.Context, f *syndication.Source, repositories *repository.Repositories) (urls []*url.URL, err error) {
 	fmt.Printf("Parsing %s\n", f.URL)
 	parser := gofeed.NewParser()
 
@@ -102,7 +102,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 		}
 
 		f.Title = content.Title
-		feedType, errType := feed.FromGoFeedType(content.FeedType)
+		feedType, errType := syndication.FromGoFeedType(content.FeedType)
 		if errType == nil {
 			f.Type = feedType
 		} else {
@@ -135,7 +135,7 @@ func ParseFeed(ctx context.Context, f *feed.Feed, repositories *repository.Repos
 	}
 
 	f.ParsedAt = time.Now()
-	err = repositories.Feeds.Update(ctx, f)
+	err = repositories.Syndication.Update(ctx, f)
 
 	return
 }

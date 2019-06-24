@@ -1,4 +1,4 @@
-package feed
+package syndication
 
 import (
 	"fmt"
@@ -25,8 +25,8 @@ func isAtom(t string) bool {
 	return t == string(ATOM)
 }
 
-// GetFeedType returns the feed type based on a provided string
-func GetFeedType(t string) (Type, error) {
+// GetSourceType returns the feed type based on a provided string
+func GetSourceType(t string) (Type, error) {
 	t = strings.ToLower(t)
 	if isRSS(t) {
 		return RSS, nil
@@ -34,7 +34,7 @@ func GetFeedType(t string) (Type, error) {
 	if isAtom(t) {
 		return ATOM, nil
 	}
-	return INVALID, fmt.Errorf("Invalid feed type %s", t)
+	return INVALID, fmt.Errorf("Invalid source type %s", t)
 }
 
 // FromGoFeedType returns the feed type based on the gofeed type
@@ -71,8 +71,8 @@ const (
 	FETCHING Status = "fetching"
 )
 
-// Feed represents what is the feed within the application
-type Feed struct {
+// Source represents what is the feed within the application
+type Source struct {
 	ID        string
 	URL       *url.URL
 	Type      Type
@@ -84,9 +84,9 @@ type Feed struct {
 	Deleted   bool
 }
 
-// New creates a new Feed with a UUID
-func New(url *url.URL, title string, feedType Type) *Feed {
-	return &Feed{
+// NewSource creates a new syndication source
+func NewSource(url *url.URL, title string, feedType Type) *Source {
+	return &Source{
 		URL:       url,
 		Title:     title,
 		Type:      feedType,
@@ -96,8 +96,8 @@ func New(url *url.URL, title string, feedType Type) *Feed {
 	}
 }
 
-// UserFeed represents a feed from a user's prespective
-type UserFeed struct {
-	Feed
+// UserSource represents a feed from a user's prespective
+type UserSource struct {
+	Source
 	AddedAt time.Time
 }

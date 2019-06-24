@@ -14,11 +14,11 @@ type Scanable interface {
 
 // Repositories holds a reference to the repositories
 type Repositories struct {
-	Users     *UserRepository
-	Feeds     *FeedRepository
-	Documents *DocumentRepository
-	Bookmarks *BookmarkRepository
-	Botlogs   *BotlogRepository
+	Users       *UserRepository
+	Syndication *SyndicationRepository
+	Documents   *DocumentRepository
+	Bookmarks   *BookmarkRepository
+	Botlogs     *BotlogRepository
 }
 
 // GetRepositories builds the repository holder
@@ -26,11 +26,11 @@ func GetRepositories() *Repositories {
 	var db = db.GetDB()
 
 	return &Repositories{
-		Users:     &UserRepository{db: db},
-		Feeds:     &FeedRepository{db: db},
-		Documents: &DocumentRepository{db: db},
-		Bookmarks: &BookmarkRepository{db: db},
-		Botlogs:   &BotlogRepository{db: db},
+		Users:       &UserRepository{db: db},
+		Syndication: &SyndicationRepository{db: db},
+		Documents:   &DocumentRepository{db: db},
+		Bookmarks:   &BookmarkRepository{db: db},
+		Botlogs:     &BotlogRepository{db: db},
 	}
 }
 
