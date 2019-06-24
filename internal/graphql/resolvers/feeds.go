@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/feed"
-	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -88,19 +87,14 @@ func (r *FeedResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolve
 
 // Feed adds a feed
 func (r *RootResolver) Feed(ctx context.Context, args struct {
-	URL string
+	URL scalars.URL
 }) (*FeedResolver, error) {
-	if feed.IsBlacklisted(args.URL) {
+	u := args.URL.URL
+	if feed.IsBlacklisted(u.String()) {
 		return nil, fmt.Errorf("URL %s is blacklisted", args.URL)
 	}
 
-	u, err := url.FromRawURL(args.URL)
-	if err != nil {
-		return nil, err
-	}
-
-	var f *feed.Feed
-	f, err = r.repositories.Feeds.GetByURL(ctx, u)
+	f, err := r.repositories.Feeds.GetByURL(ctx, u)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			f = feed.New(u, "", "")

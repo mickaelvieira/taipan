@@ -4,8 +4,6 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/usecase"
 
@@ -84,17 +82,12 @@ func (r *BookmarkResolver) IsRead() bool {
 
 // GetBookmark resolves the query
 func (r *RootResolver) GetBookmark(ctx context.Context, args struct {
-	URL string
+	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
+	u := args.URL.URL
 
-	u, err := url.FromRawURL(args.URL)
-	if err != nil {
-		return nil, err
-	}
-
-	var b *bookmark.Bookmark
-	b, err = r.repositories.Bookmarks.GetByURL(ctx, user, u)
+	b, err := r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
 		return nil, err
 	}
@@ -196,16 +189,12 @@ func (r *RootResolver) GetReadingList(ctx context.Context, args struct {
 
 // CreateBookmark creates a new document and add it to user's bookmarks
 func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
-	URL string
+	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u, err := url.FromRawURL(args.URL)
-	if err != nil {
-		return nil, err
-	}
+	u := args.URL.URL
 
-	var d *document.Document
-	d, err = usecase.Document(ctx, u, r.repositories)
+	d, err := usecase.Document(ctx, u, r.repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -226,17 +215,13 @@ func (r *RootResolver) CreateBookmark(ctx context.Context, args struct {
 
 // Bookmark bookmarks a URL
 func (r *RootResolver) Bookmark(ctx context.Context, args struct {
-	URL    string
+	URL    scalars.URL
 	IsRead bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u, err := url.FromRawURL(args.URL)
-	if err != nil {
-		return nil, err
-	}
+	u := args.URL.URL
 
-	var d *document.Document
-	d, err = r.repositories.Documents.GetByURL(ctx, u)
+	d, err := r.repositories.Documents.GetByURL(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -263,14 +248,11 @@ func (r *RootResolver) Bookmark(ctx context.Context, args struct {
 
 // ChangeBookmarkReadStatus marks the bookmark as read or unread
 func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct {
-	URL    string
+	URL    scalars.URL
 	IsRead bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u, err := url.FromRawURL(args.URL)
-	if err != nil {
-		return nil, err
-	}
+	u := args.URL.URL
 
 	b, err := usecase.ReadStatus(ctx, user, u, args.IsRead, r.repositories)
 	if err != nil {
@@ -294,13 +276,10 @@ func (r *RootResolver) ChangeBookmarkReadStatus(ctx context.Context, args struct
 
 // Unbookmark removes bookmark from user's list
 func (r *RootResolver) Unbookmark(ctx context.Context, args struct {
-	URL string
+	URL scalars.URL
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)
-	u, err := url.FromRawURL(args.URL)
-	if err != nil {
-		return nil, err
-	}
+	u := args.URL.URL
 
 	d, err := usecase.Unbookmark(ctx, user, u, r.repositories)
 	if err != nil {

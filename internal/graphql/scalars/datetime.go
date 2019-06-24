@@ -17,10 +17,7 @@ func (DateTime) ImplementsGraphQLType(name string) bool {
 	return name == "DateTime"
 }
 
-// UnmarshalGraphQL is a custom unmarshaler for Time
-//
-// This function will be called whenever you use the
-// time scalar as an input
+// UnmarshalGraphQL is a custom unmarshaler for DateTime
 func (t *DateTime) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
 	case string:
@@ -33,9 +30,6 @@ func (t *DateTime) UnmarshalGraphQL(input interface{}) error {
 }
 
 // MarshalJSON is a custom marshaler for Time
-//
-// This function will be called whenever you
-// query for fields that use the Time type
 func (t DateTime) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.Time.Format(time.RFC3339))
 }

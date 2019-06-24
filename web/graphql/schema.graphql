@@ -12,7 +12,7 @@ schema {
 
 type Query {
   User(): User
-  GetBookmark(url: String!): Bookmark
+  GetBookmark(url: URL!): Bookmark
   News(pagination: CursorPaginationInput!): FeedDocumentResults
   LatestNews(pagination: CursorPaginationInput!): FeedDocumentResults
   GetFavorites(pagination: CursorPaginationInput!): FeedBookmarkResults
@@ -22,11 +22,11 @@ type Query {
 }
 
 type Mutation {
-  Feed(url: String!): Feed
-  CreateBookmark(url: String!): Bookmark
-  Bookmark(url: String!, isRead: Boolean!): Bookmark
-  Unbookmark(url: String!): Document
-  ChangeBookmarkReadStatus(url: String!, isRead: Boolean!): Bookmark
+  Feed(url: URL!): Feed
+  CreateBookmark(url: URL!): Bookmark
+  Bookmark(url: URL!, isRead: Boolean!): Bookmark
+  Unbookmark(url: URL!): Document
+  ChangeBookmarkReadStatus(url: URL!, isRead: Boolean!): Bookmark
 }
 
 type Subscription {

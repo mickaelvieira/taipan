@@ -19,9 +19,6 @@ func (URL) ImplementsGraphQLType(name string) bool {
 }
 
 // UnmarshalGraphQL is a custom unmarshaler for URL
-//
-// This function will be called whenever you use the
-// URL scalar as an input
 func (u *URL) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
 	case string:
@@ -34,9 +31,6 @@ func (u *URL) UnmarshalGraphQL(input interface{}) error {
 }
 
 // MarshalJSON is a custom marshaler for URL
-//
-// This function will be called whenever you
-// query for fields that use the URL type
 func (u URL) MarshalJSON() ([]byte, error) {
 	return json.Marshal(u.URL.String())
 }

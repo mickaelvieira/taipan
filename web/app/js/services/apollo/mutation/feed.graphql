@@ -1,6 +1,6 @@
 #import "../fragment/feed.graphql"
 
-mutation Feed($url: String!) {
+mutation Feed($url: URL!) {
   Feed(url: $url) {
     ...feedFields
   }

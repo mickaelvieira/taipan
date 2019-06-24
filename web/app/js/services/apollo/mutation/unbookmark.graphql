@@ -1,6 +1,6 @@
 #import "../fragment/document.graphql"
 
-mutation Unbookmark($url: String!) {
+mutation Unbookmark($url: URL!) {
   Unbookmark(url: $url) {
     ...documentFields
   }
