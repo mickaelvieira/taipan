@@ -3,7 +3,6 @@ package resolvers
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
-	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/repository"
 )
 
@@ -107,12 +106,10 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	var documents = make([]*DocumentResolver, 0)
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
-			logsLoader:   logsLoader,
 			repositories: r.repositories,
 		})
 	}
@@ -149,12 +146,10 @@ func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	var documents = make([]*DocumentResolver, 0)
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
-			logsLoader:   logsLoader,
 			repositories: r.repositories,
 		})
 	}
