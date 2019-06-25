@@ -33,7 +33,7 @@ export default React.memo(function BookmarkAndFavorite({
           className={classes.button}
           onClick={() =>
             mutate({
-              variables: { url: document.url, isRead: true },
+              variables: { url: document.url, isFavorite: true },
               refetchQueries: [
                 {
                   query: queryFavorites,

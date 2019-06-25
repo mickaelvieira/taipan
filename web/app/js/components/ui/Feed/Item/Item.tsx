@@ -64,9 +64,7 @@ export default function Item({ children, query, item }: Props) {
         >
           <Card className={classes.card}>
             {children({
-              remove: () => {
-                // setIsVisible(false)
-              }
+              remove: () => {}
             })}
           </Card>
         </Fade>

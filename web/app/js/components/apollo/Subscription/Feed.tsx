@@ -9,8 +9,7 @@ import subscriptionFavorites from "../../../services/apollo/subscription/favorit
 import subscriptionReadingList from "../../../services/apollo/subscription/reading-list.graphql";
 import { getDataKey } from "../Query/Feed";
 import { FeedEventData, FeedEvent } from "../../../types/feed";
-import { feedResultsAction } from "../helpers/feed";
-import { hasReceivedEvent } from "../helpers/data";
+import { hasReceivedEvent, feedResultsAction } from "../helpers/feed";
 
 const variables = {};
 

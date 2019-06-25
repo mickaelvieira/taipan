@@ -30,7 +30,7 @@ export default React.memo(function Bookmark({ document, onSuccess }: Props) {
           className={classes.button}
           onClick={() =>
             mutate({
-              variables: { url: document.url, isRead: false },
+              variables: { url: document.url, isFavorite: false },
               refetchQueries: [
                 {
                   query: queryReadingList,

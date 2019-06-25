@@ -10,5 +10,5 @@ export interface Bookmark {
   image: Image | null;
   addedAt: string;
   updatedAt: string;
-  isRead: boolean;
+  isFavorite: boolean;
 }

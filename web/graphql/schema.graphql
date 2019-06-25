@@ -46,10 +46,10 @@ type BookmarksQuery {
 
 type BookmarksMutation {
   create(url: URL!): Bookmark
-  add(url: URL!, isRead: Boolean!): Bookmark
+  add(url: URL!, isFavorite: Boolean!): Bookmark
   remove(url: URL!): Document
-  read(url: URL!): Bookmark
-  unread(url: URL!): Bookmark
+  favorite(url: URL!): Bookmark
+  unfavorite(url: URL!): Bookmark
 }
 
 # Feeds queries
@@ -124,7 +124,7 @@ type Bookmark implements Node {
   image: Image
   updatedAt: DateTime!
   addedAt: DateTime!
-  isRead: Boolean!
+  isFavorite: Boolean!
 }
 
 type Source implements Node {

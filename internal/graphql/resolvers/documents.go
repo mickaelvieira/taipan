@@ -30,7 +30,6 @@ type DocumentCollectionResolver struct {
 // DocumentResolver resolves the bookmark entity
 type DocumentResolver struct {
 	*document.Document
-	logsLoader   *dataloader.Loader
 	repositories *repository.Repositories
 }
 
@@ -87,7 +86,7 @@ func (r *DocumentResolver) UpdatedAt() scalars.DateTime {
 
 // LogEntries returns the document's parser log
 func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
-	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Document.URL.String()))()
+	data, err := r.getLogsLoader().Load(ctx, dataloader.StringKey(r.Document.URL.String()))()
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +99,10 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 		resolvers = append(resolvers, &HTTPClientLogResolver{Result: result})
 	}
 	return &resolvers, nil
+}
+
+func (r *DocumentResolver) getLogsLoader() *dataloader.Loader {
+	return loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 }
 
 // Documents resolves the query
@@ -122,12 +125,10 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	var documents = make([]*DocumentResolver, 0)
 	for _, result := range results {
 		documents = append(documents, &DocumentResolver{
 			Document:     result,
-			logsLoader:   logsLoader,
 			repositories: r.repositories,
 		})
 	}

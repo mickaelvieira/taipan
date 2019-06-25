@@ -82,9 +82,9 @@ func (r *BookmarkResolver) UpdatedAt() scalars.DateTime {
 	return scalars.DateTime{Time: r.Bookmark.UpdatedAt}
 }
 
-// IsRead resolves the IsRead field
-func (r *BookmarkResolver) IsRead() bool {
-	return bool(r.Bookmark.IsRead)
+// IsFavorite resolves the IsFavorite field
+func (r *BookmarkResolver) IsFavorite() bool {
+	return bool(r.Bookmark.IsFavorite)
 }
 
 // Bookmark resolves the query
@@ -116,9 +116,9 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var isRead = false
+	var isFavorite = false
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, user, d, isRead, r.repositories)
+	b, err = usecase.Bookmark(ctx, user, d, isFavorite, r.repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -132,8 +132,8 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 
 // Add bookmarks a URL
 func (r *BookmarksResolver) Add(ctx context.Context, args struct {
-	URL    scalars.URL
-	IsRead bool
+	URL        scalars.URL
+	IsFavorite bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
@@ -144,33 +144,32 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 	}
 
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, user, d, args.IsRead, r.repositories)
+	b, err = usecase.Bookmark(ctx, user, d, args.IsFavorite, r.repositories)
 	if err != nil {
 		return nil, err
 	}
 
-	var removeFrom = News
 	var addTo = ReadingList
-	if b.IsRead {
+	if b.IsFavorite {
 		addTo = Favorites
 	}
 
 	r.subscriptions.Publish(NewFeedEvent(addTo, Add, b))
-	r.subscriptions.Publish(NewFeedEvent(removeFrom, Remove, d))
+	r.subscriptions.Publish(NewFeedEvent(News, Remove, d))
 
 	res := &BookmarkResolver{Bookmark: b}
 
 	return res, nil
 }
 
-// Read marks the bookmark as read or unread
-func (r *BookmarksResolver) Read(ctx context.Context, args struct {
+// Favorite adds the bookmark to favorites
+func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	b, err := usecase.ReadStatus(ctx, user, u, true, r.repositories)
+	b, err := usecase.FavoriteStatus(ctx, user, u, true, r.repositories)
 	if err != nil {
 		return nil, err
 	}
@@ -183,14 +182,14 @@ func (r *BookmarksResolver) Read(ctx context.Context, args struct {
 	return res, nil
 }
 
-// Unread marks the bookmark as read or unread
-func (r *BookmarksResolver) Unread(ctx context.Context, args struct {
+// Unfavorite removes the bookmark from favorites
+func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	b, err := usecase.ReadStatus(ctx, user, u, false, r.repositories)
+	b, err := usecase.FavoriteStatus(ctx, user, u, false, r.repositories)
 	if err != nil {
 		return nil, err
 	}

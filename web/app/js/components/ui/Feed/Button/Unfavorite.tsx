@@ -20,12 +20,14 @@ interface Props {
   onSuccess: (bookmark: Bookmark) => void;
 }
 
-export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
+export default React.memo(function Unfavorite({ bookmark, onSuccess }: Props) {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
 
   return (
-    <UnfavoriteMutation onCompleted={data => onSuccess(data.bookmarks.unread)}>
+    <UnfavoriteMutation
+      onCompleted={data => onSuccess(data.bookmarks.unfavorite)}
+    >
       {(mutate, { loading }) => (
         <>
           <IconButton
@@ -45,7 +47,9 @@ export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
             onConfirm={() => {
               setConfirmVisibility(false);
               mutate({
-                variables: { url: bookmark.url, isFavorite: !bookmark.isRead },
+                variables: {
+                  url: bookmark.url
+                },
                 refetchQueries: [
                   {
                     query: queryReadingList,

@@ -17,9 +17,9 @@ export async function all(): Promise<Bookmark[]> {
   return store.select();
 }
 
-export async function unread(): Promise<Bookmark[]> {
+export async function unfavorite(): Promise<Bookmark[]> {
   const store = await getDBStore(StoreName.BOOKMARKS);
-  return store.select((item: Bookmark) => !item.isRead);
+  return store.select((item: Bookmark) => !item.isFavorite);
 }
 
 export async function select(filter: ResultsFilter): Promise<Bookmark[]> {
@@ -38,6 +38,6 @@ export default {
   batch,
   all,
   select,
-  unread,
+  unfavorite,
   delete: remove
 };

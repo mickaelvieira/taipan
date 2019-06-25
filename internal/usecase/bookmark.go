@@ -133,8 +133,8 @@ func Document(ctx context.Context, URL *url.URL, repositories *repository.Reposi
 // - Link the document to the user
 // - Save it in the DB
 // - And finally return the user's bookmark
-func Bookmark(ctx context.Context, user *user.User, d *document.Document, isRead bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
-	err := repositories.Bookmarks.BookmarkDocument(ctx, user, d, isRead)
+func Bookmark(ctx context.Context, user *user.User, d *document.Document, isFavorite bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
+	err := repositories.Bookmarks.BookmarkDocument(ctx, user, d, isFavorite)
 	if err != nil {
 		return nil, err
 	}
@@ -147,8 +147,8 @@ func Bookmark(ctx context.Context, user *user.User, d *document.Document, isRead
 	return b, nil
 }
 
-// ReadStatus changes the bookmark read status
-func ReadStatus(ctx context.Context, user *user.User, URL *url.URL, isRead bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
+// FavoriteStatus changes the bookmark read status
+func FavoriteStatus(ctx context.Context, user *user.User, URL *url.URL, isFavorite bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
 	var err error
 	var b *bookmark.Bookmark
 
@@ -157,10 +157,10 @@ func ReadStatus(ctx context.Context, user *user.User, URL *url.URL, isRead bool,
 		return nil, err
 	}
 
-	b.IsRead = isRead
+	b.IsFavorite = isFavorite
 	b.UpdatedAt = time.Now()
 
-	err = repositories.Bookmarks.ChangeReadStatus(ctx, user, b)
+	err = repositories.Bookmarks.ChangeFavoriteStatus(ctx, user, b)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func Unbookmark(ctx context.Context, user *user.User, URL *url.URL, repositories
 	}
 
 	b.IsLinked = false
-	b.IsRead = false
+	b.IsFavorite = false
 	b.UpdatedAt = time.Now()
 
 	err = repositories.Bookmarks.Remove(ctx, user, b)

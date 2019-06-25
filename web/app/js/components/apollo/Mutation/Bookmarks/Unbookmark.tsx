@@ -1,5 +1,5 @@
 import { Mutation } from "react-apollo";
-import { Document } from "../../../types/document";
+import { Document } from "../../../../types/document";
 import mutation from "../../../../services/apollo/mutation/bookmarks/unbookmark.graphql";
 
 interface Data {

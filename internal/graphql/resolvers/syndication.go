@@ -31,7 +31,7 @@ type SourceCollectionResolver struct {
 // SourceResolver resolves the bookmark entity
 type SourceResolver struct {
 	*syndication.Source
-	logsLoader *dataloader.Loader
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
@@ -76,7 +76,7 @@ func (r *SourceResolver) ParsedAt() scalars.DateTime {
 
 // LogEntries returns the document's parser log
 func (r *SourceResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
-	data, err := r.logsLoader.Load(ctx, dataloader.StringKey(r.Source.URL.String()))()
+	data, err := r.getLogsLoader().Load(ctx, dataloader.StringKey(r.Source.URL.String()))()
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +89,10 @@ func (r *SourceResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResol
 		resolvers = append(resolvers, &HTTPClientLogResolver{Result: result})
 	}
 	return &resolvers, nil
+}
+
+func (r *SourceResolver) getLogsLoader() *dataloader.Loader {
+	return loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 }
 
 // Source adds a syndication source
@@ -143,11 +147,10 @@ func (r *SyndicationResolver) Sources(ctx context.Context, args struct {
 	}
 
 	var sources []*SourceResolver
-	var logsLoader = loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 	for _, result := range results {
 		sources = append(sources, &SourceResolver{
-			Source:     result,
-			logsLoader: logsLoader,
+			Source:       result,
+			repositories: r.repositories,
 		})
 	}
 

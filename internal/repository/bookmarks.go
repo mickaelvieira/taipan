@@ -225,7 +225,7 @@ func (r *BookmarkRepository) getPagination(ctx context.Context, fromID string, t
 }
 
 // BookmarkDocument the bookmark to the user
-func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.User, d *document.Document, isRead bool) error {
+func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.User, d *document.Document, isFavorite bool) error {
 	query := `
 		INSERT INTO bookmarks
 		(user_id, document_id, added_at, updated_at, marked_as_read, linked)
@@ -240,15 +240,15 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.Us
 		d.ID,
 		time.Now(),
 		time.Now(),
-		isRead,
+		isFavorite,
 		time.Now(),
 	)
 
 	return err
 }
 
-// ChangeReadStatus change bookmarks read status .i.e READ/UNREAD
-func (r *BookmarkRepository) ChangeReadStatus(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
+// ChangeFavoriteStatus change bookmarks read status .i.e READ/UNREAD
+func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
 		SET marked_as_read = ?, updated_at = ?
@@ -257,7 +257,7 @@ func (r *BookmarkRepository) ChangeReadStatus(ctx context.Context, user *user.Us
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		b.IsRead,
+		b.IsFavorite,
 		b.UpdatedAt,
 		user.ID,
 		b.ID,
@@ -276,7 +276,7 @@ func (r *BookmarkRepository) Remove(ctx context.Context, user *user.User, b *boo
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		b.IsRead,
+		b.IsFavorite,
 		b.IsLinked,
 		b.UpdatedAt,
 		user.ID,
@@ -306,7 +306,7 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 		&b.AddedAt,
 		&b.UpdatedAt,
 		&b.IsLinked,
-		&b.IsRead,
+		&b.IsFavorite,
 	)
 
 	if err != nil {

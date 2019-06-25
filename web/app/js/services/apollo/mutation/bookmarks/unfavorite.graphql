@@ -1,8 +1,8 @@
 #import "../../fragment/bookmark.graphql"
 
-mutation unread($url: URL!) {
+mutation unfavorite($url: URL!) {
   bookmarks {
-    unread(url: $url) {
+    unfavorite(url: $url) {
       ...bookmarkFields
     }
   }

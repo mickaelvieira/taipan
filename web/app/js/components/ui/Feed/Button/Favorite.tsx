@@ -13,7 +13,7 @@ interface Props {
 
 export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
   return (
-    <FavoriteMutation onCompleted={data => onSuccess(data.bookmarks.read)}>
+    <FavoriteMutation onCompleted={data => onSuccess(data.bookmarks.favorite)}>
       {(mutate, { loading }) => (
         <>
           <IconButton
@@ -22,8 +22,7 @@ export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
             onClick={() =>
               mutate({
                 variables: {
-                  url: bookmark.url,
-                  isFavorite: !bookmark.isRead
+                  url: bookmark.url
                 },
                 refetchQueries: [
                   {

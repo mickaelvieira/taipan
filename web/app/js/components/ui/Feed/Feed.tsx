@@ -4,7 +4,7 @@ import Loader from "../Loader";
 import FeedQuery, { LoadMore, getFetchMore } from "../../apollo/Query/Feed";
 import FeedSubscription from "../../apollo/Subscription/Feed";
 import { FeedItem } from "../../../types/feed";
-import { hasReceivedData } from "../../apollo/helpers/data";
+import { hasReceivedData } from "../../apollo/helpers/feed";
 import FeedContainer from "./Container";
 import useWindowBottom from "../../../hooks/window-bottom";
 

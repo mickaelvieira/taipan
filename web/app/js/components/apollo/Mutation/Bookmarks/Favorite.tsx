@@ -1,16 +1,15 @@
 import { Mutation } from "react-apollo";
-import { Bookmark } from "../../../types/bookmark";
+import { Bookmark } from "../../../../types/bookmark";
 import mutation from "../../../../services/apollo/mutation/bookmarks/favorite.graphql";
 
 interface Data {
   bookmarks: {
-    read: Bookmark;
+    favorite: Bookmark;
   };
 }
 
 interface Variables {
   url: string;
-  isFavorite: boolean;
 }
 
 class FavoriteMutation extends Mutation<Data, Variables> {
