@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import { Bookmark } from "../../../types/bookmark";
@@ -14,48 +13,36 @@ import { MessageContext } from "../../context";
 
 interface Props {
   bookmark: Bookmark;
-  query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({
-  bookmark,
-  query
-}: Props): JSX.Element {
+export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
   return (
-    <Item query={query} item={bookmark}>
-      {({ remove }) => (
-        <>
-          <ItemImage item={bookmark} />
-          <CardContent>
-            <ItemTitle item={bookmark} />
-            <ItemDescription item={bookmark} />
-          </CardContent>
-          <ItemFooter>
-            <CardActions disableSpacing>
-              <Domain item={bookmark} />
-            </CardActions>
-            <CardActions disableSpacing>
-              <UnbookmarkButton
-                bookmark={bookmark}
-                onSuccess={() => {
-                  setMessageInfo(
-                    "The document was removed from your reading list"
-                  );
-                  remove();
-                }}
-              />
-              <FavoriteButton
-                bookmark={bookmark}
-                onSuccess={() => {
-                  setMessageInfo("The bookmark was added to your favorites");
-                  remove();
-                }}
-              />
-            </CardActions>
-          </ItemFooter>
-        </>
-      )}
+    <Item>
+      <ItemImage item={bookmark} />
+      <CardContent>
+        <ItemTitle item={bookmark} />
+        <ItemDescription item={bookmark} />
+      </CardContent>
+      <ItemFooter>
+        <CardActions disableSpacing>
+          <Domain item={bookmark} />
+        </CardActions>
+        <CardActions disableSpacing>
+          <UnbookmarkButton
+            bookmark={bookmark}
+            onSuccess={() => {
+              setMessageInfo("The document was removed from your reading list");
+            }}
+          />
+          <FavoriteButton
+            bookmark={bookmark}
+            onSuccess={() => {
+              setMessageInfo("The bookmark was added to your favorites");
+            }}
+          />
+        </CardActions>
+      </ItemFooter>
     </Item>
   );
 });

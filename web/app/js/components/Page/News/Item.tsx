@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import { Document } from "../../../types/document";
@@ -17,47 +16,37 @@ import { MessageContext } from "../../context";
 
 interface Props {
   document: Document;
-  query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({
-  document,
-  query
-}: Props): JSX.Element {
+export default React.memo(function FeedItem({ document }: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
 
   return (
-    <Item query={query} item={document}>
-      {({ remove }) => (
-        <>
-          <ItemImage item={document} />
-          <CardContent>
-            <ItemTitle item={document} />
-            <ItemDescription item={document} />
-          </CardContent>
-          <ItemFooter>
-            <CardActions disableSpacing>
-              <Domain item={document} />
-            </CardActions>
-            <CardActions disableSpacing>
-              <BookmarkAndFavoriteButton
-                document={document}
-                onSuccess={() => {
-                  setMessageInfo("The document was added to your favorites");
-                  remove();
-                }}
-              />
-              <BookmarkButton
-                document={document}
-                onSuccess={() => {
-                  setMessageInfo("The document was added to your reading list");
-                  remove();
-                }}
-              />
-            </CardActions>
-          </ItemFooter>
-        </>
-      )}
+    <Item>
+      <ItemImage item={document} />
+      <CardContent>
+        <ItemTitle item={document} />
+        <ItemDescription item={document} />
+      </CardContent>
+      <ItemFooter>
+        <CardActions disableSpacing>
+          <Domain item={document} />
+        </CardActions>
+        <CardActions disableSpacing>
+          <BookmarkAndFavoriteButton
+            document={document}
+            onSuccess={() => {
+              setMessageInfo("The document was added to your favorites");
+            }}
+          />
+          <BookmarkButton
+            document={document}
+            onSuccess={() => {
+              setMessageInfo("The document was added to your reading list");
+            }}
+          />
+        </CardActions>
+      </ItemFooter>
     </Item>
   );
 });

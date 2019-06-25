@@ -39,9 +39,7 @@ export function hasReceivedData(
   return [hasResults, results];
 }
 
-export function getEventKey(
-  data: FeedQueryData | FeedEventData
-): string | null {
+function getEventKey(data: FeedQueryData | FeedEventData): string | null {
   const keys = Object.keys(data);
   return keys.length > 0 ? keys[0] : null;
 }
@@ -79,7 +77,6 @@ function addItemToFeedResults(
   result: FeedResults,
   item: FeedItem
 ): FeedResults {
-  // @TODO I might have to add a condition to check whether the item is already in the cache
   if (!item) {
     return result;
   }

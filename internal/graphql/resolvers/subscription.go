@@ -129,7 +129,6 @@ type BookmarkSubscriber struct {
 
 // Publish publishes a bookmark event
 func (s *BookmarkSubscriber) Publish(e *FeedEvent) {
-	log.Printf("Bookmark subscriber: received events %s", e.Topic)
 	s.events <- &BookmarkEventResolver{event: e}
 }
 
@@ -140,7 +139,6 @@ type DocumentSubscriber struct {
 
 // Publish publishes a document event
 func (s *DocumentSubscriber) Publish(e *FeedEvent) {
-	log.Printf("Document subscriber: received events %s", e.Topic)
 	s.events <- &DocumentEventResolver{event: e}
 }
 
@@ -159,8 +157,6 @@ func (bus *Subscription) Subscribe(t FeedTopic, s Subscriber, stop <-chan struct
 	}
 
 	id := randomID()
-
-	log.Printf("Subscribe with id [%s] to topic [%s]", id, t)
 	bus.subscribers[t][id] = s
 
 	go func(id string, s <-chan struct{}) {
@@ -180,7 +176,6 @@ func (bus *Subscription) Unsubscribe(id string) {
 	for _, v := range bus.subscribers {
 		for i := range v {
 			if i == id {
-				log.Printf("Unsubscribe [%s]", id)
 				delete(v, id)
 			}
 		}
@@ -190,8 +185,6 @@ func (bus *Subscription) Unsubscribe(id string) {
 // Publish notifies subscribers of an event of a specific topic
 func (bus *Subscription) Publish(e *FeedEvent) {
 	t := e.Topic
-	log.Printf("Publish event: topic [%s], action [%s]", t, e.Action)
-	log.Printf("Number of subscriber: [%d]", len(bus.subscribers[t]))
 	if bus.subscribers[t] != nil {
 		for _, s := range bus.subscribers[t] {
 			go s.Publish(e)

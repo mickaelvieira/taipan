@@ -7,14 +7,13 @@ import Latest from "./Latest";
 export default function DocumentList({
   results,
   firstId,
-  lastId,
-  query
+  lastId
 }: ListProps): JSX.Element {
   return (
     <>
       <Latest firstId={firstId} lastId={lastId} />
       {results.map(result => (
-        <Item document={result as Document} key={result.id} query={query} />
+        <Item document={result as Document} key={result.id} />
       ))}
     </>
   );

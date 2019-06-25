@@ -12,11 +12,10 @@ export interface ListProps {
   results: FeedItem[];
   firstId: string;
   lastId: string;
-  query: PropTypes.Validator<object>;
 }
 
 interface Props {
-  List: React.ComponentType<ListProps>;
+  List: React.FunctionComponent<ListProps>;
   query: PropTypes.Validator<object>;
   subscription: PropTypes.Validator<object>;
 }
@@ -51,12 +50,7 @@ export default function Feed({
             <>
               {loading && !hasResults && <Loader />}
               <FeedContainer>
-                <List
-                  results={results}
-                  firstId={first}
-                  lastId={last}
-                  query={query}
-                />
+                <List results={results} firstId={first} lastId={last} />
               </FeedContainer>
               {loading && hasResults && <Loader />}
             </>

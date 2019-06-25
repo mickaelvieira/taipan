@@ -32,7 +32,7 @@ function onReceivedData({ client, subscriptionData, query }: Data): void {
           query,
           data: {
             feeds: {
-              __typename: "FeedsQuery",
+              ...data.feeds,
               [key]: result
             }
           }
@@ -64,8 +64,6 @@ export default function FeedSubscription({
     <Subscription
       subscription={subscription}
       onSubscriptionData={options => onReceivedData({ ...options, query })}
-    >
-      {() => null}
-    </Subscription>
+    />
   );
 }
