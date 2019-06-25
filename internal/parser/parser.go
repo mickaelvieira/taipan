@@ -83,10 +83,8 @@ func (p *Parser) Parse() *document.Document {
 
 func (p *Parser) isWordpress() bool {
 	for _, s := range p.linkTags {
-		rel, exist := s.Attr("rel")
 		url := p.normalizeAttrValue(s.AttrOr("href", ""))
-		rel = p.normalizeAttrValue(rel)
-		if exist && rel == "stylesheet" && strings.Contains(url, "wp-content") {
+		if strings.Contains(url, "wp-content") {
 			return true
 		}
 	}
