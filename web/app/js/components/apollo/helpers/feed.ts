@@ -9,7 +9,7 @@ import {
   FeedEvent
 } from "../../../types/feed";
 
-export function getDataKey(data: FeedQueryData | FeedEventData): string | null {
+export function getDataKey(data: FeedQueryData): string | null {
   const keys = "feeds" in data ? Object.keys(data.feeds) : [];
   return keys.length > 0 ? keys[0] : null;
 }
@@ -39,7 +39,7 @@ export function hasReceivedData(
   return [hasResults, results];
 }
 
-function getEventKey(data: FeedQueryData | FeedEventData): string | null {
+function getEventKey(data: FeedEventData): string | null {
   const keys = Object.keys(data);
   return keys.length > 0 ? keys[0] : null;
 }

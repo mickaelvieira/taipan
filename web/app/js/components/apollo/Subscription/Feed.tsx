@@ -11,8 +11,6 @@ import { getDataKey } from "../Query/Feed";
 import { FeedEventData, FeedEvent } from "../../../types/feed";
 import { hasReceivedEvent, feedResultsAction } from "../helpers/feed";
 
-const variables = {};
-
 interface Data extends OnSubscriptionDataOptions<FeedEventData> {
   query: PropTypes.Validator<object>;
 }
@@ -42,12 +40,7 @@ function onReceivedData({ client, subscriptionData, query }: Data): void {
   }
 }
 
-export {
-  variables,
-  subscriptionNews,
-  subscriptionFavorites,
-  subscriptionReadingList
-};
+export { subscriptionNews, subscriptionFavorites, subscriptionReadingList };
 
 class Subscription extends SubscriptionBase<FeedEventData, {}> {}
 

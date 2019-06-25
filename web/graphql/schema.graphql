@@ -1,9 +1,9 @@
+# The Go GraphQL library does not support markdown documentation
+# so the lines are commented out for now
 
-# Custom scalars
 scalar URL
 scalar DateTime
 
-# Schema
 schema {
   query: Query
   mutation: Mutation
@@ -11,7 +11,7 @@ schema {
 }
 
 type Query {
-  users(): UsersQuery
+  users: UsersQuery
   documents: DocumentsQuery
   bookmarks: BookmarksQuery
   feeds: FeedsQuery
@@ -24,52 +24,79 @@ type Mutation {
 }
 
 type Subscription {
+  # "Subscribes to news feed events"
   news(): DocumentEvent!
+
+  # "Subscribes to favorites feed events"
   favorites(): BookmarkEvent!
+
+  # "Subscribes to reading list feed events"
   readingList(): BookmarkEvent!
 }
 
-# Users queries and mutations
 type UsersQuery {
+  # "Returns the current logged in user"
   loggedIn(): User
 }
 
-# Documents queries and mutations
 type DocumentsQuery {
+  # "Returns a list of documents"
   documents(pagination: CursorPaginationInput!): DocumentCollection
 }
 
-# Bookmarks queries and mutations
 type BookmarksQuery {
+  # "Returns the bookmark matching the URL"
   bookmark(url: URL!): Bookmark
 }
 
 type BookmarksMutation {
+  # """
+  # This mutation will fetch the document and create a bookmark
+  # Which will be present in user's reading list
+  # """
   create(url: URL!): Bookmark
+
+  # """
+  # This mutation will add the document and create a bookmark
+  # It will be present in user's reading list or favorites depending
+  # on the isFavorite flag
+  # """
   add(url: URL!, isFavorite: Boolean!): Bookmark
+
+  # "This mutation will add the document to users's bookmarks."
   remove(url: URL!): Document
+
+  # "This mutation will add the bookmark to users's favorites."
   favorite(url: URL!): Bookmark
+
+  # "This mutation will remove the bookmark from users's favorites."
   unfavorite(url: URL!): Bookmark
 }
 
-# Feeds queries
 type FeedsQuery {
+  # "Returns the list of latest news shown in the feed"
   news(pagination: CursorPaginationInput!): FeedDocumentResults
+
+  # "Returns the list of latest news when polling documents"
   latestNews(pagination: CursorPaginationInput!): FeedDocumentResults
+
+  # "Returns the users's favorite bookmarks"
   favorites(pagination: CursorPaginationInput!): FeedBookmarkResults
+
+  # "Returns the users's reading list"
   readingList(pagination: CursorPaginationInput!): FeedBookmarkResults
 }
 
-# Syndication queries and mutations
 type SyndicationQuery {
+  # "Returns a list of web syndication sources"
   sources(pagination: OffsetPaginationInput!): SourceCollection
 }
 
 type SyndicationMutation {
+  # "Returns a web syndication source matching the URL"
   source(url: URL!): Source
 }
 
-# Custom Input Types
 input CursorPaginationInput {
   from: String
   to: String
@@ -81,11 +108,13 @@ input OffsetPaginationInput {
   limit: Int
 }
 
-# Base Entities
 interface Node {
   id: ID!
 }
 
+# """
+# The user type represents a user of the application
+# """
 type User implements Node {
   id: ID!
   firstname: String!
@@ -93,6 +122,10 @@ type User implements Node {
   username: String!
 }
 
+# """
+# The Image type represents a HTML document hero image.
+# Usually it is either the Facebook or the Twitter image
+# """
 type Image {
   name: String!
   url: URL!
@@ -101,6 +134,10 @@ type Image {
   format: String!
 }
 
+# """
+# The Document type represents a web document.
+# It may be a bookmark
+# """
 type Document implements Node {
   id: ID!
   url: URL!
@@ -114,6 +151,10 @@ type Document implements Node {
   logEntries: [HTTPClientLog]
 }
 
+# """
+# The Bookmark type represents a web document but
+# from a user's bookmark perspective
+# """
 type Bookmark implements Node {
   id: ID!
   url: URL!
@@ -127,6 +168,10 @@ type Bookmark implements Node {
   isFavorite: Boolean!
 }
 
+# """
+# The source type describe a web syndication source.
+# It can be either a RSS or Atom feed
+# """
 type Source implements Node {
   id: ID!
   url: URL!
@@ -139,6 +184,7 @@ type Source implements Node {
   logEntries: [HTTPClientLog]
 }
 
+# "The HTTPClientLog type describes an entry in the HTTP client history"
 type HTTPClientLog implements Node {
   id: ID!
   checksum: String!
@@ -149,6 +195,7 @@ type HTTPClientLog implements Node {
   createdAt: DateTime!
 }
 
+# "A collection of web documents"
 type DocumentCollection {
   first: String!
   last: String!
@@ -157,6 +204,7 @@ type DocumentCollection {
   results: [Document!]!
 }
 
+# "A collection of web syndication sources"
 type SourceCollection {
   offset: Int!
   total: Int!
@@ -164,14 +212,23 @@ type SourceCollection {
   results: [Source!]!
 }
 
-# NewsFeed, ReadingListFeed and FavoritesFeed
+# "An item in a feed"
 union FeedItem = Bookmark | Document
 
 interface FeedResults {
+  # "First cursor"
   first: String!
+
+  # "Last cursor"
   last: String!
+
+  # "Total number of possible results"
   total: Int!
+
+  # "Total number of results"
   limit: Int!
+
+  # "List of results"
   results: [FeedItem!]!
 }
 
@@ -191,19 +248,26 @@ type FeedBookmarkResults implements FeedResults {
   results: [Bookmark!]!
 }
 
-# Feeds Subscription
-# @TODO I need to double check those enums
+# """
+# When subscribing to a feed, the subsciption will send events to add.
+# When a item is added to or removed from a feed, the subscription will notify
+# the client in order to keep the feed up to date.
+# """
+
+# "A topic represents a feed"
 enum FeedTopic {
   News
   Favorites
   ReadingList
 }
 
+# "A action represents a action on an item in the feed"
 enum FeedAction {
   Add
   Remove
 }
 
+# "A event describes an action on an item in a given topic"
 interface FeedEvent {
   id: String!
   item: FeedItem!
