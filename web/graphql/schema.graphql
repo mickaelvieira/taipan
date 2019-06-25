@@ -11,7 +11,7 @@ schema {
 }
 
 type Query {
-  user(): User
+  users(): UsersQuery
   documents: DocumentsQuery
   bookmarks: BookmarksQuery
   feeds: FeedsQuery
@@ -27,6 +27,11 @@ type Subscription {
   news(): DocumentEvent!
   favorites(): BookmarkEvent!
   readingList(): BookmarkEvent!
+}
+
+# Users queries and mutations
+type UsersQuery {
+  loggedIn(): User
 }
 
 # Documents queries and mutations

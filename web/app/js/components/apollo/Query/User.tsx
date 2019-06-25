@@ -1,9 +1,11 @@
 import { Query } from "react-apollo";
-import query from "../../../services/apollo/query/user.graphql";
+import query from "../../../services/apollo/query/users/logged-in.graphql";
 import { User } from "../../../types/users";
 
 export interface Data {
-  user: User;
+  users: {
+    loggedIn: User;
+  };
 }
 
 const variables = {};

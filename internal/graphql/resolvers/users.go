@@ -4,9 +4,15 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/repository"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
+
+// UsersResolver bookmarks' root resolver
+type UsersResolver struct {
+	repositories *repository.Repositories
+}
 
 // UserResolver resolves the user entity
 type UserResolver struct {
@@ -33,8 +39,8 @@ func (r *UserResolver) Lastname() string {
 	return r.User.Lastname
 }
 
-// User resolves the query
-func (r *RootResolver) User(ctx context.Context) (*UserResolver, error) {
+// LoggedIn resolves the query
+func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 
 	res := UserResolver{User: user}

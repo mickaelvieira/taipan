@@ -7,6 +7,7 @@ import (
 
 // RootResolver resolvers
 type RootResolver struct {
+	Users         *UsersResolver
 	Documents     *DocumentsResolver
 	Bookmarks     *BookmarksResolver
 	Syndication   *SyndicationResolver
@@ -46,6 +47,7 @@ func GetRootResolver(repositories *repository.Repositories) *RootResolver {
 		subscribers: make(map[FeedTopic]Subscribers),
 	}
 	return &RootResolver{
+		Users:         &UsersResolver{repositories: repositories},
 		Documents:     &DocumentsResolver{repositories: repositories},
 		Bookmarks:     &BookmarksResolver{repositories: repositories, subscriptions: subscriptions},
 		Syndication:   &SyndicationResolver{repositories: repositories},
