@@ -17,7 +17,7 @@ interface Props extends SnackbarProps {
   info: string;
 }
 
-export default function SnackbarInfo({ info, ...rest }: Props) {
+export default function SnackbarInfo({ info, ...rest }: Props): JSX.Element {
   const classes = useStyles();
   return (
     <Snackbar

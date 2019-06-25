@@ -11,7 +11,9 @@ const useStyles = makeStyles({
   }
 });
 
-export default function FeedContainer({ children }: PropsWithChildren<{}>) {
+export default function FeedContainer({
+  children
+}: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   return <section className={classes.container}>{children}</section>;
 }

@@ -1,4 +1,4 @@
-export default function(navigator: Navigator) {
+export default function(navigator: Navigator): void {
   if ("serviceWorker" in navigator) {
     console.log("Trying to register the service worker...");
     navigator.serviceWorker

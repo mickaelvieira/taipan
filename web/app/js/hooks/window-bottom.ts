@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 import { hasReachedTheBottom } from "../helpers/window";
 
-export default function useWindowBottom() {
+export default function useWindowBottom(): boolean {
   const [atTheBotttom, setIsAtTheBotttom] = useState(false);
 
   useEffect(() => {
     let timeout: number | undefined = undefined;
 
-    function clearTimer() {
+    function clearTimer(): void {
       if (timeout) {
         window.clearTimeout(timeout);
       }
     }
 
-    function onScrollStop() {
+    function onScrollStop(): void {
       setIsAtTheBotttom(hasReachedTheBottom());
     }
 
-    function onScrollHandler() {
+    function onScrollHandler(): void {
       clearTimer();
       setIsAtTheBotttom(hasReachedTheBottom());
       timeout = window.setTimeout(onScrollStop, 400);

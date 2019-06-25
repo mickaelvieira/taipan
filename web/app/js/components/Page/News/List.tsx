@@ -9,7 +9,7 @@ export default function DocumentList({
   firstId,
   lastId,
   query
-}: ListProps) {
+}: ListProps): JSX.Element {
   return (
     <>
       <Latest firstId={firstId} lastId={lastId} />

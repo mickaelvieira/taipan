@@ -5,7 +5,7 @@ interface Props {
   value: string;
 }
 
-export default React.memo(function Info({ label, value }: Props) {
+export default React.memo(function Info({ label, value }: Props): JSX.Element {
   return (
     <>
       <span className="info-label">{label}</span>

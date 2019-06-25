@@ -14,7 +14,7 @@ export default function ConfirmUnfavorite({
   onConfirm,
   onCancel,
   open
-}: Props) {
+}: Props): JSX.Element {
   return (
     <Dialog
       disableBackdropClick

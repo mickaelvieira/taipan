@@ -5,7 +5,10 @@ import { Mode, StoreName, DBConfig, DBUpdater } from "./db/types";
 
 let config = new Map();
 
-function getDB(config: Map<string, any>, onUpgradeNeeded?: DBUpdater) {
+function getDB(
+  config: Map<string, any>,
+  onUpgradeNeeded?: DBUpdater
+): Promise<IDBDatabase> {
   return new Promise<IDBDatabase>((resolve, reject) => {
     if (!config.get("name") || !config.get("version")) {
       reject(new Error("Configuration is missing"));
@@ -29,14 +32,20 @@ function getDB(config: Map<string, any>, onUpgradeNeeded?: DBUpdater) {
   });
 }
 
-export async function getDBStore(name: StoreName, mode: Mode = Mode.READONLY) {
+export async function getDBStore(
+  name: StoreName,
+  mode: Mode = Mode.READONLY
+): Promise<Store> {
   const db = await getDB(config);
   const tr = db.transaction([name], mode);
 
   return new Store(tr.objectStore(name));
 }
 
-export default async function initDBStore(cnf: DBConfig, onUpgrade: DBUpdater) {
+export default async function initDBStore(
+  cnf: DBConfig,
+  onUpgrade: DBUpdater
+): Promise<IDBDatabase> {
   if (Object.keys(cnf).length === 0) {
     throw new Error("You need to provide a configuration");
   }

@@ -22,7 +22,7 @@ const useStyles = makeStyles(({ palette }) => ({
 export default React.memo(function BookmarkAndFavorite({
   document,
   onSuccess
-}: Props) {
+}: Props): JSX.Element {
   const classes = useStyles();
   return (
     <BookmarkMutation onCompleted={data => onSuccess(data.bookmarks.bookmark)}>

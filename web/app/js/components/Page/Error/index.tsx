@@ -42,7 +42,7 @@ interface Props {
   error: ApolloError;
 }
 
-export default React.memo(function Error({ error }: Props) {
+export default React.memo(function Error({ error }: Props): JSX.Element {
   const classes = useStyles();
 
   return (

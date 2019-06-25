@@ -18,9 +18,9 @@ module.exports = {
     },
   },
   rules: {
-    // This rule makes sense with helpers function but it is silly with React components
-    "@typescript-eslint/explicit-function-return-type": ["off", {
-      allowExpressions: true
+    "@typescript-eslint/explicit-function-return-type": ["error", {
+      allowExpressions: true,
+      allowHigherOrderFunctions: true
     }],
     "@typescript-eslint/explicit-member-accessibility": ["error", {
       accessibility: "no-public"
@@ -30,15 +30,11 @@ module.exports = {
     }],
     "react/display-name": "off",
     "graphql/template-strings": ["error", {
-      // Import default settings for your GraphQL client. Supported values:
-      // "apollo", "relay", "lokka", "fraql", "literal"
       env: "apollo",
-
-      // Import your schema JSON here
       schemaJson: require("./schema.json"),
     }],
-    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
-    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   },
   settings: {
     react: {

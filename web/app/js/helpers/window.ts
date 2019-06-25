@@ -1,16 +1,16 @@
-const getDocumentElement = () =>
+const getDocumentElement = (): HTMLElement =>
   "documentElement" in window.document
-    ? window.document.documentElement
-    : window.document.body;
+    ? document.documentElement
+    : document.body;
 
-const getWindowDimensions = () => {
+const getWindowDimensions = (): { width: number; height: number } => {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
   return { width, height };
 };
 
-const getDocumentDimensions = () => {
+const getDocumentDimensions = (): { width: number; height: number } => {
   const doc = getDocumentElement();
   const width = Math.max(doc.scrollWidth, doc.offsetWidth, doc.clientWidth);
   const height = Math.max(doc.scrollHeight, doc.offsetHeight, doc.clientHeight);
@@ -18,7 +18,7 @@ const getDocumentDimensions = () => {
   return { width, height };
 };
 
-const hasScrollBars = () => {
+const hasScrollBars = (): { bottom: boolean; right: boolean } => {
   const doc = getDocumentElement();
   return {
     bottom: doc.scrollWidth > doc.clientWidth,
@@ -26,14 +26,14 @@ const hasScrollBars = () => {
   };
 };
 
-const getScrollPosition = () => {
+const getScrollPosition = (): { x: number; y: number } => {
   const x = window.pageXOffset;
   const y = window.pageYOffset;
 
   return { x, y };
 };
 
-const isInViewport = (element: HTMLElement | null) => {
+const isInViewport = (element: HTMLElement | null): boolean => {
   if (!element) {
     return false;
   }
@@ -50,7 +50,7 @@ const isInViewport = (element: HTMLElement | null) => {
   );
 };
 
-const willBeSoonInViewport = (element: HTMLElement | null) => {
+const willBeSoonInViewport = (element: HTMLElement | null): boolean => {
   if (!element) {
     return false;
   }
@@ -61,7 +61,7 @@ const willBeSoonInViewport = (element: HTMLElement | null) => {
   return bounding.top >= bottom + 200;
 };
 
-const hasReachedTheBottom = (gap = 400) => {
+const hasReachedTheBottom = (gap: number = 400): boolean => {
   const win = getWindowDimensions();
   const doc = getDocumentDimensions();
   const scroll = getScrollPosition();

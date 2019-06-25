@@ -17,7 +17,7 @@ interface Data extends OnSubscriptionDataOptions<FeedEventData> {
   query: PropTypes.Validator<object>;
 }
 
-function onReceivedData({ client, subscriptionData, query }: Data) {
+function onReceivedData({ client, subscriptionData, query }: Data): void {
   const [isReceived, event] = hasReceivedEvent(subscriptionData.data);
   console.log(event);
   if (isReceived) {
@@ -56,7 +56,10 @@ interface Props {
   subscription: PropTypes.Validator<object>;
 }
 
-export default function FeedSubscription({ subscription, query }: Props) {
+export default function FeedSubscription({
+  subscription,
+  query
+}: Props): JSX.Element {
   return (
     <Subscription
       subscription={subscription}

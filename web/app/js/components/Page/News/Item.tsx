@@ -20,7 +20,10 @@ interface Props {
   query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({ document, query }: Props) {
+export default React.memo(function FeedItem({
+  document,
+  query
+}: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
 
   return (

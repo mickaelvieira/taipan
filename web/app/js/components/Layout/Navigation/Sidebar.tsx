@@ -73,7 +73,7 @@ interface Props {
   toggleDrawer: (status: boolean) => void;
 }
 
-export default function Sidebar({ isOpen, toggleDrawer }: Props) {
+export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
   const user = useContext(UserContext);
   const classes = useStyles();
   return (

@@ -20,7 +20,10 @@ interface Props {
   onSuccess: (bookmark: Bookmark) => void;
 }
 
-export default React.memo(function Unfavorite({ bookmark, onSuccess }: Props) {
+export default React.memo(function Unfavorite({
+  bookmark,
+  onSuccess
+}: Props): JSX.Element {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
 

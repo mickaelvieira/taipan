@@ -30,7 +30,7 @@ interface Props {
   query: PropTypes.Validator<object>;
 }
 
-export default function Item({ children, query, item }: Props) {
+export default function Item({ children, query, item }: Props): JSX.Element {
   const classes = useStyles();
 
   return (

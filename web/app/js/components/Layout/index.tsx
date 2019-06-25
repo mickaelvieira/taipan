@@ -43,7 +43,9 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   }
 }));
 
-export default function Layout({ children }: PropsWithChildren<{}>) {
+export default function Layout({
+  children
+}: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   const [info, setInfo] = useState("");
   const [isOpen, setIsOpen] = useState(false);

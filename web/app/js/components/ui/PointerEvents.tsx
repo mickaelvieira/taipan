@@ -17,7 +17,7 @@ interface Props {
 export default function PointerEvents({
   children,
   isScrolling
-}: PropsWithChildren<Props>) {
+}: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   return (
     <div className={isScrolling ? classes.scrolling : classes.idle}>

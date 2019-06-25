@@ -17,7 +17,7 @@ const useStyles = makeStyles({
   }
 });
 
-export default function LazyLoadingImage({ media, title }: Props) {
+export default function LazyLoadingImage({ media, title }: Props): JSX.Element {
   const classes = useStyles();
   const divRef = useRef(null);
   const isVisible = useLazyLoadedImage(divRef);

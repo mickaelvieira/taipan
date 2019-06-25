@@ -6,7 +6,7 @@ import List from "./List";
 import { queryFavorites } from "../../apollo/Query/Feed";
 import { subscriptionFavorites } from "../../apollo/Subscription/Feed";
 
-export default function Favorites() {
+export default function Favorites(): JSX.Element {
   return (
     <Layout>
       <ScrollToTop>

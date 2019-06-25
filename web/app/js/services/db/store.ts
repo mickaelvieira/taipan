@@ -1,8 +1,10 @@
 import { BatchOperation, KeyPaths, ResultsFilter } from "./types";
 import { toPromisedCursor, toPromisedRequest } from "./helpers";
 
+type Process = (callback: BatchOperation) => Promise<any>;
+
 /* eslint @typescript-eslint/no-explicit-any: off */
-function batch(items: any[]) {
+function batch(items: any[]): Process {
   const process = (callback: BatchOperation): Promise<any> => {
     const item = items.shift();
     return item

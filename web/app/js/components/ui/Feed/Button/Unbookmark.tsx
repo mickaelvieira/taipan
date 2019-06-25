@@ -24,7 +24,10 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Unbookmark({ bookmark, onSuccess }: Props) {
+export default React.memo(function Unbookmark({
+  bookmark,
+  onSuccess
+}: Props): JSX.Element {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
   return (

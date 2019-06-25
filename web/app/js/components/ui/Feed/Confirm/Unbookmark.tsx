@@ -14,7 +14,7 @@ export default function ConfirmUnbookmark({
   onConfirm,
   onCancel,
   open
-}: Props) {
+}: Props): JSX.Element {
   return (
     <Dialog
       disableBackdropClick

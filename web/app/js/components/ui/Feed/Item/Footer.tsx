@@ -9,7 +9,9 @@ const useStyles = makeStyles({
   }
 });
 
-export default function ItemFooter({ children }: PropsWithChildren<{}>) {
+export default function ItemFooter({
+  children
+}: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   return <footer className={classes.footer}>{children}</footer>;
 }

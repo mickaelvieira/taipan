@@ -8,7 +8,7 @@ interface Props {
   item: Document | Bookmark;
 }
 
-export default function ItemDescription({ item }: Props) {
+export default function ItemDescription({ item }: Props): JSX.Element | null {
   return !item.description ? null : (
     <Typography gutterBottom>{truncate(item.description)}</Typography>
   );

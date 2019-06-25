@@ -1,7 +1,7 @@
 import { ResultsFilter } from "./types";
 
 /* eslint @typescript-eslint/no-explicit-any: off */
-export function toPromisedRequest(request: IDBRequest) {
+export function toPromisedRequest(request: IDBRequest): Promise<any> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);

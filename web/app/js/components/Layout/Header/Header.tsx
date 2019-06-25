@@ -61,7 +61,10 @@ interface Props extends RouteFeedProps {
   toggleDrawer: (status: boolean) => void;
 }
 
-export default withRouter(function Header({ toggleDrawer, match }: Props) {
+export default withRouter(function Header({
+  toggleDrawer,
+  match
+}: Props): JSX.Element {
   const classes = useStyles();
   let title = "";
   if (match.path === "/") {

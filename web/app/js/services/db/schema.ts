@@ -1,6 +1,6 @@
 import { KeyPaths, StoreName } from "./types";
 
-export default function(db: IDBDatabase) {
+export default function(db: IDBDatabase): void {
   const bookmarks = db.createObjectStore(StoreName.BOOKMARKS, {
     keyPath: KeyPaths.ID
   });

@@ -24,11 +24,11 @@ export default function AddForm({
   toggleDialog,
   onBookmarkCreated,
   onSyndicationSourceCreated
-}: Props) {
+}: Props): JSX.Element {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
-  function handleChange(_: React.ChangeEvent<{}>, newValue: number) {
+  function handleChange(_: React.ChangeEvent<{}>, newValue: number): void {
     setValue(newValue);
   }
 

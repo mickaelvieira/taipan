@@ -1,6 +1,7 @@
 import { KeyPaths, StoreName, Mode } from "../db/types";
 import { getDBStore } from "../idb";
 
+/* eslint @typescript-eslint/no-explicit-any: off */
 export enum FeedTypes {
   LATEST = "latest"
 }
@@ -10,17 +11,17 @@ interface Feed {
   results: string[];
 }
 
-export async function upsert(item: Feed) {
+export async function upsert(item: Feed): Promise<any> {
   const store = await getDBStore(StoreName.FEED, Mode.READWRITE);
   return store.upsert(item, KeyPaths.TYPE);
 }
 
-export async function update(item: Feed) {
+export async function update(item: Feed): Promise<any> {
   const store = await getDBStore(StoreName.FEED, Mode.READWRITE);
   return store.update(item);
 }
 
-export async function batch(items: Feed[]) {
+export async function batch(items: Feed[]): Promise<any> {
   const store = await getDBStore(StoreName.FEED, Mode.READWRITE);
   return store.batch(items);
 }

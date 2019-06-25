@@ -1,25 +1,25 @@
 import { useEffect, useState, RefObject } from "react";
 import { isInViewport } from "../helpers/window";
 
-export default function useIsInViewport(ref: RefObject<HTMLElement>) {
+export default function useIsInViewport(ref: RefObject<HTMLElement>): boolean {
   const [isVisible, setIsVisible] = useState(isInViewport(ref.current));
 
   useEffect(() => {
     let timeout: number | undefined = undefined;
 
-    function clearTimer() {
+    function clearTimer(): void {
       if (timeout) {
         window.clearTimeout(timeout);
       }
     }
 
-    function onScrollStop() {
+    function onScrollStop(): void {
       if (!isVisible) {
         setIsVisible(isInViewport(ref.current));
       }
     }
 
-    function onScrollHandler() {
+    function onScrollHandler(): void {
       clearTimer();
       if (!isVisible) {
         setIsVisible(isInViewport(ref.current));

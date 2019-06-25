@@ -17,7 +17,10 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Refresh({ bookmark, onSuccess }: Props) {
+export default React.memo(function Refresh({
+  bookmark,
+  onSuccess
+}: Props): JSX.Element {
   const classes = useStyles();
   return (
     <CreateBookmarkMutation

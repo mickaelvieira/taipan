@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function updateFeed(client: ApolloClient<object>, documents: FeedItem[]) {
+function updateFeed(client: ApolloClient<object>, documents: FeedItem[]): void {
   try {
     const data = client.readQuery({ query: queryNews });
     if (data) {
@@ -77,7 +77,10 @@ enum QueueActions {
   RESET = "reset"
 }
 
-function reducer(state: State, [type, payload]: [QueueActions, Payload]) {
+function reducer(
+  state: State,
+  [type, payload]: [QueueActions, Payload]
+): State {
   switch (type) {
     case QueueActions.SET_SHOULD_WAIT:
       return {
@@ -139,19 +142,19 @@ export default withApollo(function Latest({
     let timeout: number | undefined = undefined;
     let interval: number | undefined = undefined;
 
-    function stopPolling() {
+    function stopPolling(): void {
       if (interval) {
         window.clearInterval(interval);
       }
     }
 
-    function stopWaiting() {
+    function stopWaiting(): void {
       if (timeout) {
         window.clearTimeout(timeout);
       }
     }
 
-    async function poll() {
+    async function poll(): Promise<null> {
       const result = await client.query({
         query,
         fetchPolicy: "no-cache",
@@ -166,13 +169,15 @@ export default withApollo(function Latest({
       const { data } = result;
       const { results, last } = data.feeds.latestNews;
       if (results.length === 0) {
-        return;
+        return null;
       }
 
       dispatch([QueueActions.PUSH_DOCUMENTS, results]);
       // the results are in an ascending order
       // so the last ID is the greatest ID
       dispatch([QueueActions.SET_FETCH_TO_ID, last]);
+
+      return null;
     }
 
     if (shouldWait) {

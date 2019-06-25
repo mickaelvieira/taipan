@@ -6,7 +6,10 @@ interface Props {
   value?: string;
 }
 
-export default React.memo(function Datetime({ label, value }: Props) {
+export default React.memo(function Datetime({
+  label,
+  value
+}: Props): JSX.Element {
   return (
     <Typography variant="body2">
       {label}: {value ? value : "Never"}

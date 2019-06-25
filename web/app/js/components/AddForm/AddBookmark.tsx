@@ -23,14 +23,14 @@ interface Props {
 export default function AddBookmark({
   onBookmarkCreated,
   toggleDialog
-}: Props) {
+}: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
 
   return (
     <div>
       <CreateBookmarkMutation
-        onCompleted={({ CreateBookmark: bookmark }) => {
+        onCompleted={({ bookmarks: { create: bookmark } }) => {
           setUrl("");
           onBookmarkCreated(bookmark);
         }}

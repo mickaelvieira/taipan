@@ -19,7 +19,10 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Bookmark({ document, onSuccess }: Props) {
+export default React.memo(function Bookmark({
+  document,
+  onSuccess
+}: Props): JSX.Element {
   const classes = useStyles();
   return (
     <BookmarkMutation onCompleted={data => onSuccess(data.bookmarks.bookmark)}>

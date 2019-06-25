@@ -21,7 +21,10 @@ interface Props {
   query: PropTypes.Validator<object>;
 }
 
-export default React.memo(function FeedItem({ bookmark, query }: Props) {
+export default React.memo(function FeedItem({
+  bookmark,
+  query
+}: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
   return (
     <Item query={query} item={bookmark}>

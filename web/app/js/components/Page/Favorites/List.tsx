@@ -3,7 +3,10 @@ import { Bookmark } from "../../../types/bookmark";
 import Item from "./Item";
 import { ListProps } from "../../ui/Feed/Feed";
 
-export default function BookmarkList({ results, query }: ListProps) {
+export default function BookmarkList({
+  results,
+  query
+}: ListProps): JSX.Element {
   return (
     <>
       {results.map(result => (

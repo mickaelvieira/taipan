@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
-export default function useConnectionStatus() {
+export default function useConnectionStatus(): boolean {
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
 
   useEffect(() => {
-    function onStatusChange() {
+    function onStatusChange(): void {
       setIsOnline(window.navigator.onLine);
     }
 

@@ -21,7 +21,11 @@ interface Props {
   subscription: PropTypes.Validator<object>;
 }
 
-export default function Feed({ query, subscription, List }: Props) {
+export default function Feed({
+  query,
+  subscription,
+  List
+}: Props): JSX.Element {
   const isAtTheBottom = useWindowBottom();
   const loadMore = useRef<LoadMore | undefined>();
 

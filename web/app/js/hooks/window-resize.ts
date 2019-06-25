@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 
-export default function useWindowResize() {
+export default function useWindowResize(): boolean {
   const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     let timeout: number | undefined = undefined;
 
-    function clearTimer() {
+    function clearTimer(): void {
       if (timeout) {
         window.clearTimeout(timeout);
       }
     }
 
-    function onResizeStop() {
+    function onResizeStop(): void {
       setIsResizing(false);
     }
 
-    function onResizeHandler() {
+    function onResizeHandler(): void {
       clearTimer();
       setIsResizing(true);
       timeout = window.setTimeout(onResizeStop, 200);

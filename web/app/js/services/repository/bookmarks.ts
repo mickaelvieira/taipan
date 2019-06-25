@@ -2,12 +2,13 @@ import { Bookmark } from "../../types/bookmark";
 import { ResultsFilter, StoreName, Mode } from "../db/types";
 import { getDBStore } from "../idb";
 
-export async function upsert(item: Bookmark) {
+/* eslint @typescript-eslint/no-explicit-any: off */
+export async function upsert(item: Bookmark): Promise<any> {
   const store = await getDBStore(StoreName.BOOKMARKS, Mode.READWRITE);
   return store.upsert(item);
 }
 
-export async function batch(items: Bookmark[]) {
+export async function batch(items: Bookmark[]): Promise<any> {
   const store = await getDBStore(StoreName.BOOKMARKS, Mode.READWRITE);
   return store.batch(items);
 }

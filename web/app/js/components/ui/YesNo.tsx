@@ -5,7 +5,7 @@ interface Props {
   value: boolean;
 }
 
-export default React.memo(function YesNo({ label, value }: Props) {
+export default React.memo(function YesNo({ label, value }: Props): JSX.Element {
   return (
     <>
       <span className="domain-label info-label">{label}</span>

@@ -14,7 +14,7 @@ interface Props {
   item: Bookmark | Document;
 }
 
-export default React.memo(function Domain({ item }: Props) {
+export default React.memo(function Domain({ item }: Props): JSX.Element {
   const classes = useStyles();
   const url = new URL(item.url);
   return (

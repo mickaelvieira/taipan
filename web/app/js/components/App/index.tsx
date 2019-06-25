@@ -10,7 +10,7 @@ import Loader from "../ui/Loader";
 import UserQuery from "../apollo/Query/User";
 import { UserContext } from "../context";
 
-export default function App() {
+export default function App(): JSX.Element {
   const client = getApolloClient();
   const theme = createMuiTheme(uiTheme);
 

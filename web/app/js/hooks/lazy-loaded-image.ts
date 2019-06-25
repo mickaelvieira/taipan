@@ -1,6 +1,6 @@
 import { useEffect, useState, RefObject } from "react";
 
-const shouldBeShown = (element: HTMLElement | null) => {
+const shouldBeShown = (element: HTMLElement | null): boolean => {
   if (!element) {
     return false;
   }
@@ -11,25 +11,27 @@ const shouldBeShown = (element: HTMLElement | null) => {
   return bounding.top <= bottom + 400;
 };
 
-export default function useLazyLoadedImage(ref: RefObject<HTMLElement>) {
+export default function useLazyLoadedImage(
+  ref: RefObject<HTMLElement>
+): boolean {
   const [isVisible, setIsVisible] = useState(shouldBeShown(ref.current));
 
   useEffect(() => {
     let timeout: number | undefined = undefined;
 
-    function clearTimer() {
+    function clearTimer(): void {
       if (timeout) {
         window.clearTimeout(timeout);
       }
     }
 
-    function onScrollStop() {
+    function onScrollStop(): void {
       if (!isVisible) {
         setIsVisible(shouldBeShown(ref.current));
       }
     }
 
-    function onScrollHandler() {
+    function onScrollHandler(): void {
       clearTimer();
       if (!isVisible) {
         setIsVisible(shouldBeShown(ref.current));

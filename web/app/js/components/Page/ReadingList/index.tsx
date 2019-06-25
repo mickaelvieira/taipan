@@ -6,7 +6,7 @@ import List from "./List";
 import { queryReadingList } from "../../apollo/Query/Feed";
 import { subscriptionReadingList } from "../../apollo/Subscription/Feed";
 
-export default function ReadingList() {
+export default function ReadingList(): JSX.Element {
   return (
     <Layout>
       <ScrollToTop>

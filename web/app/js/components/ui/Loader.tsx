@@ -14,7 +14,7 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }));
 
-export default function Loader() {
+export default function Loader(): JSX.Element {
   const classes = useStyles();
   return (
     <div className={classes.container}>

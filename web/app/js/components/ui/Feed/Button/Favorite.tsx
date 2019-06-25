@@ -11,7 +11,10 @@ interface Props {
   onSuccess: (bookmark: Bookmark) => void;
 }
 
-export default React.memo(function Favorite({ bookmark, onSuccess }: Props) {
+export default React.memo(function Favorite({
+  bookmark,
+  onSuccess
+}: Props): JSX.Element {
   return (
     <FavoriteMutation onCompleted={data => onSuccess(data.bookmarks.favorite)}>
       {(mutate, { loading }) => (

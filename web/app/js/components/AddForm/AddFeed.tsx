@@ -23,7 +23,7 @@ interface Props {
 export default function AddBookmark({
   onSyndicationSourceCreated,
   toggleDialog
-}: Props) {
+}: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
 
