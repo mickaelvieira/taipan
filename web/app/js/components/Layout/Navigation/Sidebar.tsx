@@ -11,6 +11,7 @@ import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
 import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
+import RssFeedIcon from "@material-ui/icons/RssFeedOutlined";
 import { UserContext } from "../../context";
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -65,6 +66,11 @@ const entries = [
     path: "/favorites",
     label: "Favorites",
     icon: FavoriteIcon
+  },
+  {
+    path: "/syndication",
+    label: "Syndication",
+    icon: RssFeedIcon
   }
 ];
 

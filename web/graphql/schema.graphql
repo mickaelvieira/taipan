@@ -95,6 +95,15 @@ type SyndicationQuery {
 type SyndicationMutation {
   # "Returns a web syndication source matching the URL"
   source(url: URL!): Source
+
+  # "Enable the web syndication source matching the URL"
+  enable(url: URL!): Source
+
+  # "Disable the web syndication source matching the URL"
+  disable(url: URL!): Source
+
+  # "Delete the web syndication source matching the URL"
+  delete(url: URL!): Source
 }
 
 input CursorPaginationInput {
@@ -178,6 +187,7 @@ type Source implements Node {
   type: String!
   title: String!
   status: String!
+  isPaused: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
   parsedAt: DateTime!

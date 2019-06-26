@@ -82,6 +82,7 @@ type Source struct {
 	UpdatedAt time.Time
 	ParsedAt  time.Time
 	Deleted   bool
+	IsPaused  bool
 }
 
 // NewSource creates a new syndication source

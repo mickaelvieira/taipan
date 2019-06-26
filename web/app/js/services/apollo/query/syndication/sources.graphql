@@ -1,0 +1,14 @@
+#import "../../fragment/source.graphql"
+
+query sources($pagination: OffsetPaginationInput!) {
+  syndication {
+    sources(pagination: $pagination) @connection(key: "syndication_sources")  {
+      total
+      limit
+      offset
+      results {
+        ...sourceFields
+      }
+    }
+  }
+}

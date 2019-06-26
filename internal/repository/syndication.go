@@ -19,28 +19,28 @@ type SyndicationRepository struct {
 // GetByID find a single entry
 func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndication.Source, error) {
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
-		FROM feeds AS f
-		WHERE f.id = ?
+		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused
+		FROM feeds AS s
+		WHERE s.id = ?
 	`
 	rows := r.db.QueryRowContext(ctx, formatQuery(query), id)
-	f, err := r.scan(rows)
+	s, err := r.scan(rows)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return f, nil
+	return s, nil
 }
 
-// GetOutdatedSources returns the feeds which have been last updated more than 24 hrs
+// GetOutdatedSources returns the sources which have been last updated more than 24 hrs
 func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context) ([]*syndication.Source, error) {
 	var results []*syndication.Source
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
-		FROM feeds AS f
-		WHERE f.deleted = 0 AND (f.parsed_at IS NULL OR f.parsed_at < DATE_SUB(NOW(), INTERVAL 1 HOUR))
-		ORDER BY f.parsed_at ASC
+		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused
+		FROM feeds AS s
+		WHERE s.deleted = 0 AND s.paused = 0 AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL 1 HOUR))
+		ORDER BY s.parsed_at ASC
 		LIMIT ?;
 		`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), 50)
@@ -49,11 +49,11 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context) ([]*synd
 	}
 
 	for rows.Next() {
-		f, err := r.scan(rows)
+		s, err := r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, f)
+		results = append(results, s)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -68,9 +68,10 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, cursor int32, limit
 	var results []*syndication.Source
 
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
-		FROM feeds AS f
-		ORDER BY f.updated_at DESC
+		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused
+		FROM feeds AS s
+		WHERE s.deleted = 0
+		ORDER BY s.created_at DESC
 		LIMIT ?, ?
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), cursor, limit)
@@ -98,7 +99,7 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 	var total int32
 
 	query := `
-		SELECT COUNT(f.id) as total FROM feeds AS f
+		SELECT COUNT(s.id) as total FROM feeds AS s WHERE s.deleted = 0
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
 	if err != nil {
@@ -111,20 +112,20 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 // GetByURL find a single entry by URL
 func (r *SyndicationRepository) GetByURL(ctx context.Context, u *url.URL) (*syndication.Source, error) {
 	query := `
-		SELECT f.id, f.url, f.title, f.type, f.status, f.created_at, f.updated_at, f.parsed_at, f.deleted
-		FROM feeds AS f
-		WHERE f.url = ?
+		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused
+		FROM feeds AS s
+		WHERE s.url = ?
 	`
 	rows := r.db.QueryRowContext(ctx, formatQuery(query), u.UnescapeString())
-	f, err := r.scan(rows)
+	s, err := r.scan(rows)
 	if err != nil {
 		return nil, err
 	}
 
-	return f, nil
+	return s, nil
 }
 
-// ExistWithURL checks whether a feed already exists this the same URL
+// ExistWithURL checks whether a source already exists this the same URL
 func (r *SyndicationRepository) ExistWithURL(ctx context.Context, u *url.URL) (bool, error) {
 	_, err := r.GetByURL(ctx, u)
 	if err != nil {
@@ -136,61 +137,63 @@ func (r *SyndicationRepository) ExistWithURL(ctx context.Context, u *url.URL) (b
 	return true, err
 }
 
-// Insert creates a new feed in the DB
-func (r *SyndicationRepository) Insert(ctx context.Context, f *syndication.Source) error {
+// Insert creates a new source in the DB
+func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Source) error {
 	query := `
 		INSERT INTO feeds
-		(url, title, type, status, created_at, updated_at, deleted)
+		(url, title, type, status, created_at, updated_at, deleted, paused)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	result, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		f.URL,
-		f.Title,
-		f.Type,
-		f.Status,
-		f.CreatedAt,
-		f.UpdatedAt,
-		f.Deleted,
+		s.URL,
+		s.Title,
+		s.Type,
+		s.Status,
+		s.CreatedAt,
+		s.UpdatedAt,
+		s.Deleted,
+		s.IsPaused,
 	)
 
 	if err == nil {
 		var ID int64
 		ID, err = result.LastInsertId()
 		if err == nil {
-			f.ID = strconv.FormatInt(ID, 10)
+			s.ID = strconv.FormatInt(ID, 10)
 		}
 	}
 
 	return err
 }
 
-// Update updates a feed in the DB
-func (r *SyndicationRepository) Update(ctx context.Context, f *syndication.Source) error {
+// Update updates a source in the DB
+func (r *SyndicationRepository) Update(ctx context.Context, s *syndication.Source) error {
 	query := `
 		UPDATE feeds
-		SET type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?
+		SET type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?, paused = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		f.Type,
-		f.Title,
-		f.Status,
-		f.UpdatedAt,
-		f.ParsedAt,
-		f.Deleted,
-		f.ID,
+		s.Type,
+		s.Title,
+		s.Status,
+		s.UpdatedAt,
+		s.ParsedAt,
+		s.Deleted,
+		s.IsPaused,
+		s.ID,
 	)
 
 	return err
 }
 
-// UpdateURL updates the feed's URL and UpdatedAt fields
-func (r *SyndicationRepository) UpdateURL(ctx context.Context, f *syndication.Source) error {
+// UpdateURL updates the source's URL and UpdatedAt fields
+func (r *SyndicationRepository) UpdateURL(ctx context.Context, s *syndication.Source) error {
 	query := `
 		UPDATE feeds
 		SET url = ?, updated_at = ?
@@ -199,16 +202,16 @@ func (r *SyndicationRepository) UpdateURL(ctx context.Context, f *syndication.So
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		f.URL,
-		f.UpdatedAt,
-		f.ID,
+		s.URL,
+		s.UpdatedAt,
+		s.ID,
 	)
 
 	return err
 }
 
-// Delete soft deletes the feed
-func (r *SyndicationRepository) Delete(ctx context.Context, f *syndication.Source) error {
+// Delete soft deletes the source
+func (r *SyndicationRepository) Delete(ctx context.Context, s *syndication.Source) error {
 	query := `
 		UPDATE feeds
 		SET deleted = ?, updated_at = ?
@@ -217,32 +220,50 @@ func (r *SyndicationRepository) Delete(ctx context.Context, f *syndication.Sourc
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		f.Deleted,
-		f.UpdatedAt,
-		f.ID,
+		s.Deleted,
+		s.UpdatedAt,
+		s.ID,
 	)
 
 	return err
 }
 
-// InsertIfNotExists stores the feed in the database if there is none with the same URL
-func (r *SyndicationRepository) InsertIfNotExists(ctx context.Context, f *syndication.Source) error {
-	feed, err := r.GetByURL(ctx, f.URL)
+// UpdateStatus changes the source status enabled/disabled
+func (r *SyndicationRepository) UpdateStatus(ctx context.Context, s *syndication.Source) error {
+	query := `
+		UPDATE feeds
+		SET paused = ?, updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		s.Deleted,
+		s.UpdatedAt,
+		s.ID,
+	)
+
+	return err
+}
+
+// InsertIfNotExists stores the source in the database if there is none with the same URL
+func (r *SyndicationRepository) InsertIfNotExists(ctx context.Context, s *syndication.Source) error {
+	source, err := r.GetByURL(ctx, s.URL)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = r.Insert(ctx, f)
+			err = r.Insert(ctx, s)
 		}
 	} else {
-		f.ID = feed.ID
+		s.ID = source.ID
 	}
 	return err
 }
 
-// InsertAllIfNotExists stores feeds in the database if there are none with the same URL
-func (r *SyndicationRepository) InsertAllIfNotExists(ctx context.Context, feeds []*syndication.Source) error {
+// InsertAllIfNotExists stores sources in the database if there are none with the same URL
+func (r *SyndicationRepository) InsertAllIfNotExists(ctx context.Context, sources []*syndication.Source) error {
 	var err error
-	for _, feed := range feeds {
-		err = r.InsertIfNotExists(ctx, feed)
+	for _, source := range sources {
+		err = r.InsertIfNotExists(ctx, source)
 		if err != nil {
 			break
 		}
@@ -251,28 +272,29 @@ func (r *SyndicationRepository) InsertAllIfNotExists(ctx context.Context, feeds 
 }
 
 func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error) {
-	var feed syndication.Source
+	var s syndication.Source
 	var parsedAt mysql.NullTime
 
 	err := rows.Scan(
-		&feed.ID,
-		&feed.URL,
-		&feed.Title,
-		&feed.Type,
-		&feed.Status,
-		&feed.CreatedAt,
-		&feed.UpdatedAt,
+		&s.ID,
+		&s.URL,
+		&s.Title,
+		&s.Type,
+		&s.Status,
+		&s.CreatedAt,
+		&s.UpdatedAt,
 		&parsedAt,
-		&feed.Deleted,
+		&s.Deleted,
+		&s.IsPaused,
 	)
 
 	if parsedAt.Valid {
-		feed.ParsedAt = parsedAt.Time
+		s.ParsedAt = parsedAt.Time
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &feed, nil
+	return &s, nil
 }

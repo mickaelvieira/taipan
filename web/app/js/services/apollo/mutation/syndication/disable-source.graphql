@@ -1,8 +1,8 @@
 #import "../../fragment/source.graphql"
 
-mutation source($url: URL!) {
+mutation disable($url: URL!) {
   syndication {
-    source(url: $url) {
+    disable(url: $url) {
       ...sourceFields
     }
   }

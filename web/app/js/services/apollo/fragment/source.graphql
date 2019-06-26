@@ -1,9 +1,10 @@
-fragment feedFields on Feed {
+fragment sourceFields on Source {
   id
   url
   title
   type
   status
+  isPaused
   createdAt
   updatedAt
   parsedAt
