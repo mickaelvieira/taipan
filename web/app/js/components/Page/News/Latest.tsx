@@ -7,7 +7,7 @@ import Button from "@material-ui/core/Button";
 import { queryNews } from "../../apollo/Query/Feed";
 import { query } from "../../apollo/Query/LatestNews";
 import { getBoundaries } from "../../apollo/helpers/feed";
-import { FeedItem } from "../../../types/feed";
+import { FeedItem, FeedQueryData } from "../../../types/feed";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,9 +24,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function updateFeed(client: ApolloClient<object>, documents: FeedItem[]): void {
   try {
-    const data = client.readQuery({ query: queryNews });
+    const data = client.readQuery({ query: queryNews }) as FeedQueryData;
     if (data) {
-      const cloned = cloneDeep(data.News);
+      const cloned = cloneDeep(data.feeds.news);
       const total = cloned.total + documents.length;
       const results = cloned.results;
 
@@ -38,12 +38,15 @@ function updateFeed(client: ApolloClient<object>, documents: FeedItem[]): void {
       client.writeQuery({
         query: queryNews,
         data: {
-          News: {
-            ...cloned,
-            first,
-            last,
-            total,
-            results
+          feeds: {
+            ...data.feeds,
+            news: {
+              ...cloned,
+              first,
+              last,
+              total,
+              results
+            }
           }
         }
       });

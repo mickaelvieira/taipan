@@ -8,7 +8,7 @@ import subscriptionNews from "../../../services/apollo/subscription/news.graphql
 import subscriptionFavorites from "../../../services/apollo/subscription/favorites.graphql";
 import subscriptionReadingList from "../../../services/apollo/subscription/reading-list.graphql";
 import { getDataKey } from "../Query/Feed";
-import { FeedEventData, FeedEvent } from "../../../types/feed";
+import { FeedEventData, FeedEvent, FeedQueryData } from "../../../types/feed";
 import { hasReceivedEvent, feedResultsAction } from "../helpers/feed";
 
 interface Data extends OnSubscriptionDataOptions<FeedEventData> {
@@ -20,7 +20,7 @@ function onReceivedData({ client, subscriptionData, query }: Data): void {
   console.log(event);
   if (isReceived) {
     const { item, action } = event as FeedEvent;
-    const data = client.readQuery({ query });
+    const data = client.readQuery({ query }) as FeedQueryData;
     const updateResult = feedResultsAction[action];
     if (data) {
       const key = getDataKey(data);

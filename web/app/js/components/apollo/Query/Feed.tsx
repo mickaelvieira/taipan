@@ -51,6 +51,7 @@ function getFetchMore(
 
             return {
               feeds: {
+                ...prev.feeds,
                 [key]: {
                   ...prev.feeds[key],
                   last: next.feeds[key].last,
