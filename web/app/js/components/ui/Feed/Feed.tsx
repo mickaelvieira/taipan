@@ -38,7 +38,7 @@ export default function Feed({
     <>
       <FeedSubscription query={query} subscription={subscription} />
       <FeedQuery query={query}>
-        {({ data, loading, fetchMore }) => {
+        {({ data, loading, error, fetchMore }) => {
           const [hasResults, result] = hasReceivedData(data);
           const { results = [], first = "", last = "" } = result;
 
@@ -49,10 +49,12 @@ export default function Feed({
           return (
             <>
               {loading && !hasResults && <Loader />}
+              {error && !hasResults && <span>{error.message}</span>}
               <FeedContainer>
                 <List results={results} firstId={first} lastId={last} />
               </FeedContainer>
               {loading && hasResults && <Loader />}
+              {error && hasResults && <span>{error.message}</span>}
             </>
           );
         }}
