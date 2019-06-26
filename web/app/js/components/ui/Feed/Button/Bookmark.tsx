@@ -1,7 +1,7 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
-import BookmarkIcon from "@material-ui/icons/BookmarkBorderOutlined";
+import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Document } from "../../../../types/document";
 import { Bookmark } from "../../../../types/bookmark";
@@ -43,7 +43,7 @@ export default React.memo(function Bookmark({
             })
           }
         >
-          {!loading && <BookmarkIcon />}
+          {!loading && <LibraryIcon />}
           {loading && <CircularProgress size={16} />}
         </IconButton>
       )}
