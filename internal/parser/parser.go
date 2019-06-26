@@ -6,7 +6,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"html"
-	"log"
 	neturl "net/url"
 	"strings"
 
@@ -33,6 +32,14 @@ type Parser struct {
 	canonical *url.URL
 	twitter   *social
 	facebook  *social
+	findFeeds bool
+}
+
+// ShouldFindSyndicationSource when enabling this option,
+// the parser will find RSS and Atom feeds
+// present in the document's source
+func (p *Parser) ShouldFindSyndicationSource() {
+	p.findFeeds = true
 }
 
 // Parse parse the document
@@ -53,8 +60,6 @@ func (p *Parser) Parse() *document.Document {
 	p.twitter = p.parseTwitterTags()
 	p.facebook = p.parseFacebookTags()
 
-	log.Printf("IS WP %t", isWP)
-
 	// get the data we need
 	var url = p.url()
 	var lang = p.parseLang()
@@ -64,13 +69,15 @@ func (p *Parser) Parse() *document.Document {
 	var image = p.image()
 
 	var feeds []*syndication.Source
-	if isWP {
-		// WP is a bit silly in the way it handles RSS feeds
-		// Usually only the comments feed is available on the page
-		// So we construct the default feed URL ourselves
-		feeds = p.getWordpressFeed()
-	} else {
-		feeds = p.parseFeeds()
+	if p.findFeeds {
+		if isWP {
+			// WP is a bit silly in the way it handles RSS feeds
+			// Usually only the comments feed is available on the page
+			// So we construct the default feed URL ourselves
+			feeds = p.getWordpressFeed()
+		} else {
+			feeds = p.parseFeeds()
+		}
 	}
 
 	return document.New(

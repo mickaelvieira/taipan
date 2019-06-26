@@ -73,7 +73,7 @@ func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI
 // - Insert/Update the bookmark in the DB
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
-func Document(ctx context.Context, URL *url.URL, repositories *repository.Repositories) (*document.Document, error) {
+func Document(ctx context.Context, URL *url.URL, findFeeds bool, repositories *repository.Repositories) (*document.Document, error) {
 	fmt.Printf("Fetching %s\n", URL.String())
 
 	result, err := FetchResource(ctx, URL, repositories)
@@ -97,7 +97,7 @@ func Document(ctx context.Context, URL *url.URL, repositories *repository.Reposi
 		return nil, err
 	}
 
-	d, err = parser.Parse(result.FinalURI, result.Content)
+	d, err = parser.Parse(result.FinalURI, result.Content, findFeeds)
 	if err != nil {
 		return nil, err
 	}

@@ -59,7 +59,7 @@ func main() {
 			var u *url.URL
 			u, err = url.FromRawURL(dm.Url)
 			if err == nil {
-				_, err = usecase.Document(ctx, u, repositories)
+				_, err = usecase.Document(ctx, u, false, repositories)
 			}
 
 			if err != nil {

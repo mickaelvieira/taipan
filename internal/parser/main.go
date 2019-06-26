@@ -9,13 +9,16 @@ import (
 )
 
 // Parse parses the html tree and creates our parsed document
-func Parse(URL *url.URL, r io.Reader) (*document.Document, error) {
+func Parse(URL *url.URL, r io.Reader, findFeeds bool) (*document.Document, error) {
 	document, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
 		return nil, err
 	}
 
 	var p = Parser{origURL: URL, document: document}
+	if findFeeds {
+		p.ShouldFindSyndicationSource()
+	}
 	d := p.Parse()
 
 	return d, nil

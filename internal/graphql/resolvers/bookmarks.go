@@ -111,7 +111,7 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	d, err := usecase.Document(ctx, u, r.repositories)
+	d, err := usecase.Document(ctx, u, false, r.repositories)
 	if err != nil {
 		return nil, err
 	}
