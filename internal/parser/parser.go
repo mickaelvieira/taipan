@@ -6,6 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"html"
+	"log"
 	neturl "net/url"
 	"strings"
 
@@ -52,6 +53,8 @@ func (p *Parser) Parse() *document.Document {
 	p.twitter = p.parseTwitterTags()
 	p.facebook = p.parseFacebookTags()
 
+	log.Printf("IS WP %t", isWP)
+
 	// get the data we need
 	var url = p.url()
 	var lang = p.parseLang()
@@ -84,7 +87,9 @@ func (p *Parser) Parse() *document.Document {
 func (p *Parser) isWordpress() bool {
 	for _, s := range p.linkTags {
 		url := p.normalizeAttrValue(s.AttrOr("href", ""))
-		if strings.Contains(url, "wp-content") {
+		if strings.Contains(url, "wp-content") ||
+			strings.Contains(url, "wp-include") ||
+			strings.Contains(url, "wp-json") {
 			return true
 		}
 	}
