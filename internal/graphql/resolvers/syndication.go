@@ -199,11 +199,13 @@ func (r *SyndicationResolver) Delete(ctx context.Context, args struct {
 // Sources resolves the query
 func (r *SyndicationResolver) Sources(ctx context.Context, args struct {
 	Pagination OffsetPaginationInput
+	Search     SearchSourcesInput
 }) (*SourceCollectionResolver, error) {
 	fromArgs := GetOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
+	paused := args.Search.IsPaused
 
-	results, err := r.repositories.Syndication.FindAll(ctx, offset, limit)
+	results, err := r.repositories.Syndication.FindAll(ctx, paused, offset, limit)
 	if err != nil {
 		return nil, err
 	}

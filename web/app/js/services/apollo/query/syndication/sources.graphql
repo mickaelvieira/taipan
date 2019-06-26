@@ -1,8 +1,8 @@
 #import "../../fragment/source.graphql"
 
-query sources($pagination: OffsetPaginationInput!) {
+query sources($pagination: OffsetPaginationInput!, $search: SearchSourcesInput!) {
   syndication {
-    sources(pagination: $pagination) @connection(key: "syndication_sources")  {
+    sources(pagination: $pagination, search: $search) @connection(key: "syndication_sources", filter: ["search"])  {
       total
       limit
       offset

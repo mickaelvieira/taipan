@@ -89,7 +89,7 @@ type FeedsQuery {
 
 type SyndicationQuery {
   # "Returns a list of web syndication sources"
-  sources(pagination: OffsetPaginationInput!): SourceCollection
+  sources(pagination: OffsetPaginationInput!, search: SearchSourcesInput!): SourceCollection
 }
 
 type SyndicationMutation {
@@ -104,6 +104,10 @@ type SyndicationMutation {
 
   # "Delete the web syndication source matching the URL"
   delete(url: URL!): Source
+}
+
+input SearchSourcesInput {
+  isPaused: Boolean!
 }
 
 input CursorPaginationInput {

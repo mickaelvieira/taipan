@@ -1,8 +1,12 @@
 import React from "react";
-import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
+import List from "@material-ui/core/List";
 import Button from "@material-ui/core/Button";
-import SyndicationQuery from "../../apollo/Query/Syndication";
+
+import SyndicationQuery, {
+  variables,
+  query
+} from "../../apollo/Query/Syndication";
 import Item from "./Item";
 
 const useStyles = makeStyles({
@@ -10,12 +14,25 @@ const useStyles = makeStyles({
     width: "100%"
   }
 });
+interface Props {
+  showPausedSources: boolean;
+}
 
-export default function SyndicationList(): JSX.Element {
+export default function SyndicationList({
+  showPausedSources
+}: Props): JSX.Element {
   const classes = useStyles();
+
   return (
     <List className={classes.list}>
-      <SyndicationQuery>
+      <SyndicationQuery
+        variables={{
+          ...variables,
+          search: {
+            isPaused: showPausedSources
+          }
+        }}
+      >
         {({ data, loading, error, fetchMore }) => {
           if (loading) {
             return <span>Loading...</span>;
@@ -37,9 +54,11 @@ export default function SyndicationList(): JSX.Element {
               <Button
                 onClick={() =>
                   fetchMore({
+                    query,
                     variables: {
+                      ...variables,
                       pagination: {
-                        limit: 50,
+                        ...variables.pagination,
                         offset: data.syndication.sources.results.length
                       }
                     },

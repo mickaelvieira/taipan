@@ -21,6 +21,11 @@ type OffsetPaginationInput struct {
 	Limit  *int32
 }
 
+// SearchSourcesInput web syndication search paramaters
+type SearchSourcesInput struct {
+	IsPaused bool
+}
+
 // GetOffsetBasedPagination prepare the default offset and limit for the SQL query
 // provide a default limit value and get back a closure to prepare the boundaries
 // Example:

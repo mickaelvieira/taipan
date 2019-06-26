@@ -3,10 +3,12 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -64,17 +66,28 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context) ([]*synd
 }
 
 // FindAll find newest entries
-func (r *SyndicationRepository) FindAll(ctx context.Context, cursor int32, limit int32) ([]*syndication.Source, error) {
+func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, cursor int32, limit int32) ([]*syndication.Source, error) {
 	var results []*syndication.Source
 
 	query := `
 		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused
 		FROM feeds AS s
-		WHERE s.deleted = 0
+		WHERE %s
 		ORDER BY s.created_at DESC
 		LIMIT ?, ?
 	`
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), cursor, limit)
+	var where []string
+	var args []interface{}
+
+	where = append(where, "s.deleted = 0")
+	where = append(where, "s.paused = ?")
+	query = fmt.Sprintf(query, strings.Join(where, " AND "))
+
+	args = append(args, isPaused)
+	args = append(args, cursor)
+	args = append(args, limit)
+
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
 		return nil, err
 	}

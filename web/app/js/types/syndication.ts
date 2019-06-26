@@ -16,3 +16,7 @@ export interface SyndicationResults {
   offset: number;
   results: Source[];
 }
+
+export interface SearchParams {
+  isPaused: boolean;
+}

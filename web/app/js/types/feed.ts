@@ -1,13 +1,8 @@
 import { Bookmark } from "./bookmark";
 import { Document } from "./document";
+import { CursorPagination } from ".";
 
 export type FeedItem = Bookmark | Document;
-
-export interface CursorPagination {
-  from?: string;
-  to?: string;
-  limit?: number;
-}
 
 export interface FeedResults {
   total: number;
