@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/client"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 )
 
 // FetchResource fetches the related resource
-func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Repositories) (r *client.Result, err error) {
+func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Repositories) (r *http.Result, err error) {
 	http := client.Client{}
 	r, err = http.Get(u)
 	if err != nil {

@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"io/ioutil"
-	"net/http"
+	nethttp "net/http"
 )
 
 // Client bot
@@ -17,10 +18,10 @@ type Client struct{}
 // - we could not build the request
 // - a network error occured
 // - we could not read the body
-func (f *Client) Head(URL *url.URL) (result *Result, err error) {
+func (f *Client) Head(URL *url.URL) (result *http.Result, err error) {
 	fmt.Printf("Preforming HEAD request %s\n", URL)
-	var req *http.Request
-	var resp *http.Response
+	var req *nethttp.Request
+	var resp *nethttp.Response
 
 	client := makeClient()
 	req, err = makeRequest("HEAD", URL)
@@ -45,10 +46,10 @@ func (f *Client) Head(URL *url.URL) (result *Result, err error) {
 // - we could not build the request
 // - a network error occured
 // - we could not read the body
-func (f *Client) Get(URL *url.URL) (result *Result, err error) {
+func (f *Client) Get(URL *url.URL) (result *http.Result, err error) {
 	fmt.Printf("Preforming GET request %s\n", URL)
-	var req *http.Request
-	var resp *http.Response
+	var req *nethttp.Request
+	var resp *nethttp.Response
 
 	client := makeClient()
 	req, err = makeRequest("GET", URL)

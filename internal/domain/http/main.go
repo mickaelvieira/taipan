@@ -1,4 +1,4 @@
-package client
+package http
 
 import (
 	"bytes"
@@ -28,3 +28,10 @@ type Result struct {
 func (r *Result) IsContentDifferent(prev *Result) bool {
 	return prev == nil || prev.Checksum.String() != r.Checksum.String()
 }
+
+// ByCreationDate sorts Results by creation date
+type ByCreationDate []*Result
+
+func (a ByCreationDate) Len() int           { return len(a) }
+func (a ByCreationDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByCreationDate) Less(i, j int) bool { return a[i].CreatedAt.Before(a[j].CreatedAt) }

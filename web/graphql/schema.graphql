@@ -203,7 +203,7 @@ type HTTPClientLog implements Node {
   id: ID!
   checksum: String!
   requestURI: URL!
-  finalURI: URL!
+  # finalURI: URL!
   statusCode: Int!
   contentType: String!
   createdAt: DateTime!

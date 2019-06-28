@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/client"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 )
 
@@ -13,7 +13,7 @@ type BotlogRepository struct {
 }
 
 // Insert saves an entry in the bookmark log
-func (r *BotlogRepository) Insert(ctx context.Context, l *client.Result) error {
+func (r *BotlogRepository) Insert(ctx context.Context, l *http.Result) error {
 	query := `
 		INSERT INTO bot_logs
 		(checksum, content_type, response_status_code, response_reason_phrase, response_headers, request_uri, request_method, request_headers, created_at)
@@ -38,7 +38,7 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *client.Result) error {
 }
 
 // FindLatestByURL find the latest log entry for a given URL
-func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*client.Result, error) {
+func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*http.Result, error) {
 	query := `
 		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
@@ -56,8 +56,8 @@ func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*
 }
 
 // FindByURL finds the log entries for a given URL
-func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*client.Result, error) {
-	var logs []*client.Result
+func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*http.Result, error) {
+	var logs []*http.Result
 
 	query := `
 		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
@@ -71,7 +71,7 @@ func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*clie
 	}
 
 	for rows.Next() {
-		var log *client.Result
+		var log *http.Result
 		log, err = r.scan(rows)
 		if err != nil {
 			return nil, err
@@ -87,8 +87,8 @@ func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*clie
 }
 
 // FindByURLAndStatus finds the log entries for a given URL and status
-func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL, status int) ([]*client.Result, error) {
-	var logs []*client.Result
+func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL, status int) ([]*http.Result, error) {
+	var logs []*http.Result
 
 	query := `
 		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
@@ -102,7 +102,7 @@ func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL,
 	}
 
 	for rows.Next() {
-		var log *client.Result
+		var log *http.Result
 		log, err = r.scan(rows)
 		if err != nil {
 			return nil, err
@@ -117,8 +117,8 @@ func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL,
 	return logs, nil
 }
 
-func (r *BotlogRepository) scan(rows Scanable) (*client.Result, error) {
-	var l client.Result
+func (r *BotlogRepository) scan(rows Scanable) (*http.Result, error) {
+	var l http.Result
 
 	err := rows.Scan(
 		&l.ID,

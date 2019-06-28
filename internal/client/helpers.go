@@ -3,12 +3,13 @@ package client
 import (
 	"bytes"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"net/http"
+	nethttp "net/http"
 	"time"
 )
 
-func checkRedirection(URL *url.URL, resp *http.Response) (o *url.URL, f *url.URL, r bool) {
+func checkRedirection(URL *url.URL, resp *nethttp.Response) (o *url.URL, f *url.URL, r bool) {
 	o = URL
 	f = URL
 	if resp.Request != nil {
@@ -20,9 +21,9 @@ func checkRedirection(URL *url.URL, resp *http.Response) (o *url.URL, f *url.URL
 	return
 }
 
-func makeResult(URL *url.URL, req *http.Request, resp *http.Response, reader *bytes.Reader, checksum []byte) *Result {
+func makeResult(URL *url.URL, req *nethttp.Request, resp *nethttp.Response, reader *bytes.Reader, checksum []byte) *http.Result {
 	originalURL, finalURL, redirected := checkRedirection(URL, resp)
-	return &Result{
+	return &http.Result{
 		Checksum:         checksum,
 		WasRedirected:    redirected,
 		ContentType:      resp.Header.Get("Content-Type"),
@@ -38,12 +39,12 @@ func makeResult(URL *url.URL, req *http.Request, resp *http.Response, reader *by
 	}
 }
 
-func makeClient() *http.Client {
-	return &http.Client{}
+func makeClient() *nethttp.Client {
+	return &nethttp.Client{}
 }
 
-func makeRequest(method string, URL *url.URL) (req *http.Request, err error) {
-	req, err = http.NewRequest(method, URL.String(), nil)
+func makeRequest(method string, URL *url.URL) (req *nethttp.Request, err error) {
+	req, err = nethttp.NewRequest(method, URL.String(), nil)
 	if err != nil {
 		return
 	}

@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github/mickaelvieira/taipan/internal/client"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 
 	gql "github.com/graph-gophers/graphql-go"
@@ -9,7 +9,7 @@ import (
 
 // HTTPClientLogResolver resolves the bookmark's image entity
 type HTTPClientLogResolver struct {
-	*client.Result
+	*http.Result
 }
 
 // ID resolves the ID
@@ -38,9 +38,9 @@ func (r *HTTPClientLogResolver) RequestURI() scalars.URL {
 }
 
 // FinalURI resolves the FinalURI field
-func (r *HTTPClientLogResolver) FinalURI() scalars.URL {
-	return scalars.URL{URL: r.Result.FinalURI}
-}
+// func (r *HTTPClientLogResolver) FinalURI() scalars.URL {
+// 	return scalars.URL{URL: r.Result.FinalURI}
+// }
 
 // CreatedAt resolves the CreatedAt field
 func (r *HTTPClientLogResolver) CreatedAt() scalars.DateTime {

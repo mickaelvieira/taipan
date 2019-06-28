@@ -2,7 +2,7 @@ package s3
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/client"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/image"
 	img "image"
 	"io"
@@ -126,7 +126,7 @@ func getContentTypeFromFormat(i string) (o string) {
 // }
 
 // Upload uploads a file to the S3 bucket
-func Upload(i *image.Image, result *client.Result, reader io.Reader) error {
+func Upload(i *image.Image, result *http.Result, reader io.Reader) error {
 	bucket := os.Getenv("AWS_BUCKET")
 
 	contentType := result.ContentType

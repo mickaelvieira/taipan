@@ -3,8 +3,8 @@ package resolvers
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -90,7 +90,7 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 	if err != nil {
 		return nil, err
 	}
-	results, ok := data.([]*client.Result)
+	results, ok := data.([]*http.Result)
 	if !ok {
 		return nil, fmt.Errorf("Invalid data")
 	}

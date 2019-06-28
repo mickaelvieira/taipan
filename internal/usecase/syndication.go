@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/client"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -37,9 +37,9 @@ func EnableSyndicationSource(ctx context.Context, s *syndication.Source, r *repo
 	return r.UpdateStatus(ctx, s)
 }
 
-func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, s *syndication.Source, repositories *repository.Repositories) (err error) {
+func handleFeedHTTPErrors(ctx context.Context, rs *http.Result, s *syndication.Source, repositories *repository.Repositories) (err error) {
 	if rs.RespStatusCode == 404 {
-		var logs []*client.Result
+		var logs []*http.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
 		if err != nil {
 			return
@@ -56,7 +56,7 @@ func handleFeedHTTPErrors(ctx context.Context, rs *client.Result, s *syndication
 	}
 
 	if rs.RespStatusCode == 406 || rs.RespStatusCode == 429 || rs.RespStatusCode == 500 {
-		var logs []*client.Result
+		var logs []*http.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
 		if err != nil {
 			return
@@ -105,7 +105,7 @@ func ParseSyndicationSource(ctx context.Context, s *syndication.Source, reposito
 	fmt.Printf("Parsing %s\n", s.URL)
 	parser := gofeed.NewParser()
 
-	var result, prevResult *client.Result
+	var result, prevResult *http.Result
 	prevResult, err = repositories.Botlogs.FindLatestByURL(ctx, s.URL)
 	result, err = FetchResource(ctx, s.URL, repositories)
 	if err != nil {

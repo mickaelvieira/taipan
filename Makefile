@@ -1,6 +1,13 @@
 OS    := $(shell uname -s)
 SHELL := /bin/bash
 
+
+test-app:
+	test
+
+test:
+	go test ./...
+
 build-app: build build-ui
 
 build: build-web build-feeds build-documents

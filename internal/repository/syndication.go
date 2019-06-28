@@ -41,7 +41,7 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context) ([]*synd
 	query := `
 		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused
 		FROM feeds AS s
-		WHERE s.deleted = 0 AND s.paused = 0 AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL 1 HOUR))
+		WHERE s.deleted = 0 AND s.paused = 0 AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL 1 Hour))
 		ORDER BY s.parsed_at ASC
 		LIMIT ?;
 		`
