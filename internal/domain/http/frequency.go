@@ -1,53 +1,59 @@
 package http
 
 import (
-	"math"
+	"fmt"
 	"sort"
 	"time"
 )
 
+// Frequency of change
+type Frequency string
+
 // List of frequencies a string
 const (
-	Hourly string = "hourly"
-	Daily  string = "daily"
-	Weekly string = "weekly"
+	Hourly Frequency = "hourly"
+	Daily  Frequency = "daily"
+	Weekly Frequency = "weekly"
 )
-
-// Frequency of change
-type Frequency int
 
 // Possible values of frequencies
 const (
-	Hour Frequency = 3600
-	Day  Frequency = 86400
-	Week Frequency = 604800
+	Hour time.Duration = time.Hour
+	Day                = time.Hour * 24
+	Week               = time.Hour * 24 * 7
 )
 
-var m = map[Frequency]string{
-	Hour: Hourly,
-	Day:  Daily,
-	Week: Weekly,
+var timeIntervals = map[Frequency]time.Duration{
+	Hourly: Hour,
+	Daily:  Day,
+	Weekly: Week,
 }
 
-func (f Frequency) String() string {
-	return m[f]
+var sqlIntervals = map[Frequency]string{
+	Hourly: "1 HOUR",
+	Daily:  "1 DAY",
+	Weekly: "1 WEEK",
 }
 
-func calculateIntervalInSeconds(s time.Time, e time.Time) float64 {
-	elapsed := e.Sub(s)
-	return elapsed.Seconds()
+// Duration returns the corresponding time interval
+func (f Frequency) Duration() time.Duration {
+	return timeIntervals[f]
 }
 
-func calculateIntervalFrequency(s time.Time, e time.Time) Frequency {
-	i := calculateIntervalInSeconds(s, e)
-	r := int(math.Round(i))
-	if r >= int(Week) {
-		return Week
+// SQLInterval returns the corresponding SQL interval
+func (f Frequency) SQLInterval() string {
+	return sqlIntervals[f]
+}
+
+func inferIntervalFrequency(p time.Time, n time.Time) Frequency {
+	i := n.Sub(p)
+	if i >= Week {
+		return Weekly
 	}
-	if r >= int(Day) {
-		return Day
+	if i >= Day {
+		return Daily
 	}
-	return Hour
+	return Hourly
 }
 
 // @TODO I need to test this, especially the order
@@ -76,11 +82,11 @@ func filterSuccessfulResults(in []*Result) (out []*Result) {
 func CalculateMode(in []Frequency) Frequency {
 	// Returns the default frequency
 	if len(in) == 0 {
-		return Hour
+		return Hourly
 	}
 
 	sort.Slice(in, func(i, j int) bool {
-		return int(in[i]) < int(in[j])
+		return in[i].Duration() < in[j].Duration()
 	})
 
 	// Deduplication frequencies
@@ -133,8 +139,11 @@ func CalculateFrequency(in []*Result) Frequency {
 	if len(in) >= 2 {
 		for i := 1; i < len(in); i++ {
 			p := in[i-1]
-			c := in[i]
-			f := calculateIntervalFrequency(p.CreatedAt, c.CreatedAt)
+			n := in[i]
+			if p.CreatedAt.After(n.CreatedAt) {
+				panic(fmt.Sprintf("Previous date [%s] cannot be after next date [%s]", p.CreatedAt, n.CreatedAt))
+			}
+			f := inferIntervalFrequency(p.CreatedAt, n.CreatedAt)
 			out = append(out, f)
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github/mickaelvieira/taipan/internal/app"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
@@ -40,7 +41,7 @@ func main() {
 	for t := range ticker.C {
 		fmt.Println("Tick at", t)
 
-		sources, err := repositories.Syndication.GetOutdatedSources(ctx)
+		sources, err := repositories.Syndication.GetOutdatedSources(ctx, http.Hourly)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -167,6 +167,17 @@ func ParseSyndicationSource(ctx context.Context, s *syndication.Source, reposito
 		fmt.Println("Source's content has not changed")
 	}
 
+	// @TODO Calculate the source update frequency
+	// var results []*http.Result
+	// results, err = repositories.Botlogs.FindByURL(ctx, s.URL)
+	// if err != nil {
+	// 	return
+	// }
+
+	// f := http.CalculateFrequency(results)
+	// fmt.Printf("Source frequency: [%s], previous: [%s]", f, s.Frequency)
+
+	// s.Frequency = f
 	s.ParsedAt = time.Now()
 	err = repositories.Syndication.Update(ctx, s)
 

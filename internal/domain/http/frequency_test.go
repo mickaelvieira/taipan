@@ -37,47 +37,21 @@ func getResults(in []entry) (out []*Result) {
 	return
 }
 
-func TestcalculateIntervalInSeconds(t *testing.T) {
-	var testcase = []struct {
-		f string
-		t string
-		e float64
-	}{
-		{"2019-06-01T00:00:00Z", "2019-06-01T00:00:01Z", 1},      // one second
-		{"2019-06-01T00:00:00Z", "2019-06-01T00:01:00Z", 60},     // one minute
-		{"2019-06-01T00:00:00Z", "2019-06-01T01:00:00Z", 3600},   // one hour
-		{"2019-06-01T00:00:00Z", "2019-06-02T00:00:00Z", 86400},  // one day
-		{"2019-06-01T00:00:00Z", "2019-06-08T00:00:00Z", 604800}, // one week
-	}
-
-	for idx, tc := range testcase {
-		name := fmt.Sprintf("Test interval in seconds [%d]", idx)
-		t.Run(name, func(t *testing.T) {
-			from := getTime(tc.f)
-			to := getTime(tc.t)
-			i := calculateIntervalInSeconds(from, to)
-			if i != tc.e {
-				t.Errorf("Got [%f], wanted [%f]", i, tc.e)
-			}
-		})
-	}
-}
-
-func TestcalculateIntervalFrequency(t *testing.T) {
+func TestCalculateIntervalFrequency(t *testing.T) {
 	var testcase = []struct {
 		f string
 		t string
 		e Frequency
 	}{
-		{"2019-06-01T00:00:00Z", "2019-06-01T00:00:01Z", Hour}, // interval of one second
-		{"2019-06-01T00:00:00Z", "2019-06-01T00:01:00Z", Hour}, // interval of one minute
-		{"2019-06-01T00:00:00Z", "2019-06-01T01:00:00Z", Hour}, // interval of one hour
-		{"2019-06-01T00:00:00Z", "2019-06-01T02:00:00Z", Hour}, // interval of 12 hours
-		{"2019-06-01T00:00:00Z", "2019-06-01T23:00:00Z", Hour}, // interval of 23 hours
-		{"2019-06-01T00:00:00Z", "2019-06-02T00:00:00Z", Day},  // interval of one day
-		{"2019-06-01T00:00:00Z", "2019-06-07T00:00:00Z", Day},  // interval of 6 days
-		{"2019-06-01T00:00:00Z", "2019-06-08T00:00:00Z", Week}, // interval of one week
-		{"2019-06-01T00:00:00Z", "2019-06-15T00:00:00Z", Week}, // interval of one fortnight
+		{"2019-06-01T00:00:00Z", "2019-06-01T00:00:01Z", Hourly}, // interval of one second
+		{"2019-06-01T00:00:00Z", "2019-06-01T00:01:00Z", Hourly}, // interval of one minute
+		{"2019-06-01T00:00:00Z", "2019-06-01T01:00:00Z", Hourly}, // interval of one hour
+		{"2019-06-01T00:00:00Z", "2019-06-01T02:00:00Z", Hourly}, // interval of 12 hours
+		{"2019-06-01T00:00:00Z", "2019-06-01T23:00:00Z", Hourly}, // interval of 23 hours
+		{"2019-06-01T00:00:00Z", "2019-06-02T00:00:00Z", Daily},  // interval of one day
+		{"2019-06-01T00:00:00Z", "2019-06-07T00:00:00Z", Daily},  // interval of 6 days
+		{"2019-06-01T00:00:00Z", "2019-06-08T00:00:00Z", Weekly}, // interval of one week
+		{"2019-06-01T00:00:00Z", "2019-06-15T00:00:00Z", Weekly}, // interval of one fortnight
 	}
 
 	for idx, tc := range testcase {
@@ -85,9 +59,9 @@ func TestcalculateIntervalFrequency(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			from := getTime(tc.f)
 			to := getTime(tc.t)
-			i := calculateIntervalFrequency(from, to)
+			i := inferIntervalFrequency(from, to)
 			if i != tc.e {
-				t.Errorf("Got [%d], wanted [%d]", i, tc.e)
+				t.Errorf("Got [%s], wanted [%s]", i, tc.e)
 			}
 		})
 	}
@@ -98,17 +72,17 @@ func TestCalculateMode(t *testing.T) {
 		a []Frequency
 		e Frequency
 	}{
-		{[]Frequency{}, Hour},
-		{[]Frequency{Day}, Day},
-		{[]Frequency{Week, Day}, Day},
-		{[]Frequency{Day, Week}, Day},
-		{[]Frequency{Day, Hour}, Hour},
-		{[]Frequency{Day, Hour, Week}, Hour},
-		{[]Frequency{Hour, Day, Week}, Hour},
-		{[]Frequency{Hour, Day, Week}, Hour},
-		{[]Frequency{Hour, Hour, Day, Week}, Hour},
-		{[]Frequency{Day, Day, Hour, Week}, Day},
-		{[]Frequency{Hour, Week, Week, Day}, Week},
+		{[]Frequency{}, Hourly},
+		{[]Frequency{Daily}, Daily},
+		{[]Frequency{Weekly, Daily}, Daily},
+		{[]Frequency{Daily, Weekly}, Daily},
+		{[]Frequency{Daily, Hourly}, Hourly},
+		{[]Frequency{Daily, Hourly, Weekly}, Hourly},
+		{[]Frequency{Hourly, Daily, Weekly}, Hourly},
+		{[]Frequency{Hourly, Daily, Weekly}, Hourly},
+		{[]Frequency{Hourly, Hourly, Daily, Weekly}, Hourly},
+		{[]Frequency{Daily, Daily, Hourly, Weekly}, Daily},
+		{[]Frequency{Hourly, Weekly, Weekly, Daily}, Weekly},
 	}
 
 	for idx, tc := range testcase {
@@ -116,22 +90,22 @@ func TestCalculateMode(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			i := CalculateMode(tc.a)
 			if i != tc.e {
-				t.Errorf("Got [%d], wanted [%d]", i, tc.e)
+				t.Errorf("Got [%s], wanted [%s]", i, tc.e)
 			}
 		})
 	}
 }
 
 func TestCalculateFrequencyDefaultValue(t *testing.T) {
-	e := Hour
+	e := Hourly
 	f := CalculateFrequency(make([]*Result, 0))
 	if f != e {
-		t.Errorf("Got [%d], wanted [%d]", f, e)
+		t.Errorf("Got [%s], wanted [%s]", f, e)
 	}
 }
 
 func TestCalculateFrequencyNotEnoughResults(t *testing.T) {
-	e := Hour
+	e := Hourly
 	results := getResults([]entry{
 		{"baz", "2019-06-01T00:00:00Z", 404},
 		{"bar", "2019-06-02T00:00:00Z", 500},
@@ -140,35 +114,37 @@ func TestCalculateFrequencyNotEnoughResults(t *testing.T) {
 	})
 	f := CalculateFrequency(results)
 	if f != e {
-		t.Errorf("Got [%d], wanted [%d]", f, e)
+		t.Errorf("Got [%s], wanted [%s]", f, e)
 	}
 }
 
 func TestCalculateFrequencyDayly(t *testing.T) {
-	e := Day
+	e := Daily
 	results := getResults([]entry{
-		{"foo", "2019-06-26T00:00:00Z", 200},
-		{"bar", "2019-06-27T00:00:00Z", 200},
+		{"foo", "2019-06-27T00:00:00Z", 200},
+		{"bar", "2019-06-26T00:00:00Z", 200},
+		{"bar", "2019-06-25T00:00:00Z", 200},
+		{"bar", "2019-06-28T00:00:00Z", 200},
 	})
 	f := CalculateFrequency(results)
 	if f != e {
-		t.Errorf("Got [%d], wanted [%d]", f, e)
+		t.Errorf("Got [%s], wanted [%s]", f, e)
 	}
 }
 
 func TestCalculateFrequencyWeekly(t *testing.T) {
-	e := Week
+	e := Weekly
 	results := getResults([]entry{
 		{"foo", "2019-06-01T00:00:00Z", 200},
 		{"bar", "2019-06-08T00:00:00Z", 200},
 	})
 	f := CalculateFrequency(results)
 	if f != e {
-		t.Errorf("Got [%d], wanted [%d]", f, e)
+		t.Errorf("Got [%s], wanted [%s]", f, e)
 	}
 }
 
-func TestfilterSuccessfulResults(t *testing.T) {
+func TestFilterSuccessfulResults(t *testing.T) {
 	e := 2
 	results := getResults([]entry{
 		{"foo", "2019-06-26T19:55:22Z", 200},

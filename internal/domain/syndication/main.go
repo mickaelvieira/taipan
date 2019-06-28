@@ -2,6 +2,7 @@ package syndication
 
 import (
 	"fmt"
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"strings"
 	"time"
@@ -83,6 +84,7 @@ type Source struct {
 	ParsedAt  time.Time
 	Deleted   bool
 	IsPaused  bool
+	Frequency http.Frequency
 }
 
 // NewSource creates a new syndication source
@@ -94,6 +96,7 @@ func NewSource(url *url.URL, title string, feedType Type) *Source {
 		Status:    NEW,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+		Frequency: http.Hourly,
 	}
 }
 
