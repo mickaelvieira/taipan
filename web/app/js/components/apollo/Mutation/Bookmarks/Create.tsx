@@ -10,14 +10,20 @@ interface Data {
 
 interface Variables {
   url: string;
+  withFeeds: boolean;
 }
+
+const variables = {
+  withFeeds: false
+};
 
 class CreateBookmarkMutation extends Mutation<Data, Variables> {
   static defaultProps = {
-    mutation
+    mutation,
+    variables
   };
 }
 
-export { mutation };
+export { mutation, variables };
 
 export default CreateBookmarkMutation;

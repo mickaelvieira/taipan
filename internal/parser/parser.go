@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/image"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
@@ -67,6 +68,8 @@ func (p *Parser) Parse() *document.Document {
 	var title = p.title()
 	var description = p.description()
 	var image = p.image()
+
+	fmt.Printf("Parsing RSS feeds too? [%t]\n", p.findFeeds)
 
 	var feeds []*syndication.Source
 	if p.findFeeds {

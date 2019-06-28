@@ -4,7 +4,9 @@ import IconButton from "@material-ui/core/IconButton";
 import CachedIcon from "@material-ui/icons/Cached";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
-import CreateBookmarkMutation from "../../../apollo/Mutation/Bookmarks/Create";
+import CreateBookmarkMutation, {
+  variables
+} from "../../../apollo/Mutation/Bookmarks/Create";
 
 interface Props {
   bookmark: Bookmark;
@@ -33,7 +35,10 @@ export default React.memo(function Refresh({
           className={classes.button}
           onClick={() =>
             mutate({
-              variables: { url: bookmark.url }
+              variables: {
+                ...variables,
+                url: bookmark.url
+              }
             })
           }
         >

@@ -5,15 +5,18 @@ import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 import { Bookmark } from "../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import CreateBookmarkMutation from "../apollo/Mutation/Bookmarks/Create";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(() => ({
   title: {
     minWidth: 320
   }
-});
+}));
 
 interface Props {
   onBookmarkCreated: (bookmark: Bookmark) => void;
@@ -26,6 +29,7 @@ export default function AddBookmark({
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
+  const [withFeeds, setWithFeeds] = useState(true);
 
   return (
     <div>
@@ -37,7 +41,7 @@ export default function AddBookmark({
       >
         {(mutate, { loading, error }) => {
           return (
-            <>
+            <form>
               <DialogTitle id="form-dialog-title" className={classes.title}>
                 Bookmark a document
               </DialogTitle>
@@ -58,6 +62,19 @@ export default function AddBookmark({
                   onChange={event => setUrl(event.target.value)}
                   fullWidth
                 />
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={withFeeds}
+                        onChange={() => setWithFeeds(!withFeeds)}
+                        value="1"
+                        color="primary"
+                      />
+                    }
+                    label="Parse RSS feeds"
+                  />
+                </FormGroup>
               </DialogContent>
               <DialogActions>
                 {loading && <CircularProgress size={16} />}
@@ -71,7 +88,7 @@ export default function AddBookmark({
                 <Button
                   onClick={() =>
                     mutate({
-                      variables: { url }
+                      variables: { url, withFeeds }
                     })
                   }
                   color="primary"
@@ -80,7 +97,7 @@ export default function AddBookmark({
                   Bookmark
                 </Button>
               </DialogActions>
-            </>
+            </form>
           );
         }}
       </CreateBookmarkMutation>
