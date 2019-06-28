@@ -63,7 +63,7 @@ export default function Layout({
           </MessageContext.Provider>
           <Fab
             color="primary"
-            size="small"
+            size="large"
             aria-label="Add"
             className={classes.fab}
             onClick={() => setFormBookmarkStatus(true)}
