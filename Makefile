@@ -1,13 +1,6 @@
 OS    := $(shell uname -s)
 SHELL := /bin/bash
 
-
-test-app:
-	test
-
-test:
-	go test ./...
-
 build-app: build build-ui
 
 build: build-web build-feeds build-documents
@@ -35,6 +28,12 @@ run-documents:
 
 gen-proto:
 	protoc --proto_path=web/proto --go_out=internal/domain/document web/proto/document.proto
+
+test-app:
+	test
+
+test:
+	go test ./...
 
 analyse:
 	staticcheck cmd/web/main.go
