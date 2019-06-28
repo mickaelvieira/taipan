@@ -13,8 +13,27 @@ import {
 } from "../Page";
 import uiTheme from "../ui/theme";
 import Loader from "../ui/Loader";
-import UserQuery from "../apollo/Query/User";
-import { UserContext } from "../context";
+import InitQuery, { Data } from "../apollo/Query/Init";
+import { AppContext, UserContext } from "../context";
+
+function canBoostrap(data: Data | undefined): boolean {
+  if (!data) {
+    return false;
+  }
+  if (!data.users) {
+    return false;
+  }
+  if (!data.users.loggedIn) {
+    return false;
+  }
+  if (!data.app) {
+    return false;
+  }
+  if (!data.app.info) {
+    return false;
+  }
+  return true;
+}
 
 export default function App(): JSX.Element {
   const client = getApolloClient();
@@ -27,7 +46,7 @@ export default function App(): JSX.Element {
       <CssBaseline />
       <MuiThemeProvider theme={theme}>
         <BrowserRouter>
-          <UserQuery>
+          <InitQuery>
             {({ data, loading, error }) => {
               if (loading) {
                 return <Loader />;
@@ -37,26 +56,38 @@ export default function App(): JSX.Element {
                 return <ErrorPage error={error} />;
               }
 
-              return !data || !data.users || !data.users.loggedIn ? null : (
-                <UserContext.Provider value={data.users.loggedIn}>
-                  <Switch>
-                    <Route exact path="/" component={NewsPage} />
-                    <Route
-                      exact
-                      path="/reading-list"
-                      component={ReadingListPage}
-                    />
-                    <Route exact path="/favorites" component={FavoritesPage} />
-                    <Route
-                      exact
-                      path="/syndication"
-                      component={SyndicationPage}
-                    />
-                  </Switch>
-                </UserContext.Provider>
+              if (!canBoostrap(data)) {
+                return null;
+              }
+
+              const { users, app } = data as Data;
+
+              return (
+                <AppContext.Provider value={app.info}>
+                  <UserContext.Provider value={users.loggedIn}>
+                    <Switch>
+                      <Route exact path="/" component={NewsPage} />
+                      <Route
+                        exact
+                        path="/reading-list"
+                        component={ReadingListPage}
+                      />
+                      <Route
+                        exact
+                        path="/favorites"
+                        component={FavoritesPage}
+                      />
+                      <Route
+                        exact
+                        path="/syndication"
+                        component={SyndicationPage}
+                      />
+                    </Switch>
+                  </UserContext.Provider>
+                </AppContext.Provider>
               );
             }}
-          </UserQuery>
+          </InitQuery>
         </BrowserRouter>
       </MuiThemeProvider>
     </ApolloProvider>

@@ -4,7 +4,6 @@ import ChangeStatusMutation, {
   enableSourceMutation,
   disableSourceMutation
 } from "../../../apollo/Mutation/Syndication/ChangeStatus";
-import { query, variables } from "../../../apollo/Query/Syndication";
 import { Source } from "../../../../types/syndication";
 
 interface Props {

@@ -11,6 +11,7 @@ schema {
 }
 
 type Query {
+  app: AppQuery
   users: UsersQuery
   documents: DocumentsQuery
   bookmarks: BookmarksQuery
@@ -32,6 +33,11 @@ type Subscription {
 
   # "Subscribes to reading list feed events"
   readingList(): BookmarkEvent!
+}
+
+type AppQuery {
+  # "Returns information related to the app itself"
+  info(): AppInfo
 }
 
 type UsersQuery {
@@ -123,6 +129,14 @@ input OffsetPaginationInput {
 
 interface Node {
   id: ID!
+}
+
+# """
+# The AppInfo type contains information related to the application
+# """
+type AppInfo {
+  name: String!
+  version: String!
 }
 
 # """

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { NavLink as RouterLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -12,27 +12,10 @@ import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
 import RssFeedIcon from "@material-ui/icons/RssFeedOutlined";
-import { UserContext } from "../../context";
+import UserInfo from "./UserInfo";
+import AppInfo from "./AppInfo";
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  userInfo: {
-    fontSize: "1.2rem",
-    fontWeight: 500,
-    lineHeight: 1.33,
-    letterSpacing: "0em",
-    color: palette.grey[900],
-    textAlign: "center",
-    margin: 0,
-    padding: "1.2rem 0",
-    backgroundColor: palette.grey[100]
-  },
-  appInfo: {
-    lineHeight: 1.33,
-    color: palette.grey[500],
-    textAlign: "center",
-    margin: 0,
-    padding: "1.2rem 0"
-  },
   list: {
     width: 220
   },
@@ -80,15 +63,10 @@ interface Props {
 }
 
 export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
-  const user = useContext(UserContext);
   const classes = useStyles();
   return (
     <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
-      {user && (
-        <p className={classes.userInfo}>
-          {user.firstname} {user.lastname}
-        </p>
-      )}
+      <UserInfo />
       <List className={classes.list}>
         {entries.map(entry => (
           <Link
@@ -128,7 +106,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         </Link>
       </List>
       <Divider />
-      <p className={classes.appInfo}>Taipan {process.env.APP_VERSION}</p>
+      <AppInfo />
     </Drawer>
   );
 }
