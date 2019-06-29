@@ -23,7 +23,13 @@ export default () => {
   const wsLink = new WebSocketLink({
     uri: `ws${isEncrypted ? "s" : ""}:${endpoint}`,
     options: {
-      reconnect: true
+      reconnect: true,
+      reconnectionAttempts: Infinity,
+      connectionCallback: error => {
+        console.log("Connected to WS");
+        console.log(error);
+      },
+      inactivityTimeout: 0
     }
   });
 
@@ -52,6 +58,7 @@ export default () => {
   });
 
   const link = concat(errorLink, transportLink);
+  console.log(link);
   const client = new ApolloClient({
     link,
     cache
