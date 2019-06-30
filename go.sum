@@ -117,6 +117,7 @@ github.com/graph-gophers/dataloader v5.0.0+incompatible h1:R+yjsbrNq1Mo3aPG+Z/EK
 github.com/graph-gophers/dataloader v5.0.0+incompatible/go.mod h1:jk4jk0c5ZISbKaMe8WsVopGB5/15GvGHMdMdPtwlRp4=
 github.com/graph-gophers/graphql-go v0.0.0-20190225005345-3e8838d4614c h1:YyFUsspLqAt3noyPCLz7EFK/o1LpC1j/6MjU0bSVOQ4=
 github.com/graph-gophers/graphql-go v0.0.0-20190225005345-3e8838d4614c/go.mod h1:uJhtPXrcJLqyi0H5IuMFh+fgW+8cMMakK3Txrbk/WJE=
+github.com/graph-gophers/graphql-go v0.0.0-20190630212224-8f92f34fc598 h1:yWNJe4ijI53E+B1HamUeB4YPkMzZQN0Mzjm6El6dbiU=
 github.com/graph-gophers/graphql-go v0.0.0-20190630212224-8f92f34fc598/go.mod h1:Au3iQ8DvDis8hZ4q2OzRcaKYlAsPt+fYvib5q4nIqu4=
 github.com/graph-gophers/graphql-transport-ws v0.0.0-20190611222414-40c048432299 h1:BdXUpuP9yOGKcwD/mhhZ+6EeAmrPrAQA3yeq4YEOHL4=
 github.com/graph-gophers/graphql-transport-ws v0.0.0-20190611222414-40c048432299/go.mod h1:mA6VjyefgI7zd37tC3zopb51mW39gSfnEoWvtnxsqKQ=
@@ -177,6 +178,7 @@ github.com/opencontainers/image-spec v1.0.1 h1:JMemWkRwHx4Zj+fVxWoMCFm/8sYGGrUVo
 github.com/opencontainers/image-spec v1.0.1/go.mod h1:BtxoFyWECRxE4U/7sNtV5W15zMzWCbyJoFRP3s7yZA0=
 github.com/opentracing/opentracing-go v1.0.2 h1:3jA2P6O1F9UOrWVpwrIo17pu01KWvNWg4X946/Y5Zwg=
 github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
+github.com/opentracing/opentracing-go v1.1.0 h1:pWlfV3Bxv7k65HYwkikxat0+s3pV4bsqf19k25Ur8rU=
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/openzipkin/zipkin-go v0.1.1/go.mod h1:NtoC/o8u3JlF1lSlyPNswIbeQH9bJTmOf0Erfk+hxe8=
 github.com/openzipkin/zipkin-go v0.1.6/go.mod h1:QgAqvLzwWbR/WpD4A3cGpPtJrZXNIiJc5AZX7/PBEpw=
