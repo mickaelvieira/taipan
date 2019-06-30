@@ -29,9 +29,9 @@ func (r *Result) IsContentDifferent(prev *Result) bool {
 	return prev == nil || prev.Checksum.String() != r.Checksum.String()
 }
 
-// ByCreationDate sorts Results by creation date
-type ByCreationDate []*Result
+// ByCreatedAt sorts Results by ascending creation date
+type ByCreatedAt []*Result
 
-func (a ByCreationDate) Len() int           { return len(a) }
-func (a ByCreationDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByCreationDate) Less(i, j int) bool { return a[i].CreatedAt.Before(a[j].CreatedAt) }
+func (a ByCreatedAt) Len() int           { return len(a) }
+func (a ByCreatedAt) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByCreatedAt) Less(i, j int) bool { return a[i].CreatedAt.Before(a[j].CreatedAt) }

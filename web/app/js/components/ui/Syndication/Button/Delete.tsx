@@ -5,7 +5,7 @@ import DeleteIcon from "@material-ui/icons/DeleteOutline";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Source } from "../../../../types/syndication";
 import ConfirmDeletion from "../Confirm/Delete";
-import DeleteMutation from "../../../apollo/Mutation/Syndication/Delete";
+import DeleteSourceMutation from "../../../apollo/Mutation/Syndication/Delete";
 
 interface Props {
   source: Source;
@@ -25,7 +25,9 @@ export default React.memo(function Unbookmark({
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
   return (
-    <DeleteMutation onCompleted={data => onSuccess(data.syndication.delete)}>
+    <DeleteSourceMutation
+      onCompleted={data => onSuccess(data.syndication.delete)}
+    >
       {(mutate, { loading }) => (
         <>
           <IconButton
@@ -51,6 +53,6 @@ export default React.memo(function Unbookmark({
           />
         </>
       )}
-    </DeleteMutation>
+    </DeleteSourceMutation>
   );
 });

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Switch from "@material-ui/core/Switch";
-import ChangeStatusMutation, {
+import ChangeSourceStatusMutation, {
   enableSourceMutation,
   disableSourceMutation
 } from "../../../apollo/Mutation/Syndication/ChangeStatus";
@@ -17,7 +17,7 @@ export default React.memo(function ToggleStatus({
   const [isChecked, setIsChecked] = useState(!isPaused);
 
   return (
-    <ChangeStatusMutation
+    <ChangeSourceStatusMutation
       mutation={isPaused ? enableSourceMutation : disableSourceMutation}
     >
       {mutate => {
@@ -39,6 +39,6 @@ export default React.memo(function ToggleStatus({
           />
         );
       }}
-    </ChangeStatusMutation>
+    </ChangeSourceStatusMutation>
   );
 });

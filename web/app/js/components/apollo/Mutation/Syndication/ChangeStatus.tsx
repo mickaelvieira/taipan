@@ -14,10 +14,10 @@ interface Variables {
   url: string;
 }
 
-class ChangeStatusMutation extends Mutation<Data, Variables> {
+class ChangeSourceStatusMutation extends Mutation<Data, Variables> {
   static defaultProps = {};
 }
 
 export { enableSourceMutation, disableSourceMutation };
 
-export default ChangeStatusMutation;
+export default ChangeSourceStatusMutation;

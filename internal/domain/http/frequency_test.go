@@ -110,7 +110,7 @@ func TestCalculateFrequencyNotEnoughResults(t *testing.T) {
 		{"baz", "2019-06-01T00:00:00Z", 404},
 		{"bar", "2019-06-02T00:00:00Z", 500},
 		{"foo", "2019-06-10T00:00:00Z", 200},
-		{"foo", "2019-06-12T00:00:00Z", 200},
+		{"foo", "2019-06-12T00:00:00Z", 400},
 	})
 	f := CalculateFrequency(results)
 	if f != e {
@@ -118,7 +118,7 @@ func TestCalculateFrequencyNotEnoughResults(t *testing.T) {
 	}
 }
 
-func TestCalculateFrequencyDayly(t *testing.T) {
+func TestCalculateFrequencyDaily(t *testing.T) {
 	e := Daily
 	results := getResults([]entry{
 		{"foo", "2019-06-27T00:00:00Z", 200},
@@ -137,6 +137,38 @@ func TestCalculateFrequencyWeekly(t *testing.T) {
 	results := getResults([]entry{
 		{"foo", "2019-06-01T00:00:00Z", 200},
 		{"bar", "2019-06-08T00:00:00Z", 200},
+	})
+	f := CalculateFrequency(results)
+	if f != e {
+		t.Errorf("Got [%s], wanted [%s]", f, e)
+	}
+}
+
+func TestCalculateFrequencyHasNeverChangedInAWeek(t *testing.T) {
+	e := Weekly
+	results := getResults([]entry{
+		{"bar", "2019-06-25T00:00:00Z", 200},
+		{"bar", "2019-06-26T00:00:00Z", 200},
+		{"bar", "2019-06-27T00:00:00Z", 200},
+		{"bar", "2019-06-28T00:00:00Z", 200},
+		{"bar", "2019-06-29T00:00:00Z", 200},
+		{"bar", "2019-06-30T00:00:00Z", 200},
+		{"bar", "2019-07-01T00:00:00Z", 200},
+		{"bar", "2019-07-02T00:00:00Z", 200},
+	})
+	f := CalculateFrequency(results)
+	if f != e {
+		t.Errorf("Got [%s], wanted [%s]", f, e)
+	}
+}
+func TestCalculateFrequencyHasRecentlyChanged(t *testing.T) {
+	e := Daily
+	results := getResults([]entry{
+		{"bar", "2019-06-01T00:00:00Z", 200},
+		{"bar", "2019-06-08T00:00:00Z", 200},
+		{"bar", "2019-06-15T00:00:00Z", 200},
+		{"foo", "2019-06-16T00:00:00Z", 200},
+		{"baz", "2019-06-17T00:00:00Z", 200},
 	})
 	f := CalculateFrequency(results)
 	if f != e {

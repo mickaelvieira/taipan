@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"time"
 )
@@ -18,9 +19,9 @@ const (
 
 // Possible values of frequencies
 const (
-	Hour time.Duration = time.Hour
-	Day                = time.Hour * 24
-	Week               = time.Hour * 24 * 7
+	Hour = time.Hour
+	Day  = time.Hour * 24
+	Week = time.Hour * 24 * 7
 )
 
 var timeIntervals = map[Frequency]time.Duration{
@@ -56,15 +57,28 @@ func inferIntervalFrequency(p time.Time, n time.Time) Frequency {
 	return Hourly
 }
 
-// @TODO I need to test this, especially the order
+// @TODO I need to test this properly
 func filterDuplicateUnchanged(in []*Result) (out []*Result) {
-	var p *Result
-	for _, r := range in {
-		if r.IsContentDifferent(p) {
-			out = append(out, r)
-			p = r
+	if len(in) <= 2 {
+		return in
+	}
+
+	p := in[0]
+	// Preserve the first one
+	out = append(out, p)
+
+	// remove duplicate between the first and last one
+	for i := 1; i < len(in)-1; i++ {
+		n := in[i]
+		if n.IsContentDifferent(p) {
+			out = append(out, n)
+			p = n
 		}
 	}
+
+	// Preserve the last one
+	out = append(out, in[len(in)-1])
+
 	return
 }
 
@@ -121,10 +135,16 @@ func CalculateMode(in []Frequency) Frequency {
 
 // CalculateFrequency calculates how frequently the resource has changed
 func CalculateFrequency(in []*Result) Frequency {
+	// Let's make sure we work only with successful results
 	in = filterSuccessfulResults(in)
 
-	// @TODO I need to double check the sorting
-	sort.Sort(ByCreationDate(in))
+	// Not enough results
+	if len(in) < 2 {
+		return Hourly
+	}
+
+	// Sort http results by ascending creation date
+	sort.Sort(ByCreatedAt(in))
 
 	// @TODO we want to be smarter here:
 	// - What if a resource has many successful results but has never changed? For instance:
@@ -136,17 +156,20 @@ func CalculateFrequency(in []*Result) Frequency {
 	in = filterDuplicateUnchanged(in)
 
 	out := make([]Frequency, 0)
-	if len(in) >= 2 {
-		for i := 1; i < len(in); i++ {
-			p := in[i-1]
-			n := in[i]
-			if p.CreatedAt.After(n.CreatedAt) {
-				panic(fmt.Sprintf("Previous date [%s] cannot be after next date [%s]", p.CreatedAt, n.CreatedAt))
-			}
-			f := inferIntervalFrequency(p.CreatedAt, n.CreatedAt)
-			out = append(out, f)
+	for i := 1; i < len(in); i++ {
+		p := in[i-1]
+		n := in[i]
+		if p.CreatedAt.After(n.CreatedAt) {
+			panic(fmt.Sprintf("Previous date [%s] cannot be after next date [%s]", p.CreatedAt, n.CreatedAt))
 		}
+		f := inferIntervalFrequency(
+			p.CreatedAt,
+			n.CreatedAt,
+		)
+		out = append(out, f)
 	}
 
-	return CalculateMode(out)
+	log.Printf("%v", out)
+
+	return out[len(out)-1]
 }

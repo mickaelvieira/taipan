@@ -15,7 +15,7 @@ interface Variables {
   url: string;
 }
 
-class ChangeStatusMutation extends Mutation<Data, Variables> {
+class DeleteSourceMutation extends Mutation<Data, Variables> {
   static defaultProps = {
     mutation,
     update: (cache: DataProxy, { data }: { data: Data }) => {
@@ -37,4 +37,4 @@ class ChangeStatusMutation extends Mutation<Data, Variables> {
 
 export { mutation };
 
-export default ChangeStatusMutation;
+export default DeleteSourceMutation;

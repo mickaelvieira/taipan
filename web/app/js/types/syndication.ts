@@ -8,6 +8,7 @@ export interface Source {
   createdAt: string;
   updatedAt: string;
   parsedAt: string;
+  stats?: Stats;
 }
 
 export interface SyndicationResults {
@@ -19,4 +20,12 @@ export interface SyndicationResults {
 
 export interface SearchParams {
   isPaused: boolean;
+}
+
+export interface Stats {
+  statusCode: number;
+  frequency: string;
+  totalEntries: number;
+  totalSuccess: number;
+  totalFailure: number;
 }

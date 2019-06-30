@@ -6,7 +6,7 @@ describe("Feed helpers", () => {
       expect(getDataKey(undefined)).toBe(null);
     });
 
-    test("retrieves the feed data key", () => {
+    it("retrieves the feed data key", () => {
       expect(
         getDataKey({
           feeds: {
