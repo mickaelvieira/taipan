@@ -1,15 +1,9 @@
-#import "../../fragment/bookmark.graphql"
+#import "../../fragment/feed-results.graphql"
 
 query readingList($pagination: CursorPaginationInput!) {
   feeds {
     readingList(pagination: $pagination) @connection(key: "feed_reading_list") {
-      total
-      first
-      last
-      limit
-      results {
-        ...bookmarkFields
-      }
+      ...bookmarkResultsFields
     }
   }
 }

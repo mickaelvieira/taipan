@@ -1,0 +1,23 @@
+# @TODO There must be a way to use a fragment directly on the interface FeedResults
+#import "./bookmark.graphql"
+#import "./document.graphql"
+
+fragment bookmarkResultsFields on FeedBookmarkResults {
+  total
+  first
+  last
+  limit
+  results {
+    ...bookmarkFields
+  }
+}
+
+fragment documentResultsFields on FeedDocumentResults {
+  total
+  first
+  last
+  limit
+  results {
+    ...documentFields
+  }
+}

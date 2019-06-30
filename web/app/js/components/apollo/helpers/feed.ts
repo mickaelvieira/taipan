@@ -9,7 +9,10 @@ import {
   FeedEvent
 } from "../../../types/feed";
 
-export function getDataKey(data: FeedQueryData): string | null {
+export function getDataKey(data: FeedQueryData | undefined): string | null {
+  if (typeof data === "undefined") {
+    return null;
+  }
   const keys = "feeds" in data ? Object.keys(data.feeds) : [];
   return keys.length > 0 ? keys[0] : null;
 }

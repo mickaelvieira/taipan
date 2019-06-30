@@ -1,15 +1,9 @@
-#import "../../fragment/document.graphql"
+#import "../../fragment/feed-results.graphql"
 
 query latestNews($pagination: CursorPaginationInput!) {
   feeds {
     latestNews(pagination: $pagination) @connection(key: "latest_news") {
-      total
-      first
-      last
-      limit
-      results {
-        ...documentFields
-      }
+      ...documentResultsFields
     }
   }
 }

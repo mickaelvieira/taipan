@@ -3,6 +3,8 @@ SHELL := /bin/bash
 
 build-app: build build-ui
 
+test-app: test test-ui
+
 build: build-web build-feeds build-documents
 
 build-web:
@@ -28,9 +30,6 @@ run-documents:
 
 gen-proto:
 	protoc --proto_path=web/proto --go_out=internal/domain/document web/proto/document.proto
-
-test-app:
-	test
 
 test:
 	go test ./...
@@ -64,6 +63,9 @@ watch-ui:
 
 build-ui:
 	cd web/app && yarn && yarn build:client
+
+test-ui:
+	cd web/app && yarn test
 
 gen-schema:
 	cd web/app && yarn schema:json

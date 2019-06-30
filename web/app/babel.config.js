@@ -41,11 +41,12 @@ module.exports = {
         [
           "@babel/env",
           {
-            modules: false
+            modules: "commonjs"
           }
         ],
         ["@babel/typescript"],
-        ["@babel/react"]
+        ["@babel/react"],
+        ["jest"]
       ]
     }
   }
