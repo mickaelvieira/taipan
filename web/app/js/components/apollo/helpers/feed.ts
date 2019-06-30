@@ -73,18 +73,23 @@ export function getBoundaries(results: FeedItem[]): [string, string] {
   return [first, last];
 }
 
-function addItemToFeedResults(
-  result: FeedResults,
-  item: FeedItem
-): FeedResults {
+function hasItem(result: FeedResults, item: FeedItem): boolean {
+  const index = result.results.findIndex(({ id }) => id === item.id);
+  return index >= -1;
+}
+
+function addItem(result: FeedResults, item: FeedItem): FeedResults {
   if (!item) {
+    return result;
+  }
+
+  if (hasItem(result, item)) {
     return result;
   }
 
   const cloned = cloneDeep(result);
   const total = result.total + 1;
   cloned.results.unshift(item);
-
   const results = cloned.results;
   const [first, last] = getBoundaries(results);
 
@@ -97,16 +102,12 @@ function addItemToFeedResults(
   };
 }
 
-function removeItemFromFeedResults(
-  result: FeedResults,
-  item: FeedItem
-): FeedResults {
+function removeItem(result: FeedResults, item: FeedItem): FeedResults {
   if (!item) {
     return result;
   }
 
-  const index = result.results.findIndex(i => i.id === item.id);
-  if (index < 0) {
+  if (!hasItem(result, item)) {
     return result;
   }
 
@@ -125,6 +126,6 @@ function removeItemFromFeedResults(
 }
 
 export const feedResultsAction: FeedActions<FeedAction> = {
-  Add: addItemToFeedResults,
-  Remove: removeItemFromFeedResults
+  Add: addItem,
+  Remove: removeItem
 };
