@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -8,12 +8,20 @@ import (
 
 	"github/mickaelvieira/taipan/internal/app"
 	"github/mickaelvieira/taipan/internal/auth"
+
+	"github.com/urfave/cli"
 )
 
-func main() {
-	app.LoadEnvironment()
-	server := app.Bootstrap()
+// Web server command
+var Web = cli.Command{
+	Name:        "web",
+	Usage:       "Start the web server",
+	Description: ``,
+	Action:      runWeb,
+}
 
+func runWeb(c *cli.Context) {
+	server := app.Bootstrap()
 	port := os.Getenv("APP_PORT")
 	env := os.Getenv("TAIPAN_ENV")
 	webDir := os.Getenv("APP_WEB_DIR")

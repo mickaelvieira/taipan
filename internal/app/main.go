@@ -6,26 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"html/template"
 	"os"
-
-	"github.com/joho/godotenv"
 )
-
-// LoadEnvironment load environment variables
-// See for details: https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
-func LoadEnvironment() {
-	root := "../../"
-	env := os.Getenv("TAIPAN_ENV")
-	if "" == env {
-		env = "development"
-	}
-
-	godotenv.Load(root + ".env." + env + ".local")
-	if "test" != env {
-		godotenv.Load(root + ".env.local")
-	}
-	godotenv.Load(root + ".env." + env)
-	godotenv.Load(root + ".env")
-}
 
 // Bootstrap the application
 func Bootstrap() *Server {

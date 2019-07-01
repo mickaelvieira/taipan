@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -12,11 +12,20 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
+
+	"github.com/urfave/cli"
 )
 
-func main() {
+// Syndication command
+var Syndication = cli.Command{
+	Name:        "syndication",
+	Usage:       "Start the web syndication worker",
+	Description: ``,
+	Action:      runSyndicationWorker,
+}
+
+func runSyndicationWorker(c *cli.Context) {
 	fmt.Println("Starting syndication worker")
-	app.LoadEnvironment()
 	ctx, cancel := context.WithCancel(context.Background())
 	repositories := repository.GetRepositories()
 

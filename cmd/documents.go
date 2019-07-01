@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -13,10 +13,18 @@ import (
 	"github/mickaelvieira/taipan/internal/app"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/urfave/cli"
 )
 
-func main() {
-	app.LoadEnvironment()
+// Documents command
+var Documents = cli.Command{
+	Name:        "syndication",
+	Usage:       "Start the web document worker",
+	Description: ``,
+	Action:      runDocumentsWorker,
+}
+
+func runDocumentsWorker(c *cli.Context) {
 	ctx, cancel := context.WithCancel(context.Background())
 	repositories := repository.GetRepositories()
 

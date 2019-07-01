@@ -3,6 +3,7 @@
 /cmd/documents/documents
 /cmd/migration/migration
 /vendor
+/taipan
 node_modules
 web/app/schema.json
 web/app/bundler-profiler.json

@@ -12,8 +12,9 @@
   ],
   "scripts": {
     "test": "NODE_ENV=test jest",
-    "build:client": "webpack --config webpack.config.js",
-    "watch:client": "webpack --watch --config webpack.config.js",
+    "watch-test": "NODE_ENV=test jest --watch",
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --watch --config webpack.config.js",
     "lint": "eslint js  -c .eslintrc.js --ext ts,tsx,graphql",
     "lint:fix": "eslint js -c .eslintrc.js --fix --ext ts,tsx,graphql",
     "gen:graphql:schema": "apollo service:download --endpoint=http://localhost:9000/graphql",

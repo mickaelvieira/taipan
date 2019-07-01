@@ -1,71 +1,64 @@
 OS    := $(shell uname -s)
 SHELL := /bin/bash
 
-build-app: build build-ui
+build: build-app build-ui
 
-test-app: test test-ui
-
-build: build-web build-feeds build-documents
-
-build-web:
-	cd cmd/web && go build
-
-build-feeds:
-	cd cmd/feeds && go build
-
-build-documents:
-	cd cmd/documents && go build
-
-build-migration:
-	cd cmd/migration && go build
+test: test-app test-ui
 
 run:
-	cd cmd/web && ./web
+	./taipan web
 
 run-feeds:
-	cd cmd/feeds && ./feeds
+	./taipan feeds
 
 run-documents:
-	cd cmd/documents && ./documents
+	./taipan documents
 
-gen-proto:
-	protoc --proto_path=web/proto --go_out=internal/domain/document web/proto/document.proto
+build-app:
+	go build
 
-test:
+test-app:
 	go test ./...
 
-analyse:
-	staticcheck cmd/web/main.go
-	staticcheck cmd/feeds/main.go
-	staticcheck cmd/migration/main.go
+build-ui:
+	cd web/app && yarn && yarn build
 
-# run-migration:
-# 	cd cmd/migration && ./migration
+test-ui:
+	cd web/app && yarn test
+
+watch-ui:
+	cd web/app && yarn watch
+
+watch-test-ui:
+	cd web/app && yarn watch-test
 
 fmt:
 	gofmt -s -w -l internal/**/*.go
 	gofmt -s -w -l cmd/**/*.go
+	cd web/app && yarn lint:fix
 
 clean:
 	go mod tidy
-	cd cmd/web && go clean
-	cd cmd/feeds && go clean
-	cd cmd/migration && go clean
-
-clean-ui:
+	go clean
 	rm -rf web/app/node_modules
 	rm -f web/app/schema.json
 	rm -rf web/static/js
 	rm -f web/static/hashes.json
 
-watch-ui:
-	cd web/app && yarn watch:client
+analyse:
+	staticcheck taipan.go
+	cd web/app && yarn lint
 
-build-ui:
-	cd web/app && yarn && yarn build:client
-
-test-ui:
-	cd web/app && yarn test
+gen-proto:
+	protoc --proto_path=web/proto --go_out=internal/domain/document web/proto/document.proto
 
 gen-schema:
-	cd web/app && yarn schema:json
+	cd web/app && yarn gen:graphql:schema
+
+
+# build-migration:
+# 	cd cmd/migration && go build
+
+# run-migration:
+# 	cd cmd/migration && ./migration
+
