@@ -1,5 +1,7 @@
 OS    := $(shell uname -s)
 SHELL := /bin/bash
+GOFMT := gofmt -s -w -l
+CDWEB := cd web/app
 
 build: build-app build-ui
 
@@ -21,21 +23,22 @@ test-app:
 	go test ./...
 
 build-ui:
-	cd web/app && yarn && yarn build
+	$(CDWEB) && yarn && yarn build
 
 test-ui:
-	cd web/app && yarn test
+	$(CDWEB) && yarn test
 
 watch-ui:
-	cd web/app && yarn watch
+	$(CDWEB) && yarn watch
 
 watch-test-ui:
-	cd web/app && yarn watch-test
+	$(CDWEB) && yarn watch-test
 
 fmt:
-	gofmt -s -w -l internal/**/*.go
-	gofmt -s -w -l cmd/**/*.go
-	cd web/app && yarn lint:fix
+	$(GOFMT) taipan.go
+	$(GOFMT) internal/**/*.go
+	$(GOFMT) cmd/*.go
+	$(CDWEB) && yarn lint:fix
 
 clean:
 	go mod tidy

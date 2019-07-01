@@ -15,5 +15,6 @@ web/sql/data.sql
 .env.local
 .env.*.local
 .private
+.github/.access_token
 web/proto/
 internal/proto/
