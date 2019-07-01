@@ -15,6 +15,22 @@ const patternCssFiles = isProduction
   ? "[name].[contenthash].css"
   : "[name].css";
 
+function getPathnames(chunk) {
+  const prefix = "static"
+  let { vendor, app } = chunk
+
+  if (!isProd) {
+    vendor = vendor[0];
+    app = app[0];
+  }
+
+  return {
+    vendor: `/${prefix}/${vendor}`,
+    app: `/${prefix}/${app}`,
+  }
+}
+
+
 module.exports = {
   target: "web",
   mode: process.env.NODE_ENV,
@@ -63,16 +79,9 @@ module.exports = {
     }),
     new StatsWriterPlugin({
       filename: "hashes.json",
-      transform(data) {
+      transform({ assetsByChunkName }) {
         return Promise.resolve().then(() =>
-          JSON.stringify(
-            {
-              app: `/static/${data.assetsByChunkName.app[0]}`,
-              vendor: `/static/${data.assetsByChunkName.vendor[0]}`
-            },
-            null,
-            2
-          )
+          JSON.stringify(getPathnames(assetsByChunkName), null, 2)
         );
       }
     })
