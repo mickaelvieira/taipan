@@ -18,7 +18,7 @@ import (
 
 // Documents command
 var Documents = cli.Command{
-	Name:        "syndication",
+	Name:        "documents",
 	Usage:       "Start the web document worker",
 	Description: ``,
 	Action:      runDocumentsWorker,

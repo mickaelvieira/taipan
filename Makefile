@@ -11,7 +11,7 @@ run:
 	./taipan web
 
 run-feeds:
-	./taipan feeds
+	./taipan syndication
 
 run-documents:
 	./taipan documents
