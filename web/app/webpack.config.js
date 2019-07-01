@@ -48,7 +48,7 @@ module.exports = {
     minimize: isProduction,
     minimizer: [
       new TerserPlugin({
-        sourceMap: true
+        sourceMap: false
       }),
       new OptimizeCSSAssetsPlugin({})
     ]
