@@ -2,7 +2,7 @@ env:
   global:
     - MAKEFLAGS="-j 2"
     - GO111MODULE="on"
-    - NODE_ENV="production"
+    - NODE_ENV="test"
 
 language: go
 go:
@@ -12,11 +12,13 @@ before_install:
   - nvm install v11.15
 
 install:
-  - make
+  - make build
 
 script:
   - make test
 
 cache:
   directories:
-    - "node_modules"
+    - $HOME/.cache/go-build
+    - $HOME/.cache/yarn
+    - $GOPATH/pkg/mod
