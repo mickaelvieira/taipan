@@ -38,12 +38,14 @@ export default React.memo(function FeedItem({ document }: Props): JSX.Element {
             onSuccess={() => {
               setMessageInfo("The document was added to your favorites");
             }}
+            onError={message => setMessageInfo(message)}
           />
           <BookmarkButton
             document={document}
             onSuccess={() => {
               setMessageInfo("The document was added to your reading list");
             }}
+            onError={message => setMessageInfo(message)}
           />
         </CardActions>
       </ItemFooter>

@@ -9,14 +9,19 @@ import { queryFavorites, variables } from "../../../apollo/Query/Feed";
 interface Props {
   bookmark: Bookmark;
   onSuccess: (bookmark: Bookmark) => void;
+  onError: (message: string) => void;
 }
 
 export default React.memo(function Favorite({
   bookmark,
-  onSuccess
+  onSuccess,
+  onError
 }: Props): JSX.Element {
   return (
-    <FavoriteMutation onCompleted={data => onSuccess(data.bookmarks.favorite)}>
+    <FavoriteMutation
+      onCompleted={data => onSuccess(data.bookmarks.favorite)}
+      onError={error => onError(error.message)}
+    >
       {(mutate, { loading }) => (
         <>
           <IconButton
