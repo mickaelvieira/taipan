@@ -11,6 +11,7 @@ import CreateBookmarkMutation, {
 interface Props {
   bookmark: Bookmark;
   onSuccess: (bookmark: Bookmark) => void;
+  onError: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -21,12 +22,14 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function Refresh({
   bookmark,
-  onSuccess
+  onSuccess,
+  onError
 }: Props): JSX.Element {
   const classes = useStyles();
   return (
     <CreateBookmarkMutation
       onCompleted={data => onSuccess(data.bookmarks.create)}
+      onError={error => onError(error.message)}
     >
       {(mutate, { loading }) => (
         <IconButton

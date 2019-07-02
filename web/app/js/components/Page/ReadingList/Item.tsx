@@ -34,12 +34,14 @@ export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
             onSuccess={() => {
               setMessageInfo("The document was removed from your reading list");
             }}
+            onError={message => setMessageInfo(message)}
           />
           <FavoriteButton
             bookmark={bookmark}
             onSuccess={() => {
               setMessageInfo("The bookmark was added to your favorites");
             }}
+            onError={message => setMessageInfo(message)}
           />
         </CardActions>
       </ItemFooter>

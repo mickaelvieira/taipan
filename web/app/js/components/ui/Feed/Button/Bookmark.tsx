@@ -11,6 +11,7 @@ import { queryReadingList, variables } from "../../../apollo/Query/Feed";
 interface Props {
   document: Document;
   onSuccess: (bookmark: Bookmark) => void;
+  onError: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -21,11 +22,15 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function Bookmark({
   document,
-  onSuccess
+  onSuccess,
+  onError
 }: Props): JSX.Element {
   const classes = useStyles();
   return (
-    <BookmarkMutation onCompleted={data => onSuccess(data.bookmarks.bookmark)}>
+    <BookmarkMutation
+      onCompleted={data => onSuccess(data.bookmarks.bookmark)}
+      onError={error => onError(error.message)}
+    >
       {(mutate, { loading }) => (
         <IconButton
           aria-label="Bookmark"

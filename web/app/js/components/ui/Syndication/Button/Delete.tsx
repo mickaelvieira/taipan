@@ -10,6 +10,7 @@ import DeleteSourceMutation from "../../../apollo/Mutation/Syndication/Delete";
 interface Props {
   source: Source;
   onSuccess: (source: Source) => void;
+  onError: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -20,13 +21,15 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function Unbookmark({
   source,
-  onSuccess
+  onSuccess,
+  onError
 }: Props): JSX.Element {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
   return (
     <DeleteSourceMutation
       onCompleted={data => onSuccess(data.syndication.delete)}
+      onError={error => onError(error.message)}
     >
       {(mutate, { loading }) => (
         <>

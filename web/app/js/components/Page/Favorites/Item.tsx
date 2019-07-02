@@ -38,6 +38,7 @@ export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
             onSuccess={() => {
               setMessageInfo("The document was removed from your bookmarks");
             }}
+            onError={message => setMessageInfo(message)}
           />
           <UnfavoriteButton
             bookmark={bookmark}
@@ -46,8 +47,13 @@ export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
                 "The bookmark was added back to your reading list"
               );
             }}
+            onError={message => setMessageInfo(message)}
           />
-          <RefreshButton bookmark={bookmark} onSuccess={() => {}} />
+          <RefreshButton
+            bookmark={bookmark}
+            onSuccess={() => {}}
+            onError={message => setMessageInfo(message)}
+          />
         </CardActions>
       </ItemFooter>
     </Item>
