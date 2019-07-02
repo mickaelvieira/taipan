@@ -2,10 +2,10 @@ env:
   global:
     - MAKEFLAGS="-j 2"
     - GO111MODULE="on"
+    - NODE_ENV="production"
 
 language: go
 go:
-  - 1.11.x
   - 1.12.x
 
 before_install:
