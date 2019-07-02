@@ -78,7 +78,7 @@ export function getBoundaries(results: FeedItem[]): [string, string] {
 
 function hasItem(result: FeedResults, item: FeedItem): boolean {
   const index = result.results.findIndex(({ id }) => id === item.id);
-  return index >= -1;
+  return index !== -1;
 }
 
 function addItem(result: FeedResults, item: FeedItem): FeedResults {
