@@ -29,10 +29,10 @@ module.exports = {
       argsIgnorePattern: "_"
     }],
     "react/display-name": "off",
-    "graphql/template-strings": ["error", {
-      env: "apollo",
-      schemaJson: require("./schema.json"),
-    }],
+    // "graphql/template-strings": ["error", {
+    //   env: "apollo",
+    //   schemaJson: require("./schema.json"),
+    // }],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn"
   },

@@ -21,6 +21,7 @@ install:
   - make build
 
 script:
+  - make analyse
   - make test
 
 cache:
