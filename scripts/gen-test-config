@@ -1,0 +1,17 @@
+#!/bin/bash
+# shellcheck disable=SC2155
+
+set -e -u -o pipefail
+# set -x
+
+# declare -r WD="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+declare -r ENV_FILE=".env.test.local"
+
+touch "${ENV_FILE}"
+{
+  echo "APP_DB_NAME=taipan_test"
+  echo "APP_DB_USER=travis"
+  echo "APP_DB_PWD="
+  echo "APP_GRAPHQL_ENDPOINT=//localhost:9000/graphql"
+  echo "APP_GRAPHQL_ENCRYPTED=false"
+} >> "${ENV_FILE}"
