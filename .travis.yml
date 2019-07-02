@@ -1,6 +1,7 @@
 env:
   global:
     - MAKEFLAGS="-j 2"
+    - GO111MODULE="on"
 
 language: go
 go:
