@@ -2,19 +2,19 @@ env:
   global:
     - MAKEFLAGS="-j 2"
 
-language: node_js
-node_js:
-  - "6"
-  - "7"
-  - "8"
-  - "9"
+language: go
+go:
+  - 1.11.x
+  - 1.12.x
+
+before_install:
+  - nvm install latest
+
+install:
+  - make
 
 script:
-  - make lint
-  - make test-coverage
-
-after_success:
-  - make test-coveralls
+  - make test
 
 cache:
   directories:
