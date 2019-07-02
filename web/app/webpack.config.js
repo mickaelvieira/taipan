@@ -9,7 +9,6 @@ const srcDir = path.resolve(__dirname, "js");
 const tgtDir = path.resolve(__dirname, "../static");
 
 const isTesting = process.env.NODE_ENV === "test";
-const isProd = process.env.NODE_ENV === "production";
 const isProduction = process.env.NODE_ENV === "production";
 const patternJsFiles = isProduction ? "[name].[contenthash].js" : "[name].js";
 const patternCssFiles = isProduction
@@ -20,7 +19,7 @@ function getPathnames(chunk) {
   const prefix = "static"
   let { vendor, app } = chunk
 
-  if (!isProd) {
+  if (!isProduction) {
     vendor = vendor[0];
     app = app[0];
   }
@@ -33,7 +32,7 @@ function getPathnames(chunk) {
 
 module.exports = {
   target: "web",
-  mode: process.env.NODE_ENV,
+  mode: isProduction || isTesting ? "production" : "development",
   devtool: "source-map",
   entry: {
     app: srcDir + "/app.ts"
@@ -71,7 +70,7 @@ module.exports = {
   },
   plugins: [
     new Dotenv({
-      path: isProd || isTesting ? "../../.env" : "../../.env.local"
+      path: isProduction || isTesting ? "../../.env" : "../../.env.local"
     }),
     new MiniCssExtractPlugin({
       filename: `css/${patternCssFiles}`,
