@@ -9,14 +9,13 @@ language: go
 go:
   - 1.12.x
 
-addons:
-  mariadb: '10.3'
+# addons:
+#   mariadb: '10.3'
 
 before_install:
   - nvm install v11.15
-  - ./scripts/gen-test-config
-  - mysql -e 'CREATE DATABASE `taipan_test` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;'
-  - mysql taipan_test < web/sql/schema.sql
+  # - ./scripts/create-test-config
+  # - ./scripts/create-test-database
 
 install:
   - make build

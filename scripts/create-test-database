@@ -1,0 +1,32 @@
+#!/bin/bash
+# shellcheck disable=SC2155
+
+set -e -u -o pipefail
+set -x
+
+declare -r ENV_FILE=".env.test.local"
+
+info() {
+    printf "\\x1b[32m\\xE2\\x87\\x92 %s\\x1b[0m\\n" "$1"
+}
+
+error() {
+    printf "\\x1b[97m\\x1b[41m\\x21\\x1b[0m \\x1b[31m%s\\x1b[0m\\n" "$1" 1>&2
+    exit 1
+}
+
+main() {
+  [[ -f "${ENV_FILE}" ]] || error "You need to create the test config first: see. ./scripts/create-test-config"
+
+  # shellcheck disable=SC2046
+  export $(grep -E -v '^#' ${ENV_FILE} | xargs)
+  local schema="web/sql/schema.sql"
+  local data="web/sql/test-data.sql"
+
+  mysql -u"$APP_DB_USER" -e "DROP DATABASE IF EXISTS ${APP_DB_NAME};"
+  mysql -u"$APP_DB_USER" -e "CREATE DATABASE ${APP_DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;"
+  mysql -u"$APP_DB_USER" "$APP_DB_NAME" < $schema
+  mysql -u"$APP_DB_USER" "$APP_DB_NAME" < $data
+}
+
+main
