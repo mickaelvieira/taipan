@@ -3090,12 +3090,19 @@ dot-prop@^4.1.1:
   dependencies:
     is-obj "^1.0.0"
 
-dotenv-flow-webpack@^0.1.0-beta.3:
+dotenv-flow-webpack@0.1.0-beta.3:
   version "0.1.0-beta.3"
   resolved "https://registry.yarnpkg.com/dotenv-flow-webpack/-/dotenv-flow-webpack-0.1.0-beta.3.tgz#3ce5dcdf34060a2e0394432748b0435e46069131"
   integrity sha512-EgcEu1hfCq8vE0g1ig+TFQVOUhFxdj4NEQws2PhFK3lYXOk5KMaD2xrd9EwiL5J0yT9Q6qJ9U+vUoEI6T3S/hA==
   dependencies:
     dotenv-flow "^0.1.0"
+
+dotenv-flow@3.0.0-rc.1:
+  version "3.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/dotenv-flow/-/dotenv-flow-3.0.0-rc.1.tgz#35b6ea5becf24b13d224f61936754bff596cd14b"
+  integrity sha512-ezSFAuL7SYjZmc2+wxZ/jOknkOo2hskv4qk+U/+Ix+a//2MkaAdVO7l5T20NvsLclLS2mFw/9flcjE9JqEvT+g==
+  dependencies:
+    dotenv "^8.0.0"
 
 dotenv-flow@^0.1.0:
   version "0.1.0"
@@ -3103,13 +3110,6 @@ dotenv-flow@^0.1.0:
   integrity sha512-19UN7r2qCVGRftoq/9His+XRHEcKl4hZrpu/yfy6pOtk/n8cVyzJyzif7EKRj7caM8cNMHiDFhbhksobzNPjmA==
   dependencies:
     dotenv "^6.0.0"
-
-dotenv-flow@^3.0.0-rc.1:
-  version "3.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/dotenv-flow/-/dotenv-flow-3.0.0-rc.1.tgz#35b6ea5becf24b13d224f61936754bff596cd14b"
-  integrity sha512-ezSFAuL7SYjZmc2+wxZ/jOknkOo2hskv4qk+U/+Ix+a//2MkaAdVO7l5T20NvsLclLS2mFw/9flcjE9JqEvT+g==
-  dependencies:
-    dotenv "^8.0.0"
 
 dotenv@^6.0.0:
   version "6.2.0"
@@ -7409,15 +7409,10 @@ semver@5.5.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.0.tgz#dc4bbc7a6ca9d916dee5d43516f0092b58f7b8ab"
   integrity sha512-4SJ3dm0WAwWy/NVeioZh5AntkdJoWKxHxcmyP622fOkgHa4z3R0TdBJICINyaSDE6uNwVc8gZr+ZinwZAH4xIA==
 
-semver@^6.0.0:
+semver@^6.0.0, semver@^6.1.1:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.2.0.tgz#4d813d9590aaf8a9192693d6c85b9344de5901db"
   integrity sha512-jdFC1VdUGT/2Scgbimf7FSx9iJLXoqfglSF+gJeuNWVpiE37OIbc1jywR/GJyFdz3mnkz2/id0L0J/cr0izR5A==
-
-semver@^6.1.1:
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-6.1.2.tgz#079960381376a3db62eb2edc8a3bfb10c7cfe318"
-  integrity sha512-z4PqiCpomGtWj8633oeAdXm1Kn1W++3T8epkZYnwiVgIYIJ0QHszhInYSJTYxebByQH7KVCEAn8R9duzZW2PhQ==
 
 sentence-case@^2.1.0:
   version "2.1.1"
