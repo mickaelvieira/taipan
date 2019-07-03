@@ -14,7 +14,7 @@ go:
 
 before_install:
   - nvm install v11.15
-  - go get honnef.co/go/tools/cmd/staticcheck
+  # - go get honnef.co/go/tools/cmd/staticcheck
   # - ./scripts/create-test-config
   # - ./scripts/create-test-database
 

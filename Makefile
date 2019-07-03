@@ -49,7 +49,7 @@ clean:
 	rm -f web/static/hashes.json
 
 analyse:
-	staticcheck taipan.go
+	# staticcheck taipan.go
 	cd web/app && yarn lint
 
 gen-proto:
