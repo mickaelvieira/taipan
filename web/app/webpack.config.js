@@ -47,7 +47,7 @@ module.exports = {
     path: tgtDir
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: [".ts", ".tsx", ".js", ".graphql"]
   },
   optimization: {
     splitChunks: {

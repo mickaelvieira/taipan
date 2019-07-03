@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "test": "NODE_ENV=test jest",
+    "pact": "NODE_ENV=test jest --passWithNoTests --config ./jest.pact.config.js",
     "watch-test": "NODE_ENV=test jest --watch",
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --watch --config webpack.config.js",
@@ -72,6 +73,7 @@
     "webpack-stats-plugin": "0.2.1"
   },
   "devDependencies": {
+    "@pact-foundation/pact": "^8.2.6",
     "@typescript-eslint/eslint-plugin": "1.11.0",
     "@typescript-eslint/parser": "1.11.0",
     "babel-eslint": "10.0.2",
@@ -87,8 +89,14 @@
     "eslint-plugin-react": "7.14.2",
     "eslint-plugin-react-hooks": "1.6.1",
     "jest": "24.8.0",
+    "jest-transform-graphql": "^2.1.0",
     "prettier": "1.18.2",
     "ts-jest": "24.0.2",
     "webpack-visualizer-plugin": "0.1.11"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "\\.(graphql)$": "jest-transform-graphql"
+    }
   }
 }
