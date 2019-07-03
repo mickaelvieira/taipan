@@ -18,11 +18,13 @@ const useStyles = makeStyles({
 interface Props {
   bookmark: Bookmark;
   onSuccess: (bookmark: Bookmark) => void;
+  onError: (message: string) => void;
 }
 
 export default React.memo(function Unfavorite({
   bookmark,
-  onSuccess
+  onSuccess,
+  onError
 }: Props): JSX.Element {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
@@ -30,6 +32,7 @@ export default React.memo(function Unfavorite({
   return (
     <UnfavoriteMutation
       onCompleted={data => onSuccess(data.bookmarks.unfavorite)}
+      onError={error => onError(error.message)}
     >
       {(mutate, { loading }) => (
         <>

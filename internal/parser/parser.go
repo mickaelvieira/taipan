@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/image"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
@@ -14,6 +13,8 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 )
+
+const defaultWPFeedTitle = "wordpress feed"
 
 type social struct {
 	Title       string
@@ -69,8 +70,6 @@ func (p *Parser) Parse() *document.Document {
 	var description = p.description()
 	var image = p.image()
 
-	fmt.Printf("Parsing RSS feeds too? [%t]\n", p.findFeeds)
-
 	var feeds []*syndication.Source
 	if p.findFeeds {
 		if isWP {
@@ -110,7 +109,7 @@ func (p *Parser) getWordpressFeed() []*syndication.Source {
 	var feeds []*syndication.Source
 	u := &url.URL{URL: &neturl.URL{Path: "/feed/"}} // default WP feed
 	u = p.makeURLAbs(u)
-	feed := syndication.NewSource(u, "wordpress feed", syndication.RSS)
+	feed := syndication.NewSource(u, defaultWPFeedTitle, syndication.RSS)
 	feeds = append(feeds, feed)
 	return feeds
 }
@@ -269,7 +268,7 @@ func (p *Parser) parseFeeds() []*syndication.Source {
 	var feeds []*syndication.Source
 	for _, s := range p.linkTags {
 		u := p.normalizeAttrValue(s.AttrOr("href", ""))
-		title := p.normalizeAttrValue(p.normalizeHTMLText(s.AttrOr("title", "")))
+		title := p.normalizeHTMLText(s.AttrOr("title", ""))
 		feedType, err := syndication.GetSourceType(p.normalizeAttrValue(s.AttrOr("type", "")))
 		if !syndication.IsBlacklisted(u) {
 			urlFeed := p.parseAndNormalizeRawURL(u)

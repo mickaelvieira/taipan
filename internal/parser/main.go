@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"io"
@@ -14,12 +15,11 @@ func Parse(URL *url.URL, r io.Reader, findFeeds bool) (*document.Document, error
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("Parsing RSS feeds too? [%t]\n", findFeeds)
 
 	var p = Parser{origURL: URL, document: document}
 	if findFeeds {
 		p.ShouldFindSyndicationSource()
 	}
-	d := p.Parse()
-
-	return d, nil
+	return p.Parse(), nil
 }

@@ -61,6 +61,7 @@ export default React.memo(function SyndicationSource({
           onSuccess={() => {
             setMessageInfo("The web syndication source was deleted");
           }}
+          onError={message => setMessageInfo(message)}
         />
       </ListItemSecondaryAction>
     </ListItem>

@@ -1,21 +1,32 @@
 env:
   global:
     - MAKEFLAGS="-j 2"
+    - GO111MODULE="on"
+    - TAIPAN_ENV="test"
+    - NODE_ENV="test"
 
-language: node_js
-node_js:
-  - "6"
-  - "7"
-  - "8"
-  - "9"
+language: go
+go:
+  - 1.12.x
+
+# addons:
+#   mariadb: '10.3'
+
+before_install:
+  - nvm install v11.15
+  # - go get honnef.co/go/tools/cmd/staticcheck
+  # - ./scripts/create-test-config
+  # - ./scripts/create-test-database
+
+install:
+  - make build
 
 script:
-  - make lint
-  - make test-coverage
-
-after_success:
-  - make test-coveralls
+  - make analyse
+  - make test
 
 cache:
   directories:
-    - "node_modules"
+    - $HOME/.cache/go-build
+    - $HOME/.cache/yarn
+    - $GOPATH/pkg/mod

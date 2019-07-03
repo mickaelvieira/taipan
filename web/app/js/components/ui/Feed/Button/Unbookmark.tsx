@@ -16,6 +16,7 @@ import {
 interface Props {
   bookmark: Bookmark;
   onSuccess: (document: Document) => void;
+  onError: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -26,13 +27,15 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function Unbookmark({
   bookmark,
-  onSuccess
+  onSuccess,
+  onError
 }: Props): JSX.Element {
   const classes = useStyles();
   const [isConfirmVisible, setConfirmVisibility] = useState(false);
   return (
     <UnbookmarkMutation
       onCompleted={data => onSuccess(data.bookmarks.unbookmark)}
+      onError={error => onError(error.message)}
     >
       {(mutate, { loading }) => (
         <>

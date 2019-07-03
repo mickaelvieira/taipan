@@ -97,13 +97,18 @@ create_next_release_branch() {
 
     read -erp "$(echo -e "$(get_next_branch_message "$major" "$minor" "$patch")") " next_branch
 
+    local branch_prefix="release/"
     local branch_name=
     case $next_branch in
-        1) branch_name="$major";;
-        2) branch_name="$minor";;
-        3) branch_name="$patch";;
-        4) branch_name="$(ask_for_version_number)"
+        1) branch_name="${branch_prefix}${major}";;
+        2) branch_name="${branch_prefix}${minor}";;
+        3) branch_name="${branch_prefix}${patch}";;
+        4) branch_name="${branch_prefix}$(ask_for_version_number)"
     esac
+
+    echo "$branch_name"
+
+    exit
 
     if [[ -n "$branch_name" ]]; then
 
