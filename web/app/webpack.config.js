@@ -70,7 +70,7 @@ module.exports = {
   },
   plugins: [
     new DotenvFlow({
-      path: "../../"
+      path: "../.."
     }),
     new MiniCssExtractPlugin({
       filename: `css/${patternCssFiles}`,
