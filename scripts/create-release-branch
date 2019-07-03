@@ -98,19 +98,17 @@ create_next_release_branch() {
     read -erp "$(echo -e "$(get_next_branch_message "$major" "$minor" "$patch")") " next_branch
 
     local branch_prefix="release/"
-    local branch_name=
+    local version=
     case $next_branch in
-        1) branch_name="${branch_prefix}${major}";;
-        2) branch_name="${branch_prefix}${minor}";;
-        3) branch_name="${branch_prefix}${patch}";;
-        4) branch_name="${branch_prefix}$(ask_for_version_number)"
+        1) version="${major}";;
+        2) version="${minor}";;
+        3) version="${patch}";;
+        4) version="$(ask_for_version_number)"
     esac
 
-    echo "$branch_name"
+    local branch_name="${branch_prefix}${version}"
 
-    exit
-
-    if [[ -n "$branch_name" ]]; then
+    if [[ -n "${branch_name}" ]]; then
 
         read -erp "$(echo -e "Do you want to create the branch with the name '\\x1b[33m${branch_name}\\x1b[0m'") [Y/n] " confirm
 
@@ -118,7 +116,7 @@ create_next_release_branch() {
 
         if [[ "$confirm" == y ]]; then
             git checkout -b "$branch_name"
-            update_version "$branch_name"
+            update_version "$version"
             git add "$ENV_FILE"
             git commit -m "Update application's version"
             git push
