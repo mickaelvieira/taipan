@@ -1,9 +1,9 @@
+const DotenvFlow = require("dotenv-flow-webpack");
 const path = require("path");
 const { StatsWriterPlugin } = require("webpack-stats-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const Dotenv = require("dotenv-webpack");
 
 const srcDir = path.resolve(__dirname, "js");
 const tgtDir = path.resolve(__dirname, "../static");
@@ -69,8 +69,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new Dotenv({
-      path: isProduction || isTesting ? "../../.env" : "../../.env.local"
+    new DotenvFlow({
+      path: "../../"
     }),
     new MiniCssExtractPlugin({
       filename: `css/${patternCssFiles}`,

@@ -58,7 +58,6 @@ export default () => {
   });
 
   const link = concat(errorLink, transportLink);
-  console.log(link);
   const client = new ApolloClient({
     link,
     cache
