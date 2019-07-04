@@ -25,7 +25,6 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   button: {
     margin: "24px"
   }
-
 }));
 
 export default function SourcesTable(): JSX.Element {
@@ -42,7 +41,7 @@ export default function SourcesTable(): JSX.Element {
     >
       {({ data, loading, error, fetchMore }) => {
         if (loading) {
-          return <Loader />
+          return <Loader />;
         }
 
         if (error) {
