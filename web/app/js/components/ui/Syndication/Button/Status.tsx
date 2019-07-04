@@ -3,14 +3,14 @@ import Checkbox from "@material-ui/core/Checkbox";
 import ChangeSourceStatusMutation, {
   enableSourceMutation,
   disableSourceMutation
-} from "../../../apollo/Mutation/Syndication/ChangeStatus";
+} from "../../../apollo/Mutation/Syndication/Status";
 import { Source } from "../../../../types/syndication";
 
 interface Props {
   source: Source;
 }
 
-export default React.memo(function Status({ source }: Props): JSX.Element {
+export default React.memo(function StatusCheckbox({ source }: Props): JSX.Element {
   const { isPaused } = source;
   const [isChecked, setIsChecked] = useState(!isPaused);
 
