@@ -158,7 +158,7 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 		INSERT INTO feeds
 		(url, title, type, status, created_at, updated_at, deleted, paused, frequency)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	result, err := r.db.ExecContext(
 		ctx,
