@@ -10,7 +10,9 @@ interface Props {
   source: Source;
 }
 
-export default React.memo(function StatusCheckbox({ source }: Props): JSX.Element {
+export default React.memo(function StatusCheckbox({
+  source
+}: Props): JSX.Element {
   const { isPaused } = source;
   const [isChecked, setIsChecked] = useState(!isPaused);
 
