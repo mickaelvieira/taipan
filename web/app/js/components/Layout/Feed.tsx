@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import AddBookmark from "../ui/Feed/Modal/AddBookmark";
 import { MessageContext } from "../context";
 import { LG_WIDTH, SM_WIDTH } from "../../constant/feed";
-import MainLayout from "./Layout"
+import MainLayout from "./Layout";
 
 const useStyles = makeStyles(({ breakpoints, palette, spacing }) => ({
   root: {

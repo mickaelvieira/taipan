@@ -9,7 +9,8 @@ import {
   NewsPage,
   ReadingListPage,
   FavoritesPage,
-  SyndicationPage
+  SyndicationPage,
+  AccountPage
 } from "../Page";
 import uiTheme from "../ui/theme";
 import Loader from "../ui/Loader";
@@ -82,6 +83,7 @@ export default function App(): JSX.Element {
                         path="/syndication"
                         component={SyndicationPage}
                       />
+                      <Route exact path="/account" component={AccountPage} />
                     </Switch>
                   </UserContext.Provider>
                 </AppContext.Provider>
