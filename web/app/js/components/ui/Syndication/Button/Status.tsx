@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Switch from "@material-ui/core/Switch";
+import Checkbox from "@material-ui/core/Checkbox";
 import ChangeSourceStatusMutation, {
   enableSourceMutation,
   disableSourceMutation
@@ -10,9 +10,7 @@ interface Props {
   source: Source;
 }
 
-export default React.memo(function ToggleStatus({
-  source
-}: Props): JSX.Element {
+export default React.memo(function Status({ source }: Props): JSX.Element {
   const { isPaused } = source;
   const [isChecked, setIsChecked] = useState(!isPaused);
 
@@ -22,8 +20,7 @@ export default React.memo(function ToggleStatus({
     >
       {mutate => {
         return (
-          <Switch
-            edge="end"
+          <Checkbox
             onChange={() => {
               setIsChecked(!isChecked);
               mutate({

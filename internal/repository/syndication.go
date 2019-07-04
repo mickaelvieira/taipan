@@ -82,10 +82,10 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 	var args []interface{}
 
 	where = append(where, "s.deleted = 0")
-	where = append(where, "s.paused = ?")
+	// where = append(where, "s.paused = ?")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
-	args = append(args, isPaused)
+	// args = append(args, isPaused)
 	args = append(args, cursor)
 	args = append(args, limit)
 
