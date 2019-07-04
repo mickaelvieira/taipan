@@ -1,51 +1,69 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import Dialog from "@material-ui/core/Dialog";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { Source } from "../../types/syndication";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import { Bookmark } from "../../../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import SourceMutation from "../apollo/Mutation/Syndication/Source";
+import CreateBookmarkMutation from "../../../apollo/Mutation/Bookmarks/Create";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(() => ({
+  dialog: {},
   title: {
     minWidth: 320
   }
-});
+}));
 
 interface Props {
-  onSyndicationSourceCreated: (source: Source) => void;
+  onBookmarkCreated: (bookmark: Bookmark) => void;
   toggleDialog: (status: boolean) => void;
 }
 
-export default function AddBookmark({
-  onSyndicationSourceCreated,
-  toggleDialog
+interface Props {
+  isOpen: boolean;
+  toggleDialog: (status: boolean) => void;
+  onBookmarkCreated: (bookmark: Bookmark) => void;
+}
+
+export default function AddForm({
+  isOpen,
+  toggleDialog,
+  onBookmarkCreated
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
+  const [withFeeds, setWithFeeds] = useState(true);
 
   return (
-    <div>
-      <SourceMutation
-        onCompleted={({ syndication: { source } }) => {
+    <Dialog
+      open={isOpen}
+      onClose={() => toggleDialog(false)}
+      aria-labelledby="form-dialog-title"
+      className={classes.dialog}
+    >
+      <CreateBookmarkMutation
+        onCompleted={({ bookmarks: { create: bookmark } }) => {
           setUrl("");
-          onSyndicationSourceCreated(source);
+          onBookmarkCreated(bookmark);
         }}
       >
         {(mutate, { loading, error }) => {
           return (
-            <>
+            <form>
               <DialogTitle id="form-dialog-title" className={classes.title}>
-                Add a feed
+                Bookmark a document
               </DialogTitle>
               <DialogContent>
                 <TextField
                   autoFocus
                   margin="dense"
-                  id="feed_url"
+                  id="bookmark_url"
                   label="URL"
                   placeholder="https://"
                   type="url"
@@ -58,6 +76,19 @@ export default function AddBookmark({
                   onChange={event => setUrl(event.target.value)}
                   fullWidth
                 />
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={withFeeds}
+                        onChange={() => setWithFeeds(!withFeeds)}
+                        value="1"
+                        color="primary"
+                      />
+                    }
+                    label="Parse RSS feeds"
+                  />
+                </FormGroup>
               </DialogContent>
               <DialogActions>
                 {loading && <CircularProgress size={16} />}
@@ -71,19 +102,19 @@ export default function AddBookmark({
                 <Button
                   onClick={() =>
                     mutate({
-                      variables: { url }
+                      variables: { url, withFeeds }
                     })
                   }
                   color="primary"
                   disabled={loading}
                 >
-                  Add
+                  Bookmark
                 </Button>
               </DialogActions>
-            </>
+            </form>
           );
         }}
-      </SourceMutation>
-    </div>
+      </CreateBookmarkMutation>
+    </Dialog>
   );
 }

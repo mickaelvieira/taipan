@@ -4,7 +4,7 @@ import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
-import Layout from "../../Layout";
+import Layout from "../../Layout/Syndication";
 import SyndicationList from "./List";
 
 const useStyles = makeStyles({
