@@ -5,7 +5,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Grid from "@material-ui/core/Grid";
 import AddSource from "../ui/Syndication/Modal/AddSource";
 import { MessageContext } from "../context";
-import MainLayout from "./Layout"
+import MainLayout from "./Layout";
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {

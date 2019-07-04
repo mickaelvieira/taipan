@@ -38,7 +38,6 @@ export default function AddForm({
       aria-labelledby="form-dialog-title"
       className={classes.dialog}
     >
-
       <SourceMutation
         onCompleted={({ syndication: { source } }) => {
           setUrl("");
