@@ -10,7 +10,7 @@ const useStyles = makeStyles(({ typography, palette }) => ({
     margin: "24px",
     fontWeight: 500,
     fontSize: typography.h5.fontSize,
-    color: palette.grey[900],
+    color: palette.grey[900]
   }
 }));
 
@@ -19,7 +19,9 @@ export default function Syndication(): JSX.Element {
 
   return (
     <Layout>
-      <Typography component="h2" variant="h2" className={classes.title}>Web syndication</Typography>
+      <Typography component="h2" variant="h2" className={classes.title}>
+        Web syndication
+      </Typography>
       <Table />
     </Layout>
   );
