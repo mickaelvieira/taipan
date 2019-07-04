@@ -5,51 +5,57 @@ import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import { Bookmark } from "../../types/bookmark";
+import { Source } from "../../../../types/syndication";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CreateBookmarkMutation from "../apollo/Mutation/Bookmarks/Create";
+import SourceMutation from "../../../apollo/Mutation/Syndication/Source";
+import Dialog from "@material-ui/core/Dialog";
 
 const useStyles = makeStyles(() => ({
+  dialog: {},
   title: {
     minWidth: 320
   }
 }));
 
 interface Props {
-  onBookmarkCreated: (bookmark: Bookmark) => void;
+  isOpen: boolean;
   toggleDialog: (status: boolean) => void;
+  onSyndicationSourceCreated: (source: Source) => void;
 }
 
-export default function AddBookmark({
-  onBookmarkCreated,
-  toggleDialog
+export default function AddForm({
+  isOpen,
+  toggleDialog,
+  onSyndicationSourceCreated
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
-  const [withFeeds, setWithFeeds] = useState(true);
 
   return (
-    <div>
-      <CreateBookmarkMutation
-        onCompleted={({ bookmarks: { create: bookmark } }) => {
+    <Dialog
+      open={isOpen}
+      onClose={() => toggleDialog(false)}
+      aria-labelledby="form-dialog-title"
+      className={classes.dialog}
+    >
+
+      <SourceMutation
+        onCompleted={({ syndication: { source } }) => {
           setUrl("");
-          onBookmarkCreated(bookmark);
+          onSyndicationSourceCreated(source);
         }}
       >
         {(mutate, { loading, error }) => {
           return (
-            <form>
+            <>
               <DialogTitle id="form-dialog-title" className={classes.title}>
-                Bookmark a document
+                Add a feed
               </DialogTitle>
               <DialogContent>
                 <TextField
                   autoFocus
                   margin="dense"
-                  id="bookmark_url"
+                  id="feed_url"
                   label="URL"
                   placeholder="https://"
                   type="url"
@@ -62,19 +68,6 @@ export default function AddBookmark({
                   onChange={event => setUrl(event.target.value)}
                   fullWidth
                 />
-                <FormGroup>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={withFeeds}
-                        onChange={() => setWithFeeds(!withFeeds)}
-                        value="1"
-                        color="primary"
-                      />
-                    }
-                    label="Parse RSS feeds"
-                  />
-                </FormGroup>
               </DialogContent>
               <DialogActions>
                 {loading && <CircularProgress size={16} />}
@@ -88,19 +81,19 @@ export default function AddBookmark({
                 <Button
                   onClick={() =>
                     mutate({
-                      variables: { url, withFeeds }
+                      variables: { url }
                     })
                   }
                   color="primary"
                   disabled={loading}
                 >
-                  Bookmark
+                  Add
                 </Button>
               </DialogActions>
-            </form>
+            </>
           );
         }}
-      </CreateBookmarkMutation>
-    </div>
+      </SourceMutation>
+    </Dialog>
   );
 }
