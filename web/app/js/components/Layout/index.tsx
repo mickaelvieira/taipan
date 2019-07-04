@@ -9,8 +9,9 @@ import AddForm from "../AddForm";
 import useConnectionStatus from "../../hooks/connection-status";
 import { SnackbarInfo } from "../ui/Snackbar";
 import { MessageContext } from "../context";
+import { LG_WIDTH, SM_WIDTH } from "../../constant/feed";
 
-const useStyles = makeStyles(({ palette, spacing }) => ({
+const useStyles = makeStyles(({ breakpoints, palette, spacing }) => ({
   root: {
     display: "flex"
   },
@@ -21,7 +22,10 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
   inner: {
     width: "100%",
-    maxWidth: 600
+    maxWidth: SM_WIDTH,
+    [breakpoints.up("md")]: {
+      maxWidth: LG_WIDTH
+    }
   },
   content: {
     display: "flex",
