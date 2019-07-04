@@ -2,7 +2,7 @@
 
 query sources($pagination: OffsetPaginationInput!, $search: SearchSourcesInput!) {
   syndication {
-    sources(pagination: $pagination, search: $search) @connection(key: "syndication_sources", filter: ["search"])  {
+    sources(pagination: $pagination, search: $search) @connection(key: "syndication_sources")  {
       total
       limit
       offset
