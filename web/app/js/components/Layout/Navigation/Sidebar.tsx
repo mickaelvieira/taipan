@@ -1,5 +1,7 @@
 import React from "react";
 import { NavLink as RouterLink } from "react-router-dom";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -14,25 +16,34 @@ import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
 import RssFeedIcon from "@material-ui/icons/RssFeedOutlined";
 import UserInfo from "./UserInfo";
 import AppInfo from "./AppInfo";
+import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
 
-const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  list: {
-    width: 220
-  },
-  icon: {
-    margin: spacing(1),
-    marginRight: spacing(3)
-  },
-  link: {
-    display: "block",
-    fontWeight: 500,
-    fontSize: typography.fontSize,
-    color: palette.grey[900],
-    "&.active": {
-      color: palette.primary.main
+const useStyles = makeStyles(
+  ({ breakpoints, spacing, palette, typography }) => ({
+    drawer: {
+      [breakpoints.up("md")]: {
+        width: SIDEBAR_WIDTH,
+        flexShrink: 0
+      }
+    },
+    list: {
+      width: SIDEBAR_WIDTH
+    },
+    icon: {
+      margin: spacing(1),
+      marginRight: spacing(3)
+    },
+    link: {
+      display: "block",
+      fontWeight: 500,
+      fontSize: typography.fontSize,
+      color: palette.grey[900],
+      "&.active": {
+        color: palette.primary.main
+      }
     }
-  }
-}));
+  })
+);
 
 const entries = [
   {
@@ -64,15 +75,43 @@ interface Props {
 
 export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
   const classes = useStyles();
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up("md"));
+
   return (
-    <Drawer anchor="left" open={isOpen} onClose={() => toggleDrawer(false)}>
-      <UserInfo />
-      <List className={classes.list}>
-        {entries.map(entry => (
+    <nav className={classes.drawer}>
+      <Drawer
+        anchor="left"
+        open={isOpen}
+        variant={matches ? "permanent" : "temporary"}
+        onClose={() => toggleDrawer(false)}
+      >
+        <UserInfo />
+        <List className={classes.list}>
+          {entries.map(entry => (
+            <Link
+              exact
+              key={entry.label}
+              to={entry.path}
+              classes={{
+                root: classes.link
+              }}
+              component={RouterLink}
+              underline="none"
+              onClick={() => toggleDrawer(false)}
+            >
+              <ListItem button>
+                <entry.icon className={classes.icon} />
+                <ListItemText disableTypography>{entry.label}</ListItemText>
+              </ListItem>
+            </Link>
+          ))}
+        </List>
+        <Divider />
+        <List>
           <Link
+            to="/account"
             exact
-            key={entry.label}
-            to={entry.path}
             classes={{
               root: classes.link
             }}
@@ -80,33 +119,15 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
             underline="none"
             onClick={() => toggleDrawer(false)}
           >
-            <ListItem button>
-              <entry.icon className={classes.icon} />
-              <ListItemText disableTypography>{entry.label}</ListItemText>
+            <ListItem button key="Account">
+              <AccountIcon className={classes.icon} />
+              <ListItemText disableTypography>Account</ListItemText>
             </ListItem>
           </Link>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        <Link
-          to="/account"
-          exact
-          classes={{
-            root: classes.link
-          }}
-          component={RouterLink}
-          underline="none"
-          onClick={() => toggleDrawer(false)}
-        >
-          <ListItem button key="Account">
-            <AccountIcon className={classes.icon} />
-            <ListItemText disableTypography>Account</ListItemText>
-          </ListItem>
-        </Link>
-      </List>
-      <Divider />
-      <AppInfo />
-    </Drawer>
+        </List>
+        <Divider />
+        <AppInfo />
+      </Drawer>
+    </nav>
   );
 }

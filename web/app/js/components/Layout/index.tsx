@@ -12,6 +12,9 @@ import { MessageContext } from "../context";
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
+    display: "flex"
+  },
+  outer: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center"
@@ -53,10 +56,10 @@ export default function Layout({
   const isOnline = useConnectionStatus();
 
   return (
-    <>
+    <div className={classes.root}>
       <Sidebar isOpen={isOpen} toggleDrawer={setIsOpen} />
       <Header toggleDrawer={setIsOpen} />
-      <Grid container className={classes.root}>
+      <Grid container className={classes.outer}>
         <Grid item xs={12} className={classes.inner}>
           <MessageContext.Provider value={setInfo}>
             <div className={classes.content}>{children}</div>
@@ -91,6 +94,6 @@ export default function Layout({
         open={info !== ""}
         info={info}
       />
-    </>
+    </div>
   );
 }
