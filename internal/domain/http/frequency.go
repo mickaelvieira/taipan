@@ -3,9 +3,9 @@ package http
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"sort"
 	"time"
-	"net/http"
 )
 
 // Frequency of change
@@ -168,6 +168,10 @@ func CalculateFrequency(in []*Result) Frequency {
 			n.CreatedAt,
 		)
 		out = append(out, f)
+	}
+
+	if len(out) < 1 {
+		panic("Logic error: We should have at least one frequency")
 	}
 
 	log.Printf("%v", out)

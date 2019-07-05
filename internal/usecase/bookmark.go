@@ -106,7 +106,7 @@ func Document(ctx context.Context, URL *url.URL, findFeeds bool, repositories *r
 
 	fmt.Printf("Document was parsed: %s\n", d.URL)
 
-	if result.WasRedirected {
+	if result.RequestWasRedirected() {
 		err = handleDuplicateDocument(ctx, result.ReqURI, result.FinalURI, repositories)
 	}
 

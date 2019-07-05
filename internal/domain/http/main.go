@@ -10,7 +10,6 @@ import (
 // Result represents an entry in the history logs
 type Result struct {
 	ID               string
-	WasRedirected    bool
 	Checksum         checksum.Checksum
 	ContentType      string
 	ReqURI           *url.URL
@@ -22,6 +21,11 @@ type Result struct {
 	RespHeaders      string
 	CreatedAt        time.Time
 	Content          *bytes.Reader
+}
+
+// RequestWasRedirected is the final URL different from the requested URL
+func (r *Result) RequestWasRedirected() bool {
+	return r.ReqURI.String() != r.FinalURI.String()
 }
 
 // IsContentDifferent have we fetched a new document

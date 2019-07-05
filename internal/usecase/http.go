@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/client"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -12,8 +11,8 @@ import (
 
 // FetchResource fetches the related resource
 func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Repositories) (r *http.Result, err error) {
-	http := client.Client{}
-	r, err = http.Get(u)
+	c := http.Client{}
+	r, err = c.Get(u)
 	if err != nil {
 		return
 	}

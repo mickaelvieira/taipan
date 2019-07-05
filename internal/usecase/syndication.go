@@ -121,7 +121,7 @@ func ParseSyndicationSource(ctx context.Context, s *syndication.Source, reposito
 		return
 	}
 
-	if result.WasRedirected {
+	if result.RequestWasRedirected() {
 		s, err = handleDuplicateFeed(ctx, result.FinalURI, s, repositories)
 		if err != nil {
 			return
