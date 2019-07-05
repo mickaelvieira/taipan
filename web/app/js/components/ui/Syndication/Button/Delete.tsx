@@ -19,7 +19,7 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Unbookmark({
+export default React.memo(function DeleteButton({
   source,
   onSuccess,
   onError

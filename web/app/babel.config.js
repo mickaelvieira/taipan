@@ -8,42 +8,30 @@ module.exports = {
   env: {
     production: {
       presets: [
-        [
-          "@babel/env",
-          {
-            modules: false
-          }
-        ],
+        ["@babel/env", {
+          modules: false
+        }],
         ["@babel/typescript"],
         ["@babel/react"]
       ]
     },
     development: {
       presets: [
-        [
-          "@babel/env",
-          {
-            debug: false,
-            modules: false
-          }
-        ],
+        ["@babel/env", {
+          debug: false,
+          modules: false
+        }],
         ["@babel/typescript"],
-        [
-          "@babel/react",
-          {
-            development: true
-          }
-        ]
+        ["@babel/react", {
+          development: true
+        }]
       ]
     },
     test: {
       presets: [
-        [
-          "@babel/env",
-          {
-            modules: "commonjs"
-          }
-        ],
+        ["@babel/env", {
+          modules: "commonjs"
+        }],
         ["@babel/typescript"],
         ["@babel/react"],
         ["jest"]

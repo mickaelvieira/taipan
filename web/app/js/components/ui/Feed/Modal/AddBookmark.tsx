@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import Dialog from "@material-ui/core/Dialog";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -8,11 +9,12 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
-import { Bookmark } from "../../types/bookmark";
+import { Bookmark } from "../../../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CreateBookmarkMutation from "../apollo/Mutation/Bookmarks/Create";
+import CreateBookmarkMutation from "../../../apollo/Mutation/Bookmarks/Create";
 
 const useStyles = makeStyles(() => ({
+  dialog: {},
   title: {
     minWidth: 320
   }
@@ -23,16 +25,28 @@ interface Props {
   toggleDialog: (status: boolean) => void;
 }
 
-export default function AddBookmark({
-  onBookmarkCreated,
-  toggleDialog
+interface Props {
+  isOpen: boolean;
+  toggleDialog: (status: boolean) => void;
+  onBookmarkCreated: (bookmark: Bookmark) => void;
+}
+
+export default function AddForm({
+  isOpen,
+  toggleDialog,
+  onBookmarkCreated
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
   const [withFeeds, setWithFeeds] = useState(true);
 
   return (
-    <div>
+    <Dialog
+      open={isOpen}
+      onClose={() => toggleDialog(false)}
+      aria-labelledby="form-dialog-title"
+      className={classes.dialog}
+    >
       <CreateBookmarkMutation
         onCompleted={({ bookmarks: { create: bookmark } }) => {
           setUrl("");
@@ -101,6 +115,6 @@ export default function AddBookmark({
           );
         }}
       </CreateBookmarkMutation>
-    </div>
+    </Dialog>
   );
 }

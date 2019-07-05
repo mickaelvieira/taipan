@@ -5,30 +5,39 @@ import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { Source } from "../../types/syndication";
+import { Source } from "../../../../types/syndication";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import SourceMutation from "../apollo/Mutation/Syndication/Source";
+import SourceMutation from "../../../apollo/Mutation/Syndication/Source";
+import Dialog from "@material-ui/core/Dialog";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(() => ({
+  dialog: {},
   title: {
     minWidth: 320
   }
-});
+}));
 
 interface Props {
-  onSyndicationSourceCreated: (source: Source) => void;
+  isOpen: boolean;
   toggleDialog: (status: boolean) => void;
+  onSyndicationSourceCreated: (source: Source) => void;
 }
 
-export default function AddBookmark({
-  onSyndicationSourceCreated,
-  toggleDialog
+export default function AddForm({
+  isOpen,
+  toggleDialog,
+  onSyndicationSourceCreated
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
 
   return (
-    <div>
+    <Dialog
+      open={isOpen}
+      onClose={() => toggleDialog(false)}
+      aria-labelledby="form-dialog-title"
+      className={classes.dialog}
+    >
       <SourceMutation
         onCompleted={({ syndication: { source } }) => {
           setUrl("");
@@ -84,6 +93,6 @@ export default function AddBookmark({
           );
         }}
       </SourceMutation>
-    </div>
+    </Dialog>
   );
 }

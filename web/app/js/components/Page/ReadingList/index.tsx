@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from "../../Layout";
+import Layout from "../../Layout/Feed";
 import ScrollToTop from "../../ui/ScrollToTop";
 import Feed from "../../ui/Feed/Feed";
 import List from "./List";

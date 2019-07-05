@@ -1,38 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import FormControl from "@material-ui/core/FormControl";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
-import Layout from "../../Layout";
-import SyndicationList from "./List";
+import Layout from "../../Layout/Syndication";
+import Table from "./Table";
+import Typography from "@material-ui/core/Typography";
 
-const useStyles = makeStyles({
-  switch: {
-    alignSelf: "flex-start"
+const useStyles = makeStyles(({ typography, palette }) => ({
+  title: {
+    alignSelf: "flex-start",
+    margin: "24px",
+    fontWeight: 500,
+    fontSize: typography.h5.fontSize,
+    color: palette.grey[900]
   }
-});
+}));
 
 export default function Syndication(): JSX.Element {
   const classes = useStyles();
-  const [pausedSourcesOnly, showPausedSourcesOnly] = useState(false);
 
   return (
     <Layout>
-      <FormControl component="fieldset" className={classes.switch}>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                onChange={() => showPausedSourcesOnly(!pausedSourcesOnly)}
-                checked={pausedSourcesOnly}
-              />
-            }
-            label="Paused sources"
-          />
-        </FormGroup>
-      </FormControl>
-      <SyndicationList showPausedSources={pausedSourcesOnly} />
+      <Typography component="h2" variant="h2" className={classes.title}>
+        Web syndication
+      </Typography>
+      <Table />
     </Layout>
   );
 }

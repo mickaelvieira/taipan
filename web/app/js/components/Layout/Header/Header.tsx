@@ -3,14 +3,22 @@ import { withRouter } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 import AppBar from "@material-ui/core/AppBar";
+import Hidden from "@material-ui/core/Hidden";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import { RouteFeedProps } from "../../../types/routes";
 import { Typography } from "@material-ui/core";
+import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
 
 const useStyles = makeStyles(
   ({ shape, palette, spacing, breakpoints, transitions }) => ({
+    appBar: {
+      marginLeft: SIDEBAR_WIDTH,
+      [breakpoints.up("md")]: {
+        width: `calc(100% - ${SIDEBAR_WIDTH}px)`
+      }
+    },
     menuButton: {
       marginLeft: -12,
       marginRight: 20
@@ -76,9 +84,9 @@ export default withRouter(function Header({
   }
 
   return (
-    <>
-      <AppBar position="fixed">
-        <Toolbar>
+    <AppBar position="fixed" className={classes.appBar}>
+      <Toolbar>
+        <Hidden mdUp>
           <IconButton
             className={classes.menuButton}
             color="inherit"
@@ -87,11 +95,11 @@ export default withRouter(function Header({
           >
             <MenuIcon />
           </IconButton>
-
           <Typography component="h6" variant="h5">
             {title}
           </Typography>
-          {/* <div className={classes.search}>
+        </Hidden>
+        {/* <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
@@ -106,8 +114,7 @@ export default withRouter(function Header({
               />
             </label>
           </div> */}
-        </Toolbar>
-      </AppBar>
-    </>
+      </Toolbar>
+    </AppBar>
   );
 });

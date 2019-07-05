@@ -1,4 +1,4 @@
-import ToggleStatusButton from "./ToggleStatus";
+import StatusButton from "./Status";
 import DeleteButton from "./Delete";
 
-export { ToggleStatusButton, DeleteButton };
+export { StatusButton, DeleteButton };
