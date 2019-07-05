@@ -13,6 +13,11 @@ func IsDev() bool {
 	return env == "development" || env == ""
 }
 
+// UseFileServer should the application serve assets
+func UseFileServer() bool {
+	return os.Getenv("APP_FILE_SERVER") != ""
+}
+
 // Signal enables os signal catching
 func Signal(onStop func()) {
 	// Create a channel to handle os signals

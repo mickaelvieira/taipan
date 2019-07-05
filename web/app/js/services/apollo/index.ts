@@ -14,7 +14,7 @@ export default () => {
       id && __typename ? `${__typename}@${id}` : null
   });
 
-  const isEncrypted = process.env.APP_GRAPHQL_ENCRYPTED === "true";
+  const isEncrypted = !!process.env.APP_GRAPHQL_ENCRYPTED;
   const endpoint = process.env.APP_GRAPHQL_ENDPOINT;
 
   const httpLink = new HttpLink({

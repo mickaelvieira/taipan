@@ -21,15 +21,17 @@ type Server struct {
 }
 
 type tmplData struct {
-	Assets *assets.Assets
-	CDN    string
+	Assets   *assets.Assets
+	BasePath string
+	CDN      string
 }
 
 // IndexHandler is the method to handle / route
 func (s *Server) IndexHandler(w http.ResponseWriter, req *http.Request) {
 	err := s.templates.ExecuteTemplate(w, "index.html", tmplData{
-		Assets: s.assets,
-		CDN:    assets.MakeCDNBaseURL(),
+		Assets:   s.assets,
+		BasePath: assets.GetBasePath(UseFileServer()),
+		CDN:      assets.MakeCDNBaseURL(),
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
