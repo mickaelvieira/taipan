@@ -7,6 +7,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
+	nethttp "net/http"
 )
 
 // FetchResource fetches the related resource
@@ -24,7 +25,7 @@ func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Rep
 	}
 
 	// We only want successful requests
-	if r.RespStatusCode != 200 {
+	if r.RespStatusCode != nethttp.StatusOK {
 		err = fmt.Errorf("Unable to fetch the document: %s", r.RespReasonPhrase)
 	}
 

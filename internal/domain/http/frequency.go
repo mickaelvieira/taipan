@@ -5,6 +5,7 @@ import (
 	"log"
 	"sort"
 	"time"
+	"net/http"
 )
 
 // Frequency of change
@@ -84,7 +85,7 @@ func filterDuplicateUnchanged(in []*Result) (out []*Result) {
 
 func filterSuccessfulResults(in []*Result) (out []*Result) {
 	for _, r := range in {
-		if r.RespStatusCode == 200 {
+		if r.RespStatusCode == http.StatusOK {
 			out = append(out, r)
 		}
 	}

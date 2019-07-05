@@ -8,6 +8,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
+	nethttp "net/http"
 	"time"
 
 	"github.com/mmcdole/gofeed"
@@ -38,7 +39,7 @@ func EnableSyndicationSource(ctx context.Context, s *syndication.Source, r *repo
 }
 
 func handleFeedHTTPErrors(ctx context.Context, rs *http.Result, s *syndication.Source, repositories *repository.Repositories) (err error) {
-	if rs.RespStatusCode == 404 {
+	if rs.RespStatusCode == nethttp.StatusNotFound {
 		var logs []*http.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
 		if err != nil {
@@ -55,7 +56,9 @@ func handleFeedHTTPErrors(ctx context.Context, rs *http.Result, s *syndication.S
 		}
 	}
 
-	if rs.RespStatusCode == 406 || rs.RespStatusCode == 429 || rs.RespStatusCode == 500 {
+	if rs.RespStatusCode == nethttp.StatusNotAcceptable ||
+		rs.RespStatusCode == nethttp.StatusTooManyRequests ||
+		rs.RespStatusCode == nethttp.StatusInternalServerError {
 		var logs []*http.Result
 		logs, err = repositories.Botlogs.FindByURLAndStatus(ctx, rs.ReqURI, rs.RespStatusCode)
 		if err != nil {
