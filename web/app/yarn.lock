@@ -3110,31 +3110,19 @@ dot-prop@^4.1.1:
   dependencies:
     is-obj "^1.0.0"
 
-dotenv-flow-webpack@0.1.0-beta.3:
-  version "0.1.0-beta.3"
-  resolved "https://registry.yarnpkg.com/dotenv-flow-webpack/-/dotenv-flow-webpack-0.1.0-beta.3.tgz#3ce5dcdf34060a2e0394432748b0435e46069131"
-  integrity sha512-EgcEu1hfCq8vE0g1ig+TFQVOUhFxdj4NEQws2PhFK3lYXOk5KMaD2xrd9EwiL5J0yT9Q6qJ9U+vUoEI6T3S/hA==
+dotenv-flow-webpack@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv-flow-webpack/-/dotenv-flow-webpack-1.0.0.tgz#c10158c441672f4bf363f28a21e2d92ac96b313f"
+  integrity sha512-mylbRzNPUJexeEK8Qoj8B3KyfB4yKclOxxY6R3mPIbdHkudqDETqi7MNZJOjGPeXNbuXblvl41Y1sm991xY0sQ==
   dependencies:
-    dotenv-flow "^0.1.0"
+    dotenv-flow "^3.0.0-rc.1"
 
-dotenv-flow@3.0.0-rc.1:
+dotenv-flow@3.0.0-rc.1, dotenv-flow@^3.0.0-rc.1:
   version "3.0.0-rc.1"
   resolved "https://registry.yarnpkg.com/dotenv-flow/-/dotenv-flow-3.0.0-rc.1.tgz#35b6ea5becf24b13d224f61936754bff596cd14b"
   integrity sha512-ezSFAuL7SYjZmc2+wxZ/jOknkOo2hskv4qk+U/+Ix+a//2MkaAdVO7l5T20NvsLclLS2mFw/9flcjE9JqEvT+g==
   dependencies:
     dotenv "^8.0.0"
-
-dotenv-flow@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/dotenv-flow/-/dotenv-flow-0.1.0.tgz#229b649bc335f98f2043c5ba94761f629c93c935"
-  integrity sha512-19UN7r2qCVGRftoq/9His+XRHEcKl4hZrpu/yfy6pOtk/n8cVyzJyzif7EKRj7caM8cNMHiDFhbhksobzNPjmA==
-  dependencies:
-    dotenv "^6.0.0"
-
-dotenv@^6.0.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
-  integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
 
 dotenv@^8.0.0:
   version "8.0.0"
