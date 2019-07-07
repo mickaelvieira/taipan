@@ -5,7 +5,8 @@ import { Bookmark } from "../../../types/bookmark";
 import {
   UnfavoriteButton,
   RefreshButton,
-  UnbookmarkButton
+  UnbookmarkButton,
+  ShareButton
 } from "../../ui/Feed/Button";
 import Domain from "../../ui/Domain";
 import Item from "../../ui/Feed/Item/Item";
@@ -33,6 +34,13 @@ export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
           <Domain item={bookmark} />
         </CardActions>
         <CardActions disableSpacing>
+          <ShareButton
+            item={bookmark}
+            onSuccess={message => {
+              setMessageInfo(message);
+            }}
+            onError={message => setMessageInfo(message)}
+          />
           <UnbookmarkButton
             bookmark={bookmark}
             onSuccess={() => {

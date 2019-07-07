@@ -1,31 +1,22 @@
 import React, { PropsWithChildren } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
 import MainLayout from "./Layout";
+import MainContent from "./Content";
 
-const useStyles = makeStyles(({ palette }) => ({
-  root: {
-    width: "100%"
-  },
+const useStyles = makeStyles(() => ({
   content: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    color: palette.text.secondary,
-    paddingTop: 70
+    paddingLeft: 12,
+    paddingRight: 12
   }
 }));
 
-export default function LayoutSyndication({
+export default function LayoutAccount({
   children
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
-
   return (
     <MainLayout>
-      <Grid item xs={12} className={classes.root}>
-        <div className={classes.content}>{children}</div>
-      </Grid>
+      <MainContent className={classes.content}>{children}</MainContent>
     </MainLayout>
   );
 }

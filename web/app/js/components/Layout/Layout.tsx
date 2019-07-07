@@ -10,15 +10,6 @@ import { MessageContext } from "../context";
 const useStyles = makeStyles(() => ({
   root: {
     display: "flex"
-  },
-  outer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  },
-  message: {
-    display: "flex",
-    alignItems: "center"
   }
 }));
 
@@ -34,7 +25,7 @@ export default function Layout({
     <div className={classes.root}>
       <Sidebar isOpen={isOpen} toggleDrawer={setIsOpen} />
       <Header toggleDrawer={setIsOpen} />
-      <Grid container className={classes.outer}>
+      <Grid container>
         <MessageContext.Provider value={setInfo}>
           {children}
         </MessageContext.Provider>

@@ -1,14 +1,16 @@
 import React from "react";
-// import { makeStyles } from "@material-ui/core/styles";
 import Layout from "../../Layout/Account";
+import ScrollToTop from "../../ui/ScrollToTop";
+import Prolile from "./Profile";
+import { PageTitle } from "../../ui/Title";
 
-// const useStyles = makeStyles();
-
-export default function Account(): JSX.Element {
-  // const classes = useStyles();
+export default function Account(): JSX.Element | null {
   return (
     <Layout>
-      <div>My account</div>
+      <ScrollToTop>
+        <PageTitle value="My Account" />
+        <Prolile />
+      </ScrollToTop>
     </Layout>
   );
 }

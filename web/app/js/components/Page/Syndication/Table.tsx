@@ -15,12 +15,9 @@ import SyndicationQuery, {
 } from "../../apollo/Query/Syndication";
 import Row from "./Row";
 
-const useStyles = makeStyles(({ breakpoints }) => ({
+const useStyles = makeStyles(() => ({
   table: {
-    width: "100%",
-    [breakpoints.up("md")]: {
-      width: "80%"
-    }
+    width: "100%"
   },
   button: {
     margin: "24px"

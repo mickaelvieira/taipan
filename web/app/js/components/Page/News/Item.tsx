@@ -3,6 +3,7 @@ import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import { Document } from "../../../types/document";
 import {
+  ShareButton,
   BookmarkButton,
   BookmarkAndFavoriteButton
 } from "../../ui/Feed/Button";
@@ -33,6 +34,13 @@ export default React.memo(function FeedItem({ document }: Props): JSX.Element {
           <Domain item={document} />
         </CardActions>
         <CardActions disableSpacing>
+          <ShareButton
+            item={document}
+            onSuccess={message => {
+              setMessageInfo(message);
+            }}
+            onError={message => setMessageInfo(message)}
+          />
           <BookmarkAndFavoriteButton
             document={document}
             onSuccess={() => {
