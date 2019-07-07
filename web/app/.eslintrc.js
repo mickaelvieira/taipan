@@ -43,6 +43,7 @@ module.exports = {
   },
   plugins: [
     "graphql",
+    "react",
     "react-hooks"
   ]
 };
