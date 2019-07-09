@@ -4,7 +4,7 @@ import { ApolloClient } from "apollo-client";
 import { withApollo, WithApolloClient } from "react-apollo";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import query from "../../../services/apollo/query/feeds/latest-news.graphql";
+import query from "../../apollo/graphql/query/feeds/latest-news.graphql";
 import { queryNews } from "../../apollo/Query/Feed";
 import { getBoundaries } from "../../apollo/helpers/feed";
 import { FeedItem, FeedQueryData } from "../../../types/feed";

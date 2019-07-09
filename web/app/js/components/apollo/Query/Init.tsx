@@ -1,5 +1,5 @@
 import { Query } from "react-apollo";
-import query from "../../../services/apollo/query/users/logged-in.graphql";
+import query from "../graphql/query/users/logged-in.graphql";
 import { AppInfo } from "../../../types/app";
 import { User } from "../../../types/users";
 

@@ -1,5 +1,5 @@
 import { Query } from "react-apollo";
-import query from "../../../services/apollo/query/syndication/sources.graphql";
+import query from "../graphql/query/syndication/sources.graphql";
 import { OffsetPagination } from "../../../types";
 import { SyndicationResults, SearchParams } from "../../../types/syndication";
 
