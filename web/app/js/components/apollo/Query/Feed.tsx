@@ -40,31 +40,31 @@ function getFetchMore(
   return data.feeds[key].results.length === data.feeds[key].total
     ? undefined
     : () =>
-      fetchMore({
-        variables: {
-          pagination: { from: data ? data.feeds[key].last : "" }
-        },
-        updateQuery: (prev, { fetchMoreResult: next }) => {
-          if (!next) {
-            return prev;
-          }
-
-          return {
-            feeds: {
-              ...prev.feeds,
-              [key]: {
-                ...prev.feeds[key],
-                last: next.feeds[key].last,
-                limit: next.feeds[key].limit,
-                results: [
-                  ...prev.feeds[key].results,
-                  ...next.feeds[key].results
-                ]
-              }
+        fetchMore({
+          variables: {
+            pagination: { from: data ? data.feeds[key].last : "" }
+          },
+          updateQuery: (prev, { fetchMoreResult: next }) => {
+            if (!next) {
+              return prev;
             }
-          };
-        }
-      });
+
+            return {
+              feeds: {
+                ...prev.feeds,
+                [key]: {
+                  ...prev.feeds[key],
+                  last: next.feeds[key].last,
+                  limit: next.feeds[key].limit,
+                  results: [
+                    ...prev.feeds[key].results,
+                    ...next.feeds[key].results
+                  ]
+                }
+              }
+            };
+          }
+        });
 }
 
 export {

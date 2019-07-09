@@ -36,3 +36,21 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 
 	return &user, nil
 }
+
+// Update update a user
+func (r *UserRepository) Update(ctx context.Context, u *user.User) error {
+	query := `
+		UPDATE users
+		SET firstname = ?, lastname = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		u.Firstname,
+		u.Lastname,
+		u.ID,
+	)
+
+	return err
+}

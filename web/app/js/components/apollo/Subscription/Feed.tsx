@@ -42,7 +42,7 @@ function onReceivedData({ client, subscriptionData, query }: Data): void {
 
 export { subscriptionNews, subscriptionFavorites, subscriptionReadingList };
 
-class Subscription extends SubscriptionBase<FeedEventData, {}> { }
+class Subscription extends SubscriptionBase<FeedEventData, {}> {}
 
 interface Props {
   query: PropTypes.Validator<object>;

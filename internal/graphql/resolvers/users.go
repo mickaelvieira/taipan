@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -44,6 +45,34 @@ func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 
 	res := UserResolver{User: user}
+
+	return &res, nil
+}
+
+type userInput struct {
+	Firstname string
+	Lastname  string
+}
+
+// Update resolves the mutation
+func (r *UsersResolver) Update(ctx context.Context, args struct {
+	ID   string
+	User userInput
+}) (*UserResolver, error) {
+	u := auth.FromContext(ctx)
+	if args.ID != u.ID {
+		return nil, fmt.Errorf("You are not allowed to modify this user")
+	}
+
+	u.Firstname = args.User.Firstname
+	u.Lastname = args.User.Lastname
+
+	err := r.repositories.Users.Update(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	res := UserResolver{User: u}
 
 	return &res, nil
 }
