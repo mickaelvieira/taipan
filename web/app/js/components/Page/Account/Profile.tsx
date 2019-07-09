@@ -106,7 +106,9 @@ export default function Profile(): JSX.Element | null {
           />
         </CardContent>
         <CardActions className={classes.actions}>
-          <UserProfileMutation onCompleted={() => setMessageInfo("You profile has been saved")}>
+          <UserProfileMutation
+            onCompleted={() => setMessageInfo("You profile has been saved")}
+          >
             {(mutate, { loading, error }) => (
               <>
                 <Button
@@ -126,8 +128,10 @@ export default function Profile(): JSX.Element | null {
                   }
                 >
                   Save
-              </Button>
-                {error && <FormHelperText error>{error.message}</FormHelperText>}
+                </Button>
+                {error && (
+                  <FormHelperText error>{error.message}</FormHelperText>
+                )}
               </>
             )}
           </UserProfileMutation>

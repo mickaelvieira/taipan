@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function PageTitle({ value }: Props): JSX.Element {
-  const classes = useStyles()
+  const classes = useStyles();
   return (
     <Typography component="h2" variant="h5" className={classes.title}>
       {value}
