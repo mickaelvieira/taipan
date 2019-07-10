@@ -111,7 +111,6 @@ func Document(ctx context.Context, URL *url.URL, findFeeds bool, repositories *r
 	}
 
 	err = repositories.Documents.Upsert(ctx, d)
-
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +148,10 @@ func Bookmark(ctx context.Context, user *user.User, d *document.Document, isFavo
 
 // FavoriteStatus changes the bookmark read status
 func FavoriteStatus(ctx context.Context, user *user.User, URL *url.URL, isFavorite bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
-	var err error
-	var b *bookmark.Bookmark
+	var (
+		err error
+		b   *bookmark.Bookmark
+	)
 
 	b, err = repositories.Bookmarks.GetByURL(ctx, user, URL)
 	if err != nil {
@@ -170,9 +171,11 @@ func FavoriteStatus(ctx context.Context, user *user.User, URL *url.URL, isFavori
 
 // Unbookmark removes bookmark from user list
 func Unbookmark(ctx context.Context, user *user.User, URL *url.URL, repositories *repository.Repositories) (*document.Document, error) {
-	var err error
-	var b *bookmark.Bookmark
-	var d *document.Document
+	var (
+		err error
+		b   *bookmark.Bookmark
+		d   *document.Document
+	)
 
 	b, err = repositories.Bookmarks.GetByURL(ctx, user, URL)
 	if err != nil {

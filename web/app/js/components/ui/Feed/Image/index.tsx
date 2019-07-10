@@ -8,7 +8,7 @@ interface Props {
   item: Bookmark | Document;
 }
 
-export default function ItemImage({ item }: Props): JSX.Element {
+export default function ItemImage({ item }: Props): JSX.Element | null {
   return !item.image ? null : (
     <Link
       underline="none"

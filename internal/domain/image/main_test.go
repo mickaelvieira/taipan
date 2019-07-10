@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestGetExtensionFromContentType(t *testing.T) {
+func TestGetExtension(t *testing.T) {
 	var testcase = []struct {
 		i string
 		o string
@@ -22,7 +22,7 @@ func TestGetExtensionFromContentType(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Image extension [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var r = GetExtensionFromContentType(tc.i)
+			var r = GetExtension(tc.i)
 			if r != tc.o {
 				t.Errorf("Incorrect extension: Wanted [%s]; got [%s]", tc.o, r)
 			}
@@ -30,7 +30,7 @@ func TestGetExtensionFromContentType(t *testing.T) {
 	}
 }
 
-func TestGetContentTypeFromExtension(t *testing.T) {
+func TestGetContentType(t *testing.T) {
 	var testcase = []struct {
 		i string
 		o string
@@ -46,7 +46,7 @@ func TestGetContentTypeFromExtension(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Image content type [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var r = GetContentTypeFromExtension(tc.i)
+			var r = GetContentType(tc.i)
 			if r != tc.o {
 				t.Errorf("Incorrect content type: Wanted [%s]; got [%s]", tc.o, r)
 			}

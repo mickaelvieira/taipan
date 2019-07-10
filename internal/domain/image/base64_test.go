@@ -23,7 +23,7 @@ func TestGetBase64ContentType(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Image content type [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var r = GetContentType(tc.i)
+			var r = GetBase64ContentType(tc.i)
 			if r != tc.o {
 				t.Errorf("Incorrect content type: Wanted [%s]; got [%s]", tc.o, r)
 			}

@@ -61,6 +61,7 @@ func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	return &res, nil
 }
 
+// UserInput data received from graphQL
 type userInput struct {
 	Firstname string
 	Lastname  string
@@ -77,22 +78,19 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 		return nil, fmt.Errorf("You are not allowed to modify this user")
 	}
 
-	u.Firstname = args.User.Firstname
-	u.Lastname = args.User.Lastname
-
-	err := r.repositories.Users.Update(ctx, u)
+	user, err := usecase.UpdateUser(
+		ctx,
+		u,
+		args.User.Firstname,
+		args.User.Lastname,
+		args.User.Image,
+		r.repositories,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	if args.User.Image != "" {
-		err = usecase.HandleAvatar(ctx, u, args.User.Image, r.repositories)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	res := UserResolver{User: u}
+	res := UserResolver{User: user}
 
 	return &res, nil
 }

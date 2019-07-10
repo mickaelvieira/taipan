@@ -67,7 +67,7 @@ func HandleImage(ctx context.Context, d *document.Document, repositories *reposi
 	}
 
 	d.Image.Name = image.GetName(result.Checksum, result.ContentType)
-	d.Image.Format = image.GetExtensionFromContentType(result.ContentType)
+	d.Image.Format = image.GetExtension(result.ContentType)
 
 	dm, r := image.GetDimensions(result.Content)
 	if err != nil {
@@ -102,7 +102,7 @@ func HandleAvatar(ctx context.Context, u *user.User, s string, repositories *rep
 
 	i := &user.Image{
 		Name:   image.GetName(cs, c),
-		Format: image.GetExtensionFromContentType(c),
+		Format: image.GetExtension(c),
 	}
 
 	if u.Image != nil && u.Image.Name == i.Name {

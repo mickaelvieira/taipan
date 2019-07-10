@@ -23,11 +23,13 @@ type Dimensions struct {
 	Height int
 }
 
-const gif = "gif"
-const jpg = "jpg"
-const jpeg = "jpeg"
-const png = "png"
-const webp = "webp"
+const (
+	gif  = "gif"
+	jpg  = "jpg"
+	jpeg = "jpeg"
+	png  = "png"
+	webp = "webp"
+)
 
 var mapping = map[string]string{
 	gif:  "image/gif",
@@ -36,24 +38,24 @@ var mapping = map[string]string{
 	webp: "image/webp",
 }
 
-// GetExtensionFromContentType returns the extensions based on the provided content type
-func GetExtensionFromContentType(i string) (o string) {
-	o = strings.TrimPrefix(i, "image/")
-	if o == jpg {
-		o = jpeg
+// GetExtension returns the image extension based on the its content type
+func GetExtension(c string) (e string) {
+	e = strings.TrimPrefix(c, "image/")
+	if e == jpg {
+		e = jpeg
 	}
-	if mapping[o] == "" {
-		o = ""
+	if mapping[e] == "" {
+		e = ""
 	}
 	return
 }
 
-// GetContentTypeFromExtension returns the content type based on the provided extensions
-func GetContentTypeFromExtension(i string) string {
-	if i == jpg {
-		i = jpeg
+// GetContentType returns the content type based on the provided extensions
+func GetContentType(c string) string {
+	if c == jpg {
+		c = jpeg
 	}
-	return mapping[i]
+	return mapping[c]
 }
 
 // Image interface
@@ -63,7 +65,7 @@ type Image interface {
 
 // GetName builds image name from its checksum and content type
 func GetName(cs checksum.Checksum, ct string) string {
-	f := GetExtensionFromContentType(ct)
+	f := GetExtension(ct)
 	if f != "" {
 		return cs.String() + "." + f
 	}

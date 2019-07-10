@@ -5,9 +5,16 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
-	neturl "net/url"
 	"os"
 )
+
+func getImageURL(name string) *url.URL {
+	u, err := url.FromRawURL("https://" + os.Getenv("AWS_BUCKET") + "/" + name)
+	if err != nil {
+		u = &url.URL{}
+	}
+	return u
+}
 
 // ImageResolver interface
 type ImageResolver interface {
@@ -31,12 +38,7 @@ type BookmarkImageResolver struct {
 
 // URL resolves the URL
 func (r *BookmarkImageResolver) URL() scalars.URL {
-	var URL = &neturl.URL{}
-	URL.Scheme = "https"
-	URL.Host = os.Getenv("AWS_BUCKET")
-	URL.Path = r.Image.Name
-
-	return scalars.URL{URL: &url.URL{URL: URL}}
+	return scalars.URL{URL: getImageURL(r.Image.Name)}
 }
 
 // Name resolves the Name field
@@ -66,12 +68,7 @@ type UserImageResolver struct {
 
 // URL resolves the URL
 func (r *UserImageResolver) URL() scalars.URL {
-	var URL = &neturl.URL{}
-	URL.Scheme = "https"
-	URL.Host = os.Getenv("AWS_BUCKET")
-	URL.Path = r.Image.Name
-
-	return scalars.URL{URL: &url.URL{URL: URL}}
+	return scalars.URL{URL: getImageURL(r.Image.Name)}
 }
 
 // Name resolves the Name field
