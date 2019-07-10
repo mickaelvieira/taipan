@@ -69,8 +69,8 @@ type Image struct {
 	Format string
 }
 
-// SetSizes image's information
-func (i *Image) SetSizes(w int, h int) {
+// SetDimensions image's information
+func (i *Image) SetDimensions(w int, h int) {
 	i.Width = int32(w)
 	i.Height = int32(h)
 }
@@ -89,7 +89,7 @@ func NewImage(rawURL string, name string, width int32, height int32, format stri
 		return nil, err
 	}
 
-	var image = Image{
+	var i = Image{
 		URL:    URL,
 		Name:   name,
 		Width:  width,
@@ -97,5 +97,5 @@ func NewImage(rawURL string, name string, width int32, height int32, format stri
 		Format: format,
 	}
 
-	return &image, nil
+	return &i, nil
 }

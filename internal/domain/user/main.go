@@ -44,8 +44,8 @@ type Image struct {
 	Format string
 }
 
-// SetSizes image's information
-func (i *Image) SetSizes(w int, h int) {
+// SetDimensions image's information
+func (i *Image) SetDimensions(w int, h int) {
 	i.Width = int32(w)
 	i.Height = int32(h)
 }

@@ -1,11 +1,10 @@
 package http
 
 import (
-	"bytes"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"io/ioutil"
+	"io"
 	nethttp "net/http"
 	"time"
 )
@@ -23,10 +22,12 @@ func checkRedirection(URL *url.URL, resp *nethttp.Response) (o *url.URL, f *url.
 	return
 }
 
-func makeResult(URL *url.URL, req *nethttp.Request, resp *nethttp.Response, reader *bytes.Reader, checksum []byte) *Result {
+func makeResult(URL *url.URL, req *nethttp.Request, resp *nethttp.Response, content io.Reader) *Result {
 	originalURL, finalURL := checkRedirection(URL, resp)
+	cs, r := checksum.FromReader(content)
+
 	return &Result{
-		Checksum:         checksum,
+		Checksum:         cs,
 		ContentType:      resp.Header.Get("Content-Type"),
 		ReqURI:           originalURL,
 		FinalURI:         finalURL,
@@ -36,7 +37,7 @@ func makeResult(URL *url.URL, req *nethttp.Request, resp *nethttp.Response, read
 		RespReasonPhrase: resp.Status,
 		RespHeaders:      fmt.Sprintf("%s", resp.Header),
 		CreatedAt:        time.Now(),
-		Content:          reader,
+		Content:          r,
 	}
 }
 
@@ -67,28 +68,27 @@ type Client struct{}
 // - we could not build the request
 // - a network error occured
 // - we could not read the body
-func (f *Client) Head(URL *url.URL) (result *Result, err error) {
-	fmt.Printf("Preforming HEAD request %s\n", URL)
-	var req *nethttp.Request
-	var resp *nethttp.Response
+// func (f *Client) Head(URL *url.URL) (result *Result, err error) {
+// 	fmt.Printf("Preforming HEAD request %s\n", URL)
+// 	var req *nethttp.Request
+// 	var resp *nethttp.Response
 
-	client := makeClient()
-	req, err = makeRequest("HEAD", URL)
-	if err != nil {
-		return
-	}
+// 	client := makeClient()
+// 	req, err = makeRequest("HEAD", URL)
+// 	if err != nil {
+// 		return
+// 	}
 
-	resp, err = client.Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
+// 	resp, err = client.Do(req)
+// 	if err != nil {
+// 		return
+// 	}
+// 	defer resp.Body.Close()
 
-	var checksum []byte
-	result = makeResult(URL, req, resp, nil, checksum)
+// 	result = makeResult(URL, req, resp, nil)
 
-	return
-}
+// 	return
+// }
 
 // Get fetches the document and returns the result of the request
 // if there is no result, that means:
@@ -112,16 +112,7 @@ func (f *Client) Get(URL *url.URL) (result *Result, err error) {
 	}
 	defer resp.Body.Close()
 
-	var content []byte
-	content, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
-	r := bytes.NewReader(content)
-	c := checksum.FromBytes(content)
-
-	result = makeResult(URL, req, resp, r, c)
+	result = makeResult(URL, req, resp, resp.Body)
 
 	return
 }

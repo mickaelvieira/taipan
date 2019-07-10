@@ -48,7 +48,8 @@ func FromBytes(b []byte) Checksum {
 	return buf.Sum(nil)
 }
 
-// FromReader creates a checksum from a reader, returns the checksum and new reader
+// FromReader creates a sha256 checksum from a reader
+// and returns the checksum as well as a new reader
 func FromReader(in io.Reader) (Checksum, io.Reader) {
 	b, err := ioutil.ReadAll(in)
 	if err != nil {

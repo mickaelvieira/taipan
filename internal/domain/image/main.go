@@ -1,106 +1,90 @@
 package image
 
 import (
+	"bytes"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	img "image"
+	"io"
+	"io/ioutil"
+	"strings"
+
+	// import gif, jpg, png image formats
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"io"
 
+	// import webp image format
 	_ "golang.org/x/image/webp"
 )
 
-// Extension image formats available
-type Extension struct {
-	GIF  string
-	JPEG string
-	PNG  string
-	WEBP string
+// Dimensions represents the image's dimensions
+type Dimensions struct {
+	Width  int
+	Height int
 }
 
-// ContentType content types available
-type ContentType struct {
-	GIF  string
-	JPG  string
-	JPEG string
-	PNG  string
-	WEBP string
+const gif = "gif"
+const jpg = "jpg"
+const jpeg = "jpeg"
+const png = "png"
+const webp = "webp"
+
+var mapping = map[string]string{
+	gif:  "image/gif",
+	jpeg: "image/jpeg",
+	png:  "image/png",
+	webp: "image/webp",
 }
 
-var contentType = &ContentType{
-	GIF:  "image/gif",
-	JPG:  "image/jpg",
-	JPEG: "image/jpeg",
-	PNG:  "image/png",
-	WEBP: "image/webp",
-}
-
-var extension = &Extension{
-	GIF:  "gif",
-	JPEG: "jpeg",
-	PNG:  "png",
-	WEBP: "webp",
-}
-
-// GetExtensionFromContentType returns the extension based on the provided content type
+// GetExtensionFromContentType returns the extensions based on the provided content type
 func GetExtensionFromContentType(i string) (o string) {
-	switch i {
-	case contentType.JPG:
-		o = extension.JPEG
-	case contentType.JPEG:
-		o = extension.JPEG
-	case contentType.GIF:
-		o = extension.GIF
-	case contentType.PNG:
-		o = extension.PNG
-	case contentType.WEBP:
-		o = extension.WEBP
+	o = strings.TrimPrefix(i, "image/")
+	if o == jpg {
+		o = jpeg
+	}
+	if mapping[o] == "" {
+		o = ""
 	}
 	return
 }
 
-// GetContentTypeFromExtension returns the content type based on the provided extension
-func GetContentTypeFromExtension(i string) (o string) {
-	switch i {
-	case extension.JPEG:
-		o = contentType.JPEG
-	case extension.GIF:
-		o = contentType.GIF
-	case extension.PNG:
-		o = contentType.PNG
-	case extension.WEBP:
-		o = contentType.WEBP
+// GetContentTypeFromExtension returns the content type based on the provided extensions
+func GetContentTypeFromExtension(i string) string {
+	if i == jpg {
+		i = jpeg
 	}
-	return
+	return mapping[i]
 }
 
 // Image interface
 type Image interface {
-	SetSizes(w int, h int)
+	SetDimensions(w int, h int)
 }
 
 // GetName builds image name from its checksum and content type
 func GetName(cs checksum.Checksum, ct string) string {
-	var f string
-	if ct != "" {
-		f = GetExtensionFromContentType(ct)
-	}
+	f := GetExtensionFromContentType(ct)
 	if f != "" {
 		return cs.String() + "." + f
 	}
 	return cs.String()
 }
 
-// GetSizes retrieves image's sizes from reader
+// GetDimensions retrieves image's sizes from reader
 // @TODO I need to write a test for that to avoid having the issue with unimported format
-func GetSizes(i Image, r io.Reader) error {
-	c, _, err := img.DecodeConfig(r)
-	if err != nil && err != img.ErrFormat {
-		return err
+func GetDimensions(in io.Reader) (*Dimensions, io.Reader) {
+	buf, err := ioutil.ReadAll(in)
+	if err != nil {
+		panic(err)
 	}
 
-	i.SetSizes(c.Width, c.Height)
+	c, _, err := img.DecodeConfig(bytes.NewReader(buf))
+	d := &Dimensions{}
 
-	return nil
+	if err == nil || err != img.ErrFormat {
+		d.Width = c.Width
+		d.Height = c.Height
+	}
+
+	return d, bytes.NewReader(buf)
 }

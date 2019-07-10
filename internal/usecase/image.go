@@ -69,12 +69,14 @@ func HandleImage(ctx context.Context, d *document.Document, repositories *reposi
 	d.Image.Name = image.GetName(result.Checksum, result.ContentType)
 	d.Image.Format = image.GetExtensionFromContentType(result.ContentType)
 
-	err = image.GetSizes(d.Image, result.Content)
+	dm, r := image.GetDimensions(result.Content)
 	if err != nil {
 		return
 	}
 
-	err = UpdateToS3(d.Image.Name, result.ContentType, result.Content)
+	d.Image.SetDimensions(dm.Width, dm.Height)
+
+	err = UpdateToS3(d.Image.Name, result.ContentType, r)
 	if err != nil {
 		return
 	}
@@ -103,22 +105,27 @@ func HandleAvatar(ctx context.Context, u *user.User, s string, repositories *rep
 		Format: image.GetExtensionFromContentType(c),
 	}
 
-	if u.Image == nil || u.Image.Name != i.Name {
-		err = image.GetSizes(i, r)
-		if err != nil {
-			return
-		}
-
-		err = UpdateToS3(i.Name, c, r)
-		if err != nil {
-			return
-		}
-
-		u.Image = i
-		u.UpdatedAt = time.Now()
-
-		err = repositories.Users.UpdateImage(ctx, u)
+	if u.Image != nil && u.Image.Name == i.Name {
+		return
 	}
+
+	var dm *image.Dimensions
+	dm, r = image.GetDimensions(r)
+	if err != nil {
+		return
+	}
+
+	i.SetDimensions(dm.Width, dm.Height)
+
+	err = UpdateToS3(i.Name, c, r)
+	if err != nil {
+		return
+	}
+
+	u.Image = i
+	u.UpdatedAt = time.Now()
+
+	err = repositories.Users.UpdateImage(ctx, u)
 
 	return err
 }

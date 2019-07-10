@@ -1,9 +1,9 @@
 package http
 
 import (
-	"bytes"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"io"
 	"time"
 )
 
@@ -20,7 +20,7 @@ type Result struct {
 	RespReasonPhrase string
 	RespHeaders      string
 	CreatedAt        time.Time
-	Content          *bytes.Reader
+	Content          io.Reader
 }
 
 // RequestWasRedirected is the final URL different from the requested URL
