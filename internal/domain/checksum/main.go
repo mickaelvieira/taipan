@@ -1,10 +1,13 @@
 package checksum
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"database/sql/driver"
 	"encoding/hex"
 	"errors"
+	"io"
+	"io/ioutil"
 )
 
 // Checksum type
@@ -43,4 +46,17 @@ func FromBytes(b []byte) Checksum {
 	buf := sha256.New()
 	buf.Write(b)
 	return buf.Sum(nil)
+}
+
+// FromReader creates a checksum from a reader, returns the checksum and new reader
+func FromReader(in io.Reader) (Checksum, io.Reader) {
+	b, err := ioutil.ReadAll(in)
+	if err != nil {
+		panic(err)
+	}
+
+	out := bytes.NewReader(b)
+	c := FromBytes(b)
+
+	return c, out
 }

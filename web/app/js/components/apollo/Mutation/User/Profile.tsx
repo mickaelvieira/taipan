@@ -13,6 +13,7 @@ interface Variables {
   user: {
     firstname: string;
     lastname: string;
+    image: string;
   };
 }
 

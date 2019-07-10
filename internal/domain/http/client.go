@@ -118,10 +118,10 @@ func (f *Client) Get(URL *url.URL) (result *Result, err error) {
 		return
 	}
 
-	reader := bytes.NewReader(content)
-	checksum := checksum.FromBytes(content)
+	r := bytes.NewReader(content)
+	c := checksum.FromBytes(content)
 
-	result = makeResult(URL, req, resp, reader, checksum)
+	result = makeResult(URL, req, resp, r, c)
 
 	return
 }

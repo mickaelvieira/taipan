@@ -1,7 +1,7 @@
 package bookmark
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/image"
+	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
@@ -14,7 +14,7 @@ type Bookmark struct {
 	Charset     string
 	Title       string
 	Description string
-	Image       *image.Image
+	Image       *document.Image
 	AddedAt     time.Time
 	UpdatedAt   time.Time
 	IsFavorite  bool

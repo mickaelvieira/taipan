@@ -49,6 +49,7 @@ type UsersQuery {
 input UserInput {
   firstname: String!
   lastname: String!
+  image: String!
 }
 
 type UsersMutation {
@@ -157,6 +158,7 @@ type User implements Node {
   firstname: String!
   lastname: String!
   username: String!
+  image: Image
 }
 
 # """

@@ -23,7 +23,8 @@ const useStyles = makeStyles(({ breakpoints }) => ({
       paddingLeft: 12,
       paddingRight: 12
     },
-    paddingTop: 70
+    paddingTop: 70,
+    paddingBottom: 20
   }
 }));
 
@@ -36,7 +37,6 @@ export default function Content({
   className
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
-
   return (
     <Grid item xs={12} className={classes.root}>
       <div className={`${classes.content} ${className ? className : ""}`}>

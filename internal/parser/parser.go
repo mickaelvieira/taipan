@@ -2,7 +2,6 @@ package parser
 
 import (
 	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/image"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"html"
@@ -159,7 +158,7 @@ func (p *Parser) description() string {
 }
 
 // Image retrieves the image URL from the social media tag. It will return an empty string if there isn't any
-func (p *Parser) image() *image.Image {
+func (p *Parser) image() *document.Image {
 	var iu *url.URL
 	if p.facebook.Image != nil {
 		iu = p.facebook.Image
@@ -171,7 +170,7 @@ func (p *Parser) image() *image.Image {
 		return nil
 	}
 
-	return &image.Image{
+	return &document.Image{
 		URL: iu,
 	}
 }

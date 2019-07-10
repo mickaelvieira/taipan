@@ -19,8 +19,13 @@ const useStyles = makeStyles(() => ({
   table: {
     width: "100%"
   },
+  fetchMore: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
+  },
   button: {
-    margin: "24px"
+    margin: "12px"
   }
 }));
 
@@ -74,43 +79,44 @@ export default function SourcesTable(): JSX.Element {
                 })}
               </TableBody>
             </Table>
-
-            <Button
-              className={classes.button}
-              onClick={() =>
-                fetchMore({
-                  query,
-                  variables: {
-                    ...variables,
-                    pagination: {
-                      ...variables.pagination,
-                      offset: data.syndication.sources.results.length
-                    }
-                  },
-                  updateQuery: (prev, { fetchMoreResult: next }) => {
-                    if (!next) {
-                      return prev;
-                    }
-                    return {
-                      syndication: {
-                        ...prev.syndication,
-                        sources: {
-                          ...prev.syndication.sources,
-                          limit: next.syndication.sources.limit,
-                          offset: next.syndication.sources.offset,
-                          results: [
-                            ...prev.syndication.sources.results,
-                            ...next.syndication.sources.results
-                          ]
-                        }
+            <div className={classes.fetchMore}>
+              <Button
+                className={classes.button}
+                onClick={() =>
+                  fetchMore({
+                    query,
+                    variables: {
+                      ...variables,
+                      pagination: {
+                        ...variables.pagination,
+                        offset: data.syndication.sources.results.length
                       }
-                    };
-                  }
-                })
-              }
-            >
-              Load more
-            </Button>
+                    },
+                    updateQuery: (prev, { fetchMoreResult: next }) => {
+                      if (!next) {
+                        return prev;
+                      }
+                      return {
+                        syndication: {
+                          ...prev.syndication,
+                          sources: {
+                            ...prev.syndication.sources,
+                            limit: next.syndication.sources.limit,
+                            offset: next.syndication.sources.offset,
+                            results: [
+                              ...prev.syndication.sources.results,
+                              ...next.syndication.sources.results
+                            ]
+                          }
+                        }
+                      };
+                    }
+                  })
+                }
+              >
+                Load more
+              </Button>
+            </div>
           </>
         );
       }}

@@ -6,6 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/usecase"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
@@ -40,6 +41,17 @@ func (r *UserResolver) Lastname() string {
 	return r.User.Lastname
 }
 
+// Image resolves the Image field
+func (r *UserResolver) Image() *UserImageResolver {
+	if r.User.Image == nil || r.User.Image.Name == "" {
+		return nil
+	}
+
+	return &UserImageResolver{
+		Image: r.User.Image,
+	}
+}
+
 // LoggedIn resolves the query
 func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
@@ -52,6 +64,7 @@ func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 type userInput struct {
 	Firstname string
 	Lastname  string
+	Image     string
 }
 
 // Update resolves the mutation
@@ -70,6 +83,13 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 	err := r.repositories.Users.Update(ctx, u)
 	if err != nil {
 		return nil, err
+	}
+
+	if args.User.Image != "" {
+		err = usecase.HandleAvatar(ctx, u, args.User.Image, r.repositories)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	res := UserResolver{User: u}
