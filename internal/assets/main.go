@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"github/mickaelvieira/taipan/internal/domain/url"
 )
 
 // AssetsBasePath assets directory
@@ -26,6 +27,15 @@ func (a *Assets) AppendFileServerBasePath() {
 func MakeCDNBaseURL() string {
 	return "https://" + os.Getenv("AWS_BUCKET")
 }
+
+func MakeImageURL(name string) *url.URL {
+	u, err := url.FromRawURL("https://" + os.Getenv("AWS_BUCKET") + "/" + name)
+	if err != nil {
+		u = &url.URL{}
+	}
+	return u
+}
+
 
 // GetBasePath returns base path
 func GetBasePath(useFileServer bool) string {
