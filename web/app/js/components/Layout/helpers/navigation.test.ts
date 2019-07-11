@@ -28,16 +28,8 @@ describe("Navigation helpers", () => {
   });
 
   describe("getPageTitle", () => {
-    // let appTitle: string;
-    // let appBaseline: string;
-
     const appTitle = process.env.APP_NAME;
     const appBaseline = process.env.APP_BASELINE;
-
-    // beforeAll(() => {
-    //   appTitle = "Taipan";
-    //   appBaseline = "Bookmarking for busy people";
-    // })
 
     it("returns an empty string with falsy values", () => {
       expect(getPageTitle("")).toBe("");
