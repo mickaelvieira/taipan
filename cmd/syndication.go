@@ -8,6 +8,7 @@ import (
 
 	"github/mickaelvieira/taipan/internal/app"
 	"github/mickaelvieira/taipan/internal/domain/http"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
@@ -55,6 +56,7 @@ func runSyndicationWorker(c *cli.Context) {
 			log.Fatal(err)
 		}
 
+		var stacks syndication.Stacks
 		for _, s := range sources {
 			var urls []*url.URL
 			urls, err = usecase.ParseSyndicationSource(ctx, repositories, s)
@@ -62,11 +64,14 @@ func runSyndicationWorker(c *cli.Context) {
 				log.Printf("Syndication Parser: URL %s\n", s.URL)
 				log.Println(err) // We just log the parsing errors for now
 			}
-			for _, url := range urls {
-				e := client.PublishDocument(url)
-				if e != nil {
-					log.Println(e)
-				}
+			stacks = append(stacks, syndication.MakeMixerStack(urls))
+		}
+
+		for _, u := range syndication.Mixup(stacks) {
+			fmt.Printf("Publishing '%s'\n", u)
+			e := client.PublishDocument(u)
+			if e != nil {
+				log.Println(e)
 			}
 		}
 	}

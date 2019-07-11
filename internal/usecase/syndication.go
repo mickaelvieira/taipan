@@ -170,6 +170,11 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 		fmt.Println("Source's content has not changed")
 	}
 
+	// Reverse results
+	for l, r := 0, len(urls)-1; l < r; l, r = l+1, r-1 {
+		urls[l], urls[r] = urls[r], urls[l]
+	}
+
 	// @TODO Calculate the source update frequency
 	// var results []*http.Result
 	// results, err = repositories.Botlogs.FindByURL(ctx, s.URL)
