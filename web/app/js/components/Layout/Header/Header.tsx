@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { withRouter } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
 import { fade } from "@material-ui/core/styles/colorManipulator";
@@ -10,6 +10,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import { RouteFeedProps } from "../../../types/routes";
 import { Typography } from "@material-ui/core";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
+import { getSectionTitle, getPageTitle } from "../helpers/navigation";
 
 const useStyles = makeStyles(
   ({ shape, palette, spacing, breakpoints, transitions }) => ({
@@ -74,14 +75,11 @@ export default withRouter(function Header({
   match
 }: Props): JSX.Element {
   const classes = useStyles();
-  let title = "";
-  if (match.path === "/") {
-    title = "News";
-  } else if (match.path === "/reading-list") {
-    title = "Reading list";
-  } else if (match.path === "/favorites") {
-    title = "Favorites";
-  }
+  const pageTitle = getPageTitle(match.path);
+
+  useEffect(() => {
+    document.title = pageTitle;
+  }, [pageTitle]);
 
   return (
     <AppBar position="fixed" className={classes.appBar}>
@@ -96,7 +94,7 @@ export default withRouter(function Header({
             <MenuIcon />
           </IconButton>
           <Typography component="h6" variant="h5">
-            {title}
+            {getSectionTitle(match.path)}
           </Typography>
         </Hidden>
         {/* <div className={classes.search}>

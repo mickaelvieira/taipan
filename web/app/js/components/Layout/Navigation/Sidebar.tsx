@@ -17,6 +17,7 @@ import RssFeedIcon from "@material-ui/icons/RssFeedOutlined";
 import UserInfo from "./UserInfo";
 import AppInfo from "./AppInfo";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
+import { getSectionTitle } from "../helpers/navigation";
 
 const useStyles = makeStyles(
   ({ breakpoints, spacing, palette, typography }) => ({
@@ -48,22 +49,18 @@ const useStyles = makeStyles(
 const entries = [
   {
     path: "/",
-    label: "News",
     icon: HomeIcon
   },
   {
     path: "/reading-list",
-    label: "Reading List",
     icon: LibraryIcon
   },
   {
     path: "/favorites",
-    label: "Favorites",
     icon: FavoriteIcon
   },
   {
     path: "/syndication",
-    label: "Syndication",
     icon: RssFeedIcon
   }
 ];
@@ -91,7 +88,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
           {entries.map(entry => (
             <Link
               exact
-              key={entry.label}
+              key={entry.path}
               to={entry.path}
               classes={{
                 root: classes.link
@@ -102,7 +99,9 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
             >
               <ListItem button>
                 <entry.icon className={classes.icon} />
-                <ListItemText disableTypography>{entry.label}</ListItemText>
+                <ListItemText disableTypography>
+                  {getSectionTitle(entry.path)}
+                </ListItemText>
               </ListItem>
             </Link>
           ))}
