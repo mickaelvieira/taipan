@@ -10,13 +10,6 @@ import (
 	"github.com/graph-gophers/dataloader"
 )
 
-// Loaders helps interact the various dataloaders
-type Loaders struct {
-	Repositories   *repository.Repositories
-	Documents      *dataloader.Loader
-	DocumentsFeeds *dataloader.Loader
-}
-
 // GetDocumentLoader get the loader
 func GetDocumentLoader(repository *repository.DocumentRepository) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {

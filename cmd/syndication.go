@@ -57,7 +57,7 @@ func runSyndicationWorker(c *cli.Context) {
 
 		for _, s := range sources {
 			var urls []*url.URL
-			urls, err = usecase.ParseSyndicationSource(ctx, s, repositories)
+			urls, err = usecase.ParseSyndicationSource(ctx, repositories, s)
 			if err != nil {
 				log.Printf("Syndication Parser: URL %s\n", s.URL)
 				log.Println(err) // We just log the parsing errors for now

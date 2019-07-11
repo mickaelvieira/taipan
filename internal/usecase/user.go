@@ -13,17 +13,17 @@ var (
 )
 
 // UpdateUser usecase
-func UpdateUser(ctx context.Context, u *user.User, f string, l, i string, r *repository.Repositories) (*user.User, error) {
+func UpdateUser(ctx context.Context, repos *repository.Repositories, u *user.User, f string, l, i string) (*user.User, error) {
 	u.Firstname = f
 	u.Lastname = l
 
-	err := r.Users.Update(ctx, u)
+	err := repos.Users.Update(ctx, u)
 	if err != nil {
 		return nil, err
 	}
 
 	if i != "" {
-		err = HandleAvatar(ctx, u, i, r)
+		err = HandleAvatar(ctx, repos, u, i)
 		if err != nil {
 			return nil, err
 		}

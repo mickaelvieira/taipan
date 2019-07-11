@@ -14,7 +14,7 @@ import (
 // BookmarksResolver bookmarks' root resolver
 type BookmarksResolver struct {
 	repositories  *repository.Repositories
-	subscriptions *Subscription
+	subscriptions *subscription
 }
 
 // BookmarkCollectionResolver resolver
@@ -112,19 +112,19 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	d, err := usecase.Document(ctx, u, args.WithFeeds, r.repositories)
+	d, err := usecase.Document(ctx, r.repositories, u, args.WithFeeds)
 	if err != nil {
 		return nil, err
 	}
 
 	var isFavorite = false
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, user, d, isFavorite, r.repositories)
+	b, err = usecase.Bookmark(ctx, r.repositories, user, d, isFavorite)
 	if err != nil {
 		return nil, err
 	}
 
-	r.subscriptions.Publish(NewFeedEvent(ReadingList, Add, b))
+	r.subscriptions.publish(newFeedEvent(readingList, add, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -145,18 +145,18 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 	}
 
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, user, d, args.IsFavorite, r.repositories)
+	b, err = usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
 	if err != nil {
 		return nil, err
 	}
 
-	var addTo = ReadingList
+	var addTo = readingList
 	if b.IsFavorite {
-		addTo = Favorites
+		addTo = favorites
 	}
 
-	r.subscriptions.Publish(NewFeedEvent(addTo, Add, b))
-	r.subscriptions.Publish(NewFeedEvent(News, Remove, d))
+	r.subscriptions.publish(newFeedEvent(addTo, add, b))
+	r.subscriptions.publish(newFeedEvent(news, remove, d))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -170,13 +170,13 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	b, err := usecase.FavoriteStatus(ctx, user, u, true, r.repositories)
+	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, true)
 	if err != nil {
 		return nil, err
 	}
 
-	r.subscriptions.Publish(NewFeedEvent(Favorites, Add, b))
-	r.subscriptions.Publish(NewFeedEvent(ReadingList, Remove, b))
+	r.subscriptions.publish(newFeedEvent(favorites, add, b))
+	r.subscriptions.publish(newFeedEvent(readingList, remove, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -190,13 +190,13 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	b, err := usecase.FavoriteStatus(ctx, user, u, false, r.repositories)
+	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, false)
 	if err != nil {
 		return nil, err
 	}
 
-	r.subscriptions.Publish(NewFeedEvent(ReadingList, Add, b))
-	r.subscriptions.Publish(NewFeedEvent(Favorites, Remove, b))
+	r.subscriptions.publish(newFeedEvent(readingList, add, b))
+	r.subscriptions.publish(newFeedEvent(favorites, remove, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -210,7 +210,7 @@ func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	u := args.URL.URL
 
-	d, err := usecase.Unbookmark(ctx, user, u, r.repositories)
+	d, err := usecase.Unbookmark(ctx, r.repositories, user, u)
 	if err != nil {
 		return nil, err
 	}

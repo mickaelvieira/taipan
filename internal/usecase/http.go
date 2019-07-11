@@ -10,7 +10,7 @@ import (
 )
 
 // FetchResource fetches the related resource
-func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Repositories) (r *http.Result, err error) {
+func FetchResource(ctx context.Context, repos *repository.Repositories, u *url.URL) (r *http.Result, err error) {
 	c := http.Client{}
 	r, err = c.Get(u)
 	if err != nil {
@@ -18,7 +18,7 @@ func FetchResource(ctx context.Context, u *url.URL, repositories *repository.Rep
 	}
 
 	// Store the result of HTTP request
-	err = repositories.Botlogs.Insert(ctx, r)
+	err = repos.Botlogs.Insert(ctx, r)
 	if err != nil {
 		return
 	}

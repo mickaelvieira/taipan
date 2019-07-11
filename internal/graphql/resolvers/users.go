@@ -61,13 +61,6 @@ func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	return &res, nil
 }
 
-// UserInput data received from graphQL
-type userInput struct {
-	Firstname string
-	Lastname  string
-	Image     string
-}
-
 // Update resolves the mutation
 func (r *UsersResolver) Update(ctx context.Context, args struct {
 	ID   string
@@ -80,11 +73,11 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 
 	user, err := usecase.UpdateUser(
 		ctx,
+		r.repositories,
 		u,
 		args.User.Firstname,
 		args.User.Lastname,
 		args.User.Image,
-		r.repositories,
 	)
 	if err != nil {
 		return nil, err

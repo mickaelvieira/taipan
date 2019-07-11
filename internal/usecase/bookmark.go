@@ -23,20 +23,20 @@ var (
 )
 
 // DeleteDocument soft deletes a document
-func DeleteDocument(ctx context.Context, d *document.Document, r *repository.DocumentRepository) (err error) {
+func DeleteDocument(ctx context.Context, repos *repository.Repositories, d *document.Document) (err error) {
 	fmt.Printf("Soft deleting document '%s'\n", d.URL)
 	d.Deleted = true
 	d.UpdatedAt = time.Now()
-	return r.Delete(ctx, d)
+	return repos.Documents.Delete(ctx, d)
 }
 
-func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI *url.URL, repositories *repository.Repositories) (err error) {
+func handleDuplicateDocument(ctx context.Context, repos *repository.Repositories, originalURI *url.URL, finalURI *url.URL) (err error) {
 	var b bool
 	var e *document.Document
 	fmt.Printf("Request was redirected %s => %s", originalURI, finalURI)
 	fmt.Println("Let's check for duplicate")
 	// Let's check whether there a document with the requested URI
-	e, err = repositories.Documents.GetByURL(ctx, originalURI)
+	e, err = repos.Documents.GetByURL(ctx, originalURI)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -47,7 +47,7 @@ func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI
 
 		// There is a document with the old URL
 		// Let's check whether there a document with the final URI
-		b, err = repositories.Documents.ExistWithURL(ctx, finalURI)
+		b, err = repos.Documents.ExistWithURL(ctx, finalURI)
 		if err != nil {
 			return err
 		}
@@ -55,13 +55,13 @@ func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI
 		if b {
 			// Delete the old one
 			// @TODO recreate the users' bookmark with the new URL
-			return DeleteDocument(ctx, e, repositories.Documents)
+			return DeleteDocument(ctx, repos, e)
 		}
 
 		fmt.Printf("Document's URL needs to be updated %s => %s\n", e.URL, finalURI)
 		e.URL = finalURI
 		e.UpdatedAt = time.Now()
-		repositories.Documents.UpdateURL(ctx, e)
+		repos.Documents.UpdateURL(ctx, e)
 	}
 	return nil
 }
@@ -73,10 +73,10 @@ func handleDuplicateDocument(ctx context.Context, originalURI *url.URL, finalURI
 // - Insert/Update the bookmark in the DB
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
-func Document(ctx context.Context, URL *url.URL, findFeeds bool, repositories *repository.Repositories) (*document.Document, error) {
+func Document(ctx context.Context, repos *repository.Repositories, URL *url.URL, findFeeds bool) (*document.Document, error) {
 	fmt.Printf("Fetching %s\n", URL.String())
 
-	result, err := FetchResource(ctx, URL, repositories)
+	result, err := FetchResource(ctx, repos, URL)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func Document(ctx context.Context, URL *url.URL, findFeeds bool, repositories *r
 	// - What are we going to do when the content changes?
 	//
 	var d *document.Document
-	d, err = repositories.Documents.GetByChecksum(ctx, result.Checksum)
+	d, err = repos.Documents.GetByChecksum(ctx, result.Checksum)
 	if d != nil {
 		fmt.Println("Document's content has not changed")
 		return d, nil
@@ -107,20 +107,20 @@ func Document(ctx context.Context, URL *url.URL, findFeeds bool, repositories *r
 	fmt.Printf("Document was parsed: %s\n", d.URL)
 
 	if result.RequestWasRedirected() {
-		err = handleDuplicateDocument(ctx, result.ReqURI, result.FinalURI, repositories)
+		err = handleDuplicateDocument(ctx, repos, result.ReqURI, result.FinalURI)
 	}
 
-	err = repositories.Documents.Upsert(ctx, d)
+	err = repos.Documents.Upsert(ctx, d)
 	if err != nil {
 		return nil, err
 	}
 
-	err = HandleImage(ctx, d, repositories)
+	err = HandleImage(ctx, repos, d)
 	if err != nil {
 		return nil, err
 	}
 
-	err = repositories.Syndication.InsertAllIfNotExists(ctx, d.Feeds)
+	err = repos.Syndication.InsertAllIfNotExists(ctx, d.Feeds)
 	if err != nil {
 		return nil, err
 	}
@@ -132,13 +132,13 @@ func Document(ctx context.Context, URL *url.URL, findFeeds bool, repositories *r
 // - Link the document to the user
 // - Save it in the DB
 // - And finally return the user's bookmark
-func Bookmark(ctx context.Context, user *user.User, d *document.Document, isFavorite bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
-	err := repositories.Bookmarks.BookmarkDocument(ctx, user, d, isFavorite)
+func Bookmark(ctx context.Context, repos *repository.Repositories, user *user.User, d *document.Document, isFavorite bool) (*bookmark.Bookmark, error) {
+	err := repos.Bookmarks.BookmarkDocument(ctx, user, d, isFavorite)
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := repositories.Bookmarks.GetByURL(ctx, user, d.URL)
+	b, err := repos.Bookmarks.GetByURL(ctx, user, d.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -147,13 +147,13 @@ func Bookmark(ctx context.Context, user *user.User, d *document.Document, isFavo
 }
 
 // FavoriteStatus changes the bookmark read status
-func FavoriteStatus(ctx context.Context, user *user.User, URL *url.URL, isFavorite bool, repositories *repository.Repositories) (*bookmark.Bookmark, error) {
+func FavoriteStatus(ctx context.Context, repos *repository.Repositories, user *user.User, URL *url.URL, isFavorite bool) (*bookmark.Bookmark, error) {
 	var (
 		err error
 		b   *bookmark.Bookmark
 	)
 
-	b, err = repositories.Bookmarks.GetByURL(ctx, user, URL)
+	b, err = repos.Bookmarks.GetByURL(ctx, user, URL)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func FavoriteStatus(ctx context.Context, user *user.User, URL *url.URL, isFavori
 	b.IsFavorite = isFavorite
 	b.UpdatedAt = time.Now()
 
-	err = repositories.Bookmarks.ChangeFavoriteStatus(ctx, user, b)
+	err = repos.Bookmarks.ChangeFavoriteStatus(ctx, user, b)
 	if err != nil {
 		return nil, err
 	}
@@ -170,14 +170,14 @@ func FavoriteStatus(ctx context.Context, user *user.User, URL *url.URL, isFavori
 }
 
 // Unbookmark removes bookmark from user list
-func Unbookmark(ctx context.Context, user *user.User, URL *url.URL, repositories *repository.Repositories) (*document.Document, error) {
+func Unbookmark(ctx context.Context, repos *repository.Repositories, user *user.User, URL *url.URL) (*document.Document, error) {
 	var (
 		err error
 		b   *bookmark.Bookmark
 		d   *document.Document
 	)
 
-	b, err = repositories.Bookmarks.GetByURL(ctx, user, URL)
+	b, err = repos.Bookmarks.GetByURL(ctx, user, URL)
 	if err != nil {
 		return nil, err
 	}
@@ -186,12 +186,12 @@ func Unbookmark(ctx context.Context, user *user.User, URL *url.URL, repositories
 	b.IsFavorite = false
 	b.UpdatedAt = time.Now()
 
-	err = repositories.Bookmarks.Remove(ctx, user, b)
+	err = repos.Bookmarks.Remove(ctx, user, b)
 	if err != nil {
 		return nil, err
 	}
 
-	d, err = repositories.Documents.GetByID(ctx, b.ID)
+	d, err = repos.Documents.GetByID(ctx, b.ID)
 
 	return d, nil
 }

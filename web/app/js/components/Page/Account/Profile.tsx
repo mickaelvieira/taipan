@@ -134,7 +134,6 @@ export default function Profile(): JSX.Element | null {
   );
   const { firstname, lastname, scale, file } = state;
 
-  console.log(file);
   return (
     <Card>
       <form>

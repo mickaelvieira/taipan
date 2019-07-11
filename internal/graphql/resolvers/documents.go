@@ -107,9 +107,9 @@ func (r *DocumentResolver) getLogsLoader() *dataloader.Loader {
 
 // Documents resolves the query
 func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
-	Pagination CursorPaginationInput
+	Pagination cursorPaginationInput
 }) (*DocumentCollectionResolver, error) {
-	fromArgs := GetCursorBasedPagination(10)
+	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 
 	results, err := r.repositories.Documents.GetDocuments(ctx, from, to, limit)
@@ -117,7 +117,7 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := GetDocumentsBoundaryIDs(results)
+	first, last := getDocumentsBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Documents.GetTotal(ctx)

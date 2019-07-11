@@ -134,7 +134,7 @@ func (r *DocumentRepository) getPagination(fromID string, toID string) (where []
 }
 
 // GetNews find newest entries
-func (r *DocumentRepository) GetNews(ctx context.Context, user *user.User, fromID string, toID string, limit int32, isDescending bool) ([]*document.Document, error) {
+func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID string, toID string, limit int32, isDescending bool) ([]*document.Document, error) {
 	var results []*document.Document
 
 	query := `
@@ -154,7 +154,7 @@ func (r *DocumentRepository) GetNews(ctx context.Context, user *user.User, fromI
 	where = append(where, "(b.user_id IS NULL OR b.user_id != ?)")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "), dir)
 
-	args = append(args, user.ID)
+	args = append(args, u.ID)
 	args = append(args, limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
@@ -177,7 +177,7 @@ func (r *DocumentRepository) GetNews(ctx context.Context, user *user.User, fromI
 }
 
 // GetTotalLatestNews returns the number of latest news
-func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, user *user.User, fromID string, toID string, isDescending bool) (int32, error) {
+func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.User, fromID string, toID string, isDescending bool) (int32, error) {
 	var total int32
 
 	query := `
@@ -196,7 +196,7 @@ func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, user *user.
 	where = append(where, "(b.user_id IS NULL OR b.user_id != ?)")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "), dir)
 
-	args = append(args, user.ID)
+	args = append(args, u.ID)
 	err := r.db.QueryRowContext(ctx, formatQuery(query), args...).Scan(&total)
 	if err != nil {
 		return total, err
@@ -206,7 +206,7 @@ func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, user *user.
 }
 
 // GetTotalNew returns the total of new documents
-func (r *DocumentRepository) GetTotalNew(ctx context.Context, user *user.User) (int32, error) {
+func (r *DocumentRepository) GetTotalNew(ctx context.Context, u *user.User) (int32, error) {
 	var total int32
 
 	query := `
@@ -216,7 +216,7 @@ func (r *DocumentRepository) GetTotalNew(ctx context.Context, user *user.User) (
 		WHERE b.user_id IS NULL OR b.user_id != ?
 	`
 
-	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
+	err := r.db.QueryRowContext(ctx, formatQuery(query), u.ID).Scan(&total)
 	if err != nil {
 		return total, err
 	}

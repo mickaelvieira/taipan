@@ -50,7 +50,7 @@ func UpdateToS3(name string, contentType string, r io.Reader) error {
 // - fetches the document image
 // - uploads it to AWS S3
 // - Updates the DB
-func HandleImage(ctx context.Context, d *document.Document, repositories *repository.Repositories) (err error) {
+func HandleImage(ctx context.Context, repos *repository.Repositories, d *document.Document) (err error) {
 	if d.Image == nil {
 		fmt.Println("Document does not have an image associated")
 		return
@@ -61,7 +61,7 @@ func HandleImage(ctx context.Context, d *document.Document, repositories *reposi
 		return
 	}
 
-	result, err := FetchResource(ctx, d.Image.URL, repositories)
+	result, err := FetchResource(ctx, repos, d.Image.URL)
 	if err != nil {
 		return
 	}
@@ -84,7 +84,7 @@ func HandleImage(ctx context.Context, d *document.Document, repositories *reposi
 	// Image was uploaded at the point so we can update the document
 	d.UpdatedAt = time.Now()
 
-	err = repositories.Documents.UpdateImage(ctx, d)
+	err = repos.Documents.UpdateImage(ctx, d)
 	return
 }
 
@@ -92,7 +92,7 @@ func HandleImage(ctx context.Context, d *document.Document, repositories *reposi
 // - retrieves image's information from base 64 data
 // - uploads it to AWS S3
 // - Updates the DB
-func HandleAvatar(ctx context.Context, u *user.User, s string, repositories *repository.Repositories) (err error) {
+func HandleAvatar(ctx context.Context, repos *repository.Repositories, u *user.User, s string) (err error) {
 	c := image.GetContentType(s)
 	d := image.GetBase64Data(s)
 	r := image.GetBase64Reader(d)
@@ -125,7 +125,7 @@ func HandleAvatar(ctx context.Context, u *user.User, s string, repositories *rep
 	u.Image = i
 	u.UpdatedAt = time.Now()
 
-	err = repositories.Users.UpdateImage(ctx, u)
+	err = repos.Users.UpdateImage(ctx, u)
 
 	return err
 }

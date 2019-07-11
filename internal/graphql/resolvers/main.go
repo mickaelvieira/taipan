@@ -1,7 +1,6 @@
 package resolvers
 
 import (
-	"context"
 	"github/mickaelvieira/taipan/internal/repository"
 )
 
@@ -13,39 +12,15 @@ type RootResolver struct {
 	Bookmarks     *BookmarksResolver
 	Syndication   *SyndicationResolver
 	Feeds         *FeedsResolver
-	subscriptions *Subscription
-}
-
-// Favorites subscribes to favorites feed bookmarksEvents
-func (r *RootResolver) Favorites(ctx context.Context) <-chan *BookmarkEventResolver {
-	c := make(chan *BookmarkEventResolver)
-	s := &BookmarkSubscriber{events: c}
-	r.subscriptions.Subscribe(Favorites, s, ctx.Done())
-	return c
-}
-
-// ReadingList subscribes to reading list feed bookmarksEvents
-func (r *RootResolver) ReadingList(ctx context.Context) <-chan *BookmarkEventResolver {
-	c := make(chan *BookmarkEventResolver)
-	s := &BookmarkSubscriber{events: c}
-	r.subscriptions.Subscribe(ReadingList, s, ctx.Done())
-	return c
-}
-
-// News subscribes to news feed bookmarksEvents
-func (r *RootResolver) News(ctx context.Context) <-chan *DocumentEventResolver {
-	c := make(chan *DocumentEventResolver)
-	s := &DocumentSubscriber{events: c}
-	r.subscriptions.Subscribe(News, s, ctx.Done())
-	return c
+	subscriptions *subscription
 }
 
 // GetRootResolver returns the root resolver.
 // Queries, Mutations and Subscriptions are methods of this resolver
 // The root resolver owns a subscription bus to broadcast feed events
 func GetRootResolver(repositories *repository.Repositories) *RootResolver {
-	var subscriptions = &Subscription{
-		subscribers: make(map[FeedTopic]Subscribers),
+	var subscriptions = &subscription{
+		subscribers: make(map[feedTopic]subscribers),
 	}
 	return &RootResolver{
 		App:           &AppResolver{},
