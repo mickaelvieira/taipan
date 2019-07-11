@@ -123,7 +123,7 @@ func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 	}
 
 	// @TODO push URLs to the queue
-	_, err = usecase.ParseSyndicationSource(ctx, s, r.repositories)
+	_, err = usecase.ParseSyndicationSource(ctx, r.repositories, s)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	err = usecase.DisableSyndicationSource(ctx, s, r.repositories.Syndication)
+	err = usecase.DisableSyndicationSource(ctx, r.repositories, s)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (r *SyndicationResolver) Enable(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	err = usecase.EnableSyndicationSource(ctx, s, r.repositories.Syndication)
+	err = usecase.EnableSyndicationSource(ctx, r.repositories, s)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (r *SyndicationResolver) Delete(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	err = usecase.DeleteSyndicationSource(ctx, s, r.repositories.Syndication)
+	err = usecase.DeleteSyndicationSource(ctx, r.repositories, s)
 	if err != nil {
 		return nil, err
 	}
@@ -198,10 +198,10 @@ func (r *SyndicationResolver) Delete(ctx context.Context, args struct {
 
 // Sources resolves the query
 func (r *SyndicationResolver) Sources(ctx context.Context, args struct {
-	Pagination OffsetPaginationInput
-	Search     SearchSourcesInput
+	Pagination offsetPaginationInput
+	Search     searchSourcesInput
 }) (*SourceCollectionResolver, error) {
-	fromArgs := GetOffsetBasedPagination(10)
+	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 	paused := args.Search.IsPaused
 

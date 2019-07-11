@@ -14,12 +14,16 @@ func Bootstrap() *Server {
 	var templates = template.Must(template.New("html-tmpl").ParseGlob(webDir + "/templates/*.html"))
 	var repositories = repository.GetRepositories()
 	var schema = graphql.LoadAndParseSchema(webDir+"/graphql/schema.graphql", repositories)
-	var assetsDef = assets.LoadAssetsDefinition(webDir + "/static/hashes.json")
+	var paths = assets.LoadAssetsDefinition(webDir + "/static/hashes.json")
+
+	if UseFileServer() {
+		paths.AppendFileServerBasePath()
+	}
 
 	var server = Server{
 		templates:    templates,
 		schema:       schema,
-		assets:       assetsDef,
+		assets:       paths,
 		Repositories: repositories,
 	}
 

@@ -225,7 +225,7 @@ func (r *BookmarkRepository) getPagination(ctx context.Context, fromID string, t
 }
 
 // BookmarkDocument the bookmark to the user
-func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.User, d *document.Document, isFavorite bool) error {
+func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, u *user.User, d *document.Document, isFavorite bool) error {
 	query := `
 		INSERT INTO bookmarks
 		(user_id, document_id, added_at, updated_at, marked_as_read, linked)
@@ -236,7 +236,7 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.Us
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		user.ID,
+		u.ID,
 		d.ID,
 		time.Now(),
 		time.Now(),
@@ -248,7 +248,7 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, user *user.Us
 }
 
 // ChangeFavoriteStatus change bookmarks read status .i.e READ/UNREAD
-func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
+func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, u *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
 		SET marked_as_read = ?, updated_at = ?
@@ -259,7 +259,7 @@ func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, user *use
 		formatQuery(query),
 		b.IsFavorite,
 		b.UpdatedAt,
-		user.ID,
+		u.ID,
 		b.ID,
 	)
 
@@ -267,7 +267,7 @@ func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, user *use
 }
 
 // Remove bookmarks from user list
-func (r *BookmarkRepository) Remove(ctx context.Context, user *user.User, b *bookmark.Bookmark) error {
+func (r *BookmarkRepository) Remove(ctx context.Context, u *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
 		SET marked_as_read = ?, linked = ?, updated_at = ?
@@ -279,7 +279,7 @@ func (r *BookmarkRepository) Remove(ctx context.Context, user *user.User, b *boo
 		b.IsFavorite,
 		b.IsLinked,
 		b.UpdatedAt,
-		user.ID,
+		u.ID,
 		b.ID,
 	)
 
@@ -314,11 +314,11 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 	}
 
 	if imageURL != "" {
-		image, err := getImageEntity(imageURL, imageName, imageWidth, imageHeight, imageFormat)
+		i, err := document.NewImage(imageURL, imageName, imageWidth, imageHeight, imageFormat)
 		if err != nil {
 			return nil, err
 		}
-		b.Image = image
+		b.Image = i
 	}
 
 	return &b, nil

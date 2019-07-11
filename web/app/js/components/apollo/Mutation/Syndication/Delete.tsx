@@ -1,7 +1,7 @@
 import { DataProxy } from "apollo-cache";
 import { Mutation } from "react-apollo";
 import { Source } from "../../../../types/syndication";
-import mutation from "../../../../services/apollo/mutation/syndication/delete-source.graphql";
+import mutation from "../../graphql/mutation/syndication/delete-source.graphql";
 import { query, Data as QueryData } from "../../Query/Syndication";
 import { removeSource } from "../../helpers/syndication";
 

@@ -4,9 +4,9 @@ import {
   OnSubscriptionDataOptions
 } from "react-apollo";
 import PropTypes from "prop-types";
-import subscriptionNews from "../../../services/apollo/subscription/news.graphql";
-import subscriptionFavorites from "../../../services/apollo/subscription/favorites.graphql";
-import subscriptionReadingList from "../../../services/apollo/subscription/reading-list.graphql";
+import subscriptionNews from "../graphql/subscription/news.graphql";
+import subscriptionFavorites from "../graphql/subscription/favorites.graphql";
+import subscriptionReadingList from "../graphql/subscription/reading-list.graphql";
 import { getDataKey } from "../Query/Feed";
 import { FeedEventData, FeedEvent, FeedQueryData } from "../../../types/feed";
 import { hasReceivedEvent, feedResultsAction } from "../helpers/feed";

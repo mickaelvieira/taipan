@@ -2,8 +2,6 @@ package repository
 
 import (
 	"github/mickaelvieira/taipan/internal/db"
-	"github/mickaelvieira/taipan/internal/domain/image"
-	"github/mickaelvieira/taipan/internal/domain/url"
 	"strings"
 )
 
@@ -32,23 +30,6 @@ func GetRepositories() *Repositories {
 		Bookmarks:   &BookmarkRepository{db: db},
 		Botlogs:     &BotlogRepository{db: db},
 	}
-}
-
-func getImageEntity(rawURL string, name string, width int32, height int32, format string) (*image.Image, error) {
-	URL, err := url.FromRawURL(rawURL)
-	if err != nil {
-		return nil, err
-	}
-
-	var image = image.Image{
-		URL:    URL,
-		Name:   name,
-		Width:  width,
-		Height: height,
-		Format: format,
-	}
-
-	return &image, nil
 }
 
 func formatQuery(query string) string {

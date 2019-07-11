@@ -1,16 +1,15 @@
 package http
 
 import (
-	"bytes"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"io"
 	"time"
 )
 
 // Result represents an entry in the history logs
 type Result struct {
 	ID               string
-	WasRedirected    bool
 	Checksum         checksum.Checksum
 	ContentType      string
 	ReqURI           *url.URL
@@ -21,7 +20,12 @@ type Result struct {
 	RespReasonPhrase string
 	RespHeaders      string
 	CreatedAt        time.Time
-	Content          *bytes.Reader
+	Content          io.Reader
+}
+
+// RequestWasRedirected is the final URL different from the requested URL
+func (r *Result) RequestWasRedirected() bool {
+	return r.ReqURI.String() != r.FinalURI.String()
 }
 
 // IsContentDifferent have we fetched a new document

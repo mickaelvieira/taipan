@@ -13,9 +13,9 @@ type FeedsResolver struct {
 
 // Favorites resolves the query
 func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
-	Pagination CursorPaginationInput
+	Pagination cursorPaginationInput
 }) (*BookmarkCollectionResolver, error) {
-	fromArgs := GetCursorBasedPagination(10)
+	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
 
@@ -24,7 +24,7 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := GetBookmarksBoundaryIDs(results)
+	first, last := getBookmarksBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Bookmarks.GetTotalFavorites(ctx, user)
@@ -50,9 +50,9 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 
 // ReadingList resolves the query
 func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
-	Pagination CursorPaginationInput
+	Pagination cursorPaginationInput
 }) (*BookmarkCollectionResolver, error) {
-	fromArgs := GetCursorBasedPagination(10)
+	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
 
@@ -61,7 +61,7 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := GetBookmarksBoundaryIDs(results)
+	first, last := getBookmarksBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Bookmarks.GetTotalReadingList(ctx, user)
@@ -87,9 +87,9 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 
 // News resolves the query
 func (r *FeedsResolver) News(ctx context.Context, args struct {
-	Pagination CursorPaginationInput
+	Pagination cursorPaginationInput
 }) (*DocumentCollectionResolver, error) {
-	fromArgs := GetCursorBasedPagination(10)
+	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
 
@@ -98,7 +98,7 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := GetDocumentsBoundaryIDs(results)
+	first, last := getDocumentsBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Documents.GetTotalNew(ctx, user)
@@ -127,9 +127,9 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 
 // LatestNews resolves the query
 func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
-	Pagination CursorPaginationInput
+	Pagination cursorPaginationInput
 }) (*DocumentCollectionResolver, error) {
-	fromArgs := GetCursorBasedPagination(10)
+	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
 
@@ -138,7 +138,7 @@ func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := GetDocumentsBoundaryIDs(results)
+	first, last := getDocumentsBoundaryIDs(results)
 
 	var total int32
 	total, err = r.repositories.Documents.GetTotalLatestNews(ctx, user, from, to, false)

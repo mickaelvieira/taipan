@@ -1,0 +1,11 @@
+#import "./image.graphql"
+
+fragment userFields on User {
+  id
+  username
+  firstname
+  lastname
+  image {
+    ...imageFields
+  }
+}

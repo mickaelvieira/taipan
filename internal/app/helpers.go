@@ -7,10 +7,14 @@ import (
 	"syscall"
 )
 
-// IsDev is the app running in the development environment
-func IsDev() bool {
+func isDev() bool {
 	env := os.Getenv("TAIPAN_ENV")
 	return env == "development" || env == ""
+}
+
+// UseFileServer should the application serve assets
+func UseFileServer() bool {
+	return os.Getenv("APP_FILE_SERVER") != ""
 }
 
 // Signal enables os signal catching

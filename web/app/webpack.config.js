@@ -16,7 +16,6 @@ const patternCssFiles = isProduction
   : "[name].css";
 
 function getPathnames(chunk) {
-  const prefix = "static"
   let { vendor, app } = chunk
 
   if (!isProduction) {
@@ -25,8 +24,8 @@ function getPathnames(chunk) {
   }
 
   return {
-    vendor: `/${prefix}/${vendor}`,
-    app: `/${prefix}/${app}`,
+    vendor: `/${vendor}`,
+    app: `/${app}`,
   }
 }
 

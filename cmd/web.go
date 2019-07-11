@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github/mickaelvieira/taipan/internal/app"
+	"github/mickaelvieira/taipan/internal/assets"
 	"github/mickaelvieira/taipan/internal/auth"
 
 	"github.com/urfave/cli"
@@ -26,9 +27,9 @@ func runWeb(c *cli.Context) {
 	env := os.Getenv("TAIPAN_ENV")
 	webDir := os.Getenv("APP_WEB_DIR")
 
-	if app.IsDev() {
+	if app.UseFileServer() {
 		fs := http.FileServer(http.Dir(webDir))
-		http.Handle("/static/", fs)
+		http.Handle(assets.AssetsBasePath+"/", fs)
 	}
 
 	// Routing

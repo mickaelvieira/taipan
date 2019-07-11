@@ -2,7 +2,11 @@ import React, { useContext } from "react";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import { Bookmark } from "../../../types/bookmark";
-import { FavoriteButton, UnbookmarkButton } from "../../ui/Feed/Button";
+import {
+  FavoriteButton,
+  UnbookmarkButton,
+  ShareButton
+} from "../../ui/Feed/Button";
 import Domain from "../../ui/Domain";
 import Item from "../../ui/Feed/Item/Item";
 import ItemTitle from "../../ui/Feed/Item/Title";
@@ -29,6 +33,13 @@ export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
           <Domain item={bookmark} />
         </CardActions>
         <CardActions disableSpacing>
+          <ShareButton
+            item={bookmark}
+            onSuccess={message => {
+              setMessageInfo(message);
+            }}
+            onError={message => setMessageInfo(message)}
+          />
           <UnbookmarkButton
             bookmark={bookmark}
             onSuccess={() => {

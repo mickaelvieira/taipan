@@ -1,10 +1,9 @@
+#import "../../fragment/user.graphql"
+
 query loggedInUser {
   users {
     loggedIn {
-      id
-      username
-      firstname
-      lastname
+      ...userFields
     }
   }
   app {

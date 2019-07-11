@@ -19,4 +19,5 @@ require (
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	github.com/urfave/cli v1.20.0
+	golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9
 )

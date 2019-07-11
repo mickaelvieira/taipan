@@ -6,9 +6,9 @@ import {
 } from "apollo-boost";
 import { FeedVariables, FeedQueryData } from "../../../types/feed";
 import { getDataKey } from "../helpers/feed";
-import queryNews from "../../../services/apollo/query/feeds/news.graphql";
-import queryReadingList from "../../../services/apollo/query/feeds/reading-list.graphql";
-import queryFavorites from "../../../services/apollo/query/feeds/favorites.graphql";
+import queryNews from "../graphql/query/feeds/news.graphql";
+import queryReadingList from "../graphql/query/feeds/reading-list.graphql";
+import queryFavorites from "../graphql/query/feeds/favorites.graphql";
 
 export type FetchMore = <K extends keyof FeedVariables>(
   fetchMoreOptions: FetchMoreQueryOptions<FeedVariables, K> &

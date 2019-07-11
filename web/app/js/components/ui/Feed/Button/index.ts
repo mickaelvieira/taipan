@@ -4,6 +4,7 @@ import BookmarkButton from "./Bookmark";
 import RefreshButton from "./Refresh";
 import UnbookmarkButton from "./Unbookmark";
 import BookmarkAndFavoriteButton from "./BookmarkAndFavorite";
+import ShareButton from "./Share";
 
 export {
   FavoriteButton,
@@ -11,5 +12,6 @@ export {
   BookmarkButton,
   RefreshButton,
   UnbookmarkButton,
-  BookmarkAndFavoriteButton
+  BookmarkAndFavoriteButton,
+  ShareButton
 };

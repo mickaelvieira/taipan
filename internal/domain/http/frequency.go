@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"sort"
 	"time"
 )
@@ -84,7 +85,7 @@ func filterDuplicateUnchanged(in []*Result) (out []*Result) {
 
 func filterSuccessfulResults(in []*Result) (out []*Result) {
 	for _, r := range in {
-		if r.RespStatusCode == 200 {
+		if r.RespStatusCode == http.StatusOK {
 			out = append(out, r)
 		}
 	}
@@ -167,6 +168,10 @@ func CalculateFrequency(in []*Result) Frequency {
 			n.CreatedAt,
 		)
 		out = append(out, f)
+	}
+
+	if len(out) < 1 {
+		panic("Logic error: We should have at least one frequency")
 	}
 
 	log.Printf("%v", out)

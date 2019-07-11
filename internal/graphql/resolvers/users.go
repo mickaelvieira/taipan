@@ -2,9 +2,11 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/usecase"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
@@ -39,9 +41,47 @@ func (r *UserResolver) Lastname() string {
 	return r.User.Lastname
 }
 
+// Image resolves the Image field
+func (r *UserResolver) Image() *UserImageResolver {
+	if r.User.Image == nil || r.User.Image.Name == "" {
+		return nil
+	}
+
+	return &UserImageResolver{
+		Image: r.User.Image,
+	}
+}
+
 // LoggedIn resolves the query
 func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
+
+	res := UserResolver{User: user}
+
+	return &res, nil
+}
+
+// Update resolves the mutation
+func (r *UsersResolver) Update(ctx context.Context, args struct {
+	ID   string
+	User userInput
+}) (*UserResolver, error) {
+	u := auth.FromContext(ctx)
+	if args.ID != u.ID {
+		return nil, fmt.Errorf("You are not allowed to modify this user")
+	}
+
+	user, err := usecase.UpdateUser(
+		ctx,
+		r.repositories,
+		u,
+		args.User.Firstname,
+		args.User.Lastname,
+		args.User.Image,
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	res := UserResolver{User: user}
 

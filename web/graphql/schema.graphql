@@ -22,6 +22,7 @@ type Query {
 type Mutation {
   bookmarks: BookmarksMutation
   syndication: SyndicationMutation
+  users: UsersMutation
 }
 
 type Subscription {
@@ -43,6 +44,16 @@ type AppQuery {
 type UsersQuery {
   # "Returns the current logged in user"
   loggedIn(): User
+}
+
+input UserInput {
+  firstname: String!
+  lastname: String!
+  image: String!
+}
+
+type UsersMutation {
+  update(id: ID!, user: UserInput!): User
 }
 
 type DocumentsQuery {
@@ -147,6 +158,7 @@ type User implements Node {
   firstname: String!
   lastname: String!
   username: String!
+  image: Image
 }
 
 # """

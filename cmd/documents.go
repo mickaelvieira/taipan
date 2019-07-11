@@ -67,7 +67,7 @@ func runDocumentsWorker(c *cli.Context) {
 			var u *url.URL
 			u, err = url.FromRawURL(dm.Url)
 			if err == nil {
-				_, err = usecase.Document(ctx, u, false, repositories)
+				_, err = usecase.Document(ctx, repositories, u, false)
 			}
 
 			if err != nil {
