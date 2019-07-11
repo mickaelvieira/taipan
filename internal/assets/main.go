@@ -2,10 +2,10 @@ package assets
 
 import (
 	"encoding/json"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"io/ioutil"
 	"log"
 	"os"
-	"github/mickaelvieira/taipan/internal/domain/url"
 )
 
 // AssetsBasePath assets directory
@@ -28,6 +28,7 @@ func MakeCDNBaseURL() string {
 	return "https://" + os.Getenv("AWS_BUCKET")
 }
 
+// MakeImageURL returns an image's URL based on its name
 func MakeImageURL(name string) *url.URL {
 	u, err := url.FromRawURL("https://" + os.Getenv("AWS_BUCKET") + "/" + name)
 	if err != nil {
@@ -35,7 +36,6 @@ func MakeImageURL(name string) *url.URL {
 	}
 	return u
 }
-
 
 // GetBasePath returns base path
 func GetBasePath(useFileServer bool) string {
