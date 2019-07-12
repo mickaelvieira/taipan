@@ -26,7 +26,7 @@ export default (clientId: string) => {
   const endpoint = process.env.APP_GRAPHQL_ENDPOINT;
 
   if (!headerName) {
-    throw new Error("Client ID header name must be defined.")
+    throw new Error("Client ID header name must be defined.");
   }
 
   const httpLink = new HttpLink({

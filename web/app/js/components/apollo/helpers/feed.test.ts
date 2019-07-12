@@ -119,6 +119,7 @@ describe("Feed helpers", () => {
     beforeAll(() => {
       event = {
         id: "foo",
+        emitter: "baz",
         item: getBookmark("baz"),
         action: "Add",
         topic: "Favorites"
