@@ -1,10 +1,9 @@
 #import "../fragment/bookmark.graphql"
+#import "../fragment/event.graphql"
 
 subscription onFavoritesFeedChange {
   favorites {
-    id
-    topic
-    action
+    ...bookmarkEventFields
     item {
       ...bookmarkFields
     }

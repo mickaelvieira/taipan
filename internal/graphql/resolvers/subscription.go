@@ -26,6 +26,11 @@ func (r *BookmarkEventResolver) ID() string {
 	return r.event.ID
 }
 
+// Emitter returns the event's emitter ID
+func (r *BookmarkEventResolver) Emitter() string {
+	return r.event.Emitter
+}
+
 // Topic returns the event's topic
 func (r *BookmarkEventResolver) Topic() string {
 	return string(r.event.Topic)
@@ -53,6 +58,11 @@ func (r *DocumentEventResolver) Item() *DocumentResolver {
 // ID returns the event's ID
 func (r *DocumentEventResolver) ID() string {
 	return r.event.ID
+}
+
+// Emitter returns the event's emitter ID
+func (r *DocumentEventResolver) Emitter() string {
+	return r.event.Emitter
 }
 
 // Topic returns the event's topic

@@ -3,7 +3,7 @@ import { ApolloProvider } from "react-apollo";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import getApolloClient from "../../services/apollo";
+import getApolloClient, { genRandomId } from "../../services/apollo";
 import {
   ErrorPage,
   NewsPage,
@@ -15,7 +15,7 @@ import {
 import uiTheme from "../ui/theme";
 import Loader from "../ui/Loader";
 import InitQuery, { Data } from "../apollo/Query/Init";
-import { AppContext, UserContext } from "../context";
+import { ClientContext, AppContext, UserContext } from "../context";
 
 function canBoostrap(data: Data | undefined): boolean {
   if (!data) {
@@ -37,61 +37,65 @@ function canBoostrap(data: Data | undefined): boolean {
 }
 
 export default function App(): JSX.Element {
-  const client = getApolloClient();
+  const clientId = genRandomId();
+  const client = getApolloClient(clientId);
   const theme = createMuiTheme(uiTheme);
 
   console.log(theme);
+  console.log(clientId);
 
   return (
-    <ApolloProvider client={client}>
-      <CssBaseline />
-      <MuiThemeProvider theme={theme}>
-        <BrowserRouter>
-          <InitQuery>
-            {({ data, loading, error }) => {
-              if (loading) {
-                return <Loader />;
-              }
+    <ClientContext.Provider value={clientId}>
+      <ApolloProvider client={client}>
+        <CssBaseline />
+        <MuiThemeProvider theme={theme}>
+          <BrowserRouter>
+            <InitQuery>
+              {({ data, loading, error }) => {
+                if (loading) {
+                  return <Loader />;
+                }
 
-              if (error) {
-                return <ErrorPage error={error} />;
-              }
+                if (error) {
+                  return <ErrorPage error={error} />;
+                }
 
-              if (!canBoostrap(data)) {
-                return null;
-              }
+                if (!canBoostrap(data)) {
+                  return null;
+                }
 
-              const { users, app } = data as Data;
+                const { users, app } = data as Data;
 
-              return (
-                <AppContext.Provider value={app.info}>
-                  <UserContext.Provider value={users.loggedIn}>
-                    <Switch>
-                      <Route exact path="/" component={NewsPage} />
-                      <Route
-                        exact
-                        path="/reading-list"
-                        component={ReadingListPage}
-                      />
-                      <Route
-                        exact
-                        path="/favorites"
-                        component={FavoritesPage}
-                      />
-                      <Route
-                        exact
-                        path="/syndication"
-                        component={SyndicationPage}
-                      />
-                      <Route exact path="/account" component={AccountPage} />
-                    </Switch>
-                  </UserContext.Provider>
-                </AppContext.Provider>
-              );
-            }}
-          </InitQuery>
-        </BrowserRouter>
-      </MuiThemeProvider>
-    </ApolloProvider>
+                return (
+                  <AppContext.Provider value={app.info}>
+                    <UserContext.Provider value={users.loggedIn}>
+                      <Switch>
+                        <Route exact path="/" component={NewsPage} />
+                        <Route
+                          exact
+                          path="/reading-list"
+                          component={ReadingListPage}
+                        />
+                        <Route
+                          exact
+                          path="/favorites"
+                          component={FavoritesPage}
+                        />
+                        <Route
+                          exact
+                          path="/syndication"
+                          component={SyndicationPage}
+                        />
+                        <Route exact path="/account" component={AccountPage} />
+                      </Switch>
+                    </UserContext.Provider>
+                  </AppContext.Provider>
+                );
+              }}
+            </InitQuery>
+          </BrowserRouter>
+        </MuiThemeProvider>
+      </ApolloProvider>
+    </ClientContext.Provider>
   );
 }

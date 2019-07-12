@@ -41,14 +41,16 @@ const (
 // - a payload, either a document or a bookmark
 type feedEvent struct {
 	ID      string
+	Emitter string
 	Action  feedAction
 	Topic   feedTopic
 	Payload interface{}
 }
 
-func newFeedEvent(t feedTopic, a feedAction, p interface{}) *feedEvent {
+func newFeedEvent(e string, t feedTopic, a feedAction, p interface{}) *feedEvent {
 	return &feedEvent{
 		ID:      randomID(),
+		Emitter: e,
 		Topic:   t,
 		Action:  a,
 		Payload: p,

@@ -1,0 +1,14 @@
+# @TODO There must be a way to use a fragment directly on the interface FeedResults
+fragment bookmarkEventFields on BookmarkEvent {
+  id
+  emitter
+  topic
+  action
+}
+
+fragment documentResultsFields on DocumentEvent {
+  id
+  emitter
+  topic
+  action
+}

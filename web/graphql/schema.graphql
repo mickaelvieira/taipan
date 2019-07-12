@@ -310,6 +310,7 @@ enum FeedAction {
 # "A event describes an action on an item in a given topic"
 interface FeedEvent {
   id: String!
+  emitter: String!
   item: FeedItem!
   topic: FeedTopic!
   action: FeedAction!
@@ -317,6 +318,7 @@ interface FeedEvent {
 
 type DocumentEvent implements FeedEvent {
   id: String!
+  emitter: String!
   item: Document!
   topic: FeedTopic!
   action: FeedAction!
@@ -324,6 +326,7 @@ type DocumentEvent implements FeedEvent {
 
 type BookmarkEvent implements FeedEvent {
   id: String!
+  emitter: String!
   item: Bookmark!
   topic: FeedTopic!
   action: FeedAction!

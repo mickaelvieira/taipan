@@ -3,6 +3,7 @@ package resolvers
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
+	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -110,6 +111,8 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 	WithFeeds bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
 	u := args.URL.URL
 
 	d, err := usecase.Document(ctx, r.repositories, u, args.WithFeeds)
@@ -124,7 +127,7 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(readingList, add, b))
+	r.subscriptions.publish(newFeedEvent(clientID, readingList, add, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -137,6 +140,7 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 	IsFavorite bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
 	u := args.URL.URL
 
 	d, err := r.repositories.Documents.GetByURL(ctx, u)
@@ -155,8 +159,8 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 		addTo = favorites
 	}
 
-	r.subscriptions.publish(newFeedEvent(addTo, add, b))
-	r.subscriptions.publish(newFeedEvent(news, remove, d))
+	r.subscriptions.publish(newFeedEvent(clientID, addTo, add, b))
+	r.subscriptions.publish(newFeedEvent(clientID, news, remove, d))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -168,6 +172,7 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
 	u := args.URL.URL
 
 	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, true)
@@ -175,8 +180,8 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(favorites, add, b))
-	r.subscriptions.publish(newFeedEvent(readingList, remove, b))
+	r.subscriptions.publish(newFeedEvent(clientID, favorites, add, b))
+	r.subscriptions.publish(newFeedEvent(clientID, readingList, remove, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -188,6 +193,7 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
 	u := args.URL.URL
 
 	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, false)
@@ -195,8 +201,8 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(readingList, add, b))
-	r.subscriptions.publish(newFeedEvent(favorites, remove, b))
+	r.subscriptions.publish(newFeedEvent(clientID, readingList, add, b))
+	r.subscriptions.publish(newFeedEvent(clientID, favorites, remove, b))
 
 	res := &BookmarkResolver{Bookmark: b}
 

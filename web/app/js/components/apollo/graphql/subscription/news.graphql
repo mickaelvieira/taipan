@@ -1,10 +1,9 @@
 #import "../fragment/document.graphql"
+#import "../fragment/event.graphql"
 
 subscription onNewsFeedChange {
   news {
-    id
-    topic
-    action
+    ...documentEventFields
     item {
       ...documentFields
     }

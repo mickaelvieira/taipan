@@ -9,6 +9,7 @@ import (
 	"github/mickaelvieira/taipan/internal/app"
 	"github/mickaelvieira/taipan/internal/assets"
 	"github/mickaelvieira/taipan/internal/auth"
+	"github/mickaelvieira/taipan/internal/clientid"
 
 	"github.com/urfave/cli"
 )
@@ -34,7 +35,7 @@ func runWeb(c *cli.Context) {
 
 	// Routing
 	http.HandleFunc("/", server.IndexHandler)
-	http.HandleFunc("/graphql", auth.WithUser(server.QueryHandler, server.Repositories.Users))
+	http.HandleFunc("/graphql", clientid.WithClientID(auth.WithUser(server.QueryHandler, server.Repositories.Users)))
 
 	// Start the server
 	fmt.Println("Listening: http://localhost:" + port)

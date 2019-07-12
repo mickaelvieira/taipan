@@ -14,6 +14,7 @@ export interface FeedResults {
 
 export interface FeedEvent {
   id: string;
+  emitter: string;
   item: FeedItem;
   action: FeedAction;
   topic: FeedTopic;

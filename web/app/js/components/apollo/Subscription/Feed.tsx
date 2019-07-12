@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Subscription as SubscriptionBase,
   OnSubscriptionDataOptions
@@ -10,15 +10,30 @@ import subscriptionReadingList from "../graphql/subscription/reading-list.graphq
 import { getDataKey } from "../Query/Feed";
 import { FeedEventData, FeedEvent, FeedQueryData } from "../../../types/feed";
 import { hasReceivedEvent, feedResultsAction } from "../helpers/feed";
+import { ClientContext } from "../../context";
 
 interface Data extends OnSubscriptionDataOptions<FeedEventData> {
   query: PropTypes.Validator<object>;
+  clientId: string;
 }
 
-function onReceivedData({ client, subscriptionData, query }: Data): void {
+function isEmitter(event: FeedEvent | null, clientId: string): boolean {
+  if (!event) {
+    return false;
+  }
+  return event.emitter === clientId;
+}
+
+function onReceivedData({
+  client,
+  subscriptionData,
+  query,
+  clientId
+}: Data): void {
   const [isReceived, event] = hasReceivedEvent(subscriptionData.data);
   console.log(event);
-  if (isReceived) {
+  console.log(clientId);
+  if (isReceived && !isEmitter(event, clientId)) {
     const { item, action } = event as FeedEvent;
     const data = client.readQuery({ query }) as FeedQueryData;
     const updateResult = feedResultsAction[action];
@@ -53,10 +68,13 @@ export default function FeedSubscription({
   subscription,
   query
 }: Props): JSX.Element {
+  const clientId = useContext(ClientContext);
   return (
     <Subscription
       subscription={subscription}
-      onSubscriptionData={options => onReceivedData({ ...options, query })}
+      onSubscriptionData={options =>
+        onReceivedData({ ...options, query, clientId })
+      }
     />
   );
 }
