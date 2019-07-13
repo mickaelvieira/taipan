@@ -47,7 +47,7 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 		LIMIT ?;
 		`
 	query = fmt.Sprintf(query, f.SQLInterval())
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 50)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 1)
 	if err != nil {
 		return nil, err
 	}

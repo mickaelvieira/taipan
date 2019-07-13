@@ -5,20 +5,32 @@ import (
 	"testing"
 )
 
-func getURL(s string) (u *url.URL) {
-	u, _ = url.FromRawURL(s)
-	return
+func getURL(s string) *url.URL {
+	u, err := url.FromRawURL(s)
+	if err != nil {
+		panic(err)
+	}
+	return u
 }
 
-func TestMakeStack(t *testing.T) {
-	var u []*url.URL
-	u = append(u, getURL("http://example1.local"))
-	u = append(u, getURL("http://example2.local"))
-	u = append(u, getURL("http://example3.local"))
-	u = append(u, getURL("http://example4.local"))
-	u = append(u, getURL("http://example5.local"))
+func getURLs(s []string) []*url.URL {
+	o := make([]*url.URL, len(s))
+	for i, u := range s {
+		o[i] = getURL(u)
+	}
+	return o
+}
 
-	r := MakeMixerStack(u)
+func TestMakeQueue(t *testing.T) {
+	u := getURLs([]string{
+		"http://example1.local",
+		"http://example2.local",
+		"http://example3.local",
+		"http://example4.local",
+		"http://example5.local",
+	})
+
+	r := makeQueue(u)
 
 	for idx, v := range r {
 		var e = u[idx].String()
@@ -28,10 +40,48 @@ func TestMakeStack(t *testing.T) {
 	}
 }
 
-func TestMixerZeroStack(t *testing.T) {
-	i := make([]Stack, 0)
+func TestShiftOnQueueURLs(t *testing.T) {
+	s1 := "http://example1.local"
+	s2 := "http://example2.local"
+	var a = []string{s1, s2}
 
-	o := Mixup(i)
+	q := fifo(a)
+	e := 2
+	r := len(q)
+
+	if r != e {
+		t.Errorf("Wanted [%d], got [%d]", e, r)
+	}
+
+	e = 1
+	ss1 := q.shift()
+	r = len(q)
+	if r != e {
+		t.Errorf("Wanted [%d], got [%d]", e, r)
+	}
+	if ss1 != s1 {
+		t.Errorf("Wanted [%s], got [%s]", s1, ss1)
+	}
+
+	e = 0
+	ss2 := q.shift()
+	r = len(q)
+	if r != e {
+		t.Errorf("Wanted [%d], got [%d]", e, r)
+	}
+	if ss2 != s2 {
+		t.Errorf("Wanted [%s], got [%s]", s2, ss2)
+	}
+
+	ss3 := q.shift()
+	if ss3 != "" {
+		t.Errorf("Wanted an empty string, got [%s]", ss3)
+	}
+}
+
+func TestMixerWithZeroQueue(t *testing.T) {
+	m := MakeMixer(0)
+	o := m.Mixup()
 	e := 0
 	r := len(o)
 
@@ -40,67 +90,56 @@ func TestMixerZeroStack(t *testing.T) {
 	}
 }
 
-func TestMixerOneStack(t *testing.T) {
-	s := Stack{"foo", "bar", "baz"}
-	i := Stacks{s}
+func TestMixerWithOneQueue(t *testing.T) {
+	u := []string{
+		"http://foo1.local",
+		"http://bar1.local",
+		"http://baz1.local",
+	}
 
-	o := Mixup(i)
+	m := MakeMixer(1)
+	m.Push(getURLs(u))
+	o := m.Mixup()
 
-	for idx := range s {
-		if o[idx] != s[idx] {
-			t.Errorf("Wanted [%s], got [%s]", o[idx], s[idx])
+	for idx := range o {
+		if o[idx] != u[idx] {
+			t.Errorf("Wanted [%s], got [%s]", o[idx], u[idx])
 		}
 	}
 }
 
-func TestMixerTwoEqualStacks(t *testing.T) {
-	s1 := Stack{"foo1", "bar1", "baz1"}
-	s2 := Stack{"foo2", "bar2", "baz2"}
+func TestMixerWithTwoEqualQueues(t *testing.T) {
+	u1 := []string{
+		"http://foo1.local",
+		"http://bar1.local",
+		"http://baz1.local",
+	}
+	u2 := []string{
+		"http://foo2.local",
+		"http://bar2.local",
+		"http://baz2.local",
+	}
 
-	i := Stacks{s1, s2}
-	o := Mixup(i)
+	m := MakeMixer(2)
+	m.Push(getURLs(u1))
+	m.Push(getURLs(u2))
 
-	e := len(s1) + len(s2)
+	o := m.Mixup()
+
+	e := len(u1) + len(u2)
 	r := len(o)
 
 	if r != e {
 		t.Errorf("Wanted [%d], got [%d]", e, r)
 	}
-
-	c1 := 0
-	c2 := 0
-	for idx, v := range o {
-		var w string
-		if idx%2 == 0 {
-			w = s1[c1]
-			c1 = c1 + 1
-		} else {
-			w = s2[c2]
-			c2 = c2 + 1
-		}
-
-		if v != w {
-			t.Errorf("Wanted [%s], got [%s]", w, v)
-		}
+	w := []string{
+		"http://foo1.local",
+		"http://foo2.local",
+		"http://bar1.local",
+		"http://bar2.local",
+		"http://baz1.local",
+		"http://baz2.local",
 	}
-}
-
-func TestMixerThreeDifferentStacks(t *testing.T) {
-	s1 := Stack{"foo1", "bar1", "baz1"}
-	s2 := Stack{"foo2"}
-	s3 := Stack{"foo3", "bar3"}
-
-	i := Stacks{s1, s2, s3}
-	o := Mixup(i)
-
-	e := len(s1) + len(s2) + len(s3)
-	r := len(o)
-
-	if r != e {
-		t.Errorf("Wanted [%d], got [%d]", e, r)
-	}
-
-	w := Stack{"foo1", "foo2", "foo3", "bar1", "bar3", "baz1"}
 	for idx := range o {
 		if o[idx] != w[idx] {
 			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx])
@@ -108,23 +147,42 @@ func TestMixerThreeDifferentStacks(t *testing.T) {
 	}
 }
 
-func TestMixerFourDifferentStacks(t *testing.T) {
-	s1 := Stack{"foo1"}
-	s2 := Stack{}
-	s3 := Stack{"foo3"}
-	s4 := Stack{"foo4", "bar4", "baz4"}
+func TestMixerWithThreeDifferentQueues(t *testing.T) {
+	u1 := []string{
+		"http://foo1.local",
+		"http://bar1.local",
+		"http://baz1.local",
+	}
+	u2 := []string{
+		"http://baz2.local",
+	}
+	u3 := []string{
+		"http://foo3.local",
+		"http://bar3.local",
+	}
 
-	i := Stacks{s1, s2, s3, s4}
-	o := Mixup(i)
+	m := MakeMixer(3)
+	m.Push(getURLs(u1))
+	m.Push(getURLs(u2))
+	m.Push(getURLs(u3))
 
-	e := len(s1) + len(s2) + len(s3) + len(s4)
+	o := m.Mixup()
+
+	e := len(u1) + len(u2) + len(u3)
 	r := len(o)
 
 	if r != e {
 		t.Errorf("Wanted [%d], got [%d]", e, r)
 	}
 
-	w := Stack{"foo1", "foo3", "foo4", "bar4", "baz4"}
+	w := []string{
+		"http://foo1.local",
+		"http://baz2.local",
+		"http://foo3.local",
+		"http://bar1.local",
+		"http://bar3.local",
+		"http://baz1.local",
+	}
 	for idx := range o {
 		if o[idx] != w[idx] {
 			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx])
@@ -132,34 +190,102 @@ func TestMixerFourDifferentStacks(t *testing.T) {
 	}
 }
 
-func TestStacksCount(t *testing.T) {
-	s1 := Stack{"foo1"}
-	s2 := Stack{}
-	s3 := Stack{"foo3"}
-	s4 := Stack{"foo4", "bar4", "baz4"}
+func TestMixerWithFourDifferentQueues(t *testing.T) {
+	u1 := []string{
+		"http://foo1.local",
+	}
+	u2 := []string{}
+	u3 := []string{
+		"http://foo3.local",
+	}
+	u4 := []string{
+		"http://foo4.local",
+		"http://bar4.local",
+		"http://baz4.local",
+	}
 
-	s := Stacks{s1, s2, s3, s4}
+	m := MakeMixer(4)
+	m.Push(getURLs(u1))
+	m.Push(getURLs(u2))
+	m.Push(getURLs(u3))
+	m.Push(getURLs(u4))
 
-	e := len(s1) + len(s2) + len(s3) + len(s4)
-	r := s.count()
+	o := m.Mixup()
+
+	e := len(u1) + len(u2) + len(u3) + len(u4)
+	r := len(o)
+
+	if r != e {
+		t.Errorf("Wanted [%d], got [%d]", e, r)
+	}
+
+	w := []string{
+		"http://foo1.local",
+		"http://foo3.local",
+		"http://foo4.local",
+		"http://bar4.local",
+		"http://baz4.local",
+	}
+	for idx := range o {
+		if o[idx] != w[idx] {
+			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx])
+		}
+	}
+}
+
+func TestMixerCount(t *testing.T) {
+	u1 := []string{
+		"http://foo1.local",
+	}
+	u2 := []string{}
+	u3 := []string{
+		"http://foo3.local",
+	}
+	u4 := []string{
+		"http://foo4.local",
+		"http://bar4.local",
+		"http://baz4.local",
+	}
+
+	m := MakeMixer(4)
+	m.Push(getURLs(u1))
+	m.Push(getURLs(u2))
+	m.Push(getURLs(u3))
+	m.Push(getURLs(u4))
+
+	e := len(u1) + len(u2) + len(u3) + len(u4)
+	r := m.count()
 
 	if r != e {
 		t.Errorf("Wanted [%d], got [%d]", e, r)
 	}
 }
 
-func TestStacksCountAfterMixing(t *testing.T) {
-	s1 := Stack{"foo1"}
-	s2 := Stack{}
-	s3 := Stack{"foo3"}
-	s4 := Stack{"foo4", "bar4", "baz4"}
+func TestMixerIsEmptyAfterMixing(t *testing.T) {
+	u1 := []string{
+		"http://foo1.local",
+	}
+	u2 := []string{}
+	u3 := []string{
+		"http://foo3.local",
+	}
+	u4 := []string{
+		"http://foo4.local",
+		"http://bar4.local",
+		"http://baz4.local",
+	}
 
-	s := Stacks{s1, s2, s3, s4}
-	e := len(s1) + len(s2) + len(s3) + len(s4)
+	m := MakeMixer(4)
+	m.Push(getURLs(u1))
+	m.Push(getURLs(u2))
+	m.Push(getURLs(u3))
+	m.Push(getURLs(u4))
 
-	b := s.count()
-	o := Mixup(s)
-	a := s.count()
+	e := len(u1) + len(u2) + len(u3) + len(u4)
+
+	b := m.count()
+	o := m.Mixup()
+	a := m.count()
 
 	if b != e {
 		t.Errorf("Wanted [%d], got [%d]", e, b)
