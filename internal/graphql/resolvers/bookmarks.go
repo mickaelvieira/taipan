@@ -39,7 +39,7 @@ func (r *BookmarkResolver) ID() gql.ID {
 
 // URL resolves the URL
 func (r *BookmarkResolver) URL() scalars.URL {
-	return scalars.URL{URL: r.Bookmark.URL}
+	return scalars.NewURL(r.Bookmark.URL)
 }
 
 // Image resolves the Image field
@@ -74,13 +74,13 @@ func (r *BookmarkResolver) Description() string {
 }
 
 // AddedAt resolves the AddedAt field
-func (r *BookmarkResolver) AddedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Bookmark.AddedAt}
+func (r *BookmarkResolver) AddedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Bookmark.AddedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *BookmarkResolver) UpdatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Bookmark.UpdatedAt}
+func (r *BookmarkResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Bookmark.UpdatedAt)
 }
 
 // IsFavorite resolves the IsFavorite field
@@ -93,7 +93,7 @@ func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.URL
+	u := args.URL.ToDomain()
 
 	b, err := r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
@@ -113,9 +113,7 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	u := args.URL.URL
-
-	d, err := usecase.Document(ctx, r.repositories, u, args.WithFeeds)
+	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), args.WithFeeds)
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +139,7 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	u := args.URL.URL
-
-	d, err := r.repositories.Documents.GetByURL(ctx, u)
+	d, err := r.repositories.Documents.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -173,9 +169,8 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	u := args.URL.URL
 
-	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, true)
+	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, args.URL.ToDomain(), true)
 	if err != nil {
 		return nil, err
 	}
@@ -194,9 +189,8 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	u := args.URL.URL
 
-	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, false)
+	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, args.URL.ToDomain(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -214,9 +208,8 @@ func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.URL
 
-	d, err := usecase.Unbookmark(ctx, r.repositories, user, u)
+	d, err := usecase.Unbookmark(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}

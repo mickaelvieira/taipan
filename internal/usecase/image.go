@@ -92,7 +92,7 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 // - retrieves image's information from base 64 data
 // - uploads it to AWS S3
 // - Updates the DB
-func HandleAvatar(ctx context.Context, repos *repository.Repositories, u *user.User, s string) (err error) {
+func HandleAvatar(ctx context.Context, repos *repository.Repositories, usr *user.User, s string) (err error) {
 	c := image.GetContentType(s)
 	d := image.GetBase64Data(s)
 	r := image.GetBase64Reader(d)
@@ -105,7 +105,7 @@ func HandleAvatar(ctx context.Context, repos *repository.Repositories, u *user.U
 		Format: image.GetExtension(c),
 	}
 
-	if u.Image != nil && u.Image.Name == i.Name {
+	if usr.Image != nil && usr.Image.Name == i.Name {
 		return
 	}
 
@@ -122,10 +122,10 @@ func HandleAvatar(ctx context.Context, repos *repository.Repositories, u *user.U
 		return
 	}
 
-	u.Image = i
-	u.UpdatedAt = time.Now()
+	usr.Image = i
+	usr.UpdatedAt = time.Now()
 
-	err = repos.Users.UpdateImage(ctx, u)
+	err = repos.Users.UpdateImage(ctx, usr)
 
 	return err
 }

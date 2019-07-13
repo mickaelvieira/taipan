@@ -34,15 +34,15 @@ func (r *HTTPClientLogResolver) StatusCode() int32 {
 
 // RequestURI resolves the RequestURI field
 func (r *HTTPClientLogResolver) RequestURI() scalars.URL {
-	return scalars.URL{URL: r.Result.ReqURI}
+	return scalars.NewURL(r.Result.ReqURI)
 }
 
 // FinalURI resolves the FinalURI field
 // func (r *HTTPClientLogResolver) FinalURI() scalars.URL {
-// 	return scalars.URL{URL: r.Result.FinalURI}
+// 	return scalars.NewURL(r.Result.FinalURI)
 // }
 
 // CreatedAt resolves the CreatedAt field
-func (r *HTTPClientLogResolver) CreatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Result.CreatedAt}
+func (r *HTTPClientLogResolver) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Result.CreatedAt)
 }

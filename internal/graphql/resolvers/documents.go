@@ -40,7 +40,7 @@ func (r *DocumentResolver) ID() gql.ID {
 
 // URL resolves the URL
 func (r *DocumentResolver) URL() scalars.URL {
-	return scalars.URL{URL: r.Document.URL}
+	return scalars.NewURL(r.Document.URL)
 }
 
 // Image resolves the Image field
@@ -75,13 +75,13 @@ func (r *DocumentResolver) Description() string {
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *DocumentResolver) CreatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Document.CreatedAt}
+func (r *DocumentResolver) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Document.CreatedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *DocumentResolver) UpdatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Document.UpdatedAt}
+func (r *DocumentResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Document.UpdatedAt)
 }
 
 // LogEntries returns the document's parser log

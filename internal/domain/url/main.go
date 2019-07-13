@@ -14,21 +14,9 @@ type URL struct {
 	*neturl.URL
 }
 
-func (url *URL) removeGAParams() {
-	params := strings.Split(url.RawQuery, "&")
-	var p []string
-	for _, param := range params {
-		s := strings.Split(param, "=")
-		if strings.Index(s[0], "utm_") == -1 {
-			p = append(p, param)
-		}
-	}
-	url.RawQuery = strings.Join(p, "&")
-}
-
 // UnescapeString returns the URL as string but without being escaped
-func (url *URL) UnescapeString() string {
-	value, err := neturl.QueryUnescape(url.String())
+func (u *URL) UnescapeString() string {
+	value, err := neturl.QueryUnescape(u.String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,54 +24,64 @@ func (url *URL) UnescapeString() string {
 }
 
 // Value converts the value going into the DB
-func (url *URL) Value() (driver.Value, error) {
-	value, err := neturl.QueryUnescape(url.String())
+func (u *URL) Value() (driver.Value, error) {
+	value, err := neturl.QueryUnescape(u.String())
 	return value, err
 }
 
 // Scan converts the value coming from the DB
-func (url *URL) Scan(value interface{}) error {
+func (u *URL) Scan(value interface{}) error {
 	if value == nil {
 		return nil
 	}
 	if v, ok := value.([]byte); ok {
-		var u *neturl.URL
-		u, err := neturl.ParseRequestURI(string(v))
+		p, err := FromRawURL(string(v))
 		if err != nil {
 			return errors.New("failed to parse URL during scanning")
 		}
-		*url = URL{u}
+		*u = *p
 		return nil
 	}
 	return errors.New("failed to scan URL")
 }
 
-func removeFragment(rawURL string) string {
-	var i = strings.LastIndex(rawURL, "#")
-	if i < 0 {
-		return rawURL
+func removeGAParams(u *neturl.URL) *neturl.URL {
+	params := strings.Split(u.RawQuery, "&")
+	var p []string
+	for _, param := range params {
+		s := strings.Split(param, "=")
+		if strings.Index(s[0], "utm_") == -1 {
+			p = append(p, param)
+		}
 	}
-	return rawURL[0:i]
+	u.RawQuery = strings.Join(p, "&")
+	return u
+}
+
+func removeFragment(r string) string {
+	var i = strings.LastIndex(r, "#")
+	if i < 0 {
+		return r
+	}
+	return r[0:i]
 }
 
 // FromRawURL returns an URL struct only when the raw URL is absolute. It also removes the URL fragment
-func FromRawURL(rawURL string) (u *URL, err error) {
-	t, err := neturl.ParseRequestURI(removeFragment(rawURL))
+func FromRawURL(r string) (u *URL, err error) {
+	p, err := neturl.ParseRequestURI(removeFragment(r))
 	if err != nil {
-		err = fmt.Errorf("Invalid URL '%s'", rawURL)
+		err = fmt.Errorf("Invalid URL '%s'", r)
 		return
 	}
 
-	if !t.IsAbs() {
-		err = fmt.Errorf("URL must be absolute '%s'", rawURL)
+	if !p.IsAbs() {
+		err = fmt.Errorf("URL must be absolute '%s'", r)
 		return
 	}
 
-	u = &URL{
-		URL: t,
-	}
+	p = removeGAParams(p)
 
-	u.removeGAParams()
+	u = &URL{URL: p}
 
 	return
 }

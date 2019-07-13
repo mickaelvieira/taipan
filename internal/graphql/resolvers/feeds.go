@@ -32,9 +32,11 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var bookmarks = make([]*BookmarkResolver, 0)
-	for _, result := range results {
-		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
+	var bookmarks = make([]*BookmarkResolver, len(results))
+	for i, result := range results {
+		bookmarks[i] = &BookmarkResolver{
+			Bookmark: result,
+		}
 	}
 
 	reso := BookmarkCollectionResolver{
@@ -69,9 +71,11 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var bookmarks = make([]*BookmarkResolver, 0)
-	for _, result := range results {
-		bookmarks = append(bookmarks, &BookmarkResolver{Bookmark: result})
+	var bookmarks = make([]*BookmarkResolver, len(results))
+	for i, result := range results {
+		bookmarks[i] = &BookmarkResolver{
+			Bookmark: result,
+		}
 	}
 
 	reso := BookmarkCollectionResolver{
@@ -106,12 +110,12 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var documents = make([]*DocumentResolver, 0)
-	for _, result := range results {
-		documents = append(documents, &DocumentResolver{
+	var documents = make([]*DocumentResolver, len(results))
+	for i, result := range results {
+		documents[i] = &DocumentResolver{
 			Document:     result,
 			repositories: r.repositories,
-		})
+		}
 	}
 
 	reso := DocumentCollectionResolver{
@@ -146,12 +150,12 @@ func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var documents = make([]*DocumentResolver, 0)
-	for _, result := range results {
-		documents = append(documents, &DocumentResolver{
+	var documents = make([]*DocumentResolver, len(results))
+	for i, result := range results {
+		documents[i] = &DocumentResolver{
 			Document:     result,
 			repositories: r.repositories,
-		})
+		}
 	}
 
 	reso := DocumentCollectionResolver{

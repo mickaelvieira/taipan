@@ -73,10 +73,10 @@ func handleDuplicateDocument(ctx context.Context, repos *repository.Repositories
 // - Insert/Update the bookmark in the DB
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
-func Document(ctx context.Context, repos *repository.Repositories, URL *url.URL, findFeeds bool) (*document.Document, error) {
-	fmt.Printf("Fetching %s\n", URL.String())
+func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, findFeeds bool) (*document.Document, error) {
+	fmt.Printf("Fetching %s\n", u.String())
 
-	result, err := FetchResource(ctx, repos, URL)
+	result, err := FetchResource(ctx, repos, u)
 	if err != nil {
 		return nil, err
 	}
@@ -132,13 +132,13 @@ func Document(ctx context.Context, repos *repository.Repositories, URL *url.URL,
 // - Link the document to the user
 // - Save it in the DB
 // - And finally return the user's bookmark
-func Bookmark(ctx context.Context, repos *repository.Repositories, user *user.User, d *document.Document, isFavorite bool) (*bookmark.Bookmark, error) {
-	err := repos.Bookmarks.BookmarkDocument(ctx, user, d, isFavorite)
+func Bookmark(ctx context.Context, repos *repository.Repositories, usr *user.User, d *document.Document, isFavorite bool) (*bookmark.Bookmark, error) {
+	err := repos.Bookmarks.BookmarkDocument(ctx, usr, d, isFavorite)
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := repos.Bookmarks.GetByURL(ctx, user, d.URL)
+	b, err := repos.Bookmarks.GetByURL(ctx, usr, d.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -147,13 +147,13 @@ func Bookmark(ctx context.Context, repos *repository.Repositories, user *user.Us
 }
 
 // FavoriteStatus changes the bookmark read status
-func FavoriteStatus(ctx context.Context, repos *repository.Repositories, user *user.User, URL *url.URL, isFavorite bool) (*bookmark.Bookmark, error) {
+func FavoriteStatus(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL, isFavorite bool) (*bookmark.Bookmark, error) {
 	var (
 		err error
 		b   *bookmark.Bookmark
 	)
 
-	b, err = repos.Bookmarks.GetByURL(ctx, user, URL)
+	b, err = repos.Bookmarks.GetByURL(ctx, usr, u)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func FavoriteStatus(ctx context.Context, repos *repository.Repositories, user *u
 	b.IsFavorite = isFavorite
 	b.UpdatedAt = time.Now()
 
-	err = repos.Bookmarks.ChangeFavoriteStatus(ctx, user, b)
+	err = repos.Bookmarks.ChangeFavoriteStatus(ctx, usr, b)
 	if err != nil {
 		return nil, err
 	}
@@ -170,14 +170,14 @@ func FavoriteStatus(ctx context.Context, repos *repository.Repositories, user *u
 }
 
 // Unbookmark removes bookmark from user list
-func Unbookmark(ctx context.Context, repos *repository.Repositories, user *user.User, URL *url.URL) (*document.Document, error) {
+func Unbookmark(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL) (*document.Document, error) {
 	var (
 		err error
 		b   *bookmark.Bookmark
 		d   *document.Document
 	)
 
-	b, err = repos.Bookmarks.GetByURL(ctx, user, URL)
+	b, err = repos.Bookmarks.GetByURL(ctx, usr, u)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func Unbookmark(ctx context.Context, repos *repository.Repositories, user *user.
 	b.IsFavorite = false
 	b.UpdatedAt = time.Now()
 
-	err = repos.Bookmarks.Remove(ctx, user, b)
+	err = repos.Bookmarks.Remove(ctx, usr, b)
 	if err != nil {
 		return nil, err
 	}
