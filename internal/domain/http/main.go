@@ -21,6 +21,8 @@ type Result struct {
 	RespHeaders      string
 	CreatedAt        time.Time
 	Content          io.Reader
+	Failed           bool
+	FailureReason    string
 }
 
 // RequestWasRedirected is the final URL different from the requested URL

@@ -4,40 +4,55 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"io"
 	nethttp "net/http"
 	"time"
 )
 
-func checkRedirection(URL *url.URL, resp *nethttp.Response) (o *url.URL, f *url.URL) {
+func checkRedirection(URL *url.URL, res *nethttp.Response) (o *url.URL, f *url.URL) {
 	o = URL
 	f = URL
-	if resp.Request != nil {
-		if o.String() != resp.Request.URL.String() {
+	if res != nil && res.Request != nil {
+		if o.String() != res.Request.URL.String() {
 			f = &url.URL{
-				URL: resp.Request.URL,
+				URL: res.Request.URL,
 			}
 		}
 	}
 	return
 }
 
-func makeResult(URL *url.URL, req *nethttp.Request, resp *nethttp.Response, content io.Reader) *Result {
-	originalURL, finalURL := checkRedirection(URL, resp)
-	cs, r := checksum.FromReader(content)
+func makeSuccessfulResult(URL *url.URL, req *nethttp.Request, res *nethttp.Response) *Result {
+	o, f := checkRedirection(URL, res)
+	cs, r := checksum.FromReader(res.Body)
+	// https://www.openmymind.net/Go-Slices-And-The-Case-Of-The-Missing-Memory/
+	// b := bytes.NewBuffer(make([]byte, 0, res.ContentLength))
+	// b.ReadFrom(res.Body)
+	// body := buffer.Bytes()
 
 	return &Result{
 		Checksum:         cs,
-		ContentType:      resp.Header.Get("Content-Type"),
-		ReqURI:           originalURL,
-		FinalURI:         finalURL,
+		ContentType:      res.Header.Get("Content-Type"),
+		ReqURI:           o,
+		FinalURI:         f,
 		ReqMethod:        req.Method,
 		ReqHeaders:       fmt.Sprintf("%s", req.Header),
-		RespStatusCode:   resp.StatusCode,
-		RespReasonPhrase: resp.Status,
-		RespHeaders:      fmt.Sprintf("%s", resp.Header),
+		RespStatusCode:   res.StatusCode,
+		RespReasonPhrase: res.Status,
+		RespHeaders:      fmt.Sprintf("%s", res.Header),
 		CreatedAt:        time.Now(),
 		Content:          r,
+	}
+}
+
+func makeFailedResult(URL *url.URL, req *nethttp.Request, err error) *Result {
+	return &Result{
+		ReqURI:        URL,
+		FinalURI:      URL,
+		ReqMethod:     req.Method,
+		ReqHeaders:    fmt.Sprintf("%s", req.Header),
+		CreatedAt:     time.Now(),
+		Failed:        true,
+		FailureReason: err.Error(),
 	}
 }
 
@@ -61,58 +76,37 @@ func makeRequest(method string, URL *url.URL) (req *nethttp.Request, err error) 
 }
 
 // Client bot
-type Client struct{}
+type Client struct {
+	err error
+}
 
-// Head fetches the document and returns the result of the request
-// if there is no result, that means:
-// - we could not build the request
-// - a network error occured
-// - we could not read the body
-// func (f *Client) Head(URL *url.URL) (result *Result, err error) {
-// 	fmt.Printf("Preforming HEAD request %s\n", URL)
-// 	var req *nethttp.Request
-// 	var resp *nethttp.Response
-
-// 	client := makeClient()
-// 	req, err = makeRequest("HEAD", URL)
-// 	if err != nil {
-// 		return
-// 	}
-
-// 	resp, err = client.Do(req)
-// 	if err != nil {
-// 		return
-// 	}
-// 	defer resp.Body.Close()
-
-// 	result = makeResult(URL, req, resp, nil)
-
-// 	return
-// }
+// Err returns the last error
+func (c *Client) Err() error {
+	return c.err
+}
 
 // Get fetches the document and returns the result of the request
 // if there is no result, that means:
 // - we could not build the request
 // - a network error occured
 // - we could not read the body
-func (f *Client) Get(URL *url.URL) (result *Result, err error) {
-	fmt.Printf("Preforming GET request %s\n", URL)
+func (c *Client) Get(URL *url.URL) *Result {
 	var req *nethttp.Request
-	var resp *nethttp.Response
+	var res *nethttp.Response
+
+	// Reset the last error
+	c.err = nil
 
 	client := makeClient()
-	req, err = makeRequest("GET", URL)
-	if err != nil {
-		return
+	req, c.err = makeRequest("GET", URL)
+	if c.err != nil {
+		return nil
 	}
 
-	resp, err = client.Do(req)
-	if err != nil {
-		return
+	res, c.err = client.Do(req)
+	if c.err != nil {
+		return makeFailedResult(URL, req, c.err)
 	}
-	defer resp.Body.Close()
-
-	result = makeResult(URL, req, resp, resp.Body)
-
-	return
+	defer res.Body.Close()
+	return makeSuccessfulResult(URL, req, res)
 }

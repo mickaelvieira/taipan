@@ -81,6 +81,10 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 		return nil, err
 	}
 
+	if result.Failed {
+		return nil, fmt.Errorf("Could not fetch document: '%s'", result.FailureReason)
+	}
+
 	// The problem that we have here is the URL provided by the user or in the feed might be different from
 	// the URL we actually store in the DB. (.i.e we get a "cleaned-up" URL from the document itself). So we can't
 	// really rely on the URL to identify properly a document.

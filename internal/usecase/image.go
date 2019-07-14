@@ -66,6 +66,11 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 		return
 	}
 
+	if result.Failed {
+		err = fmt.Errorf("Could not fetch image: '%s'", result.FailureReason)
+		return
+	}
+
 	d.Image.Name = image.GetName(result.Checksum, result.ContentType)
 	d.Image.Format = image.GetExtension(result.ContentType)
 
@@ -96,6 +101,10 @@ func HandleAvatar(ctx context.Context, repos *repository.Repositories, usr *user
 	c := image.GetContentType(s)
 	d := image.GetBase64Data(s)
 	r := image.GetBase64Reader(d)
+	// l := image.GetBase64DataLen(d)
+
+	// b := bytes.NewBuffer(make([]byte, 0, l))
+	// b.ReadFrom(r)
 
 	var cs checksum.Checksum
 	cs, r = checksum.FromReader(r)
