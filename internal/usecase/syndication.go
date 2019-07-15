@@ -40,7 +40,7 @@ func EnableSyndicationSource(ctx context.Context, repos *repository.Repositories
 
 func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r *http.Result, s *syndication.Source) error {
 	// no error or failure, there is nothing to do
-	if !http.IsError(r.RespStatusCode) && !r.Failed {
+	if !syndication.IsHTTPError(r.RespStatusCode) && !r.Failed {
 		return nil
 	}
 
@@ -59,7 +59,7 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 		return DisableSyndicationSource(ctx, repos, s)
 	}
 
-	if http.IsError(r.RespStatusCode) {
+	if syndication.IsHTTPError(r.RespStatusCode) {
 		// @TODO Should we check whether they are actually 5 successive errors?
 		l, err := repos.Botlogs.FindByURLAndStatus(ctx, r.ReqURI, r.RespStatusCode)
 		if err != nil {
@@ -70,11 +70,11 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 			return nil
 		}
 
-		if http.IsNoLongerAvailable(r.RespStatusCode) {
+		if syndication.IsHTTPErrorPermanent(r.RespStatusCode) {
 			fmt.Printf("Unexisting source: '%s' was marked as deleted\n", s.URL)
 			return DeleteSyndicationSource(ctx, repos, s)
 		}
-		if http.IsServerError(r.RespStatusCode) {
+		if syndication.IsHTTPErrorTemporary(r.RespStatusCode) {
 			fmt.Printf("Server error: '%s' was marked as paused\n", s.URL)
 			return DisableSyndicationSource(ctx, repos, s)
 		}
