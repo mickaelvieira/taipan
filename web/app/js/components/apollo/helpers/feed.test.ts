@@ -116,7 +116,6 @@ describe("Feed helpers", () => {
     let result: FeedEventData;
     beforeAll(() => {
       event = {
-        id: "foo",
         emitter: "baz",
         item: getBookmark("baz"),
         action: "Add",
