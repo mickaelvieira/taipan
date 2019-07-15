@@ -8,6 +8,7 @@ import subscriptionNews from "../graphql/subscription/news.graphql";
 import subscriptionFavorites from "../graphql/subscription/favorites.graphql";
 import subscriptionReadingList from "../graphql/subscription/reading-list.graphql";
 import { FeedEventData, FeedEvent } from "../../../types/feed";
+import { Event } from "../../../types/subscription";
 import { hasReceivedEvent, FeedUpdater } from "../helpers/feed";
 import { ClientContext } from "../../context";
 
@@ -16,7 +17,7 @@ interface Data extends OnSubscriptionDataOptions<FeedEventData> {
   clientId: string;
 }
 
-function isEmitter(event: FeedEvent | null, clientId: string): boolean {
+function isEmitter(event: Event | null, clientId: string): boolean {
   if (!event) {
     return false;
   }

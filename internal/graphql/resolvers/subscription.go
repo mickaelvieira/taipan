@@ -4,12 +4,43 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/subscription"
 	"log"
 )
 
+// UserEventResolver resolves an bookmark event
+type UserEventResolver struct {
+	event *subscription.Event
+}
+
+// Item returns the event's message
+func (r *UserEventResolver) Item() *UserResolver {
+	u, ok := r.event.Payload.(*user.User)
+	if !ok {
+		log.Fatal("Cannot resolve item, payload is not a bookmark")
+	}
+	return &UserResolver{User: u}
+}
+
+// Emitter returns the event's emitter ID
+func (r *UserEventResolver) Emitter() string {
+	return r.event.Emitter
+}
+
+// Topic returns the event's topic
+func (r *UserEventResolver) Topic() string {
+	return string(r.event.Topic)
+}
+
+// Action returns the event's action
+func (r *UserEventResolver) Action() string {
+	return string(r.event.Action)
+}
+
 // BookmarkEventResolver resolves an bookmark event
 type BookmarkEventResolver struct {
-	event *feedEvent
+	event *subscription.Event
 }
 
 // Item returns the event's message
@@ -19,11 +50,6 @@ func (r *BookmarkEventResolver) Item() *BookmarkResolver {
 		log.Fatal("Cannot resolve item, payload is not a bookmark")
 	}
 	return &BookmarkResolver{Bookmark: b}
-}
-
-// ID returns the event's ID
-func (r *BookmarkEventResolver) ID() string {
-	return r.event.ID
 }
 
 // Emitter returns the event's emitter ID
@@ -43,7 +69,7 @@ func (r *BookmarkEventResolver) Action() string {
 
 // DocumentEventResolver is a document event
 type DocumentEventResolver struct {
-	event *feedEvent
+	event *subscription.Event
 }
 
 // Item returns the event's message
@@ -53,11 +79,6 @@ func (r *DocumentEventResolver) Item() *DocumentResolver {
 		log.Fatal("Cannot resolve item, payload is not a document")
 	}
 	return &DocumentResolver{Document: d}
-}
-
-// ID returns the event's ID
-func (r *DocumentEventResolver) ID() string {
-	return r.event.ID
 }
 
 // Emitter returns the event's emitter ID
@@ -75,11 +96,43 @@ func (r *DocumentEventResolver) Action() string {
 	return string(r.event.Action)
 }
 
+type userSubscriber struct {
+	events chan<- *UserEventResolver
+}
+
+func (s *userSubscriber) Publish(e *subscription.Event) {
+	s.events <- &UserEventResolver{event: e}
+}
+
+type bookmarkSubscriber struct {
+	events chan<- *BookmarkEventResolver
+}
+
+func (s *bookmarkSubscriber) Publish(e *subscription.Event) {
+	s.events <- &BookmarkEventResolver{event: e}
+}
+
+type documentSubscriber struct {
+	events chan<- *DocumentEventResolver
+}
+
+func (s *documentSubscriber) Publish(e *subscription.Event) {
+	s.events <- &DocumentEventResolver{event: e}
+}
+
+// User subscribes to user event
+func (r *RootResolver) User(ctx context.Context) <-chan *UserEventResolver {
+	c := make(chan *UserEventResolver)
+	s := &userSubscriber{events: c}
+	r.subscriptions.Subscribe(subscription.User, s, ctx.Done())
+	return c
+}
+
 // Favorites subscribes to favorites feed bookmarksEvents
 func (r *RootResolver) Favorites(ctx context.Context) <-chan *BookmarkEventResolver {
 	c := make(chan *BookmarkEventResolver)
 	s := &bookmarkSubscriber{events: c}
-	r.subscriptions.subscribe(favorites, s, ctx.Done())
+	r.subscriptions.Subscribe(subscription.Favorites, s, ctx.Done())
 	return c
 }
 
@@ -87,7 +140,7 @@ func (r *RootResolver) Favorites(ctx context.Context) <-chan *BookmarkEventResol
 func (r *RootResolver) ReadingList(ctx context.Context) <-chan *BookmarkEventResolver {
 	c := make(chan *BookmarkEventResolver)
 	s := &bookmarkSubscriber{events: c}
-	r.subscriptions.subscribe(readingList, s, ctx.Done())
+	r.subscriptions.Subscribe(subscription.ReadingList, s, ctx.Done())
 	return c
 }
 
@@ -95,6 +148,6 @@ func (r *RootResolver) ReadingList(ctx context.Context) <-chan *BookmarkEventRes
 func (r *RootResolver) News(ctx context.Context) <-chan *DocumentEventResolver {
 	c := make(chan *DocumentEventResolver)
 	s := &documentSubscriber{events: c}
-	r.subscriptions.subscribe(news, s, ctx.Done())
+	r.subscriptions.Subscribe(subscription.News, s, ctx.Done())
 	return c
 }

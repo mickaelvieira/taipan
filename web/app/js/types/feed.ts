@@ -1,5 +1,6 @@
 import { Bookmark } from "./bookmark";
 import { Document } from "./document";
+import { Event, BusAction } from "./subscription";
 import { CursorPagination } from ".";
 
 export type FeedItem = Bookmark | Document;
@@ -12,12 +13,9 @@ export interface FeedResults {
   results: FeedItem[];
 }
 
-export interface FeedEvent {
-  id: string;
-  emitter: string;
+export interface FeedEvent extends Event {
   item: FeedItem;
   action: FeedAction;
-  topic: FeedTopic;
 }
 
 export interface FeedVariables {
@@ -34,8 +32,7 @@ export interface FeedEventData {
   [key: string]: FeedEvent;
 }
 
-export type FeedTopic = "News" | "Favorites" | "ReadingList";
-export type FeedAction = "Add" | "Remove";
+export type FeedAction = Extract<BusAction, "Add" | "Remove">;
 
 export type FeedActions<T extends string> = {
   [index in T]: (result: FeedResults, item: FeedItem) => FeedResults;

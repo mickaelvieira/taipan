@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
+	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/subscription"
 	"github/mickaelvieira/taipan/internal/usecase"
 
 	gql "github.com/graph-gophers/graphql-go"
@@ -13,7 +15,8 @@ import (
 
 // UsersResolver bookmarks' root resolver
 type UsersResolver struct {
-	repositories *repository.Repositories
+	repositories  *repository.Repositories
+	subscriptions *subscription.Subscription
 }
 
 // UserResolver resolves the user entity
@@ -67,6 +70,7 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 	User userInput
 }) (*UserResolver, error) {
 	u := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
 	if args.ID != u.ID {
 		return nil, fmt.Errorf("You are not allowed to modify this user")
 	}
@@ -82,6 +86,10 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 	if err != nil {
 		return nil, err
 	}
+
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, subscription.User, subscription.Update, user),
+	)
 
 	res := UserResolver{User: user}
 

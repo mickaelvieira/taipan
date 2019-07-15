@@ -1,0 +1,11 @@
+#import "../fragment/user.graphql"
+#import "../fragment/event.graphql"
+
+subscription onUserChange {
+  user {
+    ...userEventFields
+    item {
+      ...userFields
+    }
+  }
+}

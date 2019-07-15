@@ -15,7 +15,8 @@ import {
 import uiTheme from "../ui/theme";
 import Loader from "../ui/Loader";
 import InitQuery, { Data } from "../apollo/Query/Init";
-import { ClientContext, AppContext, UserContext } from "../context";
+import { ClientContext, AppContext } from "../context";
+import AppUser from "./User";
 
 function canBoostrap(data: Data | undefined): boolean {
   if (!data) {
@@ -68,7 +69,7 @@ export default function App(): JSX.Element {
 
                 return (
                   <AppContext.Provider value={app.info}>
-                    <UserContext.Provider value={users.loggedIn}>
+                    <AppUser loggedIn={users.loggedIn}>
                       <Switch>
                         <Route exact path="/" component={NewsPage} />
                         <Route
@@ -88,7 +89,7 @@ export default function App(): JSX.Element {
                         />
                         <Route exact path="/account" component={AccountPage} />
                       </Switch>
-                    </UserContext.Provider>
+                    </AppUser>
                   </AppContext.Provider>
                 );
               }}

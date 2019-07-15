@@ -205,7 +205,6 @@ export default function Profile(): JSX.Element | null {
         <CardActions className={classes.actions}>
           <UserProfileMutation
             onCompleted={() => {
-              console.log("completed");
               dispatch([ProfileActions.AVATAR, null]);
               dispatch([ProfileActions.SCALE, 1]);
               setMessageInfo("You profile has been saved");

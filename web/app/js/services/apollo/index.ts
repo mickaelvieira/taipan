@@ -37,9 +37,9 @@ export default (clientId: string) => {
     options: {
       reconnect: true,
       reconnectionAttempts: Infinity,
-      connectionCallback: error => {
-        console.log("Connected to WS");
-        console.log(error);
+      connectionCallback: _ => {
+        // console.log("Connected to WS");
+        // console.log(_);
       },
       inactivityTimeout: 0
     }

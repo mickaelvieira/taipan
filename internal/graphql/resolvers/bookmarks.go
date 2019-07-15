@@ -7,6 +7,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/subscription"
 	"github/mickaelvieira/taipan/internal/usecase"
 
 	gql "github.com/graph-gophers/graphql-go"
@@ -15,7 +16,7 @@ import (
 // BookmarksResolver bookmarks' root resolver
 type BookmarksResolver struct {
 	repositories  *repository.Repositories
-	subscriptions *subscription
+	subscriptions *subscription.Subscription
 }
 
 // BookmarkCollectionResolver resolver
@@ -125,7 +126,9 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(clientID, readingList, add, b))
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, subscription.ReadingList, subscription.Add, b),
+	)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -150,13 +153,17 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var addTo = readingList
+	var addTo = subscription.ReadingList
 	if b.IsFavorite {
-		addTo = favorites
+		addTo = subscription.Favorites
 	}
 
-	r.subscriptions.publish(newFeedEvent(clientID, addTo, add, b))
-	r.subscriptions.publish(newFeedEvent(clientID, news, remove, d))
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, addTo, subscription.Add, b),
+	)
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, subscription.News, subscription.Remove, d),
+	)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -175,8 +182,12 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(clientID, favorites, add, b))
-	r.subscriptions.publish(newFeedEvent(clientID, readingList, remove, b))
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, subscription.Favorites, subscription.Add, b),
+	)
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, subscription.ReadingList, subscription.Remove, b),
+	)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -195,8 +206,12 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(clientID, readingList, add, b))
-	r.subscriptions.publish(newFeedEvent(clientID, favorites, remove, b))
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, subscription.ReadingList, subscription.Add, b),
+	)
+	r.subscriptions.Publish(
+		subscription.NewEvent(clientID, subscription.Favorites, subscription.Remove, b),
+	)
 
 	res := &BookmarkResolver{Bookmark: b}
 

@@ -3,8 +3,8 @@ import {
   FeedQueryData,
   FeedEventData,
   FeedActions,
-  FeedAction,
   FeedResults,
+  FeedAction,
   FeedItem,
   FeedEvent
 } from "../../../types/feed";

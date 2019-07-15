@@ -26,6 +26,9 @@ type Mutation {
 }
 
 type Subscription {
+  # "Subscribes to user events
+  user(): UserEvent!
+
   # "Subscribes to news feed events"
   news(): DocumentEvent!
 
@@ -294,40 +297,45 @@ type FeedBookmarkResults implements FeedResults {
 # the client in order to keep the feed up to date.
 # """
 
-# "A topic represents a feed"
-enum FeedTopic {
+# "A subscription topic"
+enum Topic {
+  User
   News
   Favorites
   ReadingList
 }
 
-# "A action represents a action on an item in the feed"
-enum FeedAction {
+# "A action represents a action"
+enum Action {
   Add
+  Update
   Remove
 }
 
-# "A event describes an action on an item in a given topic"
-interface FeedEvent {
-  id: String!
+# "A event describes an action"
+interface Event {
   emitter: String!
-  item: FeedItem!
-  topic: FeedTopic!
-  action: FeedAction!
+  topic: Topic!
+  action: Action!
 }
 
-type DocumentEvent implements FeedEvent {
-  id: String!
+type UserEvent implements Event {
+  emitter: String!
+  item: User!
+  topic: Topic!
+  action: Action!
+}
+
+type DocumentEvent implements Event {
   emitter: String!
   item: Document!
-  topic: FeedTopic!
-  action: FeedAction!
+  topic: Topic!
+  action: Action!
 }
 
-type BookmarkEvent implements FeedEvent {
-  id: String!
+type BookmarkEvent implements Event {
   emitter: String!
   item: Bookmark!
-  topic: FeedTopic!
-  action: FeedAction!
+  topic: Topic!
+  action: Action!
 }
