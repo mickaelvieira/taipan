@@ -1,9 +1,12 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"io/ioutil"
+	"log"
 	nethttp "net/http"
 	"time"
 )
@@ -21,9 +24,9 @@ func checkRedirection(URL *url.URL, res *nethttp.Response) (o *url.URL, f *url.U
 	return
 }
 
-func makeSuccessfulResult(URL *url.URL, req *nethttp.Request, res *nethttp.Response) *Result {
+func makeSuccessfulResult(URL *url.URL, req *nethttp.Request, res *nethttp.Response, b []byte) *Result {
 	o, f := checkRedirection(URL, res)
-	cs, r := checksum.FromReader(res.Body)
+	cs := checksum.FromBytes(b)
 	// https://www.openmymind.net/Go-Slices-And-The-Case-Of-The-Missing-Memory/
 	// b := bytes.NewBuffer(make([]byte, 0, res.ContentLength))
 	// b.ReadFrom(res.Body)
@@ -40,7 +43,7 @@ func makeSuccessfulResult(URL *url.URL, req *nethttp.Request, res *nethttp.Respo
 		RespReasonPhrase: res.Status,
 		RespHeaders:      fmt.Sprintf("%s", res.Header),
 		CreatedAt:        time.Now(),
-		Content:          r,
+		Content:          bytes.NewReader(b),
 	}
 }
 
@@ -56,34 +59,29 @@ func makeFailedResult(URL *url.URL, req *nethttp.Request, err error) *Result {
 	}
 }
 
-func makeClient() *nethttp.Client {
-	return &nethttp.Client{}
+func mustCreateClient() *nethttp.Client {
+	return &nethttp.Client{
+		Timeout: 10 * time.Second,
+	}
 }
 
-func makeRequest(method string, URL *url.URL) (req *nethttp.Request, err error) {
-	req, err = nethttp.NewRequest(method, URL.String(), nil)
+func mustCreateRequest(method string, URL *url.URL) *nethttp.Request {
+	r, err := nethttp.NewRequest(method, URL.String(), nil)
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
 
-	req.Header.Add("Accept", "text/html,application/xhtml+xml")
-	req.Header.Add("Accept-Language", "en-GB,en;q=0.9,en-US;q=0.8")
-	req.Header.Add("Cache-Control", "no-cache")
-	req.Header.Add("Pragma", "no-cache")
+	r.Header.Add("Accept", "text/html,application/xhtml+xml")
+	r.Header.Add("Accept-Language", "en-GB,en;q=0.9,en-US;q=0.8")
+	r.Header.Add("Cache-Control", "no-cache")
+	r.Header.Add("Pragma", "no-cache")
 	// req.Header.Add("User-Agent", os.Getenv("BOT_USER_AGENT"))
 
-	return
+	return r
 }
 
 // Client bot
-type Client struct {
-	err error
-}
-
-// Err returns the last error
-func (c *Client) Err() error {
-	return c.err
-}
+type Client struct{}
 
 // Get fetches the document and returns the result of the request
 // if there is no result, that means:
@@ -91,22 +89,21 @@ func (c *Client) Err() error {
 // - a network error occured
 // - we could not read the body
 func (c *Client) Get(URL *url.URL) *Result {
-	var req *nethttp.Request
-	var res *nethttp.Response
+	log.Printf("Fetching %s", URL.String())
 
-	// Reset the last error
-	c.err = nil
-
-	client := makeClient()
-	req, c.err = makeRequest("GET", URL)
-	if c.err != nil {
-		return nil
-	}
-
-	res, c.err = client.Do(req)
-	if c.err != nil {
-		return makeFailedResult(URL, req, c.err)
+	client := mustCreateClient()
+	req := mustCreateRequest("GET", URL)
+	res, err := client.Do(req)
+	if err != nil {
+		return makeFailedResult(URL, req, err)
 	}
 	defer res.Body.Close()
-	return makeSuccessfulResult(URL, req, res)
+
+	// Let's sure we can read the full response before continuing
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return makeFailedResult(URL, req, err)
+	}
+
+	return makeSuccessfulResult(URL, req, res, b)
 }

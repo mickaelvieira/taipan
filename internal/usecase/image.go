@@ -66,11 +66,6 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 		return
 	}
 
-	if result.Failed {
-		err = fmt.Errorf("Could not fetch image: '%s'", result.FailureReason)
-		return
-	}
-
 	d.Image.Name = image.GetName(result.Checksum, result.ContentType)
 	d.Image.Format = image.GetExtension(result.ContentType)
 
@@ -81,8 +76,7 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 
 	d.Image.SetDimensions(dm.Width, dm.Height)
 
-	err = UpdateToS3(d.Image.Name, result.ContentType, r)
-	if err != nil {
+	if err = UpdateToS3(d.Image.Name, result.ContentType, r); err != nil {
 		return
 	}
 
@@ -126,8 +120,7 @@ func HandleAvatar(ctx context.Context, repos *repository.Repositories, usr *user
 
 	i.SetDimensions(dm.Width, dm.Height)
 
-	err = UpdateToS3(i.Name, c, r)
-	if err != nil {
+	if err = UpdateToS3(i.Name, c, r); err != nil {
 		return
 	}
 

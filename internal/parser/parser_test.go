@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"testing"
 
@@ -18,7 +17,7 @@ func init() {
 	var err error
 	origURL, err = url.FromRawURL("https://foo.bar")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
 
@@ -30,7 +29,7 @@ func getDocumentWithHead(head string) *goquery.Document {
 func getDocument(html string) *goquery.Document {
 	document, err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	return document
 }

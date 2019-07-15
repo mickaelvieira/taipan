@@ -1,6 +1,7 @@
 package syndication
 
 import (
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"testing"
 )
@@ -45,7 +46,7 @@ func TestShiftOnQueueURLs(t *testing.T) {
 	s2 := "http://example2.local"
 	var a = []string{s1, s2}
 
-	q := fifo(a)
+	q := queue(a)
 	e := 2
 	r := len(q)
 
@@ -233,6 +234,56 @@ func TestMixerWithFourDifferentQueues(t *testing.T) {
 	}
 }
 
+func TestMixerIsFullWithZeroQueue(t *testing.T) {
+	m := MakeMixer(0)
+	var r = m.IsFull()
+	var e = true
+	if r != e {
+		t.Errorf("Wanted [%t]; got [%t]", e, r)
+	}
+}
+
+func TestMixerIsFullWithMultipleQueue(t *testing.T) {
+	u1 := []string{
+		"http://foo1.local",
+	}
+	u2 := []string{}
+	u3 := []string{
+		"http://foo3.local",
+	}
+	u4 := []string{
+		"http://foo4.local",
+		"http://bar4.local",
+		"http://baz4.local",
+	}
+
+	m := MakeMixer(4)
+	var testcase = []struct {
+		i []*url.URL
+		o bool
+	}{
+		{nil, false},
+		{getURLs(u1), false},
+		{getURLs(u2), false},
+		{getURLs(u3), false},
+		{getURLs(u4), true},
+	}
+
+	for idx, tc := range testcase {
+		name := fmt.Sprintf("Mixer is full [%d]", idx)
+		t.Run(name, func(t *testing.T) {
+			if tc.i != nil {
+				m.Push(tc.i)
+			}
+
+			var r = m.IsFull()
+			if r != tc.o {
+				t.Errorf("Wanted [%t]; got [%t]", tc.o, r)
+			}
+		})
+	}
+}
+
 func TestMixerCount(t *testing.T) {
 	u1 := []string{
 		"http://foo1.local",
@@ -254,7 +305,7 @@ func TestMixerCount(t *testing.T) {
 	m.Push(getURLs(u4))
 
 	e := len(u1) + len(u2) + len(u3) + len(u4)
-	r := m.count()
+	r := m.Count()
 
 	if r != e {
 		t.Errorf("Wanted [%d], got [%d]", e, r)
@@ -283,9 +334,9 @@ func TestMixerIsEmptyAfterMixing(t *testing.T) {
 
 	e := len(u1) + len(u2) + len(u3) + len(u4)
 
-	b := m.count()
+	b := m.Count()
 	o := m.Mixup()
-	a := m.count()
+	a := m.Count()
 
 	if b != e {
 		t.Errorf("Wanted [%d], got [%d]", e, b)

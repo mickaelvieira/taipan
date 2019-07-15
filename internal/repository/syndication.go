@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
@@ -47,7 +47,7 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 		LIMIT ?;
 		`
 	query = fmt.Sprintf(query, f.SQLInterval())
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 1)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 50)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 		VALUES
 		(?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	result, err := r.db.ExecContext(
+	res, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
 		s.URL,
@@ -175,11 +175,7 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 	)
 
 	if err == nil {
-		var ID int64
-		ID, err = result.LastInsertId()
-		if err == nil {
-			s.ID = strconv.FormatInt(ID, 10)
-		}
+		s.ID = db.GetLastInsertID(res)
 	}
 
 	return err

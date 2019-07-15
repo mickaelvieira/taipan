@@ -122,8 +122,12 @@ func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 		}
 	}
 
-	// @TODO push URLs to the queue
-	_, err = usecase.ParseSyndicationSource(ctx, r.repositories, s)
+	result, err := usecase.FetchResource(ctx, r.repositories, s.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = usecase.ParseSyndicationSource(ctx, r.repositories, result, s)
 	if err != nil {
 		return nil, err
 	}

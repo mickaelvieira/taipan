@@ -2,10 +2,10 @@ package syndication
 
 import "github/mickaelvieira/taipan/internal/domain/url"
 
-type fifo []string
+type queue []string
 
 // Shift returns the entity at the front of the queue
-func (q *fifo) shift() (e string) {
+func (q *queue) shift() (e string) {
 	s := *q
 	if len(s) == 0 {
 		return e
@@ -15,8 +15,8 @@ func (q *fifo) shift() (e string) {
 }
 
 // makeQueue creates a queue of URLs
-func makeQueue(in []*url.URL) fifo {
-	var s = make(fifo, len(in))
+func makeQueue(in []*url.URL) queue {
+	var s = make(queue, len(in))
 	for i, u := range in {
 		s[i] = u.String()
 	}
@@ -26,13 +26,13 @@ func makeQueue(in []*url.URL) fifo {
 // Mixer mix up a list of web syndication source while
 // keeping their position in their respective queue
 type Mixer struct {
-	q []fifo
-	i int
+	queues []queue
+	idx    int
 }
 
-// count returns the number of elements in all queues
-func (s Mixer) count() (t int) {
-	for _, v := range s.q {
+// Count returns the number of elements in all queues
+func (s Mixer) Count() (t int) {
+	for _, v := range s.queues {
 		t = t + len(v)
 	}
 	return
@@ -40,27 +40,31 @@ func (s Mixer) count() (t int) {
 
 // Push new entities into the mixer
 func (s *Mixer) Push(in []*url.URL) {
-	q := makeQueue(in)
-	s.q[s.i] = q
-	s.i = s.i + 1
+	s.queues[s.idx] = makeQueue(in)
+	s.idx = s.idx + 1
+}
+
+// IsFull returns the number of created queues
+func (s *Mixer) IsFull() bool {
+	return s.idx == len(s.queues)
 }
 
 // Mixup distributes evenly queues' entities into a new slice
 func (s *Mixer) Mixup() []string {
-	if s.count() == 0 {
+	if s.Count() == 0 {
 		return make([]string, 0)
 	}
 
-	t := s.count()
+	t := s.Count()
 	o := make([]string, t)
 	i, c := 0, 0
 	for c < t {
-		if len(s.q[i]) > 0 {
-			o[c] = s.q[i].shift()
+		if len(s.queues[i]) > 0 {
+			o[c] = s.queues[i].shift()
 			c = c + 1
 		}
 		i = i + 1
-		if i >= len(s.q) {
+		if i >= len(s.queues) {
 			i = 0
 		}
 	}
@@ -75,6 +79,6 @@ func (s *Mixer) Mixup() []string {
 // MakeMixer creates a mixer
 func MakeMixer(size int) *Mixer {
 	return &Mixer{
-		q: make([]fifo, size),
+		queues: make([]queue, size),
 	}
 }

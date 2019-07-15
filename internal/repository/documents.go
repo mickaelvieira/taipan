@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
-	"strconv"
 	"strings"
 )
 
@@ -282,7 +282,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 		VALUES
 		(?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	result, err := r.db.ExecContext(
+	res, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
 		d.URL,
@@ -298,11 +298,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 	)
 
 	if err == nil {
-		var ID int64
-		ID, err = result.LastInsertId()
-		if err == nil {
-			d.ID = strconv.FormatInt(ID, 10)
-		}
+		d.ID = db.GetLastInsertID(res)
 	}
 
 	return err

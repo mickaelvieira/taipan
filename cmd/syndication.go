@@ -9,6 +9,7 @@ import (
 	"github/mickaelvieira/taipan/internal/app"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -24,10 +25,15 @@ var Syndication = cli.Command{
 	Action:      runSyndicationWorker,
 }
 
+type fetchResult struct {
+	source *syndication.Source
+	result *http.Result
+}
+
 func runSyndicationWorker(c *cli.Context) {
 	fmt.Println("Starting syndication worker")
 	ctx, cancel := context.WithCancel(context.Background())
-	repositories := repository.GetRepositories()
+	repos := repository.GetRepositories()
 
 	// @TODO Check out how RMQ handle context
 	fmt.Println("Creating RabbitMQ client")
@@ -46,18 +52,22 @@ func runSyndicationWorker(c *cli.Context) {
 	defer onStop()
 
 	for {
-		fmt.Printf("Get outdated sources with frequency [%s]", http.Hourly)
-		sources, err := repositories.Syndication.GetOutdatedSources(ctx, http.Hourly)
+		fmt.Printf("Get outdated sources with frequency [%s]\n", http.Hourly)
+		sources, err := repos.Syndication.GetOutdatedSources(ctx, http.Hourly)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		if len(sources) == 0 {
 			d := 60 * time.Second
-			fmt.Printf("No outdated sources, sleep for [%ds]\n", 60)
+			fmt.Printf("Waiting for sources to be outdated, sleep for [%ds]\n", 60)
 			time.Sleep(d)
 			continue
 		}
+
+		cr := make(chan *fetchResult)
+		cu := make(chan []*url.URL)
+		cf := make(chan bool)
 
 		// We store web syndication sources in a queue
 		// which will be empty when all sources will be parsed
@@ -68,25 +78,50 @@ func runSyndicationWorker(c *cli.Context) {
 
 		fmt.Printf("Process queue of [%d] entities\n", len(queue))
 
-		for len(queue) > 0 {
-			// We get the source from the front of the queue
-			source := queue.Shift()
-			// We then parse the source
-			urls, err := usecase.ParseSyndicationSource(ctx, repositories, source)
-			if err != nil {
-				// We just log the parsing errors for now
-				// urls slice will be empty anyway so we can keep going
-				log.Printf("Syndication Parser: URL %s\n", source.URL)
-				log.Println(err)
+		go func(cr chan<- *fetchResult, q syndication.QueueSources) {
+			for len(q) > 0 {
+				go func(s *syndication.Source) {
+					r, err := usecase.FetchResource(ctx, repos, s.URL)
+					// we might have a SQL error
+					// but we always get an HTTP result
+					if err != nil {
+						log.Fatalln(err)
+					}
+					cr <- &fetchResult{source: s, result: r}
+				}(q.Shift())
 			}
-			// push the list of URLs into their respective queue
-			mixer.Push(urls)
-		}
+		}(cr, queue)
 
-		fmt.Printf("Queue is empty: [%d] entities\n", len(queue))
+		go func(cr <-chan *fetchResult, cu chan<- []*url.URL) {
+			for {
+				select {
+				case r := <-cr:
+					urls, err := usecase.ParseSyndicationSource(ctx, repos, r.result, r.source)
+					if err != nil {
+						log.Printf("Syndication Parser: URL %s\n", r.source.URL)
+						log.Println(err)
+					}
+					cu <- urls
+				}
+			}
+		}(cr, cu)
+
+		go func(c <-chan []*url.URL, f chan<- bool, m *syndication.Mixer) {
+			for {
+				select {
+				case u := <-c:
+					m.Push(u)
+					if m.IsFull() {
+						f <- true
+						return
+					}
+				}
+			}
+		}(cu, cf, mixer)
+
+		<-cf
 
 		go func(s *syndication.Mixer) {
-			// mix up the URLs and send publish them
 			for _, u := range s.Mixup() {
 				fmt.Printf("Publishing '%s'\n", u)
 				e := client.PublishDocument(u)
