@@ -11,7 +11,9 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import { Bookmark } from "../../../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CreateBookmarkMutation, { variables } from "../../../apollo/Mutation/Bookmarks/Create";
+import CreateBookmarkMutation, {
+  variables
+} from "../../../apollo/Mutation/Bookmarks/Create";
 
 const useStyles = makeStyles(() => ({
   dialog: {},

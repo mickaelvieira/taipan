@@ -2,12 +2,20 @@ import React from "react";
 import { Bookmark } from "../../../types/bookmark";
 import Item from "./Item";
 import { ListProps } from "../../ui/Feed/Feed";
+import FeedItem from "../../ui/Feed/Item/Item";
 
-export default function BookmarkList({ results }: ListProps): JSX.Element {
+export default function BookmarkList({
+  results,
+  updater
+}: ListProps): JSX.Element {
   return (
     <>
       {results.map(result => (
-        <Item bookmark={result as Bookmark} key={result.id} />
+        <FeedItem item={result} updater={updater} key={result.id}>
+          {({ remove }) => (
+            <Item bookmark={result as Bookmark} remove={remove} />
+          )}
+        </FeedItem>
       ))}
     </>
   );

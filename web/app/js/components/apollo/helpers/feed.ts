@@ -8,6 +8,8 @@ import {
   FeedItem,
   FeedEvent
 } from "../../../types/feed";
+import { ApolloClient } from "apollo-boost";
+import PropTypes from "prop-types";
 
 export function getDataKey(data: FeedQueryData | undefined): string | null {
   if (typeof data === "undefined") {
@@ -76,12 +78,12 @@ export function getBoundaries(results: FeedItem[]): [string, string] {
   return [first, last];
 }
 
-function hasItem(result: FeedResults, item: FeedItem): boolean {
+export function hasItem(result: FeedResults, item: FeedItem): boolean {
   const index = result.results.findIndex(({ id }) => id === item.id);
   return index >= 0;
 }
 
-function addItem(result: FeedResults, item: FeedItem): FeedResults {
+export function addItem(result: FeedResults, item: FeedItem): FeedResults {
   if (!item) {
     return result;
   }
@@ -105,7 +107,7 @@ function addItem(result: FeedResults, item: FeedItem): FeedResults {
   };
 }
 
-function removeItem(result: FeedResults, item: FeedItem): FeedResults {
+export function removeItem(result: FeedResults, item: FeedItem): FeedResults {
   if (!item) {
     return result;
   }
@@ -128,7 +130,34 @@ function removeItem(result: FeedResults, item: FeedItem): FeedResults {
   };
 }
 
-export const feedResultsAction: FeedActions<FeedAction> = {
+const actions: FeedActions<FeedAction> = {
   Add: addItem,
   Remove: removeItem
+};
+
+export type FeedUpdater = (item: FeedItem, action: FeedAction) => void;
+
+export const makeFeedUpdater = (
+  client: ApolloClient<object>,
+  query: PropTypes.Validator<object>
+): FeedUpdater => {
+  return (item: FeedItem, action: FeedAction) => {
+    const update = actions[action];
+    const data = client.readQuery({ query }) as FeedQueryData;
+    if (data) {
+      const key = getDataKey(data);
+      if (key) {
+        const result = update(data.feeds[key], item);
+        client.writeQuery({
+          query,
+          data: {
+            feeds: {
+              ...data.feeds,
+              [key]: result
+            }
+          }
+        });
+      }
+    }
+  };
 };

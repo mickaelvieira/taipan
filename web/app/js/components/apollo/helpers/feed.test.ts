@@ -2,7 +2,8 @@ import {
   getDataKey,
   hasReceivedData,
   hasReceivedEvent,
-  feedResultsAction,
+  addItem,
+  removeItem,
   getBoundaries
 } from "./feed";
 import { Bookmark } from "../../../types/bookmark";
@@ -12,9 +13,6 @@ import {
   FeedEvent,
   FeedEventData
 } from "../../../types/feed";
-
-const addItem = feedResultsAction["Add"];
-const removeItem = feedResultsAction["Remove"];
 
 function getBookmark(id: string): Bookmark {
   return {

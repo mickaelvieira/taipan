@@ -3,17 +3,23 @@ import { Document } from "../../../types/document";
 import Item from "./Item";
 import { ListProps } from "../../ui/Feed/Feed";
 import Latest from "./Latest";
+import FeedItem from "../../ui/Feed/Item/Item";
 
 export default function DocumentList({
   results,
   firstId,
-  lastId
+  lastId,
+  updater
 }: ListProps): JSX.Element {
   return (
     <>
       <Latest firstId={firstId} lastId={lastId} />
       {results.map(result => (
-        <Item document={result as Document} key={result.id} />
+        <FeedItem item={result} updater={updater} key={result.id}>
+          {({ remove }) => (
+            <Item document={result as Document} remove={remove} />
+          )}
+        </FeedItem>
       ))}
     </>
   );
