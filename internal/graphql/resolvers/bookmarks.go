@@ -107,8 +107,9 @@ func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 
 // Create creates a new document and add it to user's bookmarks
 func (r *BookmarksResolver) Create(ctx context.Context, args struct {
-	URL       scalars.URL
-	WithFeeds bool
+	URL        scalars.URL
+	IsFavorite bool
+	WithFeeds  bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
@@ -118,9 +119,8 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var isFavorite = false
 	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, r.repositories, user, d, isFavorite)
+	b, err = usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
 	if err != nil {
 		return nil, err
 	}

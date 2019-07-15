@@ -1,8 +1,8 @@
 #import "../../fragment/bookmark.graphql"
 
-mutation create($url: URL!, $withFeeds: Boolean!) {
+mutation create($url: URL!, $isFavorite: Boolean!, $withFeeds: Boolean!) {
   bookmarks {
-    create(url: $url, withFeeds: $withFeeds) {
+    create(url: $url, isFavorite: $isFavorite, withFeeds: $withFeeds) {
       ...bookmarkFields
     }
   }

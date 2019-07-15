@@ -40,6 +40,7 @@ export default React.memo(function Refresh({
             mutate({
               variables: {
                 ...variables,
+                isFavorite: bookmark.isFavorite,
                 url: bookmark.url
               }
             })

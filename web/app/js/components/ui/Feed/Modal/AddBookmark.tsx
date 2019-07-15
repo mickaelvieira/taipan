@@ -11,7 +11,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import { Bookmark } from "../../../../types/bookmark";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CreateBookmarkMutation from "../../../apollo/Mutation/Bookmarks/Create";
+import CreateBookmarkMutation, { variables } from "../../../apollo/Mutation/Bookmarks/Create";
 
 const useStyles = makeStyles(() => ({
   dialog: {},
@@ -31,6 +31,8 @@ interface Props {
   onBookmarkCreated: (bookmark: Bookmark) => void;
 }
 
+// @TODO Adds the newly created bookmark to reading list or favorite
+// Add a checkbox to add it directly to favorites
 export default function AddForm({
   isOpen,
   toggleDialog,
@@ -38,7 +40,8 @@ export default function AddForm({
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
-  const [withFeeds, setWithFeeds] = useState(true);
+  const [withFeeds, setWithFeeds] = useState(variables.withFeeds);
+  const [isFavorite, setIsFavorite] = useState(variables.isFavorite);
 
   return (
     <Dialog
@@ -80,6 +83,19 @@ export default function AddForm({
                   <FormControlLabel
                     control={
                       <Checkbox
+                        checked={isFavorite}
+                        onChange={() => setIsFavorite(!isFavorite)}
+                        value="1"
+                        color="primary"
+                      />
+                    }
+                    label="Add to favorites"
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
                         checked={withFeeds}
                         onChange={() => setWithFeeds(!withFeeds)}
                         value="1"
@@ -102,7 +118,7 @@ export default function AddForm({
                 <Button
                   onClick={() =>
                     mutate({
-                      variables: { url, withFeeds }
+                      variables: { url, withFeeds, isFavorite }
                     })
                   }
                   color="primary"
