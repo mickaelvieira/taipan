@@ -222,12 +222,12 @@ func (r *SyndicationResolver) Sources(ctx context.Context, args struct {
 		})
 	}
 
-	reso := SourceCollectionResolver{
+	res := SourceCollectionResolver{
 		Results: sources,
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,
 	}
 
-	return &reso, nil
+	return &res, nil
 }

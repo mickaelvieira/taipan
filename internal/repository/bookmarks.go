@@ -22,7 +22,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
@@ -36,7 +36,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 
 	where = append(where, "d.deleted = 0")
 	where = append(where, "b.linked = 1")
-	where = append(where, "b.marked_as_read = 0")
+	where = append(where, "b.favorite = 0")
 	where = append(where, "b.user_id = ?")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
@@ -71,7 +71,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
@@ -85,7 +85,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 
 	where = append(where, "d.deleted = 0")
 	where = append(where, "b.linked = 1")
-	where = append(where, "b.marked_as_read = 1")
+	where = append(where, "b.favorite = 1")
 	where = append(where, "b.user_id = ?")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
@@ -123,7 +123,7 @@ func (r *BookmarkRepository) GetTotalFavorites(ctx context.Context, user *user.U
 		SELECT COUNT(d.id) as total
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 1 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.favorite = 1 AND b.user_id = ?
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
@@ -141,7 +141,7 @@ func (r *BookmarkRepository) GetTotalReadingList(ctx context.Context, user *user
 		SELECT COUNT(d.id) as total
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 0 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.favorite = 0 AND b.user_id = ?
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
@@ -154,7 +154,7 @@ func (r *BookmarkRepository) GetTotalReadingList(ctx context.Context, user *user
 // GetByURL find a single entry
 func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *url.URL) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.user_id = ? AND d.url = ?
@@ -228,7 +228,7 @@ func (r *BookmarkRepository) getPagination(ctx context.Context, fromID string, t
 func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, u *user.User, d *document.Document, isFavorite bool) error {
 	query := `
 		INSERT INTO bookmarks
-		(user_id, document_id, added_at, updated_at, marked_as_read, linked)
+		(user_id, document_id, added_at, updated_at, favorite, linked)
 		VALUES
 		(?, ?, ?, ?, ?, 1)
 		ON DUPLICATE KEY UPDATE updated_at = ?, linked = 1
@@ -247,11 +247,11 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, u *user.User,
 	return err
 }
 
-// ChangeFavoriteStatus change bookmarks read status .i.e READ/UNREAD
+// ChangeFavoriteStatus mark or unmark a bookmark as favorite
 func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, u *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET marked_as_read = ?, updated_at = ?
+		SET favorite = ?, updated_at = ?
 		WHERE user_id = ? AND document_id = ?
 	`
 	_, err := r.db.ExecContext(
@@ -270,7 +270,7 @@ func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, u *user.U
 func (r *BookmarkRepository) Remove(ctx context.Context, u *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET marked_as_read = ?, linked = ?, updated_at = ?
+		SET favorite = ?, linked = ?, updated_at = ?
 		WHERE user_id = ? AND document_id = ?
 	`
 	_, err := r.db.ExecContext(

@@ -18,7 +18,7 @@ type UserEventResolver struct {
 func (r *UserEventResolver) Item() *UserResolver {
 	u, ok := r.event.Payload.(*user.User)
 	if !ok {
-		log.Fatal("Cannot resolve item, payload is not a bookmark")
+		log.Fatal("Cannot resolve item, payload is not a user")
 	}
 	return &UserResolver{User: u}
 }

@@ -39,7 +39,7 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 		}
 	}
 
-	reso := BookmarkCollectionResolver{
+	res := BookmarkCollectionResolver{
 		Results: bookmarks,
 		Total:   total,
 		First:   first,
@@ -47,7 +47,7 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 		Limit:   limit,
 	}
 
-	return &reso, nil
+	return &res, nil
 }
 
 // ReadingList resolves the query
@@ -78,7 +78,7 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 		}
 	}
 
-	reso := BookmarkCollectionResolver{
+	res := BookmarkCollectionResolver{
 		Results: bookmarks,
 		Total:   total,
 		First:   first,
@@ -86,7 +86,7 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 		Limit:   limit,
 	}
 
-	return &reso, nil
+	return &res, nil
 }
 
 // News resolves the query
@@ -118,7 +118,7 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 		}
 	}
 
-	reso := DocumentCollectionResolver{
+	res := DocumentCollectionResolver{
 		Results: documents,
 		Total:   total,
 		First:   first,
@@ -126,7 +126,7 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 		Limit:   limit,
 	}
 
-	return &reso, nil
+	return &res, nil
 }
 
 // LatestNews resolves the query
@@ -158,7 +158,7 @@ func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
 		}
 	}
 
-	reso := DocumentCollectionResolver{
+	res := DocumentCollectionResolver{
 		Results: documents,
 		Total:   total,
 		First:   first,
@@ -166,5 +166,5 @@ func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
 		Limit:   limit,
 	}
 
-	return &reso, nil
+	return &res, nil
 }

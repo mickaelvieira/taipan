@@ -133,7 +133,7 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 		})
 	}
 
-	reso := DocumentCollectionResolver{
+	res := DocumentCollectionResolver{
 		Results: documents,
 		Total:   total,
 		First:   first,
@@ -141,5 +141,5 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 		Limit:   limit,
 	}
 
-	return &reso, nil
+	return &res, nil
 }

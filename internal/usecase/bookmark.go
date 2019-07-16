@@ -146,7 +146,7 @@ func Bookmark(ctx context.Context, repos *repository.Repositories, usr *user.Use
 	return b, nil
 }
 
-// FavoriteStatus changes the bookmark read status
+// FavoriteStatus mark or unmark a bookmark as favorite
 func FavoriteStatus(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL, isFavorite bool) (*bookmark.Bookmark, error) {
 	var (
 		err error
