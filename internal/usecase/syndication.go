@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
@@ -105,6 +106,41 @@ func handleDuplicateFeed(ctx context.Context, repos *repository.Repositories, Fi
 	return s, err
 }
 
+// CreateSyndicationSource in this use case given a url, we will:
+// - fetch the related feed
+// - parse the feed
+// - And finally return a web syndication source
+func CreateSyndicationSource(ctx context.Context, repos *repository.Repositories, u *url.URL) (*syndication.Source, error) {
+	if syndication.IsBlacklisted(u.String()) {
+		return nil, fmt.Errorf("URL %s is blacklisted", u.String())
+	}
+
+	s, err := repos.Syndication.GetByURL(ctx, u)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			s = syndication.NewSource(u, "", "")
+			err = repos.Syndication.Insert(ctx, s)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+
+	result, err := FetchResource(ctx, repos, s.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ParseSyndicationSource(ctx, repos, result, s)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
 // ParseSyndicationSource in this usecase given an source entity:
 // - Fetches the related RSS/ATOM document
 // - Parses it the document
@@ -134,7 +170,7 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	}
 
 	pr, err := repos.Botlogs.FindPreviousByURL(ctx, s.URL, r)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return urls, err
 	}
 

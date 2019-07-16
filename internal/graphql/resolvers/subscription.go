@@ -6,6 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/subscription"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/usecase"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
@@ -61,6 +62,72 @@ func (r *SubscriptionResolver) CreatedAt() scalars.Datetime {
 // UpdatedAt resolves the UpdatedAt field
 func (r *SubscriptionResolver) UpdatedAt() scalars.Datetime {
 	return scalars.NewDatetime(r.Subscription.UpdatedAt)
+}
+
+// Subscription adds a syndication source and subscribes to it
+func (r *SubscriptionsResolver) Subscription(ctx context.Context, args struct {
+	URL scalars.URL
+}) (*SubscriptionResolver, error) {
+	u := args.URL.ToDomain()
+	user := auth.FromContext(ctx)
+
+	src, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, src)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &SubscriptionResolver{Subscription: s}
+
+	return res, nil
+}
+
+// Subscribe --
+func (r *SubscriptionsResolver) Subscribe(ctx context.Context, args struct {
+	URL scalars.URL
+}) (*SubscriptionResolver, error) {
+	u := args.URL.ToDomain()
+	user := auth.FromContext(ctx)
+
+	src, err := r.repositories.Syndication.GetByURL(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, src)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &SubscriptionResolver{Subscription: s}
+
+	return res, nil
+}
+
+// Unsubscribe --
+func (r *SubscriptionsResolver) Unsubscribe(ctx context.Context, args struct {
+	URL scalars.URL
+}) (*SubscriptionResolver, error) {
+	u := args.URL.ToDomain()
+	user := auth.FromContext(ctx)
+
+	src, err := r.repositories.Syndication.GetByURL(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := usecase.UnubscribeFromSource(ctx, r.repositories, user, src)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &SubscriptionResolver{Subscription: s}
+
+	return res, nil
 }
 
 // Subscriptions --

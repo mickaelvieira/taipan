@@ -5,8 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"strings"
+	"time"
 )
 
 // SubscriptionRepository the Feed repository
@@ -77,18 +80,56 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User) (in
 	return total, nil
 }
 
-// SubscriptionStatus --
-func (r *SubscriptionRepository) SubscriptionStatus(ctx context.Context, u *user.User, s *subscription.Subscription) error {
+// GetByURL find a single entry by URL
+func (r *SubscriptionRepository) GetByURL(ctx context.Context, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
+	query := `
+		SELECT sy.id, sy.url, sy.title, sy.type, su.subscribed, su.created_at, su.updated_at
+		FROM subscriptions AS su
+		INNER JOIN syndication AS sy ON sy.id = su.source_id
+		WHERE su.user_id = ? AND sy.url = ?
+	`
+	rows := r.db.QueryRowContext(ctx, formatQuery(query), usr.ID, u.UnescapeString())
+	s, err := r.scan(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+// Subscribe subscribes a user to a web syndication source
+func (r *SubscriptionRepository) Subscribe(ctx context.Context, u *user.User, s *syndication.Source) error {
+	query := `
+		INSERT INTO subscriptions
+		(user_id, source_id, subscribed, created_at, updated_at)
+		VALUES
+		(?, ?, 1, ?, ?)
+		ON DUPLICATE KEY UPDATE updated_at = ?, subscribed = 1
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		u.ID,
+		s.ID,
+		time.Now(),
+		time.Now(),
+		time.Now(),
+	)
+
+	return err
+}
+
+// Unsubscribe unsubscribes user from a web syndication source
+func (r *SubscriptionRepository) Unsubscribe(ctx context.Context, u *user.User, s *syndication.Source) error {
 	query := `
 		UPDATE subscriptions
-		SET subscribed = ?, updated_at = ?
+		SET subscribed = 0, updated_at = ?
 		WHERE user_id = ? AND source_id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		s.Subscribed,
-		s.UpdatedAt,
+		time.Now(),
 		u.ID,
 		s.ID,
 	)

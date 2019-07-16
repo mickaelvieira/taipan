@@ -18,7 +18,7 @@ export default function LayoutSubscription({
       <AddSubscriptionModal
         isOpen={isModalOpen}
         toggleDialog={setModalStatus}
-        onSyndicationSourceCreated={() => {
+        onSubscriptionCreated={() => {
           setInfo("Nice one! The feed was added");
           setModalStatus(false);
         }}

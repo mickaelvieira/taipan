@@ -134,11 +134,14 @@ type SubscriptionsQuery {
 }
 
 type SubscriptionsMutation {
+  # "Create a web syndication source and subscribe to it"
+  subscription(url: URL!): UserSubscription
+
   # "Subscribe the user to a web syndication"
-  # subscribe(url: URL!): Subscription
+  subscribe(url: URL!): UserSubscription
 
   # "Unsubscribe the user to a web syndication"
-  # unsubscribe(url: URL!): Subscription
+  unsubscribe(url: URL!): UserSubscription
 }
 
 input SearchSourcesInput {

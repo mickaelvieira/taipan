@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
@@ -105,29 +104,8 @@ func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
 	u := args.URL.ToDomain()
-	if syndication.IsBlacklisted(u.String()) {
-		return nil, fmt.Errorf("URL %s is blacklisted", u.String())
-	}
 
-	s, err := r.repositories.Syndication.GetByURL(ctx, u)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			s = syndication.NewSource(u, "", "")
-			err = r.repositories.Syndication.Insert(ctx, s)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
-	}
-
-	result, err := usecase.FetchResource(ctx, r.repositories, s.URL)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = usecase.ParseSyndicationSource(ctx, r.repositories, result, s)
+	s, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
 	if err != nil {
 		return nil, err
 	}
