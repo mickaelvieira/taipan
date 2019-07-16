@@ -1,11 +1,11 @@
 import React, { useState, PropsWithChildren, useContext } from "react";
-import AddSourceModal from "../ui/Syndication/Modal/AddSource";
+import AddSubscriptionModal from "../ui/Subscriptions/Modal/AddSubscription";
 import { AddButton } from "../ui/Fab";
 import { MessageContext } from "../context";
 import MainLayout from "./Layout";
 import MainContent from "./Content";
 
-export default function LayoutSyndication({
+export default function LayoutSubscription({
   children
 }: PropsWithChildren<{}>): JSX.Element {
   const setInfo = useContext(MessageContext);
@@ -15,7 +15,7 @@ export default function LayoutSyndication({
     <MainLayout>
       <MainContent>{children}</MainContent>
       <AddButton onClick={() => setModalStatus(true)} />
-      <AddSourceModal
+      <AddSubscriptionModal
         isOpen={isModalOpen}
         toggleDialog={setModalStatus}
         onSyndicationSourceCreated={() => {

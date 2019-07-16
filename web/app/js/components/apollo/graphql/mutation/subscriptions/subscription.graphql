@@ -1,0 +1,9 @@
+#import "../../fragment/subscription.graphql"
+
+mutation subscription($url: URL!) {
+  subscriptions {
+    subscription(url: $url) {
+      ...subscriptionFields
+    }
+  }
+}

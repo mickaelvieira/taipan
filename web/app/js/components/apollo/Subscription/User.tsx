@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Subscription as SubscriptionBase } from "react-apollo";
 import subscription from "../graphql/subscription/user.graphql";
-import { Event } from "../../../types/subscription";
+import { Event } from "../../../types/events";
 import { User, UserEvent } from "../../../types/users";
 import { ClientContext } from "../../context";
 

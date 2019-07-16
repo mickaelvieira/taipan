@@ -1,9 +1,16 @@
-export type BusTopic = "News" | "Favorites" | "ReadingList" | "User";
+export interface Subscription {
+  id: string;
+  url: string;
+  title: string;
+  type: string;
+  isSubscribed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export type BusAction = "Add" | "Remove" | "Update";
-
-export interface Event {
-  emitter: string;
-  action: BusAction;
-  topic: BusTopic;
+export interface SubscriptionResults {
+  limit: number;
+  total: number;
+  offset: number;
+  results: Subscription[];
 }

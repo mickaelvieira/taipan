@@ -1,6 +1,6 @@
 import { Bookmark } from "./bookmark";
 import { Document } from "./document";
-import { Event, BusAction } from "./subscription";
+import { Event, BusAction } from "./events";
 import { CursorPagination } from ".";
 
 export type FeedItem = Bookmark | Document;

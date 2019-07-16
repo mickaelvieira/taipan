@@ -1,13 +1,13 @@
 import React from "react";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
-import { Source } from "../../../types/syndication";
+import { Subscription } from "../../../types/subscription";
 
 interface Props {
-  item: Source;
+  item: Subscription;
 }
 
-export default function SourceTitle({ item }: Props): JSX.Element {
+export default function SubscriptionTitle({ item }: Props): JSX.Element {
   return (
     <Link
       underline="none"

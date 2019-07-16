@@ -5,9 +5,9 @@ import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { Source } from "../../../../types/syndication";
+import { Subscription } from "../../../../types/subscription";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import SourceMutation from "../../../apollo/Mutation/Syndication/Source";
+import SubscriptionMutation from "../../../apollo/Mutation/Subscriptions/Subscription";
 import Dialog from "@material-ui/core/Dialog";
 
 const useStyles = makeStyles(() => ({
@@ -20,13 +20,13 @@ const useStyles = makeStyles(() => ({
 interface Props {
   isOpen: boolean;
   toggleDialog: (status: boolean) => void;
-  onSyndicationSourceCreated: (source: Source) => void;
+  onSubscriptionCreated: (subscription: Subscription) => void;
 }
 
 export default function AddForm({
   isOpen,
   toggleDialog,
-  onSyndicationSourceCreated
+  onSubscriptionCreated
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
@@ -38,10 +38,10 @@ export default function AddForm({
       aria-labelledby="form-dialog-title"
       className={classes.dialog}
     >
-      <SourceMutation
-        onCompleted={({ syndication: { source } }) => {
+      <SubscriptionMutation
+        onCompleted={({ subscriptions: { subscription } }) => {
           setUrl("");
-          onSyndicationSourceCreated(source);
+          onSubscriptionCreated(subscription);
         }}
       >
         {(mutate, { loading, error }) => {
@@ -92,7 +92,7 @@ export default function AddForm({
             </>
           );
         }}
-      </SourceMutation>
+      </SubscriptionMutation>
     </Dialog>
   );
 }

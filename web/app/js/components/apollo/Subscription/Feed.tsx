@@ -8,7 +8,7 @@ import subscriptionNews from "../graphql/subscription/news.graphql";
 import subscriptionFavorites from "../graphql/subscription/favorites.graphql";
 import subscriptionReadingList from "../graphql/subscription/reading-list.graphql";
 import { FeedEventData, FeedEvent } from "../../../types/feed";
-import { Event } from "../../../types/subscription";
+import { Event } from "../../../types/events";
 import { hasReceivedEvent, FeedUpdater } from "../helpers/feed";
 import { ClientContext } from "../../context";
 

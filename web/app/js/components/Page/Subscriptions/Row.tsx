@@ -1,14 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Hidden from "@material-ui/core/Hidden";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
 import Link from "@material-ui/core/Link";
-import { Source } from "../../../types/syndication";
+import { Subscription } from "../../../types/subscription";
 import Domain from "../../ui/Domain";
-import { StatusButton, DeleteButton } from "../../ui/Syndication/Button";
-import SourceTitle from "./Title";
-import { MessageContext } from "../../context";
+import { StatusButton } from "../../ui/Subscriptions/Button";
+import SubscriptionTitle from "./Title";
 
 const useStyles = makeStyles({
   link: {
@@ -22,26 +21,29 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  source: Source;
+  subscription: Subscription;
 }
 
-export default React.memo(function Row({ source }: Props): JSX.Element {
+export default React.memo(function Row({ subscription }: Props): JSX.Element {
   const classes = useStyles();
-  const setMessageInfo = useContext(MessageContext);
-  const { title } = source;
-  const url = new URL(source.url);
+  const { title } = subscription;
+  const url = new URL(subscription.url);
 
   return (
     <TableRow>
       <TableCell>
-        {title ? <SourceTitle item={source} /> : <Domain item={source} />}
+        {title ? (
+          <SubscriptionTitle item={subscription} />
+        ) : (
+          <Domain item={subscription} />
+        )}
       </TableCell>
       <Hidden mdDown>
         <TableCell>
           <Link
             underline="none"
             href={`${url.protocol}//${url.host}`}
-            title={source.title ? source.title : source.url}
+            title={subscription.title ? subscription.title : subscription.url}
             target="_blank"
             rel="noopener"
             className={classes.link}
@@ -51,20 +53,8 @@ export default React.memo(function Row({ source }: Props): JSX.Element {
         </TableCell>
       </Hidden>
       <TableCell align="center">
-        <StatusButton source={source} />
+        <StatusButton subscription={subscription} />
       </TableCell>
-
-      <Hidden mdDown>
-        <TableCell align="center">
-          <DeleteButton
-            source={source}
-            onSuccess={() => {
-              setMessageInfo("The web syndication source was deleted");
-            }}
-            onError={message => setMessageInfo(message)}
-          />
-        </TableCell>
-      </Hidden>
     </TableRow>
   );
 });

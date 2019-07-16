@@ -9,10 +9,10 @@ import TableRow from "@material-ui/core/TableRow";
 import Button from "@material-ui/core/Button";
 import Loader from "../../ui/Loader";
 
-import SyndicationQuery, {
+import SubscriptionsQuery, {
   variables,
   query
-} from "../../apollo/Query/Syndication";
+} from "../../apollo/Query/Subscriptions";
 import Row from "./Row";
 
 const useStyles = makeStyles(() => ({
@@ -29,18 +29,11 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function SourcesTable(): JSX.Element {
+export default function SubscriptionsTable(): JSX.Element {
   const classes = useStyles();
 
   return (
-    <SyndicationQuery
-      variables={{
-        ...variables,
-        search: {
-          isPaused: false
-        }
-      }}
-    >
+    <SubscriptionsQuery>
       {({ data, loading, error, fetchMore }) => {
         if (loading) {
           return <Loader />;
@@ -74,8 +67,10 @@ export default function SourcesTable(): JSX.Element {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.syndication.sources.results.map(source => {
-                  return <Row key={source.id} source={source} />;
+                {data.subscriptions.subscriptions.results.map(subscription => {
+                  return (
+                    <Row key={subscription.id} subscription={subscription} />
+                  );
                 })}
               </TableBody>
             </Table>
@@ -89,7 +84,7 @@ export default function SourcesTable(): JSX.Element {
                       ...variables,
                       pagination: {
                         ...variables.pagination,
-                        offset: data.syndication.sources.results.length
+                        offset: data.subscriptions.subscriptions.results.length
                       }
                     },
                     updateQuery: (prev, { fetchMoreResult: next }) => {
@@ -97,15 +92,15 @@ export default function SourcesTable(): JSX.Element {
                         return prev;
                       }
                       return {
-                        syndication: {
-                          ...prev.syndication,
-                          sources: {
-                            ...prev.syndication.sources,
-                            limit: next.syndication.sources.limit,
-                            offset: next.syndication.sources.offset,
+                        subscriptions: {
+                          ...prev.subscriptions,
+                          subscriptions: {
+                            ...prev.subscriptions.subscriptions,
+                            limit: next.subscriptions.subscriptions.limit,
+                            offset: next.subscriptions.subscriptions.offset,
                             results: [
-                              ...prev.syndication.sources.results,
-                              ...next.syndication.sources.results
+                              ...prev.subscriptions.subscriptions.results,
+                              ...next.subscriptions.subscriptions.results
                             ]
                           }
                         }
@@ -120,6 +115,6 @@ export default function SourcesTable(): JSX.Element {
           </>
         );
       }}
-    </SyndicationQuery>
+    </SubscriptionsQuery>
   );
 }

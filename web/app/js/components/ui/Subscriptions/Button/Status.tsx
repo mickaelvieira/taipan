@@ -1,24 +1,24 @@
 import React, { useState } from "react";
 import Checkbox from "@material-ui/core/Checkbox";
-import ChangeSourceStatusMutation, {
-  enableSourceMutation,
-  disableSourceMutation
-} from "../../../apollo/Mutation/Syndication/Status";
-import { Source } from "../../../../types/syndication";
+import ChangeStatusMutation, {
+  subscribeMutation,
+  unsubscribeMutation
+} from "../../../apollo/Mutation/Subscriptions/Status";
+import { Subscription } from "../../../../types/subscription";
 
 interface Props {
-  source: Source;
+  subscription: Subscription;
 }
 
 export default React.memo(function StatusCheckbox({
-  source
+  subscription
 }: Props): JSX.Element {
-  const { isPaused } = source;
-  const [isChecked, setIsChecked] = useState(!isPaused);
+  const { isSubscribed } = subscription;
+  const [isChecked, setIsChecked] = useState(isSubscribed);
 
   return (
-    <ChangeSourceStatusMutation
-      mutation={isPaused ? enableSourceMutation : disableSourceMutation}
+    <ChangeStatusMutation
+      mutation={isSubscribed ? unsubscribeMutation : subscribeMutation}
     >
       {mutate => {
         return (
@@ -27,7 +27,7 @@ export default React.memo(function StatusCheckbox({
               setIsChecked(!isChecked);
               mutate({
                 variables: {
-                  url: source.url
+                  url: subscription.url
                 }
               });
             }}
@@ -38,6 +38,6 @@ export default React.memo(function StatusCheckbox({
           />
         );
       }}
-    </ChangeSourceStatusMutation>
+    </ChangeStatusMutation>
   );
 });

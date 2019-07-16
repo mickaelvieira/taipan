@@ -1,5 +1,5 @@
 import { Image } from "./image";
-import { Event } from "./subscription";
+import { Event } from "./events";
 
 export interface User {
   id: string;

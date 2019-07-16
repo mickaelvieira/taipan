@@ -7,7 +7,7 @@ scalar DateTime
 schema {
   query: Query
   mutation: Mutation
-  subscription: Subs
+  subscription: Subscription
 }
 
 type Query {
@@ -16,18 +16,18 @@ type Query {
   documents: DocumentsQuery
   bookmarks: BookmarksQuery
   feeds: FeedsQuery
-  # syndication: SyndicationQuery
-  # subscriptions: SubscriptionsQuery
+  syndication: SyndicationQuery
+  subscriptions: SubscriptionsQuery
 }
 
 type Mutation {
   bookmarks: BookmarksMutation
-  # syndication: SyndicationMutation
-  # subscriptions: SubscriptionsMutation
+  syndication: SyndicationMutation
+  subscriptions: SubscriptionsMutation
   users: UsersMutation
 }
 
-type Subs {
+type Subscription {
   # "Subscribes to user events
   user(): UserEvent!
 
@@ -130,7 +130,7 @@ type SyndicationMutation {
 
 type SubscriptionsQuery {
   # "Returns a list of user's subscription"
-  # subscriptions(pagination: OffsetPaginationInput!): SubscriptionCollection
+  subscriptions(pagination: OffsetPaginationInput!): SubscriptionCollection
 }
 
 type SubscriptionsMutation {
@@ -246,7 +246,7 @@ type Source implements Node {
 # The subscription type describes a user's subscription
 # to a web syndication source.
 # """
-type Subscription implements Node {
+type UserSubscription implements Node {
   id: ID!
   url: URL!
   type: String!
@@ -289,7 +289,7 @@ type SubscriptionCollection {
   offset: Int!
   total: Int!
   limit: Int!
-  results: [Subscription!]!
+  results: [UserSubscription!]!
 }
 
 # "An item in a feed"

@@ -12,4 +12,8 @@ CREATE TABLE `subscriptions` (
   CONSTRAINT `subscriptions_fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
-INSERT INTO `subscriptions` (user_id, created_at, updated_at, subscribed, source_id) SELECT '1', NOW(), NOW(), `paused`, `id` FROM `syndication`;
+INSERT INTO `subscriptions` (user_id, created_at, updated_at, subscribed, source_id) SELECT '1', `created_at`, `updated_at`, `paused`, `id` FROM `syndication`;
+
+UPDATE `subscriptions` SET subscribed = 2 WHERE subscribed = 0;
+UPDATE `subscriptions` SET subscribed = 0 WHERE subscribed = 1;
+UPDATE `subscriptions` SET subscribed = 1 WHERE subscribed = 2;
