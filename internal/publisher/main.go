@@ -1,11 +1,11 @@
-package subscription
+package publisher
 
 import (
 	"math/rand"
 	"time"
 )
 
-// Topic - a topic identifies a subscription topic
+// Topic - a topic identifies a publisher topic
 // events are dispatched for a given topic
 type Topic string
 
@@ -49,7 +49,7 @@ type Event struct {
 	Payload interface{}
 }
 
-// NewEvent creates a subscription event
+// NewEvent creates a publisher event
 func NewEvent(e string, t Topic, a Action, p interface{}) *Event {
 	return &Event{
 		Emitter: e,

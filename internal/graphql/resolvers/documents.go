@@ -7,7 +7,9 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
+	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
+	"log"
 
 	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
@@ -103,6 +105,43 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 
 func (r *DocumentResolver) getLogsLoader() *dataloader.Loader {
 	return loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
+}
+
+// DocumentEventResolver is a document event
+type DocumentEventResolver struct {
+	event *publisher.Event
+}
+
+// Item returns the event's message
+func (r *DocumentEventResolver) Item() *DocumentResolver {
+	d, ok := r.event.Payload.(*document.Document)
+	if !ok {
+		log.Fatal("Cannot resolve item, payload is not a document")
+	}
+	return &DocumentResolver{Document: d}
+}
+
+// Emitter returns the event's emitter ID
+func (r *DocumentEventResolver) Emitter() string {
+	return r.event.Emitter
+}
+
+// Topic returns the event's topic
+func (r *DocumentEventResolver) Topic() string {
+	return string(r.event.Topic)
+}
+
+// Action returns the event's action
+func (r *DocumentEventResolver) Action() string {
+	return string(r.event.Action)
+}
+
+// News subscribes to news feed bookmarksEvents
+func (r *RootResolver) News(ctx context.Context) <-chan *DocumentEventResolver {
+	c := make(chan *DocumentEventResolver)
+	s := &documentSubscriber{events: c}
+	r.publisher.Subscribe(publisher.News, s, ctx.Done())
+	return c
 }
 
 // Documents resolves the query

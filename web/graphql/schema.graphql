@@ -7,7 +7,7 @@ scalar DateTime
 schema {
   query: Query
   mutation: Mutation
-  subscription: Subscription
+  subscription: Subs
 }
 
 type Query {
@@ -16,16 +16,18 @@ type Query {
   documents: DocumentsQuery
   bookmarks: BookmarksQuery
   feeds: FeedsQuery
-  syndication: SyndicationQuery
+  # syndication: SyndicationQuery
+  # subscriptions: SubscriptionsQuery
 }
 
 type Mutation {
   bookmarks: BookmarksMutation
-  syndication: SyndicationMutation
+  # syndication: SyndicationMutation
+  # subscriptions: SubscriptionsMutation
   users: UsersMutation
 }
 
-type Subscription {
+type Subs {
   # "Subscribes to user events
   user(): UserEvent!
 
@@ -126,6 +128,19 @@ type SyndicationMutation {
   delete(url: URL!): Source
 }
 
+type SubscriptionsQuery {
+  # "Returns a list of user's subscription"
+  # subscriptions(pagination: OffsetPaginationInput!): SubscriptionCollection
+}
+
+type SubscriptionsMutation {
+  # "Subscribe the user to a web syndication"
+  # subscribe(url: URL!): Subscription
+
+  # "Unsubscribe the user to a web syndication"
+  # unsubscribe(url: URL!): Subscription
+}
+
 input SearchSourcesInput {
   isPaused: Boolean!
 }
@@ -211,7 +226,7 @@ type Bookmark implements Node {
 }
 
 # """
-# The source type describe a web syndication source.
+# The source type describes a web syndication source.
 # It can be either a RSS or Atom feed
 # """
 type Source implements Node {
@@ -225,6 +240,20 @@ type Source implements Node {
   updatedAt: DateTime!
   parsedAt: DateTime!
   logEntries: [HTTPClientLog]
+}
+
+# """
+# The subscription type describes a user's subscription
+# to a web syndication source.
+# """
+type Subscription implements Node {
+  id: ID!
+  url: URL!
+  type: String!
+  title: String!
+  isSubscribed: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 # "The HTTPClientLog type describes an entry in the HTTP client history"
@@ -253,6 +282,14 @@ type SourceCollection {
   total: Int!
   limit: Int!
   results: [Source!]!
+}
+
+# "A collection of the user's subscriptions"
+type SubscriptionCollection {
+  offset: Int!
+  total: Int!
+  limit: Int!
+  results: [Subscription!]!
 }
 
 # "An item in a feed"

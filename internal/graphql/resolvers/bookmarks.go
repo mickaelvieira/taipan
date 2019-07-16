@@ -6,17 +6,18 @@ import (
 	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
+	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/subscription"
 	"github/mickaelvieira/taipan/internal/usecase"
+	"log"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
 
 // BookmarksResolver bookmarks' root resolver
 type BookmarksResolver struct {
-	repositories  *repository.Repositories
-	subscriptions *subscription.Subscription
+	repositories *repository.Repositories
+	publisher    *publisher.Subscription
 }
 
 // BookmarkCollectionResolver resolver
@@ -89,6 +90,75 @@ func (r *BookmarkResolver) IsFavorite() bool {
 	return bool(r.Bookmark.IsFavorite)
 }
 
+// BookmarkEventResolver resolves an bookmark event
+type BookmarkEventResolver struct {
+	event *publisher.Event
+}
+
+// Item returns the event's message
+func (r *BookmarkEventResolver) Item() *BookmarkResolver {
+	b, ok := r.event.Payload.(*bookmark.Bookmark)
+	if !ok {
+		log.Fatal("Cannot resolve item, payload is not a bookmark")
+	}
+	return &BookmarkResolver{Bookmark: b}
+}
+
+// Emitter returns the event's emitter ID
+func (r *BookmarkEventResolver) Emitter() string {
+	return r.event.Emitter
+}
+
+// Topic returns the event's topic
+func (r *BookmarkEventResolver) Topic() string {
+	return string(r.event.Topic)
+}
+
+// Action returns the event's action
+func (r *BookmarkEventResolver) Action() string {
+	return string(r.event.Action)
+}
+
+type userSubscriber struct {
+	events chan<- *UserEventResolver
+}
+
+func (s *userSubscriber) Publish(e *publisher.Event) {
+	s.events <- &UserEventResolver{event: e}
+}
+
+type bookmarkSubscriber struct {
+	events chan<- *BookmarkEventResolver
+}
+
+func (s *bookmarkSubscriber) Publish(e *publisher.Event) {
+	s.events <- &BookmarkEventResolver{event: e}
+}
+
+type documentSubscriber struct {
+	events chan<- *DocumentEventResolver
+}
+
+func (s *documentSubscriber) Publish(e *publisher.Event) {
+	s.events <- &DocumentEventResolver{event: e}
+}
+
+// Favorites subscribes to favorites feed bookmarksEvents
+func (r *RootResolver) Favorites(ctx context.Context) <-chan *BookmarkEventResolver {
+	c := make(chan *BookmarkEventResolver)
+	s := &bookmarkSubscriber{events: c}
+	r.publisher.Subscribe(publisher.Favorites, s, ctx.Done())
+	return c
+}
+
+// ReadingList subscribes to reading list feed bookmarksEvents
+func (r *RootResolver) ReadingList(ctx context.Context) <-chan *BookmarkEventResolver {
+	c := make(chan *BookmarkEventResolver)
+	s := &bookmarkSubscriber{events: c}
+	r.publisher.Subscribe(publisher.ReadingList, s, ctx.Done())
+	return c
+}
+
 // Bookmark resolves the query
 func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 	URL scalars.URL
@@ -126,8 +196,8 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.Publish(
-		subscription.NewEvent(clientID, subscription.ReadingList, subscription.Add, b),
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.ReadingList, publisher.Add, b),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
@@ -153,16 +223,16 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var addTo = subscription.ReadingList
+	var addTo = publisher.ReadingList
 	if b.IsFavorite {
-		addTo = subscription.Favorites
+		addTo = publisher.Favorites
 	}
 
-	r.subscriptions.Publish(
-		subscription.NewEvent(clientID, addTo, subscription.Add, b),
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, addTo, publisher.Add, b),
 	)
-	r.subscriptions.Publish(
-		subscription.NewEvent(clientID, subscription.News, subscription.Remove, d),
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.News, publisher.Remove, d),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
@@ -182,11 +252,11 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.Publish(
-		subscription.NewEvent(clientID, subscription.Favorites, subscription.Add, b),
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.Favorites, publisher.Add, b),
 	)
-	r.subscriptions.Publish(
-		subscription.NewEvent(clientID, subscription.ReadingList, subscription.Remove, b),
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.ReadingList, publisher.Remove, b),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
@@ -206,11 +276,11 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	r.subscriptions.Publish(
-		subscription.NewEvent(clientID, subscription.ReadingList, subscription.Add, b),
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.ReadingList, publisher.Add, b),
 	)
-	r.subscriptions.Publish(
-		subscription.NewEvent(clientID, subscription.Favorites, subscription.Remove, b),
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.Favorites, publisher.Remove, b),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
