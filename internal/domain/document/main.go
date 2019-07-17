@@ -35,6 +35,11 @@ type Document struct {
 	Deleted     bool
 }
 
+// HasImage determine whether the document has an image associated to it
+func (d *Document) HasImage() bool {
+	return d.Image != nil && d.Image.URL != nil && d.Image.Name != ""
+}
+
 func (d *Document) String() string {
 	return d.ID
 }

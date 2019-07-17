@@ -20,3 +20,8 @@ type Bookmark struct {
 	IsFavorite  bool
 	IsLinked    bool
 }
+
+// HasImage determine whether the bookmark has an image associated to it
+func (b *Bookmark) HasImage() bool {
+	return b.Image != nil && b.Image.URL != nil && b.Image.Name != ""
+}

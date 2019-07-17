@@ -47,7 +47,7 @@ func (r *UserResolver) Lastname() string {
 
 // Image resolves the Image field
 func (r *UserResolver) Image() *UserImageResolver {
-	if r.User.Image == nil || r.User.Image.Name == "" {
+	if !r.User.HasImage() {
 		return nil
 	}
 

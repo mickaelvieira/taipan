@@ -36,6 +36,11 @@ type User struct {
 	UpdatedAt time.Time
 }
 
+// HasImage determine whether the user has an image associated to it
+func (u *User) HasImage() bool {
+	return u.Image != nil
+}
+
 // Image represents a user's avatar
 type Image struct {
 	Name   string
