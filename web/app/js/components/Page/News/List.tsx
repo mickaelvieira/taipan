@@ -14,6 +14,7 @@ export default function DocumentList({
   return (
     <>
       <Latest firstId={firstId} lastId={lastId} />
+      {results.length === 0 && <div>No news today</div>}
       {results.map(result => (
         <FeedItem item={result} updater={updater} key={result.id}>
           {({ remove }) => (
