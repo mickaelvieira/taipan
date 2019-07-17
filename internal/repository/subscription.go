@@ -3,12 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
-	"strings"
 	"time"
 )
 
@@ -17,34 +15,52 @@ type SubscriptionRepository struct {
 	db *sql.DB
 }
 
-// FindAll find newest entries
-func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, cursor int32, limit int32) ([]*subscription.Subscription, error) {
-	var results []*subscription.Subscription
-
+// FindSubscribersIDs find users who have subscribed to the syndication source
+func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceID string) ([]string, error) {
 	query := `
-		SELECT sy.id, sy.url, sy.title, sy.type, su.subscribed, su.created_at, su.updated_at
+		SELECT su.user_id
 		FROM subscriptions AS su
-		INNER JOIN syndication AS sy ON sy.id = su.source_id
-		WHERE %s
-		ORDER BY su.created_at DESC
-		LIMIT ?, ?
+		WHERE su.source_id = ? AND su.subscribed = 1
 	`
-	var where []string
-	var args []interface{}
 
-	where = append(where, "sy.deleted = 0")
-	where = append(where, "su.user_id = ?")
-	query = fmt.Sprintf(query, strings.Join(where, " AND "))
-
-	args = append(args, u.ID)
-	args = append(args, cursor)
-	args = append(args, limit)
-
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), sourceID)
 	if err != nil {
 		return nil, err
 	}
 
+	var subscribers []string
+	for rows.Next() {
+		var userID string
+		err := rows.Scan(&userID)
+		if err != nil {
+			return nil, err
+		}
+		subscribers = append(subscribers, userID)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return subscribers, nil
+}
+
+// FindAll find newest entries
+func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, cursor int32, limit int32) ([]*subscription.Subscription, error) {
+	query := `
+		SELECT sy.id, sy.url, sy.title, sy.type, su.subscribed, su.created_at, su.updated_at
+		FROM subscriptions AS su
+		INNER JOIN syndication AS sy ON sy.id = su.source_id
+		WHERE sy.deleted = 0 AND su.user_id = ?
+		ORDER BY su.created_at DESC
+		LIMIT ?, ?
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), u.ID, cursor, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var results []*subscription.Subscription
 	for rows.Next() {
 		d, err := r.scan(rows)
 		if err != nil {

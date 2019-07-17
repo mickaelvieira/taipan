@@ -107,16 +107,16 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 	ID   string
 	User userInput
 }) (*UserResolver, error) {
-	u := auth.FromContext(ctx)
+	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	if args.ID != u.ID {
+	if args.ID != user.ID {
 		return nil, fmt.Errorf("You are not allowed to modify this user")
 	}
 
-	user, err := usecase.UpdateUser(
+	err := usecase.UpdateUser(
 		ctx,
 		r.repositories,
-		u,
+		user,
 		args.User.Firstname,
 		args.User.Lastname,
 		args.User.Image,

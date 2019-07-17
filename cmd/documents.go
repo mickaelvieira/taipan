@@ -66,13 +66,21 @@ func runDocumentsWorker(c *cli.Context) {
 
 			var u *url.URL
 			u, err = url.FromRawURL(dm.Url)
-			if err == nil {
-				_, err = usecase.Document(ctx, repositories, u, false)
+			if err != nil {
+				log.Println(err)
+				continue
 			}
 
+			d, err := usecase.Document(ctx, repositories, u, false)
 			if err != nil {
-				log.Printf("Document Parser: URL %s\n", u)
 				log.Println(err)
+				continue
+			}
+
+			err = usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID)
+			if err != nil {
+				log.Println(err)
+				continue
 			}
 		}
 	}()
