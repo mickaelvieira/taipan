@@ -68,7 +68,7 @@
     "typescript": "3.5.3",
     "uglify-js": "3.6.0",
     "uglifycss": "0.0.29",
-    "webpack": "4.36.0",
+    "webpack": "4.36.1",
     "webpack-cli": "3.3.6",
     "webpack-graphql-loader": "1.0.2",
     "webpack-stats-plugin": "0.3.0"
