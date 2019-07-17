@@ -5,6 +5,7 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"html/template"
 	"net/http"
+	"os"
 
 	graphql "github.com/graph-gophers/graphql-go"
 
@@ -44,7 +45,7 @@ func (s *Server) QueryHandler(w http.ResponseWriter, req *http.Request) {
 		// In order to have GraphiQL on a different domain
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"+", "+os.Getenv("APP_CLIENT_ID_HEADER"))
 		if req.Method == "OPTIONS" {
 			return
 		}
