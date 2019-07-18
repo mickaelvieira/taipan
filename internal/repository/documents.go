@@ -149,6 +149,10 @@ func getPagination(fromID string, toID string) (string, []interface{}) {
 		a = append(a, toID)
 	}
 
+	if c != "" {
+		c = fmt.Sprintf("AND %s", c)
+	}
+
 	return c, a
 }
 

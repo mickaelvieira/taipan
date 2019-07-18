@@ -1,24 +1,30 @@
 package syndication
 
-import "github/mickaelvieira/taipan/internal/domain/url"
+import (
+	"github/mickaelvieira/taipan/internal/domain/url"
+	"github/mickaelvieira/taipan/internal/domain/messages"
+)
 
-type queue []string
+type Queue []*messages.Document
 
 // Shift returns the entity at the front of the queue
-func (q *queue) shift() (e string) {
+func (q *Queue) shift() (m *messages.Document) {
 	s := *q
 	if len(s) == 0 {
-		return e
+		return m
 	}
-	e, *q = s[0], s[1:]
+	m, *q = s[0], s[1:]
 	return
 }
 
-// makeQueue creates a queue of URLs
-func makeQueue(in []*url.URL) queue {
-	var s = make(queue, len(in))
+// MakeQueue creates a queue of URLs
+func MakeQueue(in []*url.URL, id string) Queue {
+	var s = make(Queue, len(in))
 	for i, u := range in {
-		s[i] = u.String()
+		s[i] = &messages.Document{
+			Url:      u.String(),
+			SourceId: id,
+		}
 	}
 	return s
 }
@@ -26,7 +32,7 @@ func makeQueue(in []*url.URL) queue {
 // Mixer mix up a list of web syndication source while
 // keeping their position in their respective queue
 type Mixer struct {
-	queues []queue
+	queues []Queue
 	idx    int
 }
 
@@ -39,8 +45,8 @@ func (s Mixer) Count() (t int) {
 }
 
 // Push new entities into the mixer
-func (s *Mixer) Push(in []*url.URL) {
-	s.queues[s.idx] = makeQueue(in)
+func (s *Mixer) Push(q Queue) {
+	s.queues[s.idx] = q
 	s.idx = s.idx + 1
 }
 
@@ -50,13 +56,13 @@ func (s *Mixer) IsFull() bool {
 }
 
 // Mixup distributes evenly queues' entities into a new slice
-func (s *Mixer) Mixup() []string {
+func (s *Mixer) Mixup() Queue {
 	if s.Count() == 0 {
-		return make([]string, 0)
+		return make(Queue, 0)
 	}
 
 	t := s.Count()
-	o := make([]string, t)
+	o := make(Queue, t)
 	i, c := 0, 0
 	for c < t {
 		if len(s.queues[i]) > 0 {
@@ -79,6 +85,6 @@ func (s *Mixer) Mixup() []string {
 // MakeMixer creates a mixer
 func MakeMixer(size int) *Mixer {
 	return &Mixer{
-		queues: make([]queue, size),
+		queues: make([]Queue, size),
 	}
 }

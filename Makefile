@@ -59,7 +59,7 @@ analyse:
 	cd web/app && yarn lint
 
 gen-proto:
-	protoc --proto_path=web/proto --go_out=internal/domain/document web/proto/document.proto
+	protoc --proto_path=web/proto --go_out=internal/domain/messages web/proto/document.proto
 
 gen-schema:
 	cd web/app && yarn gen:graphql:schema
@@ -70,4 +70,3 @@ gen-schema:
 
 # run-migration:
 # 	cd cmd/migration && ./migration
-

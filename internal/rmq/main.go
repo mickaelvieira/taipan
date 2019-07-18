@@ -1,7 +1,7 @@
 package rmq
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/messages"
 	"log"
 	"os"
 
@@ -48,7 +48,7 @@ func (c *AMQPClient) GetDocumentQueue() *amqp.Queue {
 }
 
 // PublishDocument publishes a document URL to the channel
-func (c *AMQPClient) PublishDocument(u string) error {
+func (c *AMQPClient) PublishDocument(m *messages.Document) error {
 	if c.queue == nil {
 		c.queue = c.GetDocumentQueue()
 	}
@@ -58,13 +58,12 @@ func (c *AMQPClient) PublishDocument(u string) error {
 		c.queue.Name, // routing key
 		false,        // mandatory
 		false,        // immediate
-		c.getDocumentMessage(u),
+		c.getDocumentMessage(m),
 	)
 }
 
-func (c *AMQPClient) getDocumentMessage(u string) amqp.Publishing {
-	var m = document.DocumentMessage{Url: u}
-	body, err := proto.Marshal(&m)
+func (c *AMQPClient) getDocumentMessage(m *messages.Document) amqp.Publishing {
+	body, err := proto.Marshal(m)
 	if err != nil {
 		log.Fatalln("Failed to encode address book:", err)
 	}

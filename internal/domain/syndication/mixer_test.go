@@ -31,12 +31,16 @@ func TestMakeQueue(t *testing.T) {
 		"http://example5.local",
 	})
 
-	r := makeQueue(u)
+	id := "foo"
+	r := MakeQueue(u, id)
 
 	for idx, v := range r {
 		var e = u[idx].String()
-		if v != e {
-			t.Errorf("Wanted [%s], got [%s]", e, v)
+		if v.Url != e {
+			t.Errorf("Wanted [%s], got [%s]", e, v.Url)
+		}
+		if v.SourceId != id {
+			t.Errorf("Wanted [%s], got [%s]", id, v.SourceId)
 		}
 	}
 }
@@ -46,7 +50,7 @@ func TestShiftOnQueueURLs(t *testing.T) {
 	s2 := "http://example2.local"
 	var a = []string{s1, s2}
 
-	q := queue(a)
+	q := MakeQueue(getURLs(a), "foo")
 	e := 2
 	r := len(q)
 
@@ -60,8 +64,8 @@ func TestShiftOnQueueURLs(t *testing.T) {
 	if r != e {
 		t.Errorf("Wanted [%d], got [%d]", e, r)
 	}
-	if ss1 != s1 {
-		t.Errorf("Wanted [%s], got [%s]", s1, ss1)
+	if ss1.Url != s1 {
+		t.Errorf("Wanted [%s], got [%s]", s1, ss1.Url)
 	}
 
 	e = 0
@@ -70,13 +74,13 @@ func TestShiftOnQueueURLs(t *testing.T) {
 	if r != e {
 		t.Errorf("Wanted [%d], got [%d]", e, r)
 	}
-	if ss2 != s2 {
-		t.Errorf("Wanted [%s], got [%s]", s2, ss2)
+	if ss2.Url != s2 {
+		t.Errorf("Wanted [%s], got [%s]", s2, ss2.Url)
 	}
 
 	ss3 := q.shift()
-	if ss3 != "" {
-		t.Errorf("Wanted an empty string, got [%s]", ss3)
+	if ss3 != nil {
+		t.Errorf("Wanted nil, got [%v]", ss3)
 	}
 }
 
@@ -99,12 +103,12 @@ func TestMixerWithOneQueue(t *testing.T) {
 	}
 
 	m := MakeMixer(1)
-	m.Push(getURLs(u))
+	m.Push(MakeQueue(getURLs(u), "foo"))
 	o := m.Mixup()
 
 	for idx := range o {
-		if o[idx] != u[idx] {
-			t.Errorf("Wanted [%s], got [%s]", o[idx], u[idx])
+		if o[idx].Url != u[idx] {
+			t.Errorf("Wanted [%s], got [%s]", u[idx], o[idx].Url)
 		}
 	}
 }
@@ -122,8 +126,8 @@ func TestMixerWithTwoEqualQueues(t *testing.T) {
 	}
 
 	m := MakeMixer(2)
-	m.Push(getURLs(u1))
-	m.Push(getURLs(u2))
+	m.Push(MakeQueue(getURLs(u1), "foo"))
+	m.Push(MakeQueue(getURLs(u2), "bar"))
 
 	o := m.Mixup()
 
@@ -142,8 +146,8 @@ func TestMixerWithTwoEqualQueues(t *testing.T) {
 		"http://baz2.local",
 	}
 	for idx := range o {
-		if o[idx] != w[idx] {
-			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx])
+		if o[idx].Url != w[idx] {
+			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx].Url)
 		}
 	}
 }
@@ -163,9 +167,9 @@ func TestMixerWithThreeDifferentQueues(t *testing.T) {
 	}
 
 	m := MakeMixer(3)
-	m.Push(getURLs(u1))
-	m.Push(getURLs(u2))
-	m.Push(getURLs(u3))
+	m.Push(MakeQueue(getURLs(u1), "foo"))
+	m.Push(MakeQueue(getURLs(u2), "bar"))
+	m.Push(MakeQueue(getURLs(u3), "baz"))
 
 	o := m.Mixup()
 
@@ -185,8 +189,8 @@ func TestMixerWithThreeDifferentQueues(t *testing.T) {
 		"http://baz1.local",
 	}
 	for idx := range o {
-		if o[idx] != w[idx] {
-			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx])
+		if o[idx].Url != w[idx] {
+			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx].Url)
 		}
 	}
 }
@@ -206,10 +210,10 @@ func TestMixerWithFourDifferentQueues(t *testing.T) {
 	}
 
 	m := MakeMixer(4)
-	m.Push(getURLs(u1))
-	m.Push(getURLs(u2))
-	m.Push(getURLs(u3))
-	m.Push(getURLs(u4))
+	m.Push(MakeQueue(getURLs(u1), "foo"))
+	m.Push(MakeQueue(getURLs(u2), "bar"))
+	m.Push(MakeQueue(getURLs(u3), "baz"))
+	m.Push(MakeQueue(getURLs(u4), "zaz"))
 
 	o := m.Mixup()
 
@@ -228,8 +232,8 @@ func TestMixerWithFourDifferentQueues(t *testing.T) {
 		"http://baz4.local",
 	}
 	for idx := range o {
-		if o[idx] != w[idx] {
-			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx])
+		if o[idx].Url != w[idx] {
+			t.Errorf("Wanted [%s], got [%s]", w[idx], o[idx].Url)
 		}
 	}
 }
@@ -273,7 +277,7 @@ func TestMixerIsFullWithMultipleQueue(t *testing.T) {
 		name := fmt.Sprintf("Mixer is full [%d]", idx)
 		t.Run(name, func(t *testing.T) {
 			if tc.i != nil {
-				m.Push(tc.i)
+				m.Push(MakeQueue(tc.i, "foo"))
 			}
 
 			var r = m.IsFull()
@@ -299,10 +303,10 @@ func TestMixerCount(t *testing.T) {
 	}
 
 	m := MakeMixer(4)
-	m.Push(getURLs(u1))
-	m.Push(getURLs(u2))
-	m.Push(getURLs(u3))
-	m.Push(getURLs(u4))
+	m.Push(MakeQueue(getURLs(u1), "foo"))
+	m.Push(MakeQueue(getURLs(u2), "bar"))
+	m.Push(MakeQueue(getURLs(u3), "baz"))
+	m.Push(MakeQueue(getURLs(u4), "zaz"))
 
 	e := len(u1) + len(u2) + len(u3) + len(u4)
 	r := m.Count()
@@ -327,10 +331,10 @@ func TestMixerIsEmptyAfterMixing(t *testing.T) {
 	}
 
 	m := MakeMixer(4)
-	m.Push(getURLs(u1))
-	m.Push(getURLs(u2))
-	m.Push(getURLs(u3))
-	m.Push(getURLs(u4))
+	m.Push(MakeQueue(getURLs(u1), "foo"))
+	m.Push(MakeQueue(getURLs(u2), "bar"))
+	m.Push(MakeQueue(getURLs(u3), "baz"))
+	m.Push(MakeQueue(getURLs(u4), "zaz"))
 
 	e := len(u1) + len(u2) + len(u3) + len(u4)
 
