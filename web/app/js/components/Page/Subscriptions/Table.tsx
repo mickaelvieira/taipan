@@ -29,7 +29,7 @@ const useStyles = makeStyles(() => ({
     margin: "12px"
   },
   message: {
-    padding: 24,
+    padding: 24
   }
 }));
 
@@ -48,7 +48,11 @@ export default function SubscriptionsTable(): JSX.Element {
         }
 
         if (!data) {
-          return <Paper className={classes.message}>You don't have any web syndication sources yet.</Paper>;
+          return (
+            <Paper className={classes.message}>
+              You don&apos;t have any web syndication sources yet.
+            </Paper>
+          );
         }
 
         return (
