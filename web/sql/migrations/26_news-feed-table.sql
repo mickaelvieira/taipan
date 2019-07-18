@@ -6,6 +6,6 @@ CREATE TABLE `newsfeed` (
   PRIMARY KEY (`user_id`,`document_id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_document_id` (`document_id`),
-  CONSTRAINT `subscriptions_fk_document_id` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`),
-  CONSTRAINT `subscriptions_fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `newsfeed_fk_document_id` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`),
+  CONSTRAINT `newsfeed_fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;

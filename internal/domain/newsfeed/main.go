@@ -9,15 +9,6 @@ type Entry struct {
 	CreatedAt  time.Time
 }
 
-// Params --
-func (e *Entry) Params() []interface{} {
-	p := make([]interface{}, 3)
-	p[0] = e.UserID
-	p[1] = e.DocumentID
-	p[2] = e.CreatedAt
-	return p
-}
-
 // NewEntry creates an new entry
 func NewEntry(userID string, documentID string) *Entry {
 	return &Entry{

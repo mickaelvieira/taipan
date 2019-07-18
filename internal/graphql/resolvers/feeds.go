@@ -105,7 +105,7 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 	first, last := getDocumentsBoundaryIDs(results)
 
 	var total int32
-	total, err = r.repositories.Documents.GetTotalNew(ctx, user)
+	total, err = r.repositories.Documents.GetTotalNews(ctx, user)
 	if err != nil {
 		return nil, err
 	}

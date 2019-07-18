@@ -10,7 +10,7 @@ export default function BookmarkList({
 }: ListProps): JSX.Element {
   return (
     <>
-      {results.length === 0} <div>You have no favorites yet :(</div>}
+      {results.length === 0 && <div>You have no favorites yet :(</div>}
       {results.map(result => (
         <FeedItem item={result} updater={updater} key={result.id}>
           {({ remove }) => (
