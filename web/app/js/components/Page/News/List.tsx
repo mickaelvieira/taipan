@@ -4,6 +4,7 @@ import Item from "./Item";
 import { ListProps } from "../../ui/Feed/Feed";
 import Latest from "./Latest";
 import FeedItem from "../../ui/Feed/Item/Item";
+import EmptyFeed from "../../ui/Feed/Empty";
 
 export default function DocumentList({
   results,
@@ -14,7 +15,7 @@ export default function DocumentList({
   return (
     <>
       <Latest firstId={firstId} lastId={lastId} />
-      {results.length === 0 && <div>No news today</div>}
+      {results.length === 0 && <EmptyFeed message="No news today" />}
       {results.map(result => (
         <FeedItem item={result} updater={updater} key={result.id}>
           {({ remove }) => (

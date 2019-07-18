@@ -2,6 +2,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Hidden from "@material-ui/core/Hidden";
 import Table from "@material-ui/core/Table";
+import Paper from "@material-ui/core/Paper";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
@@ -26,6 +27,9 @@ const useStyles = makeStyles(() => ({
   },
   button: {
     margin: "12px"
+  },
+  message: {
+    padding: 24,
   }
 }));
 
@@ -44,7 +48,7 @@ export default function SubscriptionsTable(): JSX.Element {
         }
 
         if (!data) {
-          return null;
+          return <Paper className={classes.message}>You don't have any web syndication sources yet.</Paper>;
         }
 
         return (
