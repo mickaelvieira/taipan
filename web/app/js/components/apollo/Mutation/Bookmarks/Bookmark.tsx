@@ -4,13 +4,14 @@ import mutation from "../../graphql/mutation/bookmarks/bookmark.graphql";
 
 interface Data {
   bookmarks: {
-    bookmark: Bookmark;
+    add: Bookmark;
   };
 }
 
 interface Variables {
   url: string;
   isFavorite: boolean;
+  subscriptions?: string[];
 }
 
 class BookmarkMutation extends Mutation<Data, Variables> {

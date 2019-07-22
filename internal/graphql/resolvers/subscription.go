@@ -71,12 +71,12 @@ func (r *SubscriptionsResolver) Subscription(ctx context.Context, args struct {
 	u := args.URL.ToDomain()
 	user := auth.FromContext(ctx)
 
-	src, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
+	_, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, src)
+	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, u)
 	if err != nil {
 		return nil, err
 	}
@@ -90,15 +90,9 @@ func (r *SubscriptionsResolver) Subscription(ctx context.Context, args struct {
 func (r *SubscriptionsResolver) Subscribe(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SubscriptionResolver, error) {
-	u := args.URL.ToDomain()
 	user := auth.FromContext(ctx)
 
-	src, err := r.repositories.Syndication.GetByURL(ctx, u)
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, src)
+	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -112,15 +106,9 @@ func (r *SubscriptionsResolver) Subscribe(ctx context.Context, args struct {
 func (r *SubscriptionsResolver) Unsubscribe(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SubscriptionResolver, error) {
-	u := args.URL.ToDomain()
 	user := auth.FromContext(ctx)
 
-	src, err := r.repositories.Syndication.GetByURL(ctx, u)
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := usecase.UnubscribeFromSource(ctx, r.repositories, user, src)
+	s, err := usecase.UnubscribeFromSource(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}

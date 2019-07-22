@@ -2,20 +2,29 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
-	"github/mickaelvieira/taipan/internal/domain/syndication"
+	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
 )
 
 // SubscribeToSource --
-func SubscribeToSource(ctx context.Context, repos *repository.Repositories, u *user.User, src *syndication.Source) (*subscription.Subscription, error) {
-	err := repos.Subscriptions.Subscribe(ctx, u, src)
+func SubscribeToSource(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
+	src, err := repos.Syndication.GetByURL(ctx, u)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := repos.Subscriptions.GetByURL(ctx, u, src.URL)
+	// make sure the source is not paused
+	src.IsPaused = false
+
+	err = repos.Subscriptions.Subscribe(ctx, usr, src)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := repos.Subscriptions.GetByURL(ctx, usr, src.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -24,13 +33,34 @@ func SubscribeToSource(ctx context.Context, repos *repository.Repositories, u *u
 }
 
 // UnubscribeFromSource --
-func UnubscribeFromSource(ctx context.Context, repos *repository.Repositories, u *user.User, src *syndication.Source) (*subscription.Subscription, error) {
-	err := repos.Subscriptions.Unsubscribe(ctx, u, src)
+func UnubscribeFromSource(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
+	src, err := repos.Syndication.GetByURL(ctx, u)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := repos.Subscriptions.GetByURL(ctx, u, src.URL)
+	err = repos.Subscriptions.Unsubscribe(ctx, usr, src)
+	if err != nil {
+		return nil, err
+	}
+
+	subscribers, err := repos.Subscriptions.FindSubscribersIDs(ctx, src.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(subscribers) == 0 {
+		src.IsPaused = true
+
+		err = repos.Syndication.Update(ctx, src)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Printf("Source [%s] does not have any subscribers, it was marked as paused", src.URL)
+	}
+
+	s, err := repos.Subscriptions.GetByURL(ctx, usr, src.URL)
 	if err != nil {
 		return nil, err
 	}

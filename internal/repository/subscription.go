@@ -113,6 +113,18 @@ func (r *SubscriptionRepository) GetByURL(ctx context.Context, usr *user.User, u
 	return s, nil
 }
 
+// ExistWithURL checks whether a subscriptions already exists with the same URL
+func (r *SubscriptionRepository) ExistWithURL(ctx context.Context, usr *user.User, u *url.URL) (bool, error) {
+	_, err := r.GetByURL(ctx, usr, u)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, err
+}
+
 // Subscribe subscribes a user to a web syndication source
 func (r *SubscriptionRepository) Subscribe(ctx context.Context, u *user.User, s *syndication.Source) error {
 	query := `

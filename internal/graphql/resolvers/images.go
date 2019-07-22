@@ -29,6 +29,9 @@ type BookmarkImageResolver struct {
 
 // URL resolves the URL
 func (r *BookmarkImageResolver) URL() scalars.URL {
+	if r.Image.Name == "" {
+		return scalars.NewURL(r.Image.URL)
+	}
 	return scalars.NewURL(assets.MakeImageURL(r.Image.Name))
 }
 

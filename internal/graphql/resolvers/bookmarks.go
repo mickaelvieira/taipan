@@ -49,10 +49,7 @@ func (r *BookmarkResolver) Image() *BookmarkImageResolver {
 	if !r.Bookmark.HasImage() {
 		return nil
 	}
-
-	return &BookmarkImageResolver{
-		Image: r.Bookmark.Image,
-	}
+	return &BookmarkImageResolver{Image: r.Bookmark.Image}
 }
 
 // Lang resolves the Lang field
@@ -207,8 +204,9 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 
 // Add bookmarks a URL
 func (r *BookmarksResolver) Add(ctx context.Context, args struct {
-	URL        scalars.URL
-	IsFavorite bool
+	URL           scalars.URL
+	IsFavorite    bool
+	Subscriptions *[]scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
@@ -221,6 +219,17 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 	b, err = usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
 	if err != nil {
 		return nil, err
+	}
+
+	// subscribes to sources sent along
+	if args.Subscriptions != nil {
+		subscriptions := *args.Subscriptions
+		for _, u := range subscriptions {
+			_, err := usecase.SubscribeToSource(ctx, r.repositories, user, u.ToDomain())
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	var addTo = publisher.ReadingList

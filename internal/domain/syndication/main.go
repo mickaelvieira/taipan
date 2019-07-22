@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+// DefaultWPFeedTitle a default title for WP feeds
+// @TODO I need to remove this shit, it brings more problems than solutions
+const DefaultWPFeedTitle = "wordpress feed"
+
 // Type represents whether the feed is an atom or rss feed
 type Type string
 

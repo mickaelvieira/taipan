@@ -1,8 +1,8 @@
 #import "../../fragment/bookmark.graphql"
 
-mutation bookmark($url: URL!, $isFavorite: Boolean!) {
+mutation bookmark($url: URL!, $isFavorite: Boolean!, $subscriptions: [URL!]) {
   bookmarks {
-    add(url: $url, isFavorite: $isFavorite) {
+    add(url: $url, isFavorite: $isFavorite, subscriptions: $subscriptions) {
       ...bookmarkFields
     }
   }

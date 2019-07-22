@@ -143,21 +143,25 @@ export const makeFeedUpdater = (
 ): FeedUpdater => {
   return (item: FeedItem, action: FeedAction) => {
     const update = actions[action];
-    const data = client.readQuery({ query }) as FeedQueryData;
-    if (data) {
-      const key = getDataKey(data);
-      if (key) {
-        const result = update(data.feeds[key], item);
-        client.writeQuery({
-          query,
-          data: {
-            feeds: {
-              ...data.feeds,
-              [key]: result
+    try {
+      const data = client.readQuery({ query }) as FeedQueryData;
+      if (data) {
+        const key = getDataKey(data);
+        if (key) {
+          const result = update(data.feeds[key], item);
+          client.writeQuery({
+            query,
+            data: {
+              feeds: {
+                ...data.feeds,
+                [key]: result
+              }
             }
-          }
-        });
+          });
+        }
       }
+    } catch (e) {
+      console.warn(e.message);
     }
   };
 };

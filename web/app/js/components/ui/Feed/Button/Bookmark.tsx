@@ -28,7 +28,7 @@ export default React.memo(function Bookmark({
   const classes = useStyles();
   return (
     <BookmarkMutation
-      onCompleted={data => onSuccess(data.bookmarks.bookmark)}
+      onCompleted={data => onSuccess(data.bookmarks.add)}
       onError={error => onError(error.message)}
     >
       {(mutate, { loading }) => (

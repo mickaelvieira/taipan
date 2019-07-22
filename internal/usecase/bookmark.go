@@ -89,7 +89,7 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 	//
 	var d *document.Document
 	d, err = repos.Documents.GetByChecksum(ctx, result.Checksum)
-	if d != nil {
+	if !findFeeds && d != nil {
 		fmt.Println("Document's content has not changed")
 		return d, nil
 	}

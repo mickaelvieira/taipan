@@ -21,6 +21,7 @@ type Query {
 }
 
 type Mutation {
+  documents: DocumentMutation
   bookmarks: BookmarksMutation
   syndication: SyndicationMutation
   subscriptions: SubscriptionsMutation
@@ -61,6 +62,11 @@ type UsersMutation {
   update(id: ID!, user: UserInput!): User
 }
 
+type DocumentMutation {
+  # "create a document matching the URL
+  create(url: URL!): Document
+}
+
 type DocumentsQuery {
   # "Returns a list of documents"
   documents(pagination: CursorPaginationInput!): DocumentCollection
@@ -83,7 +89,7 @@ type BookmarksMutation {
   # It will be present in user's reading list or favorites depending
   # on the isFavorite flag
   # """
-  add(url: URL!, isFavorite: Boolean!): Bookmark
+  add(url: URL!, isFavorite: Boolean!, subscriptions: [URL!]): Bookmark
 
   # "This mutation will add the document to users's bookmarks."
   remove(url: URL!): Document
@@ -209,6 +215,7 @@ type Document implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   logEntries: [HTTPClientLog]
+  syndication: [Source!]
 }
 
 # """

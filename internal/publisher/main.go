@@ -1,6 +1,7 @@
 package publisher
 
 import (
+	"log"
 	"math/rand"
 	"time"
 )
@@ -88,6 +89,8 @@ func (bus *Subscription) Subscribe(t Topic, s Subscriber, stop <-chan struct{}) 
 	id := randomID()
 	bus.subscribers[t][id] = s
 
+	log.Printf("New subscriber [%s] [%s]\n", t, id)
+
 	go func(id string, s <-chan struct{}) {
 		for {
 			select {
@@ -114,6 +117,9 @@ func (bus *Subscription) Unsubscribe(id string) {
 // Publish publishes an event to subscribers
 func (bus *Subscription) Publish(e *Event) {
 	t := e.Topic
+
+	log.Printf("Publish event [%s] [%s]\n", t, e.Action)
+
 	if bus.subscribers[t] != nil {
 		for _, s := range bus.subscribers[t] {
 			go s.Publish(e)

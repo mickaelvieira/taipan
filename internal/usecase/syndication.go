@@ -180,8 +180,10 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 			return urls, fmt.Errorf("Parsing error: %s - URL %s", err, s.URL)
 		}
 
-		if s.Title == "" {
-			s.Title = c.Title
+		if c.Title != "" {
+			if s.Title == "" || s.Title == syndication.DefaultWPFeedTitle {
+				s.Title = c.Title
+			}
 		}
 
 		if s.Type == "" {
@@ -218,9 +220,9 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 
 	// @TODO Calculate the source update frequency
 	// var results []*http.Result
-	// results, err = repositories.Botlogs.FindByURL(ctx, s.URL)
+	// results, err = repos.Botlogs.FindByURL(ctx, s.URL)
 	// if err != nil {
-	// 	return
+	// 	return urls, err
 	// }
 
 	// f := http.CalculateFrequency(results)

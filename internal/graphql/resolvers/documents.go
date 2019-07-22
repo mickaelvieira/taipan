@@ -3,12 +3,15 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/http"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/usecase"
 	"log"
 
 	"github.com/graph-gophers/dataloader"
@@ -50,10 +53,7 @@ func (r *DocumentResolver) Image() *BookmarkImageResolver {
 	if !r.Document.HasImage() {
 		return nil
 	}
-
-	return &BookmarkImageResolver{
-		Image: r.Document.Image,
-	}
+	return &BookmarkImageResolver{Image: r.Document.Image}
 }
 
 // Lang resolves the Lang field
@@ -84,6 +84,15 @@ func (r *DocumentResolver) CreatedAt() scalars.Datetime {
 // UpdatedAt resolves the UpdatedAt field
 func (r *DocumentResolver) UpdatedAt() scalars.Datetime {
 	return scalars.NewDatetime(r.Document.UpdatedAt)
+}
+
+// Syndication resolves the Syndication field
+func (r *DocumentResolver) Syndication() *[]*SourceResolver {
+	res := make([]*SourceResolver, len(r.Document.Feeds))
+	for i, s := range r.Document.Feeds {
+		res[i] = &SourceResolver{Source: s}
+	}
+	return &res
 }
 
 // LogEntries returns the document's parser log
@@ -144,6 +153,35 @@ func (r *RootResolver) News(ctx context.Context) <-chan *DocumentEventResolver {
 	return c
 }
 
+// Create creates a new document
+func (r *DocumentsResolver) Create(ctx context.Context, args struct {
+	URL scalars.URL
+}) (*DocumentResolver, error) {
+	user := auth.FromContext(ctx)
+	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), true)
+	if err != nil {
+		return nil, err
+	}
+
+	// excludes user's subscriptions
+	var subscriptions []*syndication.Source
+	for _, s := range d.Feeds {
+		exists, err := r.repositories.Subscriptions.ExistWithURL(ctx, user, s.URL)
+		if err != nil {
+			return nil, err
+		}
+		if !exists {
+			subscriptions = append(subscriptions, s)
+		}
+	}
+
+	d.Feeds = subscriptions
+
+	res := &DocumentResolver{Document: d}
+
+	return res, nil
+}
+
 // Documents resolves the query
 func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
@@ -164,12 +202,12 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var documents = make([]*DocumentResolver, 0)
-	for _, result := range results {
-		documents = append(documents, &DocumentResolver{
+	var documents = make([]*DocumentResolver, len(results))
+	for i, result := range results {
+		documents[i] = &DocumentResolver{
 			Document:     result,
 			repositories: r.repositories,
-		})
+		}
 	}
 
 	res := DocumentCollectionResolver{

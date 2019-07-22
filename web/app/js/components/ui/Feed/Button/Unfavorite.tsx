@@ -21,6 +21,7 @@ interface Props {
   onError: (message: string) => void;
 }
 
+// @TODO remove confirmation message
 export default React.memo(function Unfavorite({
   bookmark,
   onSuccess,

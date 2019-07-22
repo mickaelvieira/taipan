@@ -1,4 +1,5 @@
 import { Image } from "./image";
+import { Source } from "./syndication";
 
 export interface Document {
   id: string;
@@ -10,4 +11,5 @@ export interface Document {
   image: Image | null;
   createdAt: string;
   updatedAt: string;
+  syndication?: Source[];
 }
