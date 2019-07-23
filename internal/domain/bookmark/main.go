@@ -16,6 +16,7 @@ type Bookmark struct {
 	Description string
 	Image       *document.Image
 	AddedAt     time.Time
+	FavoritedAt time.Time
 	UpdatedAt   time.Time
 	IsFavorite  bool
 	IsLinked    bool

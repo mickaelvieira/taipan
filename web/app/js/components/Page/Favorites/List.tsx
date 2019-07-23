@@ -5,17 +5,14 @@ import { ListProps } from "../../ui/Feed/Feed";
 import FeedItem from "../../ui/Feed/Item/Item";
 import EmptyFeed from "../../ui/Feed/Empty";
 
-export default function BookmarkList({
-  results,
-  updater
-}: ListProps): JSX.Element {
+export default function BookmarkList({ results }: ListProps): JSX.Element {
   return (
     <>
       {results.length === 0 && (
         <EmptyFeed message="You have no favorites yet :(" />
       )}
       {results.map(result => (
-        <FeedItem item={result} updater={updater} key={result.id}>
+        <FeedItem key={result.id}>
           {({ remove }) => (
             <Item bookmark={result as Bookmark} remove={remove} />
           )}

@@ -94,11 +94,11 @@ func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	return &res, nil
 }
 
-// User subscribes to user event
-func (r *RootResolver) User(ctx context.Context) <-chan *UserEventResolver {
+// UserChanged subscribes to user event
+func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEventResolver {
 	c := make(chan *UserEventResolver)
 	s := &userSubscriber{events: c}
-	r.publisher.Subscribe(publisher.User, s, ctx.Done())
+	r.publisher.Subscribe(publisher.TopicUser, s, ctx.Done())
 	return c
 }
 
@@ -126,7 +126,7 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 	}
 
 	r.publisher.Publish(
-		publisher.NewEvent(clientID, publisher.User, publisher.Update, user),
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
 	res := UserResolver{User: user}

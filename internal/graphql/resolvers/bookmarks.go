@@ -140,19 +140,11 @@ func (s *documentSubscriber) Publish(e *publisher.Event) {
 	s.events <- &DocumentEventResolver{event: e}
 }
 
-// Favorites subscribes to favorites feed bookmarksEvents
-func (r *RootResolver) Favorites(ctx context.Context) <-chan *BookmarkEventResolver {
+// BookmarkChanged --
+func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEventResolver {
 	c := make(chan *BookmarkEventResolver)
 	s := &bookmarkSubscriber{events: c}
-	r.publisher.Subscribe(publisher.Favorites, s, ctx.Done())
-	return c
-}
-
-// ReadingList subscribes to reading list feed bookmarksEvents
-func (r *RootResolver) ReadingList(ctx context.Context) <-chan *BookmarkEventResolver {
-	c := make(chan *BookmarkEventResolver)
-	s := &bookmarkSubscriber{events: c}
-	r.publisher.Subscribe(publisher.ReadingList, s, ctx.Done())
+	r.publisher.Subscribe(publisher.TopicBookmark, s, ctx.Done())
 	return c
 }
 
@@ -194,7 +186,7 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 	}
 
 	r.publisher.Publish(
-		publisher.NewEvent(clientID, publisher.ReadingList, publisher.Add, b),
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Bookmark, b),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
@@ -232,16 +224,8 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 		}
 	}
 
-	var addTo = publisher.ReadingList
-	if b.IsFavorite {
-		addTo = publisher.Favorites
-	}
-
 	r.publisher.Publish(
-		publisher.NewEvent(clientID, addTo, publisher.Add, b),
-	)
-	r.publisher.Publish(
-		publisher.NewEvent(clientID, publisher.News, publisher.Remove, d),
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Bookmark, b),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
@@ -256,16 +240,13 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, args.URL.ToDomain(), true)
+	b, err := usecase.Favorite(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
 
 	r.publisher.Publish(
-		publisher.NewEvent(clientID, publisher.Favorites, publisher.Add, b),
-	)
-	r.publisher.Publish(
-		publisher.NewEvent(clientID, publisher.ReadingList, publisher.Remove, b),
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Favorite, b),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
@@ -280,16 +261,13 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, args.URL.ToDomain(), false)
+	b, err := usecase.Unfavorite(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
 
 	r.publisher.Publish(
-		publisher.NewEvent(clientID, publisher.ReadingList, publisher.Add, b),
-	)
-	r.publisher.Publish(
-		publisher.NewEvent(clientID, publisher.Favorites, publisher.Remove, b),
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Unfavorite, b),
 	)
 
 	res := &BookmarkResolver{Bookmark: b}
@@ -302,11 +280,16 @@ func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
 
 	d, err := usecase.Unbookmark(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicDocument, publisher.Unbookmark, d),
+	)
 
 	res := &DocumentResolver{Document: d}
 

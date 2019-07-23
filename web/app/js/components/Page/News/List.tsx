@@ -9,15 +9,14 @@ import EmptyFeed from "../../ui/Feed/Empty";
 export default function DocumentList({
   results,
   firstId,
-  lastId,
-  updater
+  lastId
 }: ListProps): JSX.Element {
   return (
     <>
       <Latest firstId={firstId} lastId={lastId} />
       {results.length === 0 && <EmptyFeed message="No news today" />}
       {results.map(result => (
-        <FeedItem item={result} updater={updater} key={result.id}>
+        <FeedItem key={result.id}>
           {({ remove }) => (
             <Item document={result as Document} remove={remove} />
           )}

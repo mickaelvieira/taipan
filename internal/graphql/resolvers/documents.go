@@ -145,11 +145,11 @@ func (r *DocumentEventResolver) Action() string {
 	return string(r.event.Action)
 }
 
-// News subscribes to news feed bookmarksEvents
-func (r *RootResolver) News(ctx context.Context) <-chan *DocumentEventResolver {
+// DocumentChanged --
+func (r *RootResolver) DocumentChanged(ctx context.Context) <-chan *DocumentEventResolver {
 	c := make(chan *DocumentEventResolver)
 	s := &documentSubscriber{events: c}
-	r.publisher.Subscribe(publisher.News, s, ctx.Done())
+	r.publisher.Subscribe(publisher.TopicDocument, s, ctx.Done())
 	return c
 }
 

@@ -3,25 +3,17 @@ import {
   Subscription as SubscriptionBase,
   OnSubscriptionDataOptions
 } from "react-apollo";
-import PropTypes from "prop-types";
-import subscriptionNews from "../graphql/subscription/news.graphql";
-import subscriptionFavorites from "../graphql/subscription/favorites.graphql";
-import subscriptionReadingList from "../graphql/subscription/reading-list.graphql";
+import subscription from "../graphql/subscription/documents.graphql";
 import { FeedEventData, FeedEvent } from "../../../types/feed";
-import { Event } from "../../../types/events";
-import { hasReceivedEvent, FeedUpdater } from "../helpers/feed";
+import { isEmitter } from "../helpers/events";
+import { hasReceivedEvent } from "../helpers/feed";
+import FeedsUpdater from "../helpers/feeds-updater";
 import { ClientContext } from "../../context";
+import { Document } from "../../../types/document";
 
 interface Data extends OnSubscriptionDataOptions<FeedEventData> {
-  updater: FeedUpdater;
+  updater: FeedsUpdater;
   clientId: string;
-}
-
-function isEmitter(event: Event | null, clientId: string): boolean {
-  if (!event) {
-    return false;
-  }
-  return event.emitter === clientId;
 }
 
 function onReceivedData({ subscriptionData, updater, clientId }: Data): void {
@@ -30,23 +22,23 @@ function onReceivedData({ subscriptionData, updater, clientId }: Data): void {
   console.log(clientId);
   if (isReceived && !isEmitter(event, clientId)) {
     const { item, action } = event as FeedEvent;
-    updater(item, action);
+    switch (action) {
+      case "unbookmark":
+        updater.unbookmark(item as Document);
+        break;
+    }
   }
 }
 
-export { subscriptionNews, subscriptionFavorites, subscriptionReadingList };
+export { subscription };
 
 class Subscription extends SubscriptionBase<FeedEventData, {}> {}
 
 interface Props {
-  updater: FeedUpdater;
-  subscription: PropTypes.Validator<object>;
+  updater: FeedsUpdater;
 }
 
-export default function FeedSubscription({
-  subscription,
-  updater
-}: Props): JSX.Element {
+export default function FeedSubscription({ updater }: Props): JSX.Element {
   const clientId = useContext(ClientContext);
   return (
     <Subscription

@@ -11,7 +11,7 @@ export default function SubscriptionLayout({
 
   return (
     <MainLayout>
-      {({ setInfoMessage }) => (
+      {({ setMessageInfo }) => (
         <>
           <MainContent>{children}</MainContent>
           <AddButton onClick={() => setModalStatus(true)} />
@@ -19,7 +19,7 @@ export default function SubscriptionLayout({
             isOpen={isModalOpen}
             toggleDialog={setModalStatus}
             onSubscriptionCreated={() => {
-              setInfoMessage("Nice one! The feed was added");
+              setMessageInfo("Nice one! The feed was added");
               setModalStatus(false);
             }}
           />

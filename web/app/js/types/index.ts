@@ -10,3 +10,12 @@ export interface OffsetPagination {
   offset?: string;
   limit?: number;
 }
+
+export type Undoer = () => void;
+export type CacheUpdater = () => void;
+
+export interface MessageInfo {
+  message: string;
+  label?: string;
+  action?: Undoer;
+}

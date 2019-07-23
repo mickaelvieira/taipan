@@ -13,9 +13,10 @@ import ItemDescription from "../../ui/Feed/Item/Description";
 import ItemImage from "../../ui/Feed/Image";
 import ItemFooter from "../../ui/Feed/Item/Footer";
 import { MessageContext } from "../../context";
+import { CacheUpdater } from "../../../types";
 
 interface Props {
-  remove: () => void;
+  remove: (cb: CacheUpdater) => void;
   document: Document;
 }
 
@@ -40,25 +41,33 @@ export default React.memo(function FeedItem({
           <ShareButton
             item={document}
             onSuccess={message => {
-              setMessageInfo(message);
+              setMessageInfo({ message });
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
           <BookmarkAndFavoriteButton
             document={document}
-            onSuccess={() => {
-              setMessageInfo("The document was added to your favorites");
-              remove();
+            onSuccess={(update, undo) => {
+              setMessageInfo({
+                message: "The document was added to your favorites",
+                action: undo,
+                label: "undo"
+              });
+              remove(update);
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
           <BookmarkButton
             document={document}
-            onSuccess={() => {
-              setMessageInfo("The document was added to your reading list");
-              remove();
+            onSuccess={(update, undo) => {
+              setMessageInfo({
+                message: "The document was added to your reading list",
+                action: undo,
+                label: "undo"
+              });
+              remove(update);
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
         </CardActions>
       </ItemFooter>

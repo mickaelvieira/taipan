@@ -1,6 +1,13 @@
-export type BusTopic = "News" | "Favorites" | "ReadingList" | "User";
+export type BusTopic = "document" | "bookmark" | "user";
 
-export type BusAction = "Add" | "Remove" | "Update";
+export type BusAction =
+  | "add"
+  | "remove"
+  | "update"
+  | "bookmark"
+  | "unbookmark"
+  | "favorite"
+  | "unfavorite";
 
 export interface Event {
   emitter: string;

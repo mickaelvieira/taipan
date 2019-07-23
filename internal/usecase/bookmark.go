@@ -146,19 +146,35 @@ func Bookmark(ctx context.Context, repos *repository.Repositories, usr *user.Use
 	return b, nil
 }
 
-// FavoriteStatus mark or unmark a bookmark as favorite
-func FavoriteStatus(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL, isFavorite bool) (*bookmark.Bookmark, error) {
-	var (
-		err error
-		b   *bookmark.Bookmark
-	)
-
-	b, err = repos.Bookmarks.GetByURL(ctx, usr, u)
+// Favorite mark or unmark a bookmark as favorite
+func Favorite(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL) (*bookmark.Bookmark, error) {
+	b, err := repos.Bookmarks.GetByURL(ctx, usr, u)
 	if err != nil {
 		return nil, err
 	}
 
-	b.IsFavorite = isFavorite
+	b.IsFavorite = true
+	if b.FavoritedAt.IsZero() {
+		b.FavoritedAt = time.Now()
+	}
+	b.UpdatedAt = time.Now()
+
+	err = repos.Bookmarks.ChangeFavoriteStatus(ctx, usr, b)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// Unfavorite unmark a bookmark as favorite
+func Unfavorite(ctx context.Context, repos *repository.Repositories, usr *user.User, u *url.URL) (*bookmark.Bookmark, error) {
+	b, err := repos.Bookmarks.GetByURL(ctx, usr, u)
+	if err != nil {
+		return nil, err
+	}
+
+	b.IsFavorite = false
 	b.UpdatedAt = time.Now()
 
 	err = repos.Bookmarks.ChangeFavoriteStatus(ctx, usr, b)
@@ -183,7 +199,6 @@ func Unbookmark(ctx context.Context, repos *repository.Repositories, usr *user.U
 	}
 
 	b.IsLinked = false
-	b.IsFavorite = false
 	b.UpdatedAt = time.Now()
 
 	err = repos.Bookmarks.Remove(ctx, usr, b)

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Subscription as SubscriptionBase } from "react-apollo";
 import subscription from "../graphql/subscription/user.graphql";
-import { Event } from "../../../types/events";
+import { isEmitter } from "../helpers/events";
 import { User, UserEvent } from "../../../types/users";
 import { ClientContext } from "../../context";
 
@@ -15,13 +15,6 @@ function hasReceivedEvent(data: Data | undefined): [boolean, UserEvent | null] {
   }
 
   return [isReceived, event];
-}
-
-function isEmitter(event: Event | null, clientId: string): boolean {
-  if (!event) {
-    return false;
-  }
-  return event.emitter === clientId;
 }
 
 interface Data {

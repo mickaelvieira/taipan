@@ -6,6 +6,7 @@ import Sidebar from "./Navigation/Sidebar";
 import useConnectionStatus from "../../hooks/connection-status";
 import { SnackbarInfo } from "../ui/Snackbar";
 import { MessageContext } from "../context";
+import { MessageInfo } from "../../types";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -18,7 +19,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface RenderProps {
-  setInfoMessage: (message: string) => void;
+  setMessageInfo: (message: MessageInfo | null) => void;
   setIsContained: (contained: boolean) => void;
   setIsSidebarOpen: (open: boolean) => void;
 }
@@ -29,7 +30,7 @@ interface Props {
 
 export default function Layout({ children }: Props): JSX.Element {
   const classes = useStyles();
-  const [info, setInfoMessage] = useState("");
+  const [info, setMessageInfo] = useState<MessageInfo | null>(null);
   const [isSideOpen, setIsSidebarOpen] = useState(false);
   const [isContained, setIsContained] = useState(false);
   const isOnline = useConnectionStatus();
@@ -47,19 +48,20 @@ export default function Layout({ children }: Props): JSX.Element {
       <Sidebar isOpen={isSideOpen} toggleDrawer={setIsSidebarOpen} />
       <Header toggleDrawer={setIsSidebarOpen} />
       <Grid container>
-        <MessageContext.Provider value={setInfoMessage}>
+        <MessageContext.Provider value={setMessageInfo}>
           {children({
-            setInfoMessage,
+            setMessageInfo,
             setIsContained,
             setIsSidebarOpen
           })}
         </MessageContext.Provider>
       </Grid>
-      <SnackbarInfo open={!isOnline} info="You are offline" />
+      <SnackbarInfo open={!isOnline} info={{ message: "You are offline" }} />
       <SnackbarInfo
-        onClose={() => setInfoMessage("")}
+        onClose={() => setMessageInfo(null)}
+        forceClose={() => setMessageInfo(null)}
         autoHideDuration={3000}
-        open={info !== ""}
+        open={info !== null}
         info={info}
       />
     </div>

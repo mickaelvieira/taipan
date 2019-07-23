@@ -17,6 +17,7 @@ import Loader from "../ui/Loader";
 import InitQuery, { Data } from "../apollo/Query/Init";
 import { ClientContext, AppContext } from "../context";
 import AppUser from "./User";
+import AppFeeds from "./Feeds";
 
 function canBoostrap(data: Data | undefined): boolean {
   if (!data) {
@@ -70,25 +71,31 @@ export default function App(): JSX.Element {
                 return (
                   <AppContext.Provider value={app.info}>
                     <AppUser loggedIn={users.loggedIn}>
-                      <Switch>
-                        <Route exact path="/" component={NewsPage} />
-                        <Route
-                          exact
-                          path="/reading-list"
-                          component={ReadingListPage}
-                        />
-                        <Route
-                          exact
-                          path="/favorites"
-                          component={FavoritesPage}
-                        />
-                        <Route
-                          exact
-                          path="/syndication"
-                          component={SyndicationPage}
-                        />
-                        <Route exact path="/account" component={AccountPage} />
-                      </Switch>
+                      <AppFeeds client={client}>
+                        <Switch>
+                          <Route exact path="/" component={NewsPage} />
+                          <Route
+                            exact
+                            path="/reading-list"
+                            component={ReadingListPage}
+                          />
+                          <Route
+                            exact
+                            path="/favorites"
+                            component={FavoritesPage}
+                          />
+                          <Route
+                            exact
+                            path="/syndication"
+                            component={SyndicationPage}
+                          />
+                          <Route
+                            exact
+                            path="/account"
+                            component={AccountPage}
+                          />
+                        </Switch>
+                      </AppFeeds>
                     </AppUser>
                   </AppContext.Provider>
                 );

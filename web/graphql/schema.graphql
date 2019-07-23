@@ -30,16 +30,13 @@ type Mutation {
 
 type Subscription {
   # "Subscribes to user events
-  user(): UserEvent!
+  userChanged(): UserEvent!
 
-  # "Subscribes to news feed events"
-  news(): DocumentEvent!
+  # "Subscribes to document events
+  documentChanged(): DocumentEvent!
 
-  # "Subscribes to favorites feed events"
-  favorites(): BookmarkEvent!
-
-  # "Subscribes to reading list feed events"
-  readingList(): BookmarkEvent!
+  # "Subscribes to bookmark events
+  bookmarkChanged(): BookmarkEvent!
 }
 
 type AppQuery {
@@ -346,17 +343,20 @@ type FeedBookmarkResults implements FeedResults {
 
 # "A subscription topic"
 enum Topic {
-  User
-  News
-  Favorites
-  ReadingList
+  user
+  document
+  bookmark
 }
 
 # "A action represents a action"
 enum Action {
-  Add
-  Update
-  Remove
+  add
+  update
+  remove
+  favorite
+  unfavorite
+  bookmark
+  unbookmark
 }
 
 # "A event describes an action"

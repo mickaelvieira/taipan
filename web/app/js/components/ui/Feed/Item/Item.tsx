@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Fade from "@material-ui/core/Fade";
 import Card from "@material-ui/core/Card";
-import { FeedUpdater } from "../../../apollo/helpers/feed";
-import { FeedItem } from "../../../../types/feed";
+import { CacheUpdater } from "../../../../types";
 
 const useStyles = makeStyles(({ breakpoints }) => ({
   card: {
@@ -18,18 +17,22 @@ const useStyles = makeStyles(({ breakpoints }) => ({
 }));
 
 interface Props {
-  item: FeedItem;
-  updater: FeedUpdater;
   children: (props: RenderProps) => JSX.Element;
 }
 
 interface RenderProps {
-  remove: () => void;
+  remove: (cb: CacheUpdater) => void;
 }
 
-export default function Item({ children, updater, item }: Props): JSX.Element {
+export default function Item({ children }: Props): JSX.Element {
   const classes = useStyles();
+  const ref = useRef<CacheUpdater>();
   const [visible, setIsVisible] = useState(true);
+
+  const remove = (cb: CacheUpdater): void => {
+    ref.current = cb;
+    setIsVisible(false);
+  };
 
   return (
     <Fade
@@ -40,14 +43,14 @@ export default function Item({ children, updater, item }: Props): JSX.Element {
         exit: 400
       }}
       onExited={() => {
-        updater(item, "Remove");
+        if (typeof ref.current === "function") {
+          ref.current();
+        }
       }}
     >
       <Card className={classes.card}>
         {children({
-          remove: () => {
-            setIsVisible(false);
-          }
+          remove
         })}
       </Card>
     </Fade>

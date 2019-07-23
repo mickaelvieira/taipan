@@ -2,14 +2,10 @@ import { cloneDeep } from "lodash";
 import {
   FeedQueryData,
   FeedEventData,
-  FeedActions,
   FeedResults,
-  FeedAction,
   FeedItem,
   FeedEvent
 } from "../../../types/feed";
-import { ApolloClient } from "apollo-boost";
-import PropTypes from "prop-types";
 
 export function getDataKey(data: FeedQueryData | undefined): string | null {
   if (typeof data === "undefined") {
@@ -129,39 +125,26 @@ export function removeItem(result: FeedResults, item: FeedItem): FeedResults {
     results
   };
 }
+export function removeItemWithId(result: FeedResults, id: string): FeedResults {
+  if (!id) {
+    return result;
+  }
 
-const actions: FeedActions<FeedAction> = {
-  Add: addItem,
-  Remove: removeItem
-};
+  const index = result.results.findIndex(item => item.id === id);
+  if (index < 0) {
+    return result;
+  }
 
-export type FeedUpdater = (item: FeedItem, action: FeedAction) => void;
+  const cloned = cloneDeep(result);
+  const total = result.total - 1;
+  const results = cloned.results.filter(item => item.id !== id);
+  const [first, last] = getBoundaries(results);
 
-export const makeFeedUpdater = (
-  client: ApolloClient<object>,
-  query: PropTypes.Validator<object>
-): FeedUpdater => {
-  return (item: FeedItem, action: FeedAction) => {
-    const update = actions[action];
-    try {
-      const data = client.readQuery({ query }) as FeedQueryData;
-      if (data) {
-        const key = getDataKey(data);
-        if (key) {
-          const result = update(data.feeds[key], item);
-          client.writeQuery({
-            query,
-            data: {
-              feeds: {
-                ...data.feeds,
-                [key]: result
-              }
-            }
-          });
-        }
-      }
-    } catch (e) {
-      console.warn(e.message);
-    }
+  return {
+    ...cloned,
+    first,
+    last,
+    total,
+    results
   };
-};
+}

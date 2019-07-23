@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { withApollo, WithApolloClient } from "react-apollo";
+import React, { useState, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Slide from "@material-ui/core/Slide";
 import Paper from "@material-ui/core/Paper";
@@ -10,8 +9,7 @@ import { Bookmark } from "../../../../types/bookmark";
 import FormDocument from "./FormDocument";
 import FormBookmark from "./FormBookmark";
 import { Typography } from "@material-ui/core";
-import { makeFeedUpdater } from "../../../apollo/helpers/feed";
-import { queryFavorites, queryReadingList } from "../../../apollo/Query/Feed";
+import { FeedsCacheContext } from "../../../context";
 
 const useStyles = makeStyles(({ palette }) => ({
   dialog: {},
@@ -46,13 +44,13 @@ interface Props {
   onBookmarkCreated: (bookmark: Bookmark) => void;
 }
 
-export default withApollo(function AddForm({
+export default function AddForm({
   isOpen,
-  client,
   setIsPanelOpen,
   onBookmarkCreated
-}: WithApolloClient<Props>): JSX.Element {
+}: Props): JSX.Element {
   const classes = useStyles();
+  const updater = useContext(FeedsCacheContext);
   const [document, setDocument] = useState<Document | null>(null);
 
   return (
@@ -73,11 +71,9 @@ export default withApollo(function AddForm({
               document={document}
               onRemoveBookmark={() => setDocument(null)}
               onBookmarkCreated={bookmark => {
-                const updater = makeFeedUpdater(
-                  client,
-                  bookmark.isFavorite ? queryFavorites : queryReadingList
-                );
-                updater(bookmark, "Add");
+                if (updater) {
+                  updater.bookmark(bookmark);
+                }
                 setDocument(null);
                 onBookmarkCreated(bookmark);
               }}
@@ -87,4 +83,4 @@ export default withApollo(function AddForm({
       </Paper>
     </Slide>
   );
-});
+}

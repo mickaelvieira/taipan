@@ -13,9 +13,10 @@ import ItemDescription from "../../ui/Feed/Item/Description";
 import ItemImage from "../../ui/Feed/Image";
 import ItemFooter from "../../ui/Feed/Item/Footer";
 import { MessageContext } from "../../context";
+import { CacheUpdater } from "../../../types";
 
 interface Props {
-  remove: () => void;
+  remove: (cb: CacheUpdater) => void;
   bookmark: Bookmark;
 }
 
@@ -39,27 +40,33 @@ export default React.memo(function FeedItem({
           <ShareButton
             item={bookmark}
             onSuccess={message => {
-              setMessageInfo(message);
+              setMessageInfo({ message });
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
           <UnbookmarkButton
             bookmark={bookmark}
-            onSuccess={() => {
-              setMessageInfo("The document was removed from your bookmarks");
-              remove();
+            onSuccess={(update, undo) => {
+              setMessageInfo({
+                message: "The document was removed from your bookmarks",
+                action: undo,
+                label: "undo"
+              });
+              remove(update);
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
           <UnfavoriteButton
             bookmark={bookmark}
-            onSuccess={() => {
-              setMessageInfo(
-                "The bookmark was added back to your reading list"
-              );
-              remove();
+            onSuccess={(update, undo) => {
+              setMessageInfo({
+                message: "The bookmark was added back to your reading list",
+                action: undo,
+                label: "undo"
+              });
+              remove(update);
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
         </CardActions>
       </ItemFooter>

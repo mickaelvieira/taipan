@@ -12,10 +12,9 @@ type Topic string
 
 // List of topics
 const (
-	User        Topic = "User"
-	News        Topic = "News"
-	Favorites   Topic = "Favorites"
-	ReadingList Topic = "ReadingList"
+	TopicUser     Topic = "user"
+	TopicDocument Topic = "document"
+	TopicBookmark Topic = "bookmark"
 )
 
 // Action - an action identifies a type of operation
@@ -23,9 +22,13 @@ type Action string
 
 // List of actions
 const (
-	Add    Action = "Add"
-	Update Action = "Update"
-	Remove Action = "Remove"
+	Add        Action = "add"
+	Update     Action = "update"
+	Remove     Action = "remove"
+	Favorite   Action = "favorite"
+	Unfavorite Action = "unfavorite"
+	Bookmark   Action = "bookmark"
+	Unbookmark Action = "unbookmark"
 )
 
 func randomID() string {

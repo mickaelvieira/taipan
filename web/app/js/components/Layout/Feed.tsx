@@ -11,7 +11,7 @@ export default function FeedLayout({
 
   return (
     <MainLayout>
-      {({ setInfoMessage, setIsContained }) => (
+      {({ setMessageInfo, setIsContained }) => (
         <>
           <MainContent>{children}</MainContent>
           <AddButton
@@ -29,7 +29,9 @@ export default function FeedLayout({
             onBookmarkCreated={() => {
               setIsContained(false);
               setIsPanelOpen(false);
-              setInfoMessage("Nice one! The bookmark was added");
+              setMessageInfo({
+                message: "Nice one! The bookmark was added"
+              });
             }}
           />
         </>
