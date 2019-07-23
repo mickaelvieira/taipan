@@ -2,7 +2,7 @@
 #import "../fragment/event.graphql"
 
 subscription onUserChange {
-  user {
+  userChanged {
     ...userEventFields
     item {
       ...userFields

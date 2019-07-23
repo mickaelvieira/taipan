@@ -5,7 +5,7 @@ import Snackbar, { SnackbarProps } from "@material-ui/core/Snackbar";
 import { MessageInfo } from "../../../types";
 import Link from "@material-ui/core/Link";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(({ palette }) => ({
   icon: {
     marginRight: 12
   },
@@ -14,9 +14,16 @@ const useStyles = makeStyles({
     alignItems: "center"
   },
   link: {
-    cursor: "pointer"
+    cursor: "pointer",
+    display: "inline-box",
+    marginLeft: 12,
+    color: palette.grey[100],
+    textDecoration: "underline",
+    "&:hover": {
+      textDecoration: "none",
+    }
   }
-});
+}));
 
 interface Props extends SnackbarProps {
   info: MessageInfo | null;

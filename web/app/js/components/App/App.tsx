@@ -44,7 +44,6 @@ export default function App(): JSX.Element {
   const theme = createMuiTheme(uiTheme);
 
   console.log(theme);
-  console.log(clientId);
 
   return (
     <ClientContext.Provider value={clientId}>

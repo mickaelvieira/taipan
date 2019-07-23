@@ -1,16 +1,21 @@
 import { Query } from "react-apollo";
-import query from "../graphql/query/users/logged-in.graphql";
+import query from "../graphql/query/init.graphql";
 import { AppInfo } from "../../../types/app";
 import { User } from "../../../types/users";
 
-export interface Data {
+export interface AppQueryData {
   app: {
     info: AppInfo;
-  };
+  }
+}
+
+export interface UserQueryData {
   users: {
     loggedIn: User;
-  };
+  }
 }
+
+export type Data = AppQueryData & UserQueryData;
 
 const variables = {};
 

@@ -128,10 +128,12 @@ export default function Profile(): JSX.Element | null {
   const setMessageInfo = useContext(MessageContext);
   const classes = useStyles();
   const user = useContext(UserContext);
-  const [state, dispatch] = useReducer<ProfileReducer>(
+  const [state, dispatch] = useReducer<ProfileReducer, User | null>(
     reducer,
-    getInitialState(user)
+    user,
+    getInitialState
   );
+
   const { firstname, lastname, scale, file } = state;
 
   return (
@@ -207,7 +209,7 @@ export default function Profile(): JSX.Element | null {
             onCompleted={() => {
               dispatch([ProfileActions.AVATAR, null]);
               dispatch([ProfileActions.SCALE, 1]);
-              setMessageInfo("You profile has been saved");
+              setMessageInfo({ message: "You profile has been saved" });
             }}
           >
             {(mutate, { loading, error }) => (

@@ -6,10 +6,4 @@ query loggedInUser {
       ...userFields
     }
   }
-  app {
-    info {
-      name
-      version
-    }
-  }
 }

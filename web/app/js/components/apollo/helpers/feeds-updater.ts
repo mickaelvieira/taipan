@@ -3,7 +3,6 @@ import { ApolloClient } from "apollo-client";
 import { getDataKey, addItem, removeItemWithId } from "./feed";
 import { Bookmark } from "../../../types/bookmark";
 import { Document } from "../../../types/document";
-
 import { queryNews, queryReadingList, queryFavorites } from "../Query/Feed";
 
 export default class FeedsUpdater {
@@ -20,7 +19,6 @@ export default class FeedsUpdater {
   }
 
   private addTo(name: FeedName, item: FeedItem): void {
-    console.log(`[updater] add to ${name}: [${item.id}]`);
     const query = this.query[name];
     try {
       const data = this.client.readQuery({ query }) as FeedQueryData;
@@ -40,12 +38,11 @@ export default class FeedsUpdater {
         }
       }
     } catch (e) {
-      console.warn(e.message);
+      // console.warn(e.message);
     }
   }
 
   private removeFrom(name: FeedName, id: string): void {
-    console.log(`[updater] remove from ${name}: [${id}]`);
     const query = this.query[name];
     try {
       const data = this.client.readQuery({ query }) as FeedQueryData;
