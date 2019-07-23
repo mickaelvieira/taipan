@@ -118,8 +118,8 @@ describe("Feed helpers", () => {
       event = {
         emitter: "baz",
         item: getBookmark("baz"),
-        action: "Add",
-        topic: "Favorites"
+        action: "favorite",
+        topic: "bookmark"
       };
       result = {
         foo: event
