@@ -20,7 +20,7 @@ const useStyles = makeStyles(({ palette }) => ({
     color: palette.grey[100],
     textDecoration: "underline",
     "&:hover": {
-      textDecoration: "none",
+      textDecoration: "none"
     }
   }
 }));

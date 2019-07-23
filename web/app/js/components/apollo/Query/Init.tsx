@@ -6,13 +6,13 @@ import { User } from "../../../types/users";
 export interface AppQueryData {
   app: {
     info: AppInfo;
-  }
+  };
 }
 
 export interface UserQueryData {
   users: {
     loggedIn: User;
-  }
+  };
 }
 
 export type Data = AppQueryData & UserQueryData;

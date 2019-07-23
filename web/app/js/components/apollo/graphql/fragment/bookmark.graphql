@@ -9,6 +9,7 @@ fragment bookmarkFields on Bookmark {
     ...imageFields
   }
   addedAt
+  favoritedAt
   updatedAt
   isFavorite
 }

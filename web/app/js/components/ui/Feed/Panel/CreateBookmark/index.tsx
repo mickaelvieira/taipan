@@ -8,7 +8,7 @@ import FormDocument from "./FormDocument";
 import FormBookmark from "./FormBookmark";
 import { Typography } from "@material-ui/core";
 import { FeedsCacheContext } from "../../../../context";
-import Panel from "../../../Panel"
+import Panel from "../../../Panel";
 
 const useStyles = makeStyles(({ palette }) => ({
   dialog: {},

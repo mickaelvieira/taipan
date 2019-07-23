@@ -18,9 +18,10 @@ interface Data extends OnSubscriptionDataOptions<FeedEventData> {
 
 function onReceivedData({ subscriptionData, updater, clientId }: Data): void {
   const [isReceived, event] = hasReceivedEvent(subscriptionData.data);
-  console.log(event);
-  console.log(clientId);
   if (isReceived && !isEmitter(event, clientId)) {
+    console.log("feed event received and processed");
+    console.log(event);
+    console.log(clientId);
     const { item, action } = event as FeedEvent;
     switch (action) {
       case "bookmark":

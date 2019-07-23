@@ -22,6 +22,7 @@ function getBookmark(id: string): Bookmark {
     description: "baz",
     image: null,
     addedAt: "baz",
+    favoritedAt: "foo",
     updatedAt: "baz",
     isFavorite: false
   };

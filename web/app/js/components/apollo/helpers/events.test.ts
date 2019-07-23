@@ -1,10 +1,7 @@
-import {
-  isEmitter
-} from "./events";
+import { isEmitter } from "./events";
 import { Event } from "../../../types/events";
 
 describe("Events helpers", () => {
-
   describe("isEmitter", () => {
     let event: Event;
     beforeAll(() => {

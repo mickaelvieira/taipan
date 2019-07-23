@@ -1,4 +1,5 @@
 import { Image } from "./image";
+import { Datetime } from "./scalars";
 
 export interface Bookmark {
   id: string;
@@ -8,7 +9,8 @@ export interface Bookmark {
   title: string;
   description: string;
   image: Image | null;
-  addedAt: string;
-  updatedAt: string;
+  addedAt: Datetime;
+  favoritedAt: Datetime;
+  updatedAt: Datetime;
   isFavorite: boolean;
 }

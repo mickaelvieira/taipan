@@ -12,9 +12,5 @@ export { subscription };
 class Subscription extends SubscriptionBase<Data, {}> {}
 
 export default function UserSubscription(): JSX.Element {
-  return (
-    <Subscription
-      subscription={subscription}
-    />
-  );
+  return <Subscription subscription={subscription} />;
 }
