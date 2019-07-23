@@ -1,5 +1,5 @@
 import React, { useState, PropsWithChildren } from "react";
-import AddBookmarkPanel from "../ui/Feed/Panel/CreateBookmark";
+import CreateBookmark from "../ui/Feed/Panel/CreateBookmark";
 import { AddButton } from "../ui/Fab";
 import MainLayout from "./Layout";
 import MainContent from "./Content";
@@ -20,7 +20,7 @@ export default function FeedLayout({
               setIsPanelOpen(true);
             }}
           />
-          <AddBookmarkPanel
+          <CreateBookmark
             isOpen={isPanelOpen}
             setIsPanelOpen={isOpen => {
               setIsContained(isOpen);

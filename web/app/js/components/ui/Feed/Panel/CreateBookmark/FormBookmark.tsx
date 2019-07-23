@@ -7,12 +7,12 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
-import { Document } from "../../../../types/document";
-import { Bookmark } from "../../../../types/bookmark";
-import Title from "../Item/Title";
-import Description from "../Item/Description";
-import { getImageWidth } from "../../../../helpers/image";
-import BookmarkMutation from "../../../apollo/Mutation/Bookmarks/Bookmark";
+import { Document } from "../../../../../types/document";
+import { Bookmark } from "../../../../../types/bookmark";
+import Title from "../../Item/Title";
+import Description from "../../Item/Description";
+import { getImageWidth } from "../../../../../helpers/image";
+import BookmarkMutation from "../../../../apollo/Mutation/Bookmarks/Bookmark";
 
 const useStyles = makeStyles(({ breakpoints }) => ({
   form: {

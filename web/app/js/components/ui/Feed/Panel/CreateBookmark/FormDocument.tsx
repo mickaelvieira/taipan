@@ -3,8 +3,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import CreateDocumentMutation from "../../../apollo/Mutation/Documents/Create";
-import { Document } from "../../../../types/document";
+import CreateDocumentMutation from "../../../../apollo/Mutation/Documents/Create";
+import { Document } from "../../../../../types/document";
 
 const useStyles = makeStyles(() => ({
   form: {
