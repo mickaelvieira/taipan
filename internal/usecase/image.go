@@ -66,6 +66,11 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 		return
 	}
 
+	if result.RequestHasFailed() {
+		err = fmt.Errorf("%s", result.GetFailureReason())
+		return
+	}
+
 	d.Image.Name = image.GetName(result.Checksum, result.ContentType)
 	d.Image.Format = image.GetExtension(result.ContentType)
 

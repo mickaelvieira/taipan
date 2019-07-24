@@ -11,6 +11,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
+	"log"
 	"time"
 )
 
@@ -117,7 +118,8 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 
 	err = HandleImage(ctx, repos, d)
 	if err != nil {
-		return nil, err
+		// We just log those errors, no need to send them back to the user
+		log.Println(err)
 	}
 
 	err = repos.Syndication.InsertAllIfNotExists(ctx, d.Feeds)

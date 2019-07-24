@@ -4,6 +4,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"io"
+	nethttp "net/http"
 	"time"
 )
 
@@ -28,6 +29,19 @@ type Result struct {
 // RequestWasRedirected is the final URL different from the requested URL
 func (r *Result) RequestWasRedirected() bool {
 	return r.ReqURI.String() != r.FinalURI.String()
+}
+
+// RequestHasFailed determines whether the request was successful
+func (r *Result) RequestHasFailed() bool {
+	return r.RespStatusCode != nethttp.StatusOK
+}
+
+// GetFailureReason returns the failure reason
+func (r Result) GetFailureReason() string {
+	if r.Failed {
+		return r.FailureReason
+	}
+	return r.RespReasonPhrase
 }
 
 // IsContentDifferent have we fetched a new document

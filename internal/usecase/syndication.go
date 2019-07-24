@@ -9,7 +9,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
-	nethttp "net/http"
 	"time"
 
 	"github.com/mmcdole/gofeed"
@@ -154,11 +153,8 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	}
 
 	// We only want successful requests at this point
-	if r.RespStatusCode != nethttp.StatusOK {
-		if r.Failed {
-			return urls, fmt.Errorf("%s", r.FailureReason)
-		}
-		return urls, fmt.Errorf("%s", r.RespReasonPhrase)
+	if r.RequestHasFailed() {
+		return urls, fmt.Errorf("%s", r.GetFailureReason())
 	}
 
 	if r.RequestWasRedirected() {
