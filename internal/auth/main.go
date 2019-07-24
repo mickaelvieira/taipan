@@ -3,27 +3,21 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"github/mickaelvieira/taipan/internal/config"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
 	"net/http"
 )
 
-type key int
-
-// https://blog.golang.org/context#TOC_3.2.
-const (
-	UserKey key = iota
-)
-
 // NewContext creates a new context with the userID attached to it
 func NewContext(ctx context.Context, user *user.User) context.Context {
-	return context.WithValue(ctx, UserKey, user)
+	return context.WithValue(ctx, config.UserContextKey, user)
 }
 
 // FromContext retrieves the userID from the context
 func FromContext(ctx context.Context) *user.User {
-	user, ok := ctx.Value(UserKey).(*user.User)
+	user, ok := ctx.Value(config.UserContextKey).(*user.User)
 	if !ok {
 		user = nil
 	}

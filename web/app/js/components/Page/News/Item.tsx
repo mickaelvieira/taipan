@@ -8,22 +8,26 @@ import {
   BookmarkAndFavoriteButton
 } from "../../ui/Feed/Button";
 import Domain from "../../ui/Domain";
-import Item from "../../ui/Feed/Item/Item";
 import ItemTitle from "../../ui/Feed/Item/Title";
 import ItemDescription from "../../ui/Feed/Item/Description";
 import ItemImage from "../../ui/Feed/Image";
 import ItemFooter from "../../ui/Feed/Item/Footer";
 import { MessageContext } from "../../context";
+import { CacheUpdater } from "../../../types";
 
 interface Props {
+  remove: (cb: CacheUpdater) => void;
   document: Document;
 }
 
-export default React.memo(function FeedItem({ document }: Props): JSX.Element {
+export default React.memo(function FeedItem({
+  document,
+  remove
+}: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
 
   return (
-    <Item>
+    <>
       <ItemImage item={document} />
       <CardContent>
         <ItemTitle item={document} />
@@ -37,26 +41,36 @@ export default React.memo(function FeedItem({ document }: Props): JSX.Element {
           <ShareButton
             item={document}
             onSuccess={message => {
-              setMessageInfo(message);
+              setMessageInfo({ message });
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
           <BookmarkAndFavoriteButton
             document={document}
-            onSuccess={() => {
-              setMessageInfo("The document was added to your favorites");
+            onSuccess={(update, undo) => {
+              setMessageInfo({
+                message: "The document was added to your favorites",
+                action: undo,
+                label: "undo"
+              });
+              remove(update);
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
           <BookmarkButton
             document={document}
-            onSuccess={() => {
-              setMessageInfo("The document was added to your reading list");
+            onSuccess={(update, undo) => {
+              setMessageInfo({
+                message: "The document was added to your reading list",
+                action: undo,
+                label: "undo"
+              });
+              remove(update);
             }}
-            onError={message => setMessageInfo(message)}
+            onError={message => setMessageInfo({ message })}
           />
         </CardActions>
       </ItemFooter>
-    </Item>
+    </>
   );
 });

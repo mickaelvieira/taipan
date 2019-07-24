@@ -3,18 +3,21 @@ package resolvers
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/auth"
+	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/graphql/scalars"
+	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
+	"log"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
 
 // BookmarksResolver bookmarks' root resolver
 type BookmarksResolver struct {
-	repositories  *repository.Repositories
-	subscriptions *subscription
+	repositories *repository.Repositories
+	publisher    *publisher.Subscription
 }
 
 // BookmarkCollectionResolver resolver
@@ -38,18 +41,15 @@ func (r *BookmarkResolver) ID() gql.ID {
 
 // URL resolves the URL
 func (r *BookmarkResolver) URL() scalars.URL {
-	return scalars.URL{URL: r.Bookmark.URL}
+	return scalars.NewURL(r.Bookmark.URL)
 }
 
 // Image resolves the Image field
 func (r *BookmarkResolver) Image() *BookmarkImageResolver {
-	if r.Bookmark.Image == nil || r.Bookmark.Image.Name == "" {
+	if !r.Bookmark.HasImage() {
 		return nil
 	}
-
-	return &BookmarkImageResolver{
-		Image: r.Bookmark.Image,
-	}
+	return &BookmarkImageResolver{Image: r.Bookmark.Image}
 }
 
 // Lang resolves the Lang field
@@ -73,13 +73,18 @@ func (r *BookmarkResolver) Description() string {
 }
 
 // AddedAt resolves the AddedAt field
-func (r *BookmarkResolver) AddedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Bookmark.AddedAt}
+func (r *BookmarkResolver) AddedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Bookmark.AddedAt)
+}
+
+// FavoritedAt resolves the FavoritedAt field
+func (r *BookmarkResolver) FavoritedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Bookmark.FavoritedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *BookmarkResolver) UpdatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Bookmark.UpdatedAt}
+func (r *BookmarkResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Bookmark.UpdatedAt)
 }
 
 // IsFavorite resolves the IsFavorite field
@@ -87,12 +92,73 @@ func (r *BookmarkResolver) IsFavorite() bool {
 	return bool(r.Bookmark.IsFavorite)
 }
 
+// BookmarkEventResolver resolves an bookmark event
+type BookmarkEventResolver struct {
+	event *publisher.Event
+}
+
+// Item returns the event's message
+func (r *BookmarkEventResolver) Item() *BookmarkResolver {
+	b, ok := r.event.Payload.(*bookmark.Bookmark)
+	if !ok {
+		log.Fatal("Cannot resolve item, payload is not a bookmark")
+	}
+	return &BookmarkResolver{Bookmark: b}
+}
+
+// Emitter returns the event's emitter ID
+func (r *BookmarkEventResolver) Emitter() string {
+	return r.event.Emitter
+}
+
+// Topic returns the event's topic
+func (r *BookmarkEventResolver) Topic() string {
+	return string(r.event.Topic)
+}
+
+// Action returns the event's action
+func (r *BookmarkEventResolver) Action() string {
+	return string(r.event.Action)
+}
+
+type userSubscriber struct {
+	events chan<- *UserEventResolver
+}
+
+func (s *userSubscriber) Publish(e *publisher.Event) {
+	s.events <- &UserEventResolver{event: e}
+}
+
+type bookmarkSubscriber struct {
+	events chan<- *BookmarkEventResolver
+}
+
+func (s *bookmarkSubscriber) Publish(e *publisher.Event) {
+	s.events <- &BookmarkEventResolver{event: e}
+}
+
+type documentSubscriber struct {
+	events chan<- *DocumentEventResolver
+}
+
+func (s *documentSubscriber) Publish(e *publisher.Event) {
+	s.events <- &DocumentEventResolver{event: e}
+}
+
+// BookmarkChanged --
+func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEventResolver {
+	c := make(chan *BookmarkEventResolver)
+	s := &bookmarkSubscriber{events: c}
+	r.publisher.Subscribe(publisher.TopicBookmark, s, ctx.Done())
+	return c
+}
+
 // Bookmark resolves the query
 func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.URL
+	u := args.URL.ToDomain()
 
 	b, err := r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
@@ -106,40 +172,14 @@ func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 
 // Create creates a new document and add it to user's bookmarks
 func (r *BookmarksResolver) Create(ctx context.Context, args struct {
-	URL       scalars.URL
-	WithFeeds bool
-}) (*BookmarkResolver, error) {
-	user := auth.FromContext(ctx)
-	u := args.URL.URL
-
-	d, err := usecase.Document(ctx, r.repositories, u, args.WithFeeds)
-	if err != nil {
-		return nil, err
-	}
-
-	var isFavorite = false
-	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, r.repositories, user, d, isFavorite)
-	if err != nil {
-		return nil, err
-	}
-
-	r.subscriptions.publish(newFeedEvent(readingList, add, b))
-
-	res := &BookmarkResolver{Bookmark: b}
-
-	return res, nil
-}
-
-// Add bookmarks a URL
-func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 	URL        scalars.URL
 	IsFavorite bool
+	WithFeeds  bool
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.URL
+	clientID := clientid.FromContext(ctx)
 
-	d, err := r.repositories.Documents.GetByURL(ctx, u)
+	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), args.WithFeeds)
 	if err != nil {
 		return nil, err
 	}
@@ -150,13 +190,48 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var addTo = readingList
-	if b.IsFavorite {
-		addTo = favorites
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Bookmark, b),
+	)
+
+	res := &BookmarkResolver{Bookmark: b}
+
+	return res, nil
+}
+
+// Add bookmarks a URL
+func (r *BookmarksResolver) Add(ctx context.Context, args struct {
+	URL           scalars.URL
+	IsFavorite    bool
+	Subscriptions *[]scalars.URL
+}) (*BookmarkResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+	d, err := r.repositories.Documents.GetByURL(ctx, args.URL.ToDomain())
+	if err != nil {
+		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(addTo, add, b))
-	r.subscriptions.publish(newFeedEvent(news, remove, d))
+	var b *bookmark.Bookmark
+	b, err = usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
+	if err != nil {
+		return nil, err
+	}
+
+	// subscribes to sources sent along
+	if args.Subscriptions != nil {
+		subscriptions := *args.Subscriptions
+		for _, u := range subscriptions {
+			_, err := usecase.SubscribeToSource(ctx, r.repositories, user, u.ToDomain())
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Bookmark, b),
+	)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -168,15 +243,16 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.URL
+	clientID := clientid.FromContext(ctx)
 
-	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, true)
+	b, err := usecase.Favorite(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(favorites, add, b))
-	r.subscriptions.publish(newFeedEvent(readingList, remove, b))
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Favorite, b),
+	)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -188,15 +264,16 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*BookmarkResolver, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.URL
+	clientID := clientid.FromContext(ctx)
 
-	b, err := usecase.FavoriteStatus(ctx, r.repositories, user, u, false)
+	b, err := usecase.Unfavorite(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
 
-	r.subscriptions.publish(newFeedEvent(readingList, add, b))
-	r.subscriptions.publish(newFeedEvent(favorites, remove, b))
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Unfavorite, b),
+	)
 
 	res := &BookmarkResolver{Bookmark: b}
 
@@ -208,12 +285,16 @@ func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*DocumentResolver, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.URL
+	clientID := clientid.FromContext(ctx)
 
-	d, err := usecase.Unbookmark(ctx, r.repositories, user, u)
+	d, err := usecase.Unbookmark(ctx, r.repositories, user, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicDocument, publisher.Unbookmark, d),
+	)
 
 	res := &DocumentResolver{Document: d}
 

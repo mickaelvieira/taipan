@@ -4,18 +4,30 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 import { split, concat } from "apollo-link";
 import { onError } from "apollo-link-error";
 import { HttpLink } from "apollo-link-http";
+import { setContext } from "apollo-link-context";
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
 
-export default () => {
+export function genRandomId(): string {
+  return [...Array(20)]
+    .map(() => (~~(Math.random() * 36)).toString(36))
+    .join("");
+}
+
+export default (clientId: string) => {
   const cache = new InMemoryCache({
     freezeResults: true,
     dataIdFromObject: ({ id, __typename }: IdGetterObj) =>
       id && __typename ? `${__typename}@${id}` : null
   });
 
+  const headerName = process.env.APP_CLIENT_ID_HEADER as string;
   const isEncrypted = !!process.env.APP_GRAPHQL_ENCRYPTED;
   const endpoint = process.env.APP_GRAPHQL_ENDPOINT;
+
+  if (!headerName) {
+    throw new Error("Client ID header name must be defined.");
+  }
 
   const httpLink = new HttpLink({
     uri: `http${isEncrypted ? "s" : ""}:${endpoint}`
@@ -25,9 +37,9 @@ export default () => {
     options: {
       reconnect: true,
       reconnectionAttempts: Infinity,
-      connectionCallback: error => {
-        console.log("Connected to WS");
-        console.log(error);
+      connectionCallback: _ => {
+        // console.log("Connected to WS");
+        // console.log(_);
       },
       inactivityTimeout: 0
     }
@@ -57,7 +69,13 @@ export default () => {
     }
   });
 
-  const link = concat(errorLink, transportLink);
+  const clientIdLink = setContext(() => ({
+    headers: {
+      [headerName]: clientId
+    }
+  }));
+
+  const link = concat(concat(errorLink, clientIdLink), transportLink);
   const client = new ApolloClient({
     link,
     cache

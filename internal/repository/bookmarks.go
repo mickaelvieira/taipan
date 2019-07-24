@@ -10,6 +10,8 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"strings"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 // BookmarkRepository the User Bookmark repository
@@ -22,11 +24,11 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
-		ORDER BY b.updated_at DESC
+		ORDER BY b.added_at DESC
 		LIMIT ?
 	`
 	where, args, err := r.getPagination(ctx, fromID, toID)
@@ -36,7 +38,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 
 	where = append(where, "d.deleted = 0")
 	where = append(where, "b.linked = 1")
-	where = append(where, "b.marked_as_read = 0")
+	where = append(where, "b.favorite = 0")
 	where = append(where, "b.user_id = ?")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
@@ -71,11 +73,11 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
-		ORDER BY b.updated_at DESC
+		ORDER BY b.favorited_at DESC
 		LIMIT ?
 	`
 	where, args, err := r.getPagination(ctx, fromID, toID)
@@ -85,7 +87,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 
 	where = append(where, "d.deleted = 0")
 	where = append(where, "b.linked = 1")
-	where = append(where, "b.marked_as_read = 1")
+	where = append(where, "b.favorite = 1")
 	where = append(where, "b.user_id = ?")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
@@ -123,7 +125,7 @@ func (r *BookmarkRepository) GetTotalFavorites(ctx context.Context, user *user.U
 		SELECT COUNT(d.id) as total
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 1 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.favorite = 1 AND b.user_id = ?
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
@@ -141,7 +143,7 @@ func (r *BookmarkRepository) GetTotalReadingList(ctx context.Context, user *user
 		SELECT COUNT(d.id) as total
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE d.deleted = 0 AND b.linked = 1 AND b.marked_as_read = 0 AND b.user_id = ?
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.favorite = 0 AND b.user_id = ?
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
@@ -154,7 +156,7 @@ func (r *BookmarkRepository) GetTotalReadingList(ctx context.Context, user *user
 // GetByURL find a single entry
 func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *url.URL) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.updated_at, b.linked, b.marked_as_read
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.user_id = ? AND d.url = ?
@@ -226,12 +228,18 @@ func (r *BookmarkRepository) getPagination(ctx context.Context, fromID string, t
 
 // BookmarkDocument the bookmark to the user
 func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, u *user.User, d *document.Document, isFavorite bool) error {
+	var favoritedAt mysql.NullTime
+	if isFavorite {
+		favoritedAt.Valid = true
+		favoritedAt.Time = time.Now()
+	}
+
 	query := `
 		INSERT INTO bookmarks
-		(user_id, document_id, added_at, updated_at, marked_as_read, linked)
+		(user_id, document_id, added_at, favorited_at, updated_at, favorite, linked)
 		VALUES
-		(?, ?, ?, ?, ?, 1)
-		ON DUPLICATE KEY UPDATE updated_at = ?, linked = 1
+		(?, ?, ?, ?, ?, ?, 1)
+		ON DUPLICATE KEY UPDATE updated_at = ?, linked = 1, favorite = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
@@ -239,25 +247,28 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, u *user.User,
 		u.ID,
 		d.ID,
 		time.Now(),
+		favoritedAt,
 		time.Now(),
 		isFavorite,
 		time.Now(),
+		isFavorite,
 	)
 
 	return err
 }
 
-// ChangeFavoriteStatus change bookmarks read status .i.e READ/UNREAD
+// ChangeFavoriteStatus mark or unmark a bookmark as favorite
 func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, u *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET marked_as_read = ?, updated_at = ?
+		SET favorite = ?, favorited_at = ?, updated_at = ?
 		WHERE user_id = ? AND document_id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
 		b.IsFavorite,
+		b.FavoritedAt,
 		b.UpdatedAt,
 		u.ID,
 		b.ID,
@@ -270,13 +281,12 @@ func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, u *user.U
 func (r *BookmarkRepository) Remove(ctx context.Context, u *user.User, b *bookmark.Bookmark) error {
 	query := `
 		UPDATE bookmarks
-		SET marked_as_read = ?, linked = ?, updated_at = ?
+		SET linked = ?, updated_at = ?
 		WHERE user_id = ? AND document_id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		b.IsFavorite,
 		b.IsLinked,
 		b.UpdatedAt,
 		u.ID,
@@ -290,6 +300,7 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 	var b bookmark.Bookmark
 	var imageURL, imageName, imageFormat string
 	var imageWidth, imageHeight int32
+	var favoritedAt mysql.NullTime
 
 	err := rows.Scan(
 		&b.ID,
@@ -304,10 +315,15 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 		&imageHeight,
 		&imageFormat,
 		&b.AddedAt,
+		&favoritedAt,
 		&b.UpdatedAt,
 		&b.IsLinked,
 		&b.IsFavorite,
 	)
+
+	if favoritedAt.Valid {
+		b.FavoritedAt = favoritedAt.Time
+	}
 
 	if err != nil {
 		return nil, err

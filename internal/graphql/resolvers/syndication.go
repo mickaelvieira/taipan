@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
@@ -41,7 +40,7 @@ func (r *SourceResolver) ID() gql.ID {
 
 // URL resolves the URL
 func (r *SourceResolver) URL() scalars.URL {
-	return scalars.URL{URL: r.Source.URL}
+	return scalars.NewURL(r.Source.URL)
 }
 
 // Title resolves the Title field
@@ -65,18 +64,18 @@ func (r *SourceResolver) IsPaused() bool {
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *SourceResolver) CreatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Source.CreatedAt}
+func (r *SourceResolver) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Source.CreatedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *SourceResolver) UpdatedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Source.UpdatedAt}
+func (r *SourceResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Source.UpdatedAt)
 }
 
 // ParsedAt resolves the ParsedAt field
-func (r *SourceResolver) ParsedAt() scalars.DateTime {
-	return scalars.DateTime{Time: r.Source.ParsedAt}
+func (r *SourceResolver) ParsedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Source.ParsedAt)
 }
 
 // LogEntries returns the document's parser log
@@ -104,26 +103,9 @@ func (r *SourceResolver) getLogsLoader() *dataloader.Loader {
 func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
-	u := args.URL.URL
-	if syndication.IsBlacklisted(u.String()) {
-		return nil, fmt.Errorf("URL %s is blacklisted", args.URL)
-	}
+	u := args.URL.ToDomain()
 
-	s, err := r.repositories.Syndication.GetByURL(ctx, u)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			s = syndication.NewSource(u, "", "")
-			err = r.repositories.Syndication.Insert(ctx, s)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
-	}
-
-	// @TODO push URLs to the queue
-	_, err = usecase.ParseSyndicationSource(ctx, r.repositories, s)
+	s, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
 	if err != nil {
 		return nil, err
 	}
@@ -137,9 +119,7 @@ func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
-	u := args.URL.URL
-
-	s, err := r.repositories.Syndication.GetByURL(ctx, u)
+	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -158,9 +138,7 @@ func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
 func (r *SyndicationResolver) Enable(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
-	u := args.URL.URL
-
-	s, err := r.repositories.Syndication.GetByURL(ctx, u)
+	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -179,9 +157,7 @@ func (r *SyndicationResolver) Enable(ctx context.Context, args struct {
 func (r *SyndicationResolver) Delete(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
-	u := args.URL.URL
-
-	s, err := r.repositories.Syndication.GetByURL(ctx, u)
+	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -224,12 +200,12 @@ func (r *SyndicationResolver) Sources(ctx context.Context, args struct {
 		})
 	}
 
-	reso := SourceCollectionResolver{
+	res := SourceCollectionResolver{
 		Results: sources,
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,
 	}
 
-	return &reso, nil
+	return &res, nil
 }

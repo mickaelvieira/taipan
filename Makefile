@@ -34,6 +34,12 @@ watch-ui:
 watch-test-ui:
 	$(CDWEB) && yarn watch-test
 
+watch-e2e:
+	$(CDWEB) && yarn watch-e2e
+
+test-e2e:
+	$(CDWEB) && yarn test-e2e
+
 fmt:
 	$(GOFMT) taipan.go
 	$(GOFMT) internal/**/*.go
@@ -53,7 +59,7 @@ analyse:
 	cd web/app && yarn lint
 
 gen-proto:
-	protoc --proto_path=web/proto --go_out=internal/domain/document web/proto/document.proto
+	protoc --proto_path=web/proto --go_out=internal/domain/messages web/proto/document.proto
 
 gen-schema:
 	cd web/app && yarn gen:graphql:schema
@@ -64,4 +70,3 @@ gen-schema:
 
 # run-migration:
 # 	cd cmd/migration && ./migration
-

@@ -1,0 +1,11 @@
+#import "../fragment/document.graphql"
+#import "../fragment/event.graphql"
+
+subscription onDocumentChange {
+  documentChanged {
+    ...documentEventFields
+    item {
+      ...documentFields
+    }
+  }
+}

@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
-	"strconv"
 	"strings"
 )
 
@@ -133,15 +133,45 @@ func (r *DocumentRepository) getPagination(fromID string, toID string) (where []
 	return
 }
 
+func getPagination(fromID string, toID string) (string, []interface{}) {
+	var c string
+	var a []interface{}
+
+	if fromID != "" && toID != "" {
+		c = "d.id < ? AND d.id > ?"
+		a = append(a, fromID)
+		a = append(a, toID)
+	} else if fromID != "" && toID == "" {
+		c = "d.id < ?"
+		a = append(a, fromID)
+	} else if fromID == "" && toID != "" {
+		c = "d.id > ?"
+		a = append(a, toID)
+	}
+
+	if c != "" {
+		c = fmt.Sprintf("AND %s", c)
+	}
+
+	return c, a
+}
+
 // GetNews find newest entries
 func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID string, toID string, limit int32, isDescending bool) ([]*document.Document, error) {
 	var results []*document.Document
 
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, d.created_at, d.updated_at, d.deleted
-		FROM documents AS d
+		SELECT
+		d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
+		d.created_at, d.updated_at, d.deleted
+		FROM newsfeed AS nf
+		INNER JOIN documents AS d ON nf.document_id = d.id
 		LEFT JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE %s
+		WHERE
+		nf.user_id = ? AND
+		(b.user_id IS NULL OR b.user_id != ?)
+		%s
 		ORDER BY d.id %s
 		LIMIT ?
 	`
@@ -150,12 +180,14 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 		dir = "DESC"
 	}
 
-	where, args := r.getPagination(fromID, toID)
-	where = append(where, "(b.user_id IS NULL OR b.user_id != ?)")
-	query = fmt.Sprintf(query, strings.Join(where, " AND "), dir)
+	var args []interface{}
+	where, bounds := getPagination(fromID, toID)
+	query = fmt.Sprintf(query, where, dir)
 
-	args = append(args, u.ID)
+	args = append(args, u.ID, u.ID)
+	args = append(args, bounds...)
 	args = append(args, limit)
+
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
 		return nil, err
@@ -179,12 +211,15 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 // GetTotalLatestNews returns the number of latest news
 func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.User, fromID string, toID string, isDescending bool) (int32, error) {
 	var total int32
-
 	query := `
 		SELECT COUNT(d.id) AS total
-		FROM documents AS d
+		FROM newsfeed AS nf
+		INNER JOIN documents AS d ON nf.document_id = d.id
 		LEFT JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE %s
+		WHERE
+		nf.user_id = ? AND
+		(b.user_id IS NULL OR b.user_id != ?)
+		%s
 		ORDER BY d.id %s
 	`
 	dir := "ASC"
@@ -192,11 +227,13 @@ func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.Use
 		dir = "DESC"
 	}
 
-	where, args := r.getPagination(fromID, toID)
-	where = append(where, "(b.user_id IS NULL OR b.user_id != ?)")
-	query = fmt.Sprintf(query, strings.Join(where, " AND "), dir)
+	var args []interface{}
+	where, bounds := getPagination(fromID, toID)
+	query = fmt.Sprintf(query, where, dir)
 
-	args = append(args, u.ID)
+	args = append(args, u.ID, u.ID)
+	args = append(args, bounds...)
+
 	err := r.db.QueryRowContext(ctx, formatQuery(query), args...).Scan(&total)
 	if err != nil {
 		return total, err
@@ -205,18 +242,20 @@ func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.Use
 	return total, nil
 }
 
-// GetTotalNew returns the total of new documents
-func (r *DocumentRepository) GetTotalNew(ctx context.Context, u *user.User) (int32, error) {
+// GetTotalNews returns the total of new documents
+func (r *DocumentRepository) GetTotalNews(ctx context.Context, u *user.User) (int32, error) {
 	var total int32
 
 	query := `
 		SELECT COUNT(d.id) AS total
-		FROM documents AS d
+		FROM newsfeed AS nf
+		INNER JOIN documents AS d ON nf.document_id = d.id
 		LEFT JOIN bookmarks AS b ON b.document_id = d.id
-		WHERE b.user_id IS NULL OR b.user_id != ?
+		WHERE
+		nf.user_id = ? AND
+		(b.user_id IS NULL OR b.user_id != ?)
 	`
-
-	err := r.db.QueryRowContext(ctx, formatQuery(query), u.ID).Scan(&total)
+	err := r.db.QueryRowContext(ctx, formatQuery(query), u.ID, u.ID).Scan(&total)
 	if err != nil {
 		return total, err
 	}
@@ -282,7 +321,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 		VALUES
 		(?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	result, err := r.db.ExecContext(
+	res, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
 		d.URL,
@@ -298,11 +337,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 	)
 
 	if err == nil {
-		var ID int64
-		ID, err = result.LastInsertId()
-		if err == nil {
-			d.ID = strconv.FormatInt(ID, 10)
-		}
+		d.ID = db.GetLastInsertID(res)
 	}
 
 	return err

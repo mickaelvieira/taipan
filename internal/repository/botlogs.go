@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 )
@@ -16,23 +17,29 @@ type BotlogRepository struct {
 func (r *BotlogRepository) Insert(ctx context.Context, l *http.Result) error {
 	query := `
 		INSERT INTO bot_logs
-		(checksum, content_type, response_status_code, response_reason_phrase, response_headers, request_uri, request_method, request_headers, created_at)
+		(failed, failure_reason, checksum, content_type, response_status_code, response_reason_phrase, response_headers, request_uri, request_method, request_headers, created_at)
 		VALUES
-		(UNHEX(?), ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	_, err := r.db.ExecContext(
+	res, err := r.db.ExecContext(
 		ctx,
 		query,
+		l.Failed,
+		l.FailureReason,
 		l.Checksum,
 		l.ContentType,
 		l.RespStatusCode,
 		l.RespReasonPhrase,
-		l.ReqHeaders,
+		l.RespHeaders,
 		l.ReqURI,
 		l.ReqMethod,
 		l.ReqHeaders,
 		l.CreatedAt,
 	)
+
+	if err == nil {
+		l.ID = db.GetLastInsertID(res)
+	}
 
 	return err
 }
@@ -40,7 +47,7 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *http.Result) error {
 // FindLatestByURL find the latest log entry for a given URL
 func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*http.Result, error) {
 	query := `
-		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ?
 		ORDER BY l.created_at DESC
@@ -55,12 +62,30 @@ func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*
 	return log, nil
 }
 
+// FindPreviousByURL find the previous log entry for a given URL
+func (r *BotlogRepository) FindPreviousByURL(ctx context.Context, URL *url.URL, c *http.Result) (*http.Result, error) {
+	query := `
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		FROM bot_logs AS l
+		WHERE l.request_uri = ? AND l.id != ?
+		ORDER BY l.created_at DESC
+		LIMIT 1
+	`
+	row := r.db.QueryRowContext(ctx, formatQuery(query), URL.String(), c.ID)
+	log, err := r.scan(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return log, nil
+}
+
 // FindByURL finds the log entries for a given URL
 func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*http.Result, error) {
 	var logs []*http.Result
 
 	query := `
-		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ?
 		ORDER BY created_at DESC
@@ -91,7 +116,7 @@ func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL,
 	var logs []*http.Result
 
 	query := `
-		SELECT l.id, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ? AND l.response_status_code = ?
 		ORDER BY created_at DESC
@@ -117,11 +142,44 @@ func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL,
 	return logs, nil
 }
 
+// FindFailureByURL finds failed http operations by URL
+func (r *BotlogRepository) FindFailureByURL(ctx context.Context, URL *url.URL) ([]*http.Result, error) {
+	var logs []*http.Result
+
+	query := `
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		FROM bot_logs AS l
+		WHERE l.request_uri = ? AND l.failed = 1
+		ORDER BY created_at DESC
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), URL.String())
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var log *http.Result
+		log, err = r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return logs, nil
+}
+
 func (r *BotlogRepository) scan(rows Scanable) (*http.Result, error) {
 	var l http.Result
 
 	err := rows.Scan(
 		&l.ID,
+		&l.Failed,
+		&l.FailureReason,
 		&l.Checksum,
 		&l.ContentType,
 		&l.RespStatusCode,

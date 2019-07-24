@@ -1,0 +1,14 @@
+#import "../../fragment/subscription.graphql"
+
+query subscriptions($pagination: OffsetPaginationInput!) {
+  subscriptions {
+    subscriptions(pagination: $pagination) @connection(key: "user_subscriptions")  {
+      total
+      limit
+      offset
+      results {
+        ...subscriptionFields
+      }
+    }
+  }
+}

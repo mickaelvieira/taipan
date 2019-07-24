@@ -65,8 +65,7 @@ type Image interface {
 
 // GetName builds image name from its checksum and content type
 func GetName(cs checksum.Checksum, ct string) string {
-	f := GetExtension(ct)
-	if f != "" {
+	if f := GetExtension(ct); f != "" {
 		return cs.String() + "." + f
 	}
 	return cs.String()

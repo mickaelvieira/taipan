@@ -29,7 +29,10 @@ type BookmarkImageResolver struct {
 
 // URL resolves the URL
 func (r *BookmarkImageResolver) URL() scalars.URL {
-	return scalars.URL{URL: assets.MakeImageURL(r.Image.Name)}
+	if r.Image.Name == "" {
+		return scalars.NewURL(r.Image.URL)
+	}
+	return scalars.NewURL(assets.MakeImageURL(r.Image.Name))
 }
 
 // Name resolves the Name field
@@ -59,7 +62,7 @@ type UserImageResolver struct {
 
 // URL resolves the URL
 func (r *UserImageResolver) URL() scalars.URL {
-	return scalars.URL{URL: assets.MakeImageURL(r.Image.Name)}
+	return scalars.NewURL(assets.MakeImageURL(r.Image.Name))
 }
 
 // Name resolves the Name field

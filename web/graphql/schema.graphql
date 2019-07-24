@@ -17,23 +17,26 @@ type Query {
   bookmarks: BookmarksQuery
   feeds: FeedsQuery
   syndication: SyndicationQuery
+  subscriptions: SubscriptionsQuery
 }
 
 type Mutation {
+  documents: DocumentMutation
   bookmarks: BookmarksMutation
   syndication: SyndicationMutation
+  subscriptions: SubscriptionsMutation
   users: UsersMutation
 }
 
 type Subscription {
-  # "Subscribes to news feed events"
-  news(): DocumentEvent!
+  # "Subscribes to user events
+  userChanged(): UserEvent!
 
-  # "Subscribes to favorites feed events"
-  favorites(): BookmarkEvent!
+  # "Subscribes to document events
+  documentChanged(): DocumentEvent!
 
-  # "Subscribes to reading list feed events"
-  readingList(): BookmarkEvent!
+  # "Subscribes to bookmark events
+  bookmarkChanged(): BookmarkEvent!
 }
 
 type AppQuery {
@@ -56,6 +59,11 @@ type UsersMutation {
   update(id: ID!, user: UserInput!): User
 }
 
+type DocumentMutation {
+  # "create a document matching the URL
+  create(url: URL!): Document
+}
+
 type DocumentsQuery {
   # "Returns a list of documents"
   documents(pagination: CursorPaginationInput!): DocumentCollection
@@ -71,14 +79,14 @@ type BookmarksMutation {
   # This mutation will fetch the document and create a bookmark
   # Which will be present in user's reading list
   # """
-  create(url: URL!, withFeeds: Boolean!): Bookmark
+  create(url: URL!, isFavorite: Boolean!, withFeeds: Boolean!): Bookmark
 
   # """
   # This mutation will add the document and create a bookmark
   # It will be present in user's reading list or favorites depending
   # on the isFavorite flag
   # """
-  add(url: URL!, isFavorite: Boolean!): Bookmark
+  add(url: URL!, isFavorite: Boolean!, subscriptions: [URL!]): Bookmark
 
   # "This mutation will add the document to users's bookmarks."
   remove(url: URL!): Document
@@ -121,6 +129,22 @@ type SyndicationMutation {
 
   # "Delete the web syndication source matching the URL"
   delete(url: URL!): Source
+}
+
+type SubscriptionsQuery {
+  # "Returns a list of user's subscription"
+  subscriptions(pagination: OffsetPaginationInput!): SubscriptionCollection
+}
+
+type SubscriptionsMutation {
+  # "Create a web syndication source and subscribe to it"
+  subscription(url: URL!): UserSubscription
+
+  # "Subscribe the user to a web syndication"
+  subscribe(url: URL!): UserSubscription
+
+  # "Unsubscribe the user to a web syndication"
+  unsubscribe(url: URL!): UserSubscription
 }
 
 input SearchSourcesInput {
@@ -188,6 +212,7 @@ type Document implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   logEntries: [HTTPClientLog]
+  syndication: [Source!]
 }
 
 # """
@@ -204,11 +229,12 @@ type Bookmark implements Node {
   image: Image
   updatedAt: DateTime!
   addedAt: DateTime!
+  favoritedAt: DateTime!
   isFavorite: Boolean!
 }
 
 # """
-# The source type describe a web syndication source.
+# The source type describes a web syndication source.
 # It can be either a RSS or Atom feed
 # """
 type Source implements Node {
@@ -222,6 +248,20 @@ type Source implements Node {
   updatedAt: DateTime!
   parsedAt: DateTime!
   logEntries: [HTTPClientLog]
+}
+
+# """
+# The subscription type describes a user's subscription
+# to a web syndication source.
+# """
+type UserSubscription implements Node {
+  id: ID!
+  url: URL!
+  type: String!
+  title: String!
+  isSubscribed: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 # "The HTTPClientLog type describes an entry in the HTTP client history"
@@ -250,6 +290,14 @@ type SourceCollection {
   total: Int!
   limit: Int!
   results: [Source!]!
+}
+
+# "A collection of the user's subscriptions"
+type SubscriptionCollection {
+  offset: Int!
+  total: Int!
+  limit: Int!
+  results: [UserSubscription!]!
 }
 
 # "An item in a feed"
@@ -294,37 +342,48 @@ type FeedBookmarkResults implements FeedResults {
 # the client in order to keep the feed up to date.
 # """
 
-# "A topic represents a feed"
-enum FeedTopic {
-  News
-  Favorites
-  ReadingList
+# "A subscription topic"
+enum Topic {
+  user
+  document
+  bookmark
 }
 
-# "A action represents a action on an item in the feed"
-enum FeedAction {
-  Add
-  Remove
+# "A action represents a action"
+enum Action {
+  add
+  update
+  remove
+  favorite
+  unfavorite
+  bookmark
+  unbookmark
 }
 
-# "A event describes an action on an item in a given topic"
-interface FeedEvent {
-  id: String!
-  item: FeedItem!
-  topic: FeedTopic!
-  action: FeedAction!
+# "A event describes an action"
+interface Event {
+  emitter: String!
+  topic: Topic!
+  action: Action!
 }
 
-type DocumentEvent implements FeedEvent {
-  id: String!
+type UserEvent implements Event {
+  emitter: String!
+  item: User!
+  topic: Topic!
+  action: Action!
+}
+
+type DocumentEvent implements Event {
+  emitter: String!
   item: Document!
-  topic: FeedTopic!
-  action: FeedAction!
+  topic: Topic!
+  action: Action!
 }
 
-type BookmarkEvent implements FeedEvent {
-  id: String!
+type BookmarkEvent implements Event {
+  emitter: String!
   item: Bookmark!
-  topic: FeedTopic!
-  action: FeedAction!
+  topic: Topic!
+  action: Action!
 }

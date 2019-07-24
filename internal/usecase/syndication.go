@@ -2,13 +2,13 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
-	nethttp "net/http"
 	"time"
 
 	"github.com/mmcdole/gofeed"
@@ -38,43 +38,49 @@ func EnableSyndicationSource(ctx context.Context, repos *repository.Repositories
 	return repos.Syndication.UpdateStatus(ctx, s)
 }
 
-func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r *http.Result, s *syndication.Source) (err error) {
-	if r.RespStatusCode == nethttp.StatusNotFound {
-		var logs []*http.Result
-		logs, err = repos.Botlogs.FindByURLAndStatus(ctx, r.ReqURI, r.RespStatusCode)
-		if err != nil {
-			return
-		}
+func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r *http.Result, s *syndication.Source) error {
+	// no error or failure, there is nothing to do
+	if !syndication.IsHTTPError(r.RespStatusCode) && !r.Failed {
+		return nil
+	}
+
+	if r.Failed {
 		// @TODO Should we check whether they are actually 5 successive errors?
-		if len(logs) >= 5 {
-			fmt.Printf("Too many '%d' errors\n", r.RespStatusCode)
-			err = DeleteSyndicationSource(ctx, repos, s)
-			if err != nil {
-				return
-			}
-			fmt.Printf("Source '%s' was marked as deleted\n", s.URL)
+		l, err := repos.Botlogs.FindFailureByURL(ctx, r.ReqURI)
+		if err != nil {
+			return err
+		}
+
+		if len(l) < 5 {
+			return nil
+		}
+
+		fmt.Printf("Failed request: '%s' was marked as paused\n", s.URL)
+		return DisableSyndicationSource(ctx, repos, s)
+	}
+
+	if syndication.IsHTTPError(r.RespStatusCode) {
+		// @TODO Should we check whether they are actually 5 successive errors?
+		l, err := repos.Botlogs.FindByURLAndStatus(ctx, r.ReqURI, r.RespStatusCode)
+		if err != nil {
+			return err
+		}
+
+		if len(l) < 5 {
+			return nil
+		}
+
+		if syndication.IsHTTPErrorPermanent(r.RespStatusCode) {
+			fmt.Printf("Unexisting source: '%s' was marked as deleted\n", s.URL)
+			return DeleteSyndicationSource(ctx, repos, s)
+		}
+		if syndication.IsHTTPErrorTemporary(r.RespStatusCode) {
+			fmt.Printf("Server error: '%s' was marked as paused\n", s.URL)
+			return DisableSyndicationSource(ctx, repos, s)
 		}
 	}
 
-	if r.RespStatusCode == nethttp.StatusNotAcceptable ||
-		r.RespStatusCode == nethttp.StatusTooManyRequests ||
-		r.RespStatusCode == nethttp.StatusInternalServerError {
-		var logs []*http.Result
-		logs, err = repos.Botlogs.FindByURLAndStatus(ctx, r.ReqURI, r.RespStatusCode)
-		if err != nil {
-			return
-		}
-		// @TODO Should we check whether they are actually 5 successive errors?
-		if len(logs) >= 5 {
-			fmt.Printf("Too many '%d' errors\n", r.RespStatusCode)
-			err = DisableSyndicationSource(ctx, repos, s)
-			if err != nil {
-				return
-			}
-			fmt.Printf("Source '%s' was marked as paused\n", s.URL)
-		}
-	}
-	return
+	return nil
 }
 
 func handleDuplicateFeed(ctx context.Context, repos *repository.Repositories, FinalURI *url.URL, s *syndication.Source) (*syndication.Source, error) {
@@ -99,82 +105,120 @@ func handleDuplicateFeed(ctx context.Context, repos *repository.Repositories, Fi
 	return s, err
 }
 
+// CreateSyndicationSource in this use case given a url, we will:
+// - fetch the related feed
+// - parse the feed
+// - And finally return a web syndication source
+func CreateSyndicationSource(ctx context.Context, repos *repository.Repositories, u *url.URL) (*syndication.Source, error) {
+	if syndication.IsBlacklisted(u.String()) {
+		return nil, fmt.Errorf("URL %s is blacklisted", u.String())
+	}
+
+	s, err := repos.Syndication.GetByURL(ctx, u)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			s = syndication.NewSource(u, "", "")
+			err = repos.Syndication.Insert(ctx, s)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+
+	result, err := FetchResource(ctx, repos, s.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ParseSyndicationSource(ctx, repos, result, s)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
 // ParseSyndicationSource in this usecase given an source entity:
 // - Fetches the related RSS/ATOM document
 // - Parses it the document
 // - And returns a list of URLs found in the document
 // The document is not parsed if the document has not changed since the last time it was fetched
-func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (urls []*url.URL, err error) {
-	fmt.Printf("Parsing %s\n", s.URL)
-	parser := gofeed.NewParser()
+func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories, r *http.Result, s *syndication.Source) ([]*url.URL, error) {
+	var urls []*url.URL
 
-	var result, prevResult *http.Result
-	prevResult, err = repos.Botlogs.FindLatestByURL(ctx, s.URL)
-	result, err = FetchResource(ctx, repos, s.URL)
-	if err != nil {
-		if result != nil {
-			err = handleFeedHTTPErrors(ctx, repos, result, s)
-			if err != nil {
-				return
+	if err := handleFeedHTTPErrors(ctx, repos, r, s); err != nil {
+		return urls, err
+	}
+
+	// We only want successful requests at this point
+	if r.RequestHasFailed() {
+		return urls, fmt.Errorf("%s", r.GetFailureReason())
+	}
+
+	if r.RequestWasRedirected() {
+		var err error
+		s, err = handleDuplicateFeed(ctx, repos, r.FinalURI, s)
+		if err != nil {
+			return urls, err
+		}
+	}
+
+	pr, err := repos.Botlogs.FindPreviousByURL(ctx, s.URL, r)
+	if err != nil && err != sql.ErrNoRows {
+		return urls, err
+	}
+
+	if r.IsContentDifferent(pr) {
+		c, err := gofeed.NewParser().Parse(r.Content)
+		if err != nil {
+			return urls, fmt.Errorf("Parsing error: %s - URL %s", err, s.URL)
+		}
+
+		if c.Title != "" {
+			if s.Title == "" || s.Title == syndication.DefaultWPFeedTitle {
+				s.Title = c.Title
 			}
 		}
-		return
-	}
 
-	if result.RequestWasRedirected() {
-		s, err = handleDuplicateFeed(ctx, repos, result.FinalURI, s)
-		if err != nil {
-			return
-		}
-	}
-
-	if result.IsContentDifferent(prevResult) {
-		fmt.Println("Source's content has changed")
-		var content *gofeed.Feed
-		content, err = parser.Parse(result.Content)
-		if err != nil {
-			err = fmt.Errorf("Parsing error: %s - URL %s", err, s.URL)
-			return
+		if s.Type == "" {
+			feedType, e := syndication.FromGoFeedType(c.FeedType)
+			if e == nil {
+				s.Type = feedType
+			} else {
+				log.Println(e)
+			}
 		}
 
-		s.Title = content.Title
-		feedType, errType := syndication.FromGoFeedType(content.FeedType)
-		if errType == nil {
-			s.Type = feedType
-		} else {
-			log.Println(errType)
-		}
-
-		for _, item := range content.Items {
+		for _, item := range c.Items {
 			u, e := url.FromRawURL(item.Link)
 			if e != nil {
 				continue // Just skip invalid URLs
 			}
 
 			// @TODO Add a list of Source proxy and resolve source's URLs before pushing to the queue
-
-			var b bool
-			b, e = repos.Documents.ExistWithURL(ctx, u)
+			b, e := repos.Documents.ExistWithURL(ctx, u)
 			if e != nil {
 				log.Println(e)
 				continue
 			}
 			if !b {
-				fmt.Printf("New document '%s'\n", u)
 				urls = append(urls, u)
-			} else {
-				fmt.Printf("Document already exists '%s'\n", u)
 			}
 		}
-	} else {
-		fmt.Println("Source's content has not changed")
+	}
+
+	// Reverse results
+	for l, r := 0, len(urls)-1; l < r; l, r = l+1, r-1 {
+		urls[l], urls[r] = urls[r], urls[l]
 	}
 
 	// @TODO Calculate the source update frequency
 	// var results []*http.Result
-	// results, err = repositories.Botlogs.FindByURL(ctx, s.URL)
+	// results, err = repos.Botlogs.FindByURL(ctx, s.URL)
 	// if err != nil {
-	// 	return
+	// 	return urls, err
 	// }
 
 	// f := http.CalculateFrequency(results)
@@ -184,5 +228,5 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	s.ParsedAt = time.Now()
 	err = repos.Syndication.Update(ctx, s)
 
-	return
+	return urls, err
 }

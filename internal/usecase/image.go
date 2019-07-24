@@ -66,6 +66,11 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 		return
 	}
 
+	if result.RequestHasFailed() {
+		err = fmt.Errorf("%s", result.GetFailureReason())
+		return
+	}
+
 	d.Image.Name = image.GetName(result.Checksum, result.ContentType)
 	d.Image.Format = image.GetExtension(result.ContentType)
 
@@ -76,8 +81,7 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 
 	d.Image.SetDimensions(dm.Width, dm.Height)
 
-	err = UpdateToS3(d.Image.Name, result.ContentType, r)
-	if err != nil {
+	if err = UpdateToS3(d.Image.Name, result.ContentType, r); err != nil {
 		return
 	}
 
@@ -92,10 +96,14 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 // - retrieves image's information from base 64 data
 // - uploads it to AWS S3
 // - Updates the DB
-func HandleAvatar(ctx context.Context, repos *repository.Repositories, u *user.User, s string) (err error) {
+func HandleAvatar(ctx context.Context, repos *repository.Repositories, usr *user.User, s string) (err error) {
 	c := image.GetContentType(s)
 	d := image.GetBase64Data(s)
 	r := image.GetBase64Reader(d)
+	// l := image.GetBase64DataLen(d)
+
+	// b := bytes.NewBuffer(make([]byte, 0, l))
+	// b.ReadFrom(r)
 
 	var cs checksum.Checksum
 	cs, r = checksum.FromReader(r)
@@ -105,7 +113,7 @@ func HandleAvatar(ctx context.Context, repos *repository.Repositories, u *user.U
 		Format: image.GetExtension(c),
 	}
 
-	if u.Image != nil && u.Image.Name == i.Name {
+	if usr.Image != nil && usr.Image.Name == i.Name {
 		return
 	}
 
@@ -117,15 +125,14 @@ func HandleAvatar(ctx context.Context, repos *repository.Repositories, u *user.U
 
 	i.SetDimensions(dm.Width, dm.Height)
 
-	err = UpdateToS3(i.Name, c, r)
-	if err != nil {
+	if err = UpdateToS3(i.Name, c, r); err != nil {
 		return
 	}
 
-	u.Image = i
-	u.UpdatedAt = time.Now()
+	usr.Image = i
+	usr.UpdatedAt = time.Now()
 
-	err = repos.Users.UpdateImage(ctx, u)
+	err = repos.Users.UpdateImage(ctx, usr)
 
 	return err
 }

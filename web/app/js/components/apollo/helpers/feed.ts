@@ -2,8 +2,6 @@ import { cloneDeep } from "lodash";
 import {
   FeedQueryData,
   FeedEventData,
-  FeedActions,
-  FeedAction,
   FeedResults,
   FeedItem,
   FeedEvent
@@ -76,12 +74,12 @@ export function getBoundaries(results: FeedItem[]): [string, string] {
   return [first, last];
 }
 
-function hasItem(result: FeedResults, item: FeedItem): boolean {
+export function hasItem(result: FeedResults, item: FeedItem): boolean {
   const index = result.results.findIndex(({ id }) => id === item.id);
   return index >= 0;
 }
 
-function addItem(result: FeedResults, item: FeedItem): FeedResults {
+export function addItem(result: FeedResults, item: FeedItem): FeedResults {
   if (!item) {
     return result;
   }
@@ -105,7 +103,7 @@ function addItem(result: FeedResults, item: FeedItem): FeedResults {
   };
 }
 
-function removeItem(result: FeedResults, item: FeedItem): FeedResults {
+export function removeItem(result: FeedResults, item: FeedItem): FeedResults {
   if (!item) {
     return result;
   }
@@ -127,8 +125,26 @@ function removeItem(result: FeedResults, item: FeedItem): FeedResults {
     results
   };
 }
+export function removeItemWithId(result: FeedResults, id: string): FeedResults {
+  if (!id) {
+    return result;
+  }
 
-export const feedResultsAction: FeedActions<FeedAction> = {
-  Add: addItem,
-  Remove: removeItem
-};
+  const index = result.results.findIndex(item => item.id === id);
+  if (index < 0) {
+    return result;
+  }
+
+  const cloned = cloneDeep(result);
+  const total = result.total - 1;
+  const results = cloned.results.filter(item => item.id !== id);
+  const [first, last] = getBoundaries(results);
+
+  return {
+    ...cloned,
+    first,
+    last,
+    total,
+    results
+  };
+}

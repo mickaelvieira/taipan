@@ -35,6 +35,16 @@ type Document struct {
 	Deleted     bool
 }
 
+// HasImage determine whether the document has an image associated to it
+func (d *Document) HasImage() bool {
+	return d.Image != nil && d.Image.URL != nil
+}
+
+// WasImageFetched determine whether the document's image was fetched
+func (d *Document) WasImageFetched() bool {
+	return d.HasImage() && d.Image.Name != ""
+}
+
 func (d *Document) String() string {
 	return d.ID
 }
@@ -63,7 +73,7 @@ func New(url *url.URL, lang string, charset string, title string, desc string, i
 // Image represents a bookmark's image
 type Image struct {
 	Name   string
-	URL    *url.URL
+	URL    *url.URL // Original Image URL
 	Width  int32
 	Height int32
 	Format string

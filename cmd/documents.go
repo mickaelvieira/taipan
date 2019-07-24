@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/messages"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
@@ -58,7 +58,7 @@ func runDocumentsWorker(c *cli.Context) {
 
 	go func() {
 		for d := range msgs {
-			dm := &document.DocumentMessage{}
+			dm := &messages.Document{}
 			if err := proto.Unmarshal(d.Body, dm); err != nil {
 				log.Fatalln("Failed to parse document message:", err)
 			}
@@ -66,13 +66,21 @@ func runDocumentsWorker(c *cli.Context) {
 
 			var u *url.URL
 			u, err = url.FromRawURL(dm.Url)
-			if err == nil {
-				_, err = usecase.Document(ctx, repositories, u, false)
+			if err != nil {
+				log.Println(err)
+				continue
 			}
 
+			d, err := usecase.Document(ctx, repositories, u, false)
 			if err != nil {
-				log.Printf("Document Parser: URL %s\n", u)
 				log.Println(err)
+				continue
+			}
+
+			err = usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID)
+			if err != nil {
+				log.Println(err)
+				continue
 			}
 		}
 	}()

@@ -1,0 +1,15 @@
+#import "../fragment/user.graphql"
+
+query init {
+  users {
+    loggedIn {
+      ...userFields
+    }
+  }
+  app {
+    info {
+      name
+      version
+    }
+  }
+}

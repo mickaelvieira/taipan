@@ -10,13 +10,13 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function LayoutAccount({
+export default function AccountLayout({
   children
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   return (
     <MainLayout>
-      <MainContent className={classes.content}>{children}</MainContent>
+      {() => <MainContent className={classes.content}>{children}</MainContent>}
     </MainLayout>
   );
 }

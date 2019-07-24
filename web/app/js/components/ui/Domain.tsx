@@ -2,7 +2,7 @@ import React from "react";
 import Link from "@material-ui/core/Link";
 import { Bookmark } from "../../types/bookmark";
 import { Document } from "../../types/document";
-import { Source } from "../../types/syndication";
+import { Subscription } from "../../types/subscription";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles({
@@ -12,7 +12,7 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  item: Bookmark | Document | Source;
+  item: Bookmark | Document | Subscription;
 }
 
 export default React.memo(function Domain({ item }: Props): JSX.Element {

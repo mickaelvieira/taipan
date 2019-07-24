@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
+	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
+	"log"
 
 	gql "github.com/graph-gophers/graphql-go"
 )
@@ -14,6 +17,7 @@ import (
 // UsersResolver bookmarks' root resolver
 type UsersResolver struct {
 	repositories *repository.Repositories
+	publisher    *publisher.Subscription
 }
 
 // UserResolver resolves the user entity
@@ -43,13 +47,42 @@ func (r *UserResolver) Lastname() string {
 
 // Image resolves the Image field
 func (r *UserResolver) Image() *UserImageResolver {
-	if r.User.Image == nil || r.User.Image.Name == "" {
+	if !r.User.HasImage() {
 		return nil
 	}
 
 	return &UserImageResolver{
 		Image: r.User.Image,
 	}
+}
+
+// UserEventResolver resolves an bookmark event
+type UserEventResolver struct {
+	event *publisher.Event
+}
+
+// Item returns the event's message
+func (r *UserEventResolver) Item() *UserResolver {
+	u, ok := r.event.Payload.(*user.User)
+	if !ok {
+		log.Fatal("Cannot resolve item, payload is not a user")
+	}
+	return &UserResolver{User: u}
+}
+
+// Emitter returns the event's emitter ID
+func (r *UserEventResolver) Emitter() string {
+	return r.event.Emitter
+}
+
+// Topic returns the event's topic
+func (r *UserEventResolver) Topic() string {
+	return string(r.event.Topic)
+}
+
+// Action returns the event's action
+func (r *UserEventResolver) Action() string {
+	return string(r.event.Action)
 }
 
 // LoggedIn resolves the query
@@ -61,20 +94,29 @@ func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	return &res, nil
 }
 
+// UserChanged subscribes to user event
+func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEventResolver {
+	c := make(chan *UserEventResolver)
+	s := &userSubscriber{events: c}
+	r.publisher.Subscribe(publisher.TopicUser, s, ctx.Done())
+	return c
+}
+
 // Update resolves the mutation
 func (r *UsersResolver) Update(ctx context.Context, args struct {
 	ID   string
 	User userInput
 }) (*UserResolver, error) {
-	u := auth.FromContext(ctx)
-	if args.ID != u.ID {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+	if args.ID != user.ID {
 		return nil, fmt.Errorf("You are not allowed to modify this user")
 	}
 
-	user, err := usecase.UpdateUser(
+	err := usecase.UpdateUser(
 		ctx,
 		r.repositories,
-		u,
+		user,
 		args.User.Firstname,
 		args.User.Lastname,
 		args.User.Image,
@@ -82,6 +124,10 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 	if err != nil {
 		return nil, err
 	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
 
 	res := UserResolver{User: user}
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
+import { withApollo, WithApolloClient } from "react-apollo";
 import PropTypes from "prop-types";
 import Loader from "../Loader";
 import FeedQuery, { LoadMore, getFetchMore } from "../../apollo/Query/Feed";
-import FeedSubscription from "../../apollo/Subscription/Feed";
 import { FeedItem } from "../../../types/feed";
 import { hasReceivedData } from "../../apollo/helpers/feed";
 import FeedContainer from "./Container";
@@ -17,14 +17,12 @@ export interface ListProps {
 interface Props {
   List: React.FunctionComponent<ListProps>;
   query: PropTypes.Validator<object>;
-  subscription: PropTypes.Validator<object>;
 }
 
-export default function Feed({
+export default withApollo(function Feed({
   query,
-  subscription,
   List
-}: Props): JSX.Element {
+}: WithApolloClient<Props>): JSX.Element {
   const isAtTheBottom = useWindowBottom();
   const loadMore = useRef<LoadMore | undefined>();
 
@@ -36,7 +34,7 @@ export default function Feed({
 
   return (
     <>
-      <FeedSubscription query={query} subscription={subscription} />
+      {/* <FeedSubscription updater={updater} subscription={subscription} /> */}
       <FeedQuery query={query}>
         {({ data, loading, error, fetchMore }) => {
           const [hasResults, result] = hasReceivedData(data);
@@ -61,4 +59,4 @@ export default function Feed({
       </FeedQuery>
     </>
   );
-}
+});

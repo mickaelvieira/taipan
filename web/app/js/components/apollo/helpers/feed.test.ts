@@ -2,7 +2,8 @@ import {
   getDataKey,
   hasReceivedData,
   hasReceivedEvent,
-  feedResultsAction,
+  addItem,
+  removeItem,
   getBoundaries
 } from "./feed";
 import { Bookmark } from "../../../types/bookmark";
@@ -13,9 +14,6 @@ import {
   FeedEventData
 } from "../../../types/feed";
 
-const addItem = feedResultsAction["Add"];
-const removeItem = feedResultsAction["Remove"];
-
 function getBookmark(id: string): Bookmark {
   return {
     id,
@@ -24,6 +22,7 @@ function getBookmark(id: string): Bookmark {
     description: "baz",
     image: null,
     addedAt: "baz",
+    favoritedAt: "foo",
     updatedAt: "baz",
     isFavorite: false
   };
@@ -118,10 +117,10 @@ describe("Feed helpers", () => {
     let result: FeedEventData;
     beforeAll(() => {
       event = {
-        id: "foo",
+        emitter: "baz",
         item: getBookmark("baz"),
-        action: "Add",
-        topic: "Favorites"
+        action: "favorite",
+        topic: "bookmark"
       };
       result = {
         foo: event

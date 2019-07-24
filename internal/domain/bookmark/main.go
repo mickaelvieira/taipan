@@ -16,7 +16,13 @@ type Bookmark struct {
 	Description string
 	Image       *document.Image
 	AddedAt     time.Time
+	FavoritedAt time.Time
 	UpdatedAt   time.Time
 	IsFavorite  bool
 	IsLinked    bool
+}
+
+// HasImage determine whether the bookmark has an image associated to it
+func (b *Bookmark) HasImage() bool {
+	return b.Image != nil && b.Image.URL != nil && b.Image.Name != ""
 }

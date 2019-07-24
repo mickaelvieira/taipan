@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"testing"
 
@@ -18,7 +17,7 @@ func init() {
 	var err error
 	origURL, err = url.FromRawURL("https://foo.bar")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
 
@@ -30,7 +29,7 @@ func getDocumentWithHead(head string) *goquery.Document {
 func getDocument(html string) *goquery.Document {
 	document, err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	return document
 }
@@ -43,8 +42,8 @@ func TestGetWordpressFeed(t *testing.T) {
 	if s[0].URL.String() != e {
 		t.Errorf("Incorrect URL: Wanted %s; got %s", e, s[0].URL.String())
 	}
-	if s[0].Title != defaultWPFeedTitle {
-		t.Errorf("Incorrect Title: Wanted %s; got %s", defaultWPFeedTitle, s[0].Title)
+	if s[0].Title != syndication.DefaultWPFeedTitle {
+		t.Errorf("Incorrect Title: Wanted %s; got %s", syndication.DefaultWPFeedTitle, s[0].Title)
 	}
 	if s[0].Type != syndication.RSS {
 		t.Errorf("Incorrect Type: Wanted %s; got %s", syndication.RSS, s[0].Title)
@@ -286,7 +285,7 @@ func TestDocumentWPFeeds(t *testing.T) {
 	if f.Type != syndication.RSS {
 		t.Errorf("Incorrect document Lang: Wanted %s; got %s", syndication.RSS, f.Type)
 	}
-	if f.Title != defaultWPFeedTitle {
-		t.Errorf("Incorrect document Lang: Wanted %s; got %s", defaultWPFeedTitle, f.Title)
+	if f.Title != syndication.DefaultWPFeedTitle {
+		t.Errorf("Incorrect document Lang: Wanted %s; got %s", syndication.DefaultWPFeedTitle, f.Title)
 	}
 }

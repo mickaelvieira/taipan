@@ -10,11 +10,13 @@ interface Data {
 
 interface Variables {
   url: string;
+  isFavorite: boolean;
   withFeeds: boolean;
 }
 
 const variables = {
-  withFeeds: false
+  isFavorite: false,
+  withFeeds: true
 };
 
 class CreateBookmarkMutation extends Mutation<Data, Variables> {

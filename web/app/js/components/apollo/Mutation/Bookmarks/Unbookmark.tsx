@@ -4,7 +4,7 @@ import mutation from "../../graphql/mutation/bookmarks/unbookmark.graphql";
 
 interface Data {
   bookmarks: {
-    unbookmark: Document;
+    remove: Document;
   };
 }
 

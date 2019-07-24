@@ -1,0 +1,11 @@
+#import "../fragment/bookmark.graphql"
+#import "../fragment/event.graphql"
+
+subscription onBookmarkChange {
+  bookmarkChanged {
+    ...bookmarkEventFields
+    item {
+      ...bookmarkFields
+    }
+  }
+}

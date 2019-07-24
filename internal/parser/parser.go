@@ -13,8 +13,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const defaultWPFeedTitle = "wordpress feed"
-
 type social struct {
 	Title       string
 	Description string
@@ -108,7 +106,7 @@ func (p *Parser) getWordpressFeed() []*syndication.Source {
 	var feeds []*syndication.Source
 	u := &url.URL{URL: &neturl.URL{Path: "/feed/"}} // default WP feed
 	u = p.makeURLAbs(u)
-	feed := syndication.NewSource(u, defaultWPFeedTitle, syndication.RSS)
+	feed := syndication.NewSource(u, syndication.DefaultWPFeedTitle, syndication.RSS)
 	feeds = append(feeds, feed)
 	return feeds
 }

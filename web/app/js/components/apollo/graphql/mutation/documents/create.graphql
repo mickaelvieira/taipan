@@ -1,0 +1,13 @@
+#import "../../fragment/document.graphql"
+#import "../../fragment/source.graphql"
+
+mutation create($url: URL!) {
+  documents {
+    create(url: $url) {
+      ...documentFields
+      syndication {
+        ...sourceFields
+      }
+    }
+  }
+}

@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
@@ -23,7 +23,7 @@ type SyndicationRepository struct {
 func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndication.Source, error) {
 	query := `
 		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
-		FROM feeds AS s
+		FROM syndication AS s
 		WHERE s.id = ?
 	`
 	rows := r.db.QueryRowContext(ctx, formatQuery(query), id)
@@ -41,7 +41,7 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	var results []*syndication.Source
 	query := `
 		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
-		FROM feeds AS s
+		FROM syndication AS s
 		WHERE s.deleted = 0 AND s.paused = 0 AND s.frequency = ? AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL %s))
 		ORDER BY s.parsed_at ASC
 		LIMIT ?;
@@ -73,7 +73,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 
 	query := `
 		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
-		FROM feeds AS s
+		FROM syndication AS s
 		WHERE %s
 		ORDER BY s.created_at DESC
 		LIMIT ?, ?
@@ -114,7 +114,7 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 	var total int32
 
 	query := `
-		SELECT COUNT(s.id) as total FROM feeds AS s WHERE s.deleted = 0
+		SELECT COUNT(s.id) as total FROM syndication AS s WHERE s.deleted = 0
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
 	if err != nil {
@@ -128,7 +128,7 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 func (r *SyndicationRepository) GetByURL(ctx context.Context, u *url.URL) (*syndication.Source, error) {
 	query := `
 		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
-		FROM feeds AS s
+		FROM syndication AS s
 		WHERE s.url = ?
 	`
 	rows := r.db.QueryRowContext(ctx, formatQuery(query), u.UnescapeString())
@@ -155,12 +155,12 @@ func (r *SyndicationRepository) ExistWithURL(ctx context.Context, u *url.URL) (b
 // Insert creates a new source in the DB
 func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Source) error {
 	query := `
-		INSERT INTO feeds
+		INSERT INTO syndication
 		(url, title, type, status, created_at, updated_at, deleted, paused, frequency)
 		VALUES
 		(?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	result, err := r.db.ExecContext(
+	res, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
 		s.URL,
@@ -175,11 +175,7 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 	)
 
 	if err == nil {
-		var ID int64
-		ID, err = result.LastInsertId()
-		if err == nil {
-			s.ID = strconv.FormatInt(ID, 10)
-		}
+		s.ID = db.GetLastInsertID(res)
 	}
 
 	return err
@@ -188,7 +184,7 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 // Update updates a source in the DB
 func (r *SyndicationRepository) Update(ctx context.Context, s *syndication.Source) error {
 	query := `
-		UPDATE feeds
+		UPDATE syndication
 		SET type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?, paused = ?, frequency = ?
 		WHERE id = ?
 	`
@@ -212,7 +208,7 @@ func (r *SyndicationRepository) Update(ctx context.Context, s *syndication.Sourc
 // UpdateURL updates the source's URL and UpdatedAt fields
 func (r *SyndicationRepository) UpdateURL(ctx context.Context, s *syndication.Source) error {
 	query := `
-		UPDATE feeds
+		UPDATE syndication
 		SET url = ?, updated_at = ?
 		WHERE id = ?
 	`
@@ -230,7 +226,7 @@ func (r *SyndicationRepository) UpdateURL(ctx context.Context, s *syndication.So
 // Delete soft deletes the source
 func (r *SyndicationRepository) Delete(ctx context.Context, s *syndication.Source) error {
 	query := `
-		UPDATE feeds
+		UPDATE syndication
 		SET deleted = ?, updated_at = ?
 		WHERE id = ?
 	`
@@ -248,7 +244,7 @@ func (r *SyndicationRepository) Delete(ctx context.Context, s *syndication.Sourc
 // UpdateStatus changes the source status enabled/disabled
 func (r *SyndicationRepository) UpdateStatus(ctx context.Context, s *syndication.Source) error {
 	query := `
-		UPDATE feeds
+		UPDATE syndication
 		SET paused = ?, updated_at = ?
 		WHERE id = ?
 	`

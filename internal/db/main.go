@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -28,4 +29,13 @@ func GetDB() *sql.DB {
 	}
 
 	return db
+}
+
+// GetLastInsertID returns the last inserted ID as a string
+func GetLastInsertID(r sql.Result) string {
+	i, err := r.LastInsertId()
+	if err != nil {
+		return ""
+	}
+	return strconv.FormatInt(i, 10)
 }

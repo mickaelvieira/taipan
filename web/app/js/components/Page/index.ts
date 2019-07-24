@@ -2,7 +2,7 @@ import ErrorPage from "./Error";
 import NewsPage from "./News";
 import ReadingListPage from "./ReadingList";
 import FavoritesPage from "./Favorites";
-import SyndicationPage from "./Syndication";
+import SyndicationPage from "./Subscriptions";
 import AccountPage from "./Account";
 
 export {

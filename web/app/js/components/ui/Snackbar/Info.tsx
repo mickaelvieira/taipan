@@ -2,23 +2,49 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import InfoIcon from "@material-ui/icons/InfoOutlined";
 import Snackbar, { SnackbarProps } from "@material-ui/core/Snackbar";
+import { MessageInfo } from "../../../types";
+import Link from "@material-ui/core/Link";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(({ palette }) => ({
   icon: {
     marginRight: 12
   },
   message: {
     display: "flex",
     alignItems: "center"
+  },
+  link: {
+    cursor: "pointer",
+    display: "inline-box",
+    marginLeft: 12,
+    color: palette.grey[100],
+    textDecoration: "underline",
+    "&:hover": {
+      textDecoration: "none"
+    }
   }
-});
+}));
 
 interface Props extends SnackbarProps {
-  info: string;
+  info: MessageInfo | null;
+  forceClose?: () => void;
 }
 
-export default function SnackbarInfo({ info, ...rest }: Props): JSX.Element {
+export default function SnackbarInfo({
+  info,
+  forceClose,
+  ...rest
+}: Props): JSX.Element | null {
   const classes = useStyles();
+  const action = (): void => {
+    if (typeof forceClose === "function") {
+      forceClose();
+    }
+    if (info && typeof info.action === "function") {
+      info.action();
+    }
+  };
+
   return (
     <Snackbar
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
@@ -28,7 +54,16 @@ export default function SnackbarInfo({ info, ...rest }: Props): JSX.Element {
       message={
         <span id="message-snackbar" className={classes.message}>
           <InfoIcon className={classes.icon} />
-          {info}
+          {info && (
+            <>
+              {info.message}
+              {info.action && (
+                <Link className={classes.link} onClick={action}>
+                  {info.label ? info.label : "missing"}
+                </Link>
+              )}
+            </>
+          )}
         </span>
       }
       {...rest}

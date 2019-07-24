@@ -1,0 +1,9 @@
+fragment subscriptionFields on UserSubscription {
+  id
+  url
+  title
+  type
+  isSubscribed
+  createdAt
+  updatedAt
+}

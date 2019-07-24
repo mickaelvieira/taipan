@@ -1,4 +1,6 @@
 import { Image } from "./image";
+import { Source } from "./syndication";
+import { Datetime } from "./scalars";
 
 export interface Document {
   id: string;
@@ -8,6 +10,7 @@ export interface Document {
   title: string;
   description: string;
   image: Image | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Datetime;
+  updatedAt: Datetime;
+  syndication?: Source[];
 }

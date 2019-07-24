@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Document } from "../../../../types/document";
-import { Bookmark } from "../../../../types/bookmark";
 import BookmarkMutation from "../../../apollo/Mutation/Bookmarks/Bookmark";
-import { queryReadingList, variables } from "../../../apollo/Query/Feed";
+import { FeedsContext, FeedsCacheContext } from "../../../context";
+import { Undoer, CacheUpdater } from "../../../../types";
+import { Bookmark } from "../../../../types/bookmark";
 
 interface Props {
   document: Document;
-  onSuccess: (bookmark: Bookmark) => void;
+  onSuccess: (update: CacheUpdater, undo: Undoer) => void;
   onError: (message: string) => void;
 }
 
@@ -20,15 +21,34 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default React.memo(function Bookmark({
+export default React.memo(function BookmarkButton({
   document,
   onSuccess,
   onError
 }: Props): JSX.Element {
   const classes = useStyles();
+  const updater = useContext(FeedsCacheContext);
+  const mutator = useContext(FeedsContext);
+  const getUpdater = (bookmark: Bookmark) => {
+    return function() {
+      if (updater) {
+        updater.bookmark(bookmark);
+      }
+    };
+  };
+  const getUndoer = (bookmark: Bookmark) => {
+    return function() {
+      if (mutator) {
+        mutator.unbookmark(bookmark);
+      }
+    };
+  };
+
   return (
     <BookmarkMutation
-      onCompleted={data => onSuccess(data.bookmarks.bookmark)}
+      onCompleted={data =>
+        onSuccess(getUpdater(data.bookmarks.add), getUndoer(data.bookmarks.add))
+      }
       onError={error => onError(error.message)}
     >
       {(mutate, { loading }) => (
@@ -38,13 +58,7 @@ export default React.memo(function Bookmark({
           className={classes.button}
           onClick={() =>
             mutate({
-              variables: { url: document.url, isFavorite: false },
-              refetchQueries: [
-                {
-                  query: queryReadingList,
-                  variables
-                }
-              ]
+              variables: { url: document.url, isFavorite: false }
             })
           }
         >

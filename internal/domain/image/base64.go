@@ -15,6 +15,11 @@ func GetBase64Reader(d string) io.Reader {
 	return base64.NewDecoder(base64.StdEncoding, strings.NewReader(d))
 }
 
+// GetBase64DataLen returns the max length
+func GetBase64DataLen(d string) int {
+	return base64.StdEncoding.DecodedLen(len(d))
+}
+
 // GetBase64ContentType retrieves the content type from the base64 URI
 func GetBase64ContentType(u string) string {
 	idx := strings.LastIndex(u, separator)

@@ -1,28 +1,41 @@
-import React, { useState, PropsWithChildren, useContext } from "react";
-import AddBookmarkModal from "../ui/Feed/Modal/AddBookmark";
+import React, { useState, PropsWithChildren } from "react";
+import CreateBookmark from "../ui/Feed/Panel/CreateBookmark";
 import { AddButton } from "../ui/Fab";
-import { MessageContext } from "../context";
 import MainLayout from "./Layout";
 import MainContent from "./Content";
 
-export default function LayoutFeed({
+export default function FeedLayout({
   children
 }: PropsWithChildren<{}>): JSX.Element {
-  const setInfo = useContext(MessageContext);
-  const [isModalOpen, setModalStatus] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   return (
     <MainLayout>
-      <MainContent>{children}</MainContent>
-      <AddButton onClick={() => setModalStatus(true)} />
-      <AddBookmarkModal
-        isOpen={isModalOpen}
-        toggleDialog={setModalStatus}
-        onBookmarkCreated={() => {
-          setInfo("Nice one! The bookmark was added");
-          setModalStatus(false);
-        }}
-      />
+      {({ setMessageInfo, setIsContained }) => (
+        <>
+          <MainContent>{children}</MainContent>
+          <AddButton
+            onClick={() => {
+              setIsContained(true);
+              setIsPanelOpen(true);
+            }}
+          />
+          <CreateBookmark
+            isOpen={isPanelOpen}
+            setIsPanelOpen={isOpen => {
+              setIsContained(isOpen);
+              setIsPanelOpen(isOpen);
+            }}
+            onBookmarkCreated={() => {
+              setIsContained(false);
+              setIsPanelOpen(false);
+              setMessageInfo({
+                message: "Nice one! The bookmark was added"
+              });
+            }}
+          />
+        </>
+      )}
     </MainLayout>
   );
 }

@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Bookmark } from "../../../../types/bookmark";
 import UnfavoriteMutation from "../../../apollo/Mutation/Bookmarks/Unfavorite";
-import { queryReadingList, variables } from "../../../apollo/Query/Feed";
-import ConfirmUnfavorite from "../Confirm/Unfavorite";
 import red from "@material-ui/core/colors/red";
+import { Undoer, CacheUpdater } from "../../../../types";
+import { FeedsContext, FeedsCacheContext } from "../../../context";
 
 const useStyles = makeStyles({
   button: {
@@ -17,7 +17,7 @@ const useStyles = makeStyles({
 
 interface Props {
   bookmark: Bookmark;
-  onSuccess: (bookmark: Bookmark) => void;
+  onSuccess: (update: CacheUpdater, undo: Undoer) => void;
   onError: (message: string) => void;
 }
 
@@ -27,45 +27,49 @@ export default React.memo(function Unfavorite({
   onError
 }: Props): JSX.Element {
   const classes = useStyles();
-  const [isConfirmVisible, setConfirmVisibility] = useState(false);
+  const updater = useContext(FeedsCacheContext);
+  const mutator = useContext(FeedsContext);
+  const getUpdater = (bookmark: Bookmark) => {
+    return function() {
+      if (updater) {
+        updater.unfavorite(bookmark);
+      }
+    };
+  };
+  const getUndoer = (bookmark: Bookmark) => {
+    return function() {
+      if (mutator) {
+        mutator.favorite(bookmark);
+      }
+    };
+  };
 
   return (
     <UnfavoriteMutation
-      onCompleted={data => onSuccess(data.bookmarks.unfavorite)}
+      onCompleted={data =>
+        onSuccess(
+          getUpdater(data.bookmarks.unfavorite),
+          getUndoer(data.bookmarks.unfavorite)
+        )
+      }
       onError={error => onError(error.message)}
     >
       {(mutate, { loading }) => (
-        <>
-          <IconButton
-            aria-label="Remove from favorite"
-            className={classes.button}
-            disabled={loading}
-            onClick={() => setConfirmVisibility(true)}
-          >
-            {!loading && <FavoriteIcon />}
-            {loading && <CircularProgress size={16} />}
-          </IconButton>
-          <ConfirmUnfavorite
-            open={isConfirmVisible}
-            onCancel={() => {
-              setConfirmVisibility(false);
-            }}
-            onConfirm={() => {
-              setConfirmVisibility(false);
-              mutate({
-                variables: {
-                  url: bookmark.url
-                },
-                refetchQueries: [
-                  {
-                    query: queryReadingList,
-                    variables
-                  }
-                ]
-              });
-            }}
-          />
-        </>
+        <IconButton
+          aria-label="Remove from favorite"
+          className={classes.button}
+          disabled={loading}
+          onClick={() =>
+            mutate({
+              variables: {
+                url: bookmark.url
+              }
+            })
+          }
+        >
+          {!loading && <FavoriteIcon />}
+          {loading && <CircularProgress size={16} />}
+        </IconButton>
       )}
     </UnfavoriteMutation>
   );

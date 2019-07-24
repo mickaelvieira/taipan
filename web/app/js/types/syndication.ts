@@ -1,3 +1,5 @@
+import { Datetime } from "./scalars";
+
 export interface Source {
   id: string;
   url: string;
@@ -5,9 +7,9 @@ export interface Source {
   type: string;
   status: string;
   isPaused: boolean;
-  createdAt: string;
-  updatedAt: string;
-  parsedAt: string;
+  createdAt: Datetime;
+  updatedAt: Datetime;
+  parsedAt: Datetime;
   stats?: Stats;
 }
 
