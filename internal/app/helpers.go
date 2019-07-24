@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"github/mickaelvieira/taipan/internal/logger"
 )
 
 func isDev() bool {
@@ -30,7 +31,7 @@ func Signal(onStop func()) {
 	go func() {
 		select {
 		case sig := <-c:
-			fmt.Printf("Signal received '%s'\n", sig)
+			logger.Warn(fmt.Sprintf("Signal received '%s'", sig))
 			signal.Stop(c)
 			onStop()
 			os.Exit(1)

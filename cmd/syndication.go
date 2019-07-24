@@ -9,6 +9,7 @@ import (
 	"github/mickaelvieira/taipan/internal/app"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -30,12 +31,12 @@ type fetchResult struct {
 }
 
 func runSyndicationWorker(c *cli.Context) {
-	fmt.Println("Starting syndication worker")
+	logger.Warn("Starting syndication worker")
 	ctx, cancel := context.WithCancel(context.Background())
 	repos := repository.GetRepositories()
 
 	// @TODO Check out how RMQ handle context
-	fmt.Println("Creating RabbitMQ client")
+	logger.Warn("Creating RabbitMQ client")
 	client, err := rmq.New()
 	if err != nil {
 		log.Fatal(err)
@@ -51,7 +52,7 @@ func runSyndicationWorker(c *cli.Context) {
 	defer onStop()
 
 	for {
-		fmt.Printf("Get outdated sources with frequency [%s]\n", http.Hourly)
+		logger.Warn(fmt.Sprintf("Get outdated sources with frequency [%s]", http.Hourly))
 		sources, err := repos.Syndication.GetOutdatedSources(ctx, http.Hourly)
 		if err != nil {
 			log.Fatal(err)
@@ -59,7 +60,7 @@ func runSyndicationWorker(c *cli.Context) {
 
 		if len(sources) == 0 {
 			d := 60 * time.Second
-			fmt.Printf("Waiting for sources to be outdated, sleep for [%ds]\n", 60)
+			logger.Warn(fmt.Sprintf("Waiting for sources to be outdated, sleep for [%ds]", 60))
 			time.Sleep(d)
 			continue
 		}
@@ -75,7 +76,7 @@ func runSyndicationWorker(c *cli.Context) {
 		// containing a list of messages
 		mixer := syndication.MakeMixer(len(queue))
 
-		fmt.Printf("Process queue of [%d] entities\n", len(queue))
+		logger.Info(fmt.Sprintf("Process queue of [%d] entities", len(queue)))
 
 		go func(cr chan<- *fetchResult, q syndication.QueueSources) {
 			for len(q) > 0 {
@@ -98,8 +99,8 @@ func runSyndicationWorker(c *cli.Context) {
 				case r := <-cr:
 					urls, err := usecase.ParseSyndicationSource(ctx, repos, r.result, r.source)
 					if err != nil {
-						log.Printf("Syndication Parser: URL %s\n", r.source.URL)
-						log.Println(err)
+						logger.Error(fmt.Sprintf("Syndication Parser: URL %s", r.source.URL))
+						logger.Error(err)
 					}
 					cu <- syndication.MakeQueue(urls, r.source.ID)
 				}
@@ -123,10 +124,10 @@ func runSyndicationWorker(c *cli.Context) {
 
 		go func(s *syndication.Mixer) {
 			for _, u := range s.Mixup() {
-				fmt.Printf("Publishing '%s'\n", u)
+				logger.Info(fmt.Sprintf("Publishing '%s'", u))
 				e := client.PublishDocument(u)
 				if e != nil {
-					log.Println(e)
+					logger.Error(e)
 				}
 			}
 		}(mixer)

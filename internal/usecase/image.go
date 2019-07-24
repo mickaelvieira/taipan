@@ -3,13 +3,13 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/image"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
 	"io"
-	"log"
 	"os"
 	"time"
 
@@ -20,7 +20,7 @@ import (
 
 // UpdateToS3 uploads the image to S3 bucket
 func UpdateToS3(name string, contentType string, r io.Reader) error {
-	log.Println("Upload to S3")
+	logger.Info("Upload to S3")
 	bucket := os.Getenv("AWS_BUCKET")
 
 	// Upload file to AWS S3
@@ -41,7 +41,7 @@ func UpdateToS3(name string, contentType string, r io.Reader) error {
 		return err
 	}
 
-	fmt.Printf("Uploaded %s \n", output.Location)
+	logger.Info(fmt.Sprintf("Uploaded %s ", output.Location))
 
 	return nil
 }
@@ -52,12 +52,12 @@ func UpdateToS3(name string, contentType string, r io.Reader) error {
 // - Updates the DB
 func HandleImage(ctx context.Context, repos *repository.Repositories, d *document.Document) (err error) {
 	if d.Image == nil {
-		fmt.Println("Document does not have an image associated")
+		logger.Info("Document does not have an image associated")
 		return
 	}
 
 	if d.Image.Name != "" {
-		fmt.Printf("Image has already been fetched with name %s\n", d.Image.Name)
+		logger.Info(fmt.Sprintf("Image has already been fetched with name %s", d.Image.Name))
 		return
 	}
 

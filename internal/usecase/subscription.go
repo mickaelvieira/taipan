@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
@@ -57,7 +58,7 @@ func UnubscribeFromSource(ctx context.Context, repos *repository.Repositories, u
 			return nil, err
 		}
 
-		fmt.Printf("Source [%s] does not have any subscribers, it was marked as paused", src.URL)
+		logger.Warn(fmt.Sprintf("Source [%s] does not have any subscribers, it was marked as paused", src.URL))
 	}
 
 	s, err := repos.Subscriptions.GetByURL(ctx, usr, src.URL)
