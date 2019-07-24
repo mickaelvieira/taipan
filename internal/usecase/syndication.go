@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"time"
 
@@ -204,9 +204,14 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 				continue
 			}
 			if !b {
+				logger.Warn(fmt.Sprintf("Adding URL [%s]", u))
 				urls = append(urls, u)
+			} else {
+				logger.Warn(fmt.Sprintf("URL [%s] already exists", u))
 			}
 		}
+	} else {
+		logger.Info("Feed content has not changed")
 	}
 
 	// Reverse results
