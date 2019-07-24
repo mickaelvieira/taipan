@@ -11,7 +11,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
-	github.com/graph-gophers/graphql-go v0.0.0-20190630212224-8f92f34fc598
+	github.com/graph-gophers/graphql-go v0.0.0-20190724204838-010347b5f9e6
 	github.com/graph-gophers/graphql-transport-ws v0.0.0-20190611222414-40c048432299
 	github.com/grokify/html-strip-tags-go v0.0.0-20190424092004-025bd760b278
 	github.com/joho/godotenv v1.3.0
