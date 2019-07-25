@@ -80,6 +80,7 @@ const (
 type Source struct {
 	ID        string
 	URL       *url.URL
+	Domain    *url.URL
 	Type      Type
 	Title     string
 	Status    Status

@@ -38,9 +38,15 @@ func (r *SourceResolver) ID() gql.ID {
 	return gql.ID(r.Source.ID)
 }
 
-// URL resolves the URL
+// URL resolves the URL field
 func (r *SourceResolver) URL() scalars.URL {
 	return scalars.NewURL(r.Source.URL)
+}
+
+// Domain resolves the Domain field
+func (r *SourceResolver) Domain() *scalars.URL {
+	d := scalars.NewURL(r.Source.Domain)
+	return &d
 }
 
 // Title resolves the Title field

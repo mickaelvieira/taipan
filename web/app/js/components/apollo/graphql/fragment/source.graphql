@@ -1,6 +1,7 @@
 fragment sourceFields on Source {
   id
   url
+  domain
   title
   type
   status

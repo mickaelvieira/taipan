@@ -8,7 +8,7 @@ import (
 
 // Datetime is a custom GraphQL type to represent an instant in time.
 type Datetime struct {
-	w time.Time
+	datetime time.Time
 }
 
 // ImplementsGraphQLType maps this custom Go type
@@ -18,11 +18,11 @@ func (Datetime) ImplementsGraphQLType(name string) bool {
 }
 
 // UnmarshalGraphQL is a custom unmarshaler for DateTime
-func (t *Datetime) UnmarshalGraphQL(input interface{}) error {
+func (s *Datetime) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
 	case string:
 		var err error
-		t.w, err = time.Parse(time.RFC3339, input)
+		s.datetime, err = time.Parse(time.RFC3339, input)
 		return err
 	default:
 		return fmt.Errorf("Datetime only accept string type as input")
@@ -30,11 +30,11 @@ func (t *Datetime) UnmarshalGraphQL(input interface{}) error {
 }
 
 // MarshalJSON is a custom marshaler for Time
-func (t Datetime) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.w.Format(time.RFC3339))
+func (s Datetime) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.datetime.Format(time.RFC3339))
 }
 
 // NewDatetime wrapped domain Time into a scalar Datetime
 func NewDatetime(t time.Time) Datetime {
-	return Datetime{w: t}
+	return Datetime{datetime: t}
 }

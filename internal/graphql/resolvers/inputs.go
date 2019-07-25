@@ -11,6 +11,10 @@ type offsetPaginationInput struct {
 	Limit  *int32
 }
 
+type subscriptionSearchInput struct {
+	Terms []string
+}
+
 type searchSourcesInput struct {
 	IsPaused bool
 }

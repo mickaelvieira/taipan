@@ -10,6 +10,13 @@ import { Typography } from "@material-ui/core";
 import { FeedsCacheContext } from "../../../../context";
 import Panel from "../../../Panel";
 
+// @TODO The BE needs to check whether the link is already in my bookmarks.
+// if it is but not in my favorite offers to add it to favorite directly instead of adding it
+// again to bookmarks
+
+// Message: Oh, the link is already in your bookmarks, you really like. Do you want me to add it to your favorites [yes] [no]
+// Message: Oh, you really like this link, it is already in your favorites.
+
 const useStyles = makeStyles(({ palette }) => ({
   dialog: {},
   header: {

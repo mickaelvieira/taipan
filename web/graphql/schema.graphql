@@ -133,7 +133,7 @@ type SyndicationMutation {
 
 type SubscriptionsQuery {
   # "Returns a list of user's subscription"
-  subscriptions(pagination: OffsetPaginationInput!): SubscriptionCollection
+  subscriptions(pagination: OffsetPaginationInput!, search: SubscriptionSearchInput): SubscriptionCollection
 }
 
 type SubscriptionsMutation {
@@ -145,6 +145,10 @@ type SubscriptionsMutation {
 
   # "Unsubscribe the user to a web syndication"
   unsubscribe(url: URL!): UserSubscription
+}
+
+input SubscriptionSearchInput {
+  terms: [String!]!
 }
 
 input SearchSourcesInput {
@@ -240,6 +244,7 @@ type Bookmark implements Node {
 type Source implements Node {
   id: ID!
   url: URL!
+  domain: URL
   type: String!
   title: String!
   status: String!
@@ -257,9 +262,11 @@ type Source implements Node {
 type UserSubscription implements Node {
   id: ID!
   url: URL!
+  domain: URL
   type: String!
   title: String!
   isSubscribed: Boolean!
+  frequency: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }

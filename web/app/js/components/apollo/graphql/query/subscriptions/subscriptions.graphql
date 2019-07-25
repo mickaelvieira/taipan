@@ -1,8 +1,8 @@
 #import "../../fragment/subscription.graphql"
 
-query subscriptions($pagination: OffsetPaginationInput!) {
+query subscriptions($pagination: OffsetPaginationInput!, $search: SubscriptionSearchInput) {
   subscriptions {
-    subscriptions(pagination: $pagination) @connection(key: "user_subscriptions")  {
+    subscriptions(pagination: $pagination, search: $search) @connection(key: "user_subscriptions", filter: ["search"])  {
       total
       limit
       offset

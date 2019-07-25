@@ -3,10 +3,12 @@ import { Datetime } from "./scalars";
 export interface Source {
   id: string;
   url: string;
+  domain: string | null;
   title: string;
   type: string;
   status: string;
   isPaused: boolean;
+  frequency: string;
   createdAt: Datetime;
   updatedAt: Datetime;
   parsedAt: Datetime;

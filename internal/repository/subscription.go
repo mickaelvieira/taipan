@@ -3,16 +3,39 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"strings"
 	"time"
 )
 
 // SubscriptionRepository the Feed repository
 type SubscriptionRepository struct {
 	db *sql.DB
+}
+
+func getSearch(terms []string) (string, []interface{}) {
+	var search string
+	var args []interface{}
+
+	if len(terms) > 0 {
+		var clause = make([]string, len(terms)*2)
+		j := 0
+		for _, t := range terms {
+			clause[j] = "sy.url LIKE ?"
+			clause[j+1] = "sy.title = ?"
+			args = append(args, "%"+t+"%")
+			args = append(args, "%"+t+"%")
+			j = j + 2
+		}
+
+		search = fmt.Sprintf("AND (%s)", strings.Join(clause, " OR "))
+	}
+
+	return search, args
 }
 
 // FindSubscribersIDs find users who have subscribed to the syndication source
@@ -46,16 +69,23 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 }
 
 // FindAll find newest entries
-func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, cursor int32, limit int32) ([]*subscription.Subscription, error) {
+func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, cursor int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, sy.url, sy.title, sy.type, su.subscribed, su.created_at, su.updated_at
+		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM subscriptions AS su
 		INNER JOIN syndication AS sy ON sy.id = su.source_id
-		WHERE sy.deleted = 0 AND su.user_id = ?
-		ORDER BY su.created_at DESC
+		WHERE sy.deleted = 0 AND su.user_id = ? %s
+		ORDER BY sy.title ASC
 		LIMIT ?, ?
 	`
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), u.ID, cursor, limit)
+	var args []interface{}
+	var search, t = getSearch(terms)
+	args = append(args, u.ID)
+	args = append(args, t...)
+	args = append(args, cursor)
+	args = append(args, limit)
+
+	rows, err := r.db.QueryContext(ctx, formatQuery(fmt.Sprintf(query, search)), args...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,18 +107,22 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, curs
 }
 
 // GetTotal count latest entries
-func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User) (int32, error) {
+func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string) (int32, error) {
 	var total int32
 
 	query := `
 		SELECT COUNT(sy.id) as total
 		FROM subscriptions AS su
 		INNER JOIN syndication AS sy ON sy.id = su.source_id
-		WHERE sy.deleted = 0 AND su.user_id = ?
+		WHERE sy.deleted = 0 AND su.user_id = ? %s
 		ORDER BY su.created_at DESC
 	`
+	var args []interface{}
+	var search, t = getSearch(terms)
+	args = append(args, u.ID)
+	args = append(args, t...)
 
-	err := r.db.QueryRowContext(ctx, formatQuery(query), u.ID).Scan(&total)
+	err := r.db.QueryRowContext(ctx, formatQuery(fmt.Sprintf(query, search)), args...).Scan(&total)
 	if err != nil {
 		return total, err
 	}
@@ -99,7 +133,7 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User) (in
 // GetByURL find a single entry by URL
 func (r *SubscriptionRepository) GetByURL(ctx context.Context, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, sy.url, sy.title, sy.type, su.subscribed, su.created_at, su.updated_at
+		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM subscriptions AS su
 		INNER JOIN syndication AS sy ON sy.id = su.source_id
 		WHERE su.user_id = ? AND sy.url = ?
@@ -171,9 +205,11 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 	err := rows.Scan(
 		&s.ID,
 		&s.URL,
+		&s.Domain,
 		&s.Title,
 		&s.Type,
 		&s.Subscribed,
+		&s.Frequency,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	)

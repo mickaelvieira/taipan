@@ -12,7 +12,8 @@ import Loader from "../../ui/Loader";
 
 import SubscriptionsQuery, {
   variables,
-  query
+  query,
+  Data
 } from "../../apollo/Query/Subscriptions";
 import Row from "./Row";
 
@@ -33,24 +34,38 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function SubscriptionsTable(): JSX.Element {
-  const classes = useStyles();
+interface Props {
+  terms: string[];
+}
 
+export default function SubscriptionsTable({ terms }: Props): JSX.Element {
+  const classes = useStyles();
   return (
-    <SubscriptionsQuery>
+    <SubscriptionsQuery
+      variables={
+        terms.length === 0 ? variables : { ...variables, search: { terms } }
+      }
+    >
       {({ data, loading, error, fetchMore }) => {
         if (loading) {
           return <Loader />;
         }
 
         if (error) {
-          return <span>{error.message}</span>;
+          return <Paper className={classes.message}>{error.message}</Paper>;
         }
 
         if (!data) {
+          return null;
+        }
+
+        const { total, results } = data.subscriptions.subscriptions;
+        const showLoadMoreButton = results.length < total;
+
+        if (results.length === 0) {
           return (
             <Paper className={classes.message}>
-              You don&apos;t have any web syndication sources yet.
+              We could not find any sources matching your query.
             </Paper>
           );
         }
@@ -64,61 +79,62 @@ export default function SubscriptionsTable(): JSX.Element {
             >
               <TableHead>
                 <TableRow>
-                  <TableCell align="center">Title</TableCell>
+                  <TableCell>Title</TableCell>
                   <Hidden mdDown>
-                    <TableCell align="center">Domain</TableCell>
+                    <TableCell>Domain</TableCell>
                   </Hidden>
-                  <TableCell align="center">Active</TableCell>
                   <Hidden mdDown>
-                    <TableCell></TableCell>
+                    <TableCell>Updated</TableCell>
                   </Hidden>
+                  <TableCell align="center">Subscribed</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.subscriptions.subscriptions.results.map(subscription => {
-                  return (
-                    <Row key={subscription.id} subscription={subscription} />
-                  );
-                })}
+                {results.map(subscription => (
+                  <Row key={subscription.id} subscription={subscription} />
+                ))}
               </TableBody>
             </Table>
             <div className={classes.fetchMore}>
-              <Button
-                className={classes.button}
-                onClick={() =>
-                  fetchMore({
-                    query,
-                    variables: {
-                      ...variables,
-                      pagination: {
-                        ...variables.pagination,
-                        offset: data.subscriptions.subscriptions.results.length
-                      }
-                    },
-                    updateQuery: (prev, { fetchMoreResult: next }) => {
-                      if (!next) {
-                        return prev;
-                      }
-                      return {
-                        subscriptions: {
-                          ...prev.subscriptions,
-                          subscriptions: {
-                            ...prev.subscriptions.subscriptions,
-                            limit: next.subscriptions.subscriptions.limit,
-                            offset: next.subscriptions.subscriptions.offset,
-                            results: [
-                              ...prev.subscriptions.subscriptions.results,
-                              ...next.subscriptions.subscriptions.results
-                            ]
-                          }
+              {showLoadMoreButton && (
+                <Button
+                  className={classes.button}
+                  onClick={() =>
+                    fetchMore({
+                      query,
+                      variables: {
+                        ...variables,
+                        pagination: {
+                          ...variables.pagination,
+                          offset:
+                            data.subscriptions.subscriptions.results.length
                         }
-                      };
-                    }
-                  })
-                }
-              >
-                Load more
-              </Button>
+                      },
+                      updateQuery: (prev: Data, { fetchMoreResult: next }) => {
+                        if (!next) {
+                          return prev;
+                        }
+                        return {
+                          subscriptions: {
+                            ...prev.subscriptions,
+                            subscriptions: {
+                              ...prev.subscriptions.subscriptions,
+                              limit: next.subscriptions.subscriptions.limit,
+                              offset: next.subscriptions.subscriptions.offset,
+                              results: [
+                                ...prev.subscriptions.subscriptions.results,
+                                ...next.subscriptions.subscriptions.results
+                              ]
+                            }
+                          }
+                        };
+                      }
+                    })
+                  }
+                >
+                  Load more
+                </Button>
+              )}
             </div>
           </>
         );

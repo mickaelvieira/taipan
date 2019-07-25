@@ -22,7 +22,7 @@ type SyndicationRepository struct {
 // GetByID find a single entry
 func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndication.Source, error) {
 	query := `
-		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		SELECT s.id, s.url, s.domain, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
 		WHERE s.id = ?
 	`
@@ -40,7 +40,7 @@ func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndic
 func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.Frequency) ([]*syndication.Source, error) {
 	var results []*syndication.Source
 	query := `
-		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		SELECT s.id, s.url, s.domain, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
 		WHERE s.deleted = 0 AND s.paused = 0 AND s.frequency = ? AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL %s))
 		ORDER BY s.parsed_at ASC
@@ -72,7 +72,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 	var results []*syndication.Source
 
 	query := `
-		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		SELECT s.id, s.url, s.domain, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
 		WHERE %s
 		ORDER BY s.created_at DESC
@@ -127,7 +127,7 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 // GetByURL find a single entry by URL
 func (r *SyndicationRepository) GetByURL(ctx context.Context, u *url.URL) (*syndication.Source, error) {
 	query := `
-		SELECT s.id, s.url, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		SELECT s.id, s.url, s.domain, s.title, s.type, s.status, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
 		WHERE s.url = ?
 	`
@@ -156,14 +156,15 @@ func (r *SyndicationRepository) ExistWithURL(ctx context.Context, u *url.URL) (b
 func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Source) error {
 	query := `
 		INSERT INTO syndication
-		(url, title, type, status, created_at, updated_at, deleted, paused, frequency)
+		(url, domain, title, type, status, created_at, updated_at, deleted, paused, frequency)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	res, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
 		s.URL,
+		s.Domain,
 		s.Title,
 		s.Type,
 		s.Status,
@@ -185,12 +186,13 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 func (r *SyndicationRepository) Update(ctx context.Context, s *syndication.Source) error {
 	query := `
 		UPDATE syndication
-		SET type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?, paused = ?, frequency = ?
+		SET domain = ?, type = ?, title = ?, status = ?, updated_at = ?, parsed_at = ?, deleted = ?, paused = ?, frequency = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
+		s.Domain,
 		s.Type,
 		s.Title,
 		s.Status,
@@ -291,6 +293,7 @@ func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error)
 	err := rows.Scan(
 		&s.ID,
 		&s.URL,
+		&s.Domain,
 		&s.Title,
 		&s.Type,
 		&s.Status,

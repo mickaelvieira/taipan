@@ -182,6 +182,13 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 			}
 		}
 
+		if c.Link != "" {
+			l, err := url.FromRawURL(c.Link)
+			if err == nil {
+				s.Domain = l
+			}
+		}
+
 		if s.Type == "" {
 			feedType, e := syndication.FromGoFeedType(c.FeedType)
 			if e == nil {

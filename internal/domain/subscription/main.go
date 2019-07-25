@@ -1,6 +1,7 @@
 package subscription
 
 import (
+	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"time"
@@ -10,9 +11,11 @@ import (
 type Subscription struct {
 	ID         string
 	URL        *url.URL
+	Domain     *url.URL
 	Type       syndication.Type
 	Title      string
 	Subscribed bool
+	Frequency  http.Frequency
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
