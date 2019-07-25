@@ -78,8 +78,9 @@ func (r *BookmarkResolver) AddedAt() scalars.Datetime {
 }
 
 // FavoritedAt resolves the FavoritedAt field
-func (r *BookmarkResolver) FavoritedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Bookmark.FavoritedAt)
+func (r *BookmarkResolver) FavoritedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Bookmark.FavoritedAt)
+	return &t
 }
 
 // UpdatedAt resolves the UpdatedAt field

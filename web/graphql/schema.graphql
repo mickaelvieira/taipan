@@ -242,7 +242,7 @@ type Bookmark implements Node {
   image: Image
   updatedAt: DateTime!
   addedAt: DateTime!
-  favoritedAt: DateTime!
+  favoritedAt: DateTime
   isFavorite: Boolean!
 }
 
