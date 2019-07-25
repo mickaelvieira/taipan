@@ -12,7 +12,7 @@ export interface Source {
   frequency: string;
   createdAt: Datetime;
   updatedAt: Datetime;
-  parsedAt: Datetime;
+  parsedAt: Datetime | null;
   stats?: Stats;
 }
 

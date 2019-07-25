@@ -102,10 +102,12 @@ export default function EditSource({ url, isOpen, close }: Props): JSX.Element {
                 <ListItem>
                   <ListItemText>
                     <span>Last parsed </span>
-                    <Datetime
-                      className={classes.date}
-                      value={source.parsedAt}
-                    />
+                    {source.parsedAt && (
+                      <Datetime
+                        className={classes.date}
+                        value={source.parsedAt}
+                      />
+                    )}
                   </ListItemText>
                 </ListItem>
                 <ListItem>

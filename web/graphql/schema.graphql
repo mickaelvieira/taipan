@@ -261,7 +261,7 @@ type Source implements Node {
   isDeleted: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
-  parsedAt: DateTime!
+  parsedAt: DateTime
   logEntries: [HTTPClientLog]
 }
 

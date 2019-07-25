@@ -90,8 +90,9 @@ func (r *SourceResolver) UpdatedAt() scalars.Datetime {
 }
 
 // ParsedAt resolves the ParsedAt field
-func (r *SourceResolver) ParsedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Source.ParsedAt)
+func (r *SourceResolver) ParsedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Source.ParsedAt)
+	return &t
 }
 
 // LogEntries returns the document's parser log

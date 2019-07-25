@@ -71,24 +71,32 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 }
 
 // FindAll --
-// @TODO returns deleted sources for admin users
 func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, cursor int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
 		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM syndication AS sy
 		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE sy.deleted = 0 AND (su.user_id = ? OR su.user_id IS NULL) %s
+		WHERE %s (su.user_id = ? OR su.user_id IS NULL) %s
 		ORDER BY sy.title ASC
 		LIMIT ?, ?
 	`
 	var args []interface{}
 	var search, t = getSearch(terms)
+
+	// @TODO we need to handle this in a better way
+	var deletion = ""
+	if u.ID != "1" {
+		deletion = "sy.deleted = 0 AND "
+	}
+
 	args = append(args, u.ID)
 	args = append(args, t...)
 	args = append(args, cursor)
 	args = append(args, limit)
 
-	rows, err := r.db.QueryContext(ctx, formatQuery(fmt.Sprintf(query, search)), args...)
+	query = formatQuery(fmt.Sprintf(query, deletion, search))
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +118,6 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 }
 
 // GetTotal count latest entries
-// @TODO returns deleted sources for admin users
 func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string) (int32, error) {
 	var total int32
 
@@ -118,14 +125,23 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 		SELECT COUNT(sy.id) as total
 		FROM syndication AS sy
 		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE sy.deleted = 0 AND (su.user_id = ? OR su.user_id IS NULL) %s
+		WHERE %s (su.user_id = ? OR su.user_id IS NULL) %s
 	`
 	var args []interface{}
 	var search, t = getSearch(terms)
+
+	// @TODO we need to handle this in a better way
+	var deletion = ""
+	if u.ID != "1" {
+		deletion = "sy.deleted = 0 AND "
+	}
+
 	args = append(args, u.ID)
 	args = append(args, t...)
 
-	err := r.db.QueryRowContext(ctx, formatQuery(fmt.Sprintf(query, search)), args...).Scan(&total)
+	query = formatQuery(fmt.Sprintf(query, deletion, search))
+
+	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
 		return total, err
 	}
