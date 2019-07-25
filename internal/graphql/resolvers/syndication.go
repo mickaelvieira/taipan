@@ -127,7 +127,7 @@ func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s}
+	res := &SourceResolver{Source: s, repositories: r.repositories}
 
 	return res, nil
 }

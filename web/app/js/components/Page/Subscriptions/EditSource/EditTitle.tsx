@@ -4,9 +4,9 @@ import IconButton from "@material-ui/core/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
 import CancelIcon from "@material-ui/icons/Cancel";
 import InputBase from "@material-ui/core/InputBase";
-import UpdateSourceTitleMutation from "../../apollo/Mutation/Syndication/Title";
-import Title from "./Title";
-import { Source } from "../../../types/syndication";
+import UpdateSourceTitleMutation from "../../../apollo/Mutation/Syndication/Title";
+import Title from "../Title";
+import { Source } from "../../../../types/syndication";
 
 const useStyles = makeStyles(({ palette }) => ({
   editor: {
@@ -15,6 +15,10 @@ const useStyles = makeStyles(({ palette }) => ({
   },
   title: {
     width: "100%"
+  },
+  button: {
+    paddingTop: 0,
+    paddingBottom: 0
   },
   input: {
     border: `1px solid ${palette.grey[200]}`
@@ -35,7 +39,10 @@ export default function EditTitle({ source }: Props): JSX.Element {
       {!editMode && (
         <div className={classes.editor}>
           <Title item={source} className={classes.title} />
-          <IconButton onClick={() => setEditMode(true)}>
+          <IconButton
+            onClick={() => setEditMode(true)}
+            className={classes.button}
+          >
             <EditIcon fontSize="small" />
           </IconButton>
         </div>
@@ -53,6 +60,7 @@ export default function EditTitle({ source }: Props): JSX.Element {
             {mutate => (
               <>
                 <IconButton
+                  className={classes.button}
                   onClick={() =>
                     mutate({
                       variables: { url: source.url, title: value }
@@ -61,7 +69,10 @@ export default function EditTitle({ source }: Props): JSX.Element {
                 >
                   <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton onClick={() => setEditMode(false)}>
+                <IconButton
+                  onClick={() => setEditMode(false)}
+                  className={classes.button}
+                >
                   <CancelIcon fontSize="small" />
                 </IconButton>
               </>

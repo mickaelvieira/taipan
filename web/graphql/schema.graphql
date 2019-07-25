@@ -286,6 +286,9 @@ type HTTPClientLog implements Node {
   id: ID!
   checksum: String!
   requestURI: URL!
+  requestMethod: String!
+  hasFailed: Boolean!
+  failureReason: String!
   # finalURI: URL!
   statusCode: Int!
   contentType: String!

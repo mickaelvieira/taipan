@@ -37,6 +37,24 @@ func (r *HTTPClientLogResolver) RequestURI() scalars.URL {
 	return scalars.NewURL(r.Result.ReqURI)
 }
 
+// RequestMethod resolves the RequestMethod field
+func (r *HTTPClientLogResolver) RequestMethod() string {
+	return r.Result.ReqMethod
+}
+
+// HasFailed resolves the HasFailed field
+func (r *HTTPClientLogResolver) HasFailed() bool {
+	return r.Result.RequestHasFailed()
+}
+
+// FailureReason resolves the FailureReason field
+func (r *HTTPClientLogResolver) FailureReason() string {
+	if r.Result.RequestHasFailed() {
+		return r.Result.GetFailureReason()
+	}
+	return ""
+}
+
 // FinalURI resolves the FinalURI field
 // func (r *HTTPClientLogResolver) FinalURI() scalars.URL {
 // 	return scalars.NewURL(r.Result.FinalURI)

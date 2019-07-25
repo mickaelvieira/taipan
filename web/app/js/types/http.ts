@@ -6,5 +6,8 @@ export interface HTTPClientLog {
   requestURI: string;
   statusCode: number;
   contentType: string;
+  requestMethod: string;
+  hasFailed: boolean;
+  failureReason: string;
   createdAt: Datetime;
 }

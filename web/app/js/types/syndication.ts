@@ -1,4 +1,5 @@
 import { Datetime } from "./scalars";
+import { HTTPClientLog } from "./http";
 
 export interface Source {
   id: string;
@@ -14,6 +15,7 @@ export interface Source {
   updatedAt: Datetime;
   parsedAt: Datetime | null;
   stats?: Stats;
+  logEntries?: HTTPClientLog[];
 }
 
 export interface SyndicationResults {

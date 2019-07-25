@@ -11,7 +11,8 @@ const useStyles = makeStyles(() => ({
     width: LG_WIDTH,
     top: `50%`,
     left: `50%`,
-    transform: `translate(-50%, -50%)`
+    transform: `translate(-50%, -50%)`,
+    minHeight: 400
   }
 }));
 
