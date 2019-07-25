@@ -8,7 +8,7 @@ import TableRow from "@material-ui/core/TableRow";
 import { Subscription } from "../../../types/subscription";
 import { StatusButton } from "../../ui/Subscriptions/Button";
 import Title from "./Title";
-import Link from "./Link";
+import Domain from "./Domain";
 
 interface Props {
   canEdit: boolean;
@@ -31,12 +31,12 @@ export default React.memo(function Row({
         {title ? (
           <Title item={subscription} shouldTruncate />
         ) : (
-          <Link item={subscription} />
+          <Domain item={subscription} />
         )}
       </TableCell>
       {md && (
         <TableCell>
-          <Link item={subscription} />
+          <Domain item={subscription} />
         </TableCell>
       )}
       {md && (

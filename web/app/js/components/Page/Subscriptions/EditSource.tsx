@@ -16,10 +16,10 @@ import Panel from "../../ui/Panel";
 import Loader from "../../ui/Loader";
 import Datetime from "../../ui/Datetime";
 import EditTitle from "./EditTitle";
+import Domain from "./Domain";
 import Link from "./Link";
 
 const useStyles = makeStyles(({ palette, typography }) => ({
-  dialog: {},
   header: {
     display: "flex",
     flexDirection: "row",
@@ -89,6 +89,11 @@ export default function EditSource({ url, isOpen, close }: Props): JSX.Element {
                 <ListItem>
                   <ListItemText>
                     <EditTitle source={source} />
+                  </ListItemText>
+                </ListItem>
+                <ListItem>
+                  <ListItemText>
+                    <Domain item={source} />
                   </ListItemText>
                 </ListItem>
                 <ListItem>
