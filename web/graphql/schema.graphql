@@ -113,22 +113,31 @@ type FeedsQuery {
 }
 
 type SyndicationQuery {
+  # "Returns a web syndication source matching the URL"
+  source(url: URL!): Source
+
   # "Returns a list of web syndication sources"
   sources(pagination: OffsetPaginationInput!, search: SearchSourcesInput!): SourceCollection
 }
 
 type SyndicationMutation {
-  # "Returns a web syndication source matching the URL"
-  source(url: URL!): Source
+  # "Add a new web syndication source if it does not exist already"
+  create(url: URL!): Source
 
-  # "Enable the web syndication source matching the URL"
+  # "Update the title of an existing web syndication source"
+  updateTitle(url: URL!, title: String!): Source
+
+  # "Resumes the web syndication source matching the URL"
+  resume(url: URL!): Source
+
+  # "Pauses the web syndication source matching the URL"
+  pause(url: URL!): Source
+
+  # "Enables the web syndication source matching the URL"
   enable(url: URL!): Source
 
-  # "Disable the web syndication source matching the URL"
+  # "Disables the web syndication source matching the URL"
   disable(url: URL!): Source
-
-  # "Delete the web syndication source matching the URL"
-  delete(url: URL!): Source
 }
 
 type SubscriptionsQuery {
@@ -247,8 +256,9 @@ type Source implements Node {
   domain: URL
   type: String!
   title: String!
-  status: String!
+  frequency: String!
   isPaused: Boolean!
+  isDeleted: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
   parsedAt: DateTime!
@@ -267,8 +277,8 @@ type UserSubscription implements Node {
   title: String!
   isSubscribed: Boolean!
   frequency: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 # "The HTTPClientLog type describes an entry in the HTTP client history"

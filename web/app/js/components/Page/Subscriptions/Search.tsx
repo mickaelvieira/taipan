@@ -6,6 +6,7 @@ import InputBase from "@material-ui/core/InputBase";
 import SearchIcon from "@material-ui/icons/Search";
 import CloseIcon from "@material-ui/icons/Close";
 import Table from "./Table";
+import EditSource from "./EditSource";
 
 const useStyles = makeStyles(({ palette }) => ({
   search: {
@@ -19,6 +20,7 @@ export default function Search(): JSX.Element {
   const classes = useStyles();
   const [value, setValue] = useState<string>("");
   const [terms, setTerms] = useState<string[]>([]);
+  const [editUrl, setEditURL] = useState<string>("");
   const setTermsDebounced = useCallback(debounce(setTerms, 400), []);
   const onChange = useCallback(
     (terms: string[], debounced = true) => {
@@ -52,7 +54,12 @@ export default function Search(): JSX.Element {
           </IconButton>
         </div>
       </form>
-      <Table terms={terms} />
+      <Table terms={terms} editSource={setEditURL} />
+      <EditSource
+        url={editUrl}
+        isOpen={editUrl !== ""}
+        close={() => setEditURL("")}
+      />
     </>
   );
 }

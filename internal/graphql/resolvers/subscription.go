@@ -60,19 +60,21 @@ func (r *SubscriptionResolver) IsSubscribed() bool {
 	return r.Subscription.Subscribed
 }
 
-// Frequency resolves the IsPaused field
+// Frequency resolves the Frequency field
 func (r *SubscriptionResolver) Frequency() string {
 	return string(r.Subscription.Frequency)
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *SubscriptionResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Subscription.CreatedAt)
+func (r *SubscriptionResolver) CreatedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Subscription.CreatedAt)
+	return &t
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *SubscriptionResolver) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Subscription.UpdatedAt)
+func (r *SubscriptionResolver) UpdatedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Subscription.UpdatedAt)
+	return &t
 }
 
 // Subscription adds a syndication source and subscribes to it

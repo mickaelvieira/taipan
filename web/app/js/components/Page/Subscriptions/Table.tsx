@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Hidden from "@material-ui/core/Hidden";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Table from "@material-ui/core/Table";
 import Paper from "@material-ui/core/Paper";
 import TableBody from "@material-ui/core/TableBody";
@@ -16,6 +17,8 @@ import SubscriptionsQuery, {
   Data
 } from "../../apollo/Query/Subscriptions";
 import Row from "./Row";
+import { UserContext } from "../../context";
+import { isAdmin } from "../../../helpers/users";
 
 const useStyles = makeStyles(() => ({
   table: {
@@ -36,10 +39,19 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   terms: string[];
+  editSource: (url: string) => void;
 }
 
-export default function SubscriptionsTable({ terms }: Props): JSX.Element {
+export default function SubscriptionsTable({
+  terms,
+  editSource
+}: Props): JSX.Element {
   const classes = useStyles();
+  const user = useContext(UserContext);
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up("md"));
+  const canEdit = isAdmin(user);
+
   return (
     <SubscriptionsQuery
       variables={
@@ -80,18 +92,19 @@ export default function SubscriptionsTable({ terms }: Props): JSX.Element {
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
-                  <Hidden mdDown>
-                    <TableCell>Domain</TableCell>
-                  </Hidden>
-                  <Hidden mdDown>
-                    <TableCell>Updated</TableCell>
-                  </Hidden>
+                  {md && <TableCell>Domain</TableCell>}
+                  {md && <TableCell>{canEdit ? "" : "Updated"}</TableCell>}
                   <TableCell align="center">Subscribed</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {results.map(subscription => (
-                  <Row key={subscription.id} subscription={subscription} />
+                  <Row
+                    key={subscription.id}
+                    canEdit={canEdit}
+                    editSource={editSource}
+                    subscription={subscription}
+                  />
                 ))}
               </TableBody>
             </Table>
@@ -108,7 +121,8 @@ export default function SubscriptionsTable({ terms }: Props): JSX.Element {
                           ...variables.pagination,
                           offset:
                             data.subscriptions.subscriptions.results.length
-                        }
+                        },
+                        search: { terms }
                       },
                       updateQuery: (prev: Data, { fetchMoreResult: next }) => {
                         if (!next) {

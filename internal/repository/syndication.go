@@ -82,10 +82,8 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 	var args []interface{}
 
 	where = append(where, "s.deleted = 0")
-	// where = append(where, "s.paused = ?")
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
-	// args = append(args, isPaused)
 	args = append(args, cursor)
 	args = append(args, limit)
 
@@ -170,7 +168,7 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 		s.Status,
 		s.CreatedAt,
 		s.UpdatedAt,
-		s.Deleted,
+		s.IsDeleted,
 		s.IsPaused,
 		s.Frequency,
 	)
@@ -198,7 +196,7 @@ func (r *SyndicationRepository) Update(ctx context.Context, s *syndication.Sourc
 		s.Status,
 		s.UpdatedAt,
 		s.ParsedAt,
-		s.Deleted,
+		s.IsDeleted,
 		s.IsPaused,
 		s.Frequency,
 		s.ID,
@@ -225,8 +223,8 @@ func (r *SyndicationRepository) UpdateURL(ctx context.Context, s *syndication.So
 	return err
 }
 
-// Delete soft deletes the source
-func (r *SyndicationRepository) Delete(ctx context.Context, s *syndication.Source) error {
+// UpdateVisibility soft deletes the source
+func (r *SyndicationRepository) UpdateVisibility(ctx context.Context, s *syndication.Source) error {
 	query := `
 		UPDATE syndication
 		SET deleted = ?, updated_at = ?
@@ -235,7 +233,7 @@ func (r *SyndicationRepository) Delete(ctx context.Context, s *syndication.Sourc
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		s.Deleted,
+		s.IsDeleted,
 		s.UpdatedAt,
 		s.ID,
 	)
@@ -253,7 +251,25 @@ func (r *SyndicationRepository) UpdateStatus(ctx context.Context, s *syndication
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		s.Deleted,
+		s.IsPaused,
+		s.UpdatedAt,
+		s.ID,
+	)
+
+	return err
+}
+
+// UpdateTitle changes the source title
+func (r *SyndicationRepository) UpdateTitle(ctx context.Context, s *syndication.Source) error {
+	query := `
+		UPDATE syndication
+		SET title = ?, updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		s.Title,
 		s.UpdatedAt,
 		s.ID,
 	)
@@ -300,7 +316,7 @@ func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error)
 		&s.CreatedAt,
 		&s.UpdatedAt,
 		&parsedAt,
-		&s.Deleted,
+		&s.IsDeleted,
 		&s.IsPaused,
 		&s.Frequency,
 	)

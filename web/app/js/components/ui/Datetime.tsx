@@ -1,18 +1,20 @@
 import React from "react";
-import Typography from "@material-ui/core/Typography";
+import dayjs from "dayjs";
+import { Datetime as DatetimeType } from "../../types/scalars";
 
 interface Props {
-  label: string;
-  value?: string;
+  value: DatetimeType;
+  className?: string;
 }
 
 export default React.memo(function Datetime({
-  label,
-  value
+  value,
+  className
 }: Props): JSX.Element {
+  const date = dayjs(value);
   return (
-    <Typography variant="body2">
-      {label}: {value ? value : "Never"}
-    </Typography>
+    <span className={className ? className : ""}>
+      {date.format("DD MMMM YYYY, HH:mm:ss")}
+    </span>
   );
 });

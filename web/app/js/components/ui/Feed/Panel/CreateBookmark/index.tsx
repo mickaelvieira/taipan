@@ -54,7 +54,7 @@ export default function CreateBookmark({
   const [document, setDocument] = useState<Document | null>(null);
 
   return (
-    <Panel isOpen={isOpen} setIsPanelOpen={setIsPanelOpen}>
+    <Panel isOpen={isOpen} close={() => setIsPanelOpen(false)}>
       <header className={classes.header}>
         <IconButton onClick={() => setIsPanelOpen(false)}>
           <CloseIcon />

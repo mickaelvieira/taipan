@@ -8,8 +8,8 @@ export interface Subscription {
   type: string;
   isSubscribed: boolean;
   frequency: string;
-  createdAt: Datetime;
-  updatedAt: Datetime;
+  createdAt: Datetime | null;
+  updatedAt: Datetime | null;
 }
 
 export interface SubscriptionResults {

@@ -31,7 +31,10 @@ func (s *Datetime) UnmarshalGraphQL(input interface{}) error {
 
 // MarshalJSON is a custom marshaler for Time
 func (s Datetime) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.datetime.Format(time.RFC3339))
+	if !s.datetime.IsZero() {
+		return json.Marshal(s.datetime.Format(time.RFC3339))
+	}
+	return json.Marshal(nil)
 }
 
 // NewDatetime wrapped domain Time into a scalar Datetime

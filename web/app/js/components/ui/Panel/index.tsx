@@ -6,12 +6,12 @@ import Panel from "./Panel";
 
 interface Props {
   isOpen: boolean;
-  setIsPanelOpen: (isOpen: boolean) => void;
+  close: () => void;
 }
 
 export default function Wrapper({
   isOpen,
-  setIsPanelOpen,
+  close,
   children
 }: PropsWithChildren<Props>): JSX.Element {
   const theme = useTheme();
@@ -19,7 +19,7 @@ export default function Wrapper({
   const Wrapper = matches ? Modal : Panel;
 
   return (
-    <Wrapper isOpen={isOpen} setIsPanelOpen={setIsPanelOpen}>
+    <Wrapper isOpen={isOpen} close={close}>
       {children}
     </Wrapper>
   );

@@ -8,6 +8,7 @@ export interface Source {
   type: string;
   status: string;
   isPaused: boolean;
+  isDeleted: boolean;
   frequency: string;
   createdAt: Datetime;
   updatedAt: Datetime;

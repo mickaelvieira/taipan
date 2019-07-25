@@ -1,13 +1,13 @@
 import { DataProxy } from "apollo-cache";
 import { Mutation } from "react-apollo";
 import { Source } from "../../../../types/syndication";
-import mutation from "../../graphql/mutation/syndication/delete-source.graphql";
+import mutation from "../../graphql/mutation/syndication/create.graphql";
 import { query, Data as QueryData } from "../../Query/Syndication";
-import { removeSource } from "../../helpers/syndication";
+import { addSource } from "../../helpers/syndication";
 
 interface Data {
   syndication: {
-    delete: Source;
+    source: Source;
   };
 }
 
@@ -15,13 +15,13 @@ interface Variables {
   url: string;
 }
 
-class DeleteSourceMutation extends Mutation<Data, Variables> {
+class CreateSourceMutation extends Mutation<Data, Variables> {
   static defaultProps = {
     mutation,
     update: (cache: DataProxy, { data }: { data: Data }) => {
-      const { delete: source } = data.syndication;
+      const { source } = data.syndication;
       const prev = cache.readQuery({ query }) as QueryData;
-      const result = removeSource(prev.syndication.sources, source);
+      const result = addSource(prev.syndication.sources, source);
       cache.writeQuery({
         query,
         data: {
@@ -37,4 +37,4 @@ class DeleteSourceMutation extends Mutation<Data, Variables> {
 
 export { mutation };
 
-export default DeleteSourceMutation;
+export default CreateSourceMutation;

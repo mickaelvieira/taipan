@@ -4,8 +4,9 @@ fragment sourceFields on Source {
   domain
   title
   type
-  status
+  frequency
   isPaused
+  isDeleted
   createdAt
   updatedAt
   parsedAt

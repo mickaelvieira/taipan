@@ -64,9 +64,19 @@ func (r *SourceResolver) Status() string {
 	return string(r.Source.Status)
 }
 
+// Frequency resolves the Frequency field
+func (r *SourceResolver) Frequency() string {
+	return string(r.Source.Frequency)
+}
+
 // IsPaused resolves the IsPaused field
 func (r *SourceResolver) IsPaused() bool {
 	return r.Source.IsPaused
+}
+
+// IsDeleted resolves the IsDeleted field
+func (r *SourceResolver) IsDeleted() bool {
+	return r.Source.IsDeleted
 }
 
 // CreatedAt resolves the CreatedAt field
@@ -105,8 +115,24 @@ func (r *SourceResolver) getLogsLoader() *dataloader.Loader {
 	return loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
 }
 
-// Source adds a syndication source
+// Source returns the syndication source
 func (r *SyndicationResolver) Source(ctx context.Context, args struct {
+	URL scalars.URL
+}) (*SourceResolver, error) {
+	u := args.URL.ToDomain()
+
+	s, err := r.repositories.Syndication.GetByURL(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &SourceResolver{Source: s}
+
+	return res, nil
+}
+
+// Create adds a syndication source
+func (r *SyndicationResolver) Create(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
 	u := args.URL.ToDomain()
@@ -121,8 +147,28 @@ func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 	return res, nil
 }
 
-// Disable disables a syndication source
-func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
+// UpdateTitle adds a syndication source
+func (r *SyndicationResolver) UpdateTitle(ctx context.Context, args struct {
+	URL   scalars.URL
+	Title string
+}) (*SourceResolver, error) {
+	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecase.UpdateSourceTitle(ctx, r.repositories, s, args.Title)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &SourceResolver{Source: s}
+
+	return res, nil
+}
+
+// Pause disables a syndication source
+func (r *SyndicationResolver) Pause(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
@@ -130,7 +176,26 @@ func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	err = usecase.DisableSyndicationSource(ctx, r.repositories, s)
+	err = usecase.PauseSyndicationSource(ctx, r.repositories, s)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &SourceResolver{Source: s}
+
+	return res, nil
+}
+
+// Resume enables a syndication source
+func (r *SyndicationResolver) Resume(ctx context.Context, args struct {
+	URL scalars.URL
+}) (*SourceResolver, error) {
+	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecase.ResumeSyndicationSource(ctx, r.repositories, s)
 	if err != nil {
 		return nil, err
 	}
@@ -159,8 +224,8 @@ func (r *SyndicationResolver) Enable(ctx context.Context, args struct {
 	return res, nil
 }
 
-// Delete deletes a syndication source
-func (r *SyndicationResolver) Delete(ctx context.Context, args struct {
+// Disable disables a syndication source
+func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*SourceResolver, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
@@ -168,7 +233,7 @@ func (r *SyndicationResolver) Delete(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	err = usecase.DeleteSyndicationSource(ctx, r.repositories, s)
+	err = usecase.DisableSyndicationSource(ctx, r.repositories, s)
 	if err != nil {
 		return nil, err
 	}

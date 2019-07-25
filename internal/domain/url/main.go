@@ -25,6 +25,9 @@ func (u *URL) UnescapeString() string {
 
 // Value converts the value going into the DB
 func (u *URL) Value() (driver.Value, error) {
+	if u == nil {
+		return nil, nil
+	}
 	value, err := neturl.QueryUnescape(u.String())
 	return value, err
 }

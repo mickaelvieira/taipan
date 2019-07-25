@@ -4,21 +4,26 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
 import { Subscription } from "../../../types/subscription";
+import { Source } from "../../../types/syndication";
 import { truncate } from "../../../helpers/string";
 import { getDomain } from "../../../helpers/syndication";
 
 interface Props {
-  subscription: Subscription;
+  item: Subscription | Source;
+  shouldTruncate?: boolean;
+  className?: string;
 }
 
 export default React.memo(function SubscriptionTitle({
-  subscription
+  item,
+  shouldTruncate = false,
+  className
 }: Props): JSX.Element {
   const theme = useTheme();
   const lg = useMediaQuery(theme.breakpoints.up("lg"));
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const sm = useMediaQuery(theme.breakpoints.up("sm"));
-  const url = getDomain(subscription);
+  const url = getDomain(item);
 
   let chars = 30;
   if (lg) {
@@ -33,12 +38,17 @@ export default React.memo(function SubscriptionTitle({
     <Link
       underline="none"
       href={`${url.protocol}//${url.host}`}
-      title={subscription.title ? subscription.title : subscription.url}
+      title={item.title ? item.title : item.url}
       target="_blank"
       rel="noopener"
+      className={className ? className : ""}
     >
       <Typography component="span">
-        {truncate(subscription.title, chars)}
+        {item.title
+          ? shouldTruncate
+            ? truncate(item.title, chars)
+            : item.title
+          : "no title"}
       </Typography>
     </Link>
   );

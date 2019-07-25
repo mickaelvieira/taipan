@@ -87,7 +87,7 @@ type Source struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	ParsedAt  time.Time
-	Deleted   bool
+	IsDeleted bool
 	IsPaused  bool
 	Frequency http.Frequency
 }

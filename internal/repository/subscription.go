@@ -10,6 +10,8 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"strings"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 // SubscriptionRepository the Feed repository
@@ -26,7 +28,7 @@ func getSearch(terms []string) (string, []interface{}) {
 		j := 0
 		for _, t := range terms {
 			clause[j] = "sy.url LIKE ?"
-			clause[j+1] = "sy.title = ?"
+			clause[j+1] = "sy.title LIKE ?"
 			args = append(args, "%"+t+"%")
 			args = append(args, "%"+t+"%")
 			j = j + 2
@@ -68,13 +70,14 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 	return subscribers, nil
 }
 
-// FindAll find newest entries
+// FindAll --
+// @TODO returns deleted sources for admin users
 func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, cursor int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
 		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
-		FROM subscriptions AS su
-		INNER JOIN syndication AS sy ON sy.id = su.source_id
-		WHERE sy.deleted = 0 AND su.user_id = ? %s
+		FROM syndication AS sy
+		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
+		WHERE sy.deleted = 0 AND (su.user_id = ? OR su.user_id IS NULL) %s
 		ORDER BY sy.title ASC
 		LIMIT ?, ?
 	`
@@ -107,15 +110,15 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 }
 
 // GetTotal count latest entries
+// @TODO returns deleted sources for admin users
 func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string) (int32, error) {
 	var total int32
 
 	query := `
 		SELECT COUNT(sy.id) as total
-		FROM subscriptions AS su
-		INNER JOIN syndication AS sy ON sy.id = su.source_id
-		WHERE sy.deleted = 0 AND su.user_id = ? %s
-		ORDER BY su.created_at DESC
+		FROM syndication AS sy
+		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
+		WHERE sy.deleted = 0 AND (su.user_id = ? OR su.user_id IS NULL) %s
 	`
 	var args []interface{}
 	var search, t = getSearch(terms)
@@ -201,6 +204,9 @@ func (r *SubscriptionRepository) Unsubscribe(ctx context.Context, u *user.User, 
 
 func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription, error) {
 	var s subscription.Subscription
+	var subscribed sql.NullBool
+	var createdAt mysql.NullTime
+	var updatedAt mysql.NullTime
 
 	err := rows.Scan(
 		&s.ID,
@@ -208,11 +214,25 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 		&s.Domain,
 		&s.Title,
 		&s.Type,
-		&s.Subscribed,
+		&subscribed,
 		&s.Frequency,
-		&s.CreatedAt,
-		&s.UpdatedAt,
+		&createdAt,
+		&updatedAt,
 	)
+
+	if createdAt.Valid {
+		s.CreatedAt = createdAt.Time
+	}
+
+	if updatedAt.Valid {
+		s.CreatedAt = updatedAt.Time
+	}
+
+	if subscribed.Valid {
+		s.Subscribed = subscribed.Bool
+	} else {
+		s.Subscribed = false
+	}
 
 	if err != nil {
 		return nil, err

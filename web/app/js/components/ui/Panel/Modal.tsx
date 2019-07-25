@@ -17,17 +17,17 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   isOpen: boolean;
-  setIsPanelOpen: (isOpen: boolean) => void;
+  close: () => void;
 }
 
 export default function AddForm({
   isOpen,
-  setIsPanelOpen,
+  close,
   children
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   return (
-    <Modal open={isOpen} onBackdropClick={() => setIsPanelOpen(false)}>
+    <Modal open={isOpen} onBackdropClick={() => close()}>
       <Paper className={classes.paper} elevation={0} square>
         {children}
       </Paper>
