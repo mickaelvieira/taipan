@@ -5,9 +5,6 @@ query source($url: URL!) {
   syndication {
     source(url: $url) {
       ...sourceFields
-      logEntries {
-        ...logFields
-      }
     }
   }
 }

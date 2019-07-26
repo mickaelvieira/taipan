@@ -6,7 +6,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import red from "@material-ui/core/colors/red";
-import SourceQuery from "../../../apollo/Query/Source";
+import LogsQuery, { variables } from "../../../apollo/Query/Logs";
 import Loader from "../../../ui/Loader";
 
 const useStyles = makeStyles(({ typography }) => ({
@@ -14,7 +14,8 @@ const useStyles = makeStyles(({ typography }) => ({
     width: "100%",
     overflowX: "hidden",
     overflowY: "auto",
-    maxHeight: 360
+    height: 380,
+    maxHeight: 380
   },
   table: {
     minWidth: 650
@@ -33,7 +34,7 @@ export default React.memo(function Logs({ url }: Props): JSX.Element {
   const classes = useStyles();
 
   return (
-    <SourceQuery variables={{ url }}>
+    <LogsQuery variables={{ ...variables, url }}>
       {({ data, loading, error }) => {
         if (loading) {
           return <Loader />;
@@ -48,12 +49,8 @@ export default React.memo(function Logs({ url }: Props): JSX.Element {
         }
 
         const {
-          syndication: { source }
+          bot: { logs }
         } = data;
-
-        if (!source) {
-          return null;
-        }
 
         return (
           <div className={classes.logs}>
@@ -67,40 +64,39 @@ export default React.memo(function Logs({ url }: Props): JSX.Element {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {source.logEntries &&
-                  source.logEntries.map(entry => (
-                    <TableRow key={entry.id}>
-                      <TableCell
-                        align="center"
-                        className={entry.hasFailed ? classes.error : ""}
-                      >
-                        {entry.checksum.substr(0, 6)}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        className={entry.hasFailed ? classes.error : ""}
-                      >
-                        {entry.statusCode}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        className={entry.hasFailed ? classes.error : ""}
-                      >
-                        {entry.contentType}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        className={entry.hasFailed ? classes.error : ""}
-                      >
-                        {entry.createdAt}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {logs.results.map(entry => (
+                  <TableRow key={entry.id}>
+                    <TableCell
+                      align="center"
+                      className={entry.hasFailed ? classes.error : ""}
+                    >
+                      {entry.checksum.substr(0, 6)}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      className={entry.hasFailed ? classes.error : ""}
+                    >
+                      {entry.statusCode}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      className={entry.hasFailed ? classes.error : ""}
+                    >
+                      {entry.contentType}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      className={entry.hasFailed ? classes.error : ""}
+                    >
+                      {entry.createdAt}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
         );
       }}
-    </SourceQuery>
+    </LogsQuery>
   );
 });

@@ -86,6 +86,9 @@ export default React.memo(function Info({ url }: Props): JSX.Element {
               </ListItemText>
             </ListItem>
             <ListItem>
+              <ListItemText>{source.type}</ListItemText>
+            </ListItem>
+            <ListItem>
               <ListItemText>Updated {source.frequency}</ListItemText>
             </ListItem>
             <ListItem>

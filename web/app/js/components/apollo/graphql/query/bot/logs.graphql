@@ -1,0 +1,14 @@
+#import "../../fragment/log.graphql"
+
+query logs($url: URL!, $pagination: OffsetPaginationInput!) {
+  bot {
+    logs(url: $url, pagination: $pagination) @connection(key: "logs", filter: ["url"])  {
+      total
+      limit
+      offset
+      results {
+        ...logFields
+      }
+    }
+  }
+}

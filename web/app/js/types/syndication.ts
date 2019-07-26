@@ -1,5 +1,5 @@
 import { Datetime } from "./scalars";
-import { HTTPClientLog } from "./http";
+import { Log } from "./http";
 
 export interface Source {
   id: string;
@@ -15,7 +15,7 @@ export interface Source {
   updatedAt: Datetime;
   parsedAt: Datetime | null;
   stats?: Stats;
-  logEntries?: HTTPClientLog[];
+  logEntries?: Log[];
 }
 
 export interface SyndicationResults {
@@ -31,7 +31,7 @@ export interface SearchParams {
 
 export interface Stats {
   statusCode: number;
-  frequency: string;
+  subscribers: number;
   totalEntries: number;
   totalSuccess: number;
   totalFailure: number;
