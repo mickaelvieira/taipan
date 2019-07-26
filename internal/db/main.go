@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
+	"github/mickaelvieira/taipan/internal/logger"
 	"log"
 	"os"
 	"strconv"
@@ -15,7 +15,6 @@ var db *sql.DB
 // GetDB returns a database connection
 func GetDB() *sql.DB {
 	if db == nil {
-		fmt.Println("init DB")
 		dsn := os.Getenv("APP_DB_USER") + ":" + os.Getenv("APP_DB_PWD") + "@tcp(" + os.Getenv("APP_DB_ADDR") + ")/" + os.Getenv("APP_DB_NAME")
 		params := "parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_520_ci"
 		var err error
@@ -25,7 +24,7 @@ func GetDB() *sql.DB {
 			log.Fatal(err)
 		}
 	} else {
-		fmt.Println("reuse DB")
+		logger.Warn("reuse DB")
 	}
 
 	return db

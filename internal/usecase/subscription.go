@@ -6,6 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/subscription"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 )
 
@@ -17,7 +18,12 @@ func SubscribeToSource(ctx context.Context, repos *repository.Repositories, usr 
 	}
 
 	// make sure the source is not paused
-	src.IsPaused = false
+	if src.IsPaused {
+		ResumeSyndicationSource(ctx, repos, src)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	err = repos.Subscriptions.Subscribe(ctx, usr, src)
 	if err != nil {
@@ -49,15 +55,12 @@ func UnubscribeFromSource(ctx context.Context, repos *repository.Repositories, u
 		return nil, err
 	}
 
-	if len(subscribers) == 0 {
-		src.IsPaused = true
-
-		err = repos.Syndication.Update(ctx, src)
+	if len(subscribers) == 0 && !src.IsPaused {
+		PauseSyndicationSource(ctx, repos, src)
 		if err != nil {
 			return nil, err
 		}
-
-		fmt.Printf("Source [%s] does not have any subscribers, it was marked as paused", src.URL)
+		logger.Warn(fmt.Sprintf("Source [%s] does not have any subscribers, it was marked as paused", src.URL))
 	}
 
 	s, err := repos.Subscriptions.GetByURL(ctx, usr, src.URL)

@@ -96,7 +96,7 @@ func (r *DocumentResolver) Syndication() *[]*SourceResolver {
 }
 
 // LogEntries returns the document's parser log
-func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogResolver, error) {
+func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*LogResolver, error) {
 	data, err := r.getLogsLoader().Load(ctx, dataloader.StringKey(r.Document.URL.String()))()
 	if err != nil {
 		return nil, err
@@ -105,9 +105,9 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*HTTPClientLogRes
 	if !ok {
 		return nil, fmt.Errorf("Invalid data")
 	}
-	var resolvers []*HTTPClientLogResolver
+	var resolvers []*LogResolver
 	for _, result := range results {
-		resolvers = append(resolvers, &HTTPClientLogResolver{Result: result})
+		resolvers = append(resolvers, &LogResolver{Result: result})
 	}
 	return &resolvers, nil
 }

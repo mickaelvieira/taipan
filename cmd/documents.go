@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/messages"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -62,29 +63,29 @@ func runDocumentsWorker(c *cli.Context) {
 			if err := proto.Unmarshal(d.Body, dm); err != nil {
 				log.Fatalln("Failed to parse document message:", err)
 			}
-			fmt.Printf("Received a message: %s\n", dm)
+			logger.Warn(fmt.Sprintf("Received a message: %s", dm))
 
 			var u *url.URL
 			u, err = url.FromRawURL(dm.Url)
 			if err != nil {
-				log.Println(err)
+				logger.Error(err)
 				continue
 			}
 
 			d, err := usecase.Document(ctx, repositories, u, false)
 			if err != nil {
-				log.Println(err)
+				logger.Error(err)
 				continue
 			}
 
 			err = usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID)
 			if err != nil {
-				log.Println(err)
+				logger.Error(err)
 				continue
 			}
 		}
 	}()
 
-	fmt.Println(" [*] Waiting for messages. To exit press CTRL+C")
+	logger.Warn(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }

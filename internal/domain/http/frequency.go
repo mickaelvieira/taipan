@@ -173,7 +173,5 @@ func CalculateFrequency(in []*Result) Frequency {
 		panic("Logic error: We should have at least one frequency")
 	}
 
-	// log.Printf("%v", out)
-
 	return out[len(out)-1]
 }

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
@@ -7,8 +7,14 @@ import { Bookmark } from "../../../../../types/bookmark";
 import FormDocument from "./FormDocument";
 import FormBookmark from "./FormBookmark";
 import { Typography } from "@material-ui/core";
-import { FeedsCacheContext } from "../../../../context";
 import Panel from "../../../Panel";
+
+// @TODO The BE needs to check whether the link is already in my bookmarks.
+// if it is but not in my favorite offers to add it to favorite directly instead of adding it
+// again to bookmarks
+
+// Message: Oh, the link is already in your bookmarks, you really like. Do you want me to add it to your favorites [yes] [no]
+// Message: Oh, you really like this link, it is already in your favorites.
 
 const useStyles = makeStyles(({ palette }) => ({
   dialog: {},
@@ -43,11 +49,10 @@ export default function CreateBookmark({
   onBookmarkCreated
 }: Props): JSX.Element {
   const classes = useStyles();
-  const updater = useContext(FeedsCacheContext);
   const [document, setDocument] = useState<Document | null>(null);
 
   return (
-    <Panel isOpen={isOpen} setIsPanelOpen={setIsPanelOpen}>
+    <Panel isOpen={isOpen} close={() => setIsPanelOpen(false)}>
       <header className={classes.header}>
         <IconButton onClick={() => setIsPanelOpen(false)}>
           <CloseIcon />
@@ -61,11 +66,8 @@ export default function CreateBookmark({
         {document && (
           <FormBookmark
             document={document}
-            onRemoveBookmark={() => setDocument(null)}
-            onBookmarkCreated={bookmark => {
-              if (updater) {
-                updater.bookmark(bookmark);
-              }
+            onCancel={() => setDocument(null)}
+            onFinish={bookmark => {
               setDocument(null);
               onBookmarkCreated(bookmark);
             }}

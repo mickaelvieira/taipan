@@ -1,0 +1,11 @@
+fragment logFields on HTTPClientLog {
+  id
+  checksum
+  requestURI
+  statusCode
+  contentType
+  requestMethod
+  hasFailed
+  failureReason
+  createdAt
+}

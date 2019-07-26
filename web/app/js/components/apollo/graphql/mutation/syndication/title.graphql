@@ -1,0 +1,9 @@
+#import "../../fragment/source.graphql"
+
+mutation updateTitle($url: URL!, $title: String!) {
+  syndication {
+    updateTitle(url: $url, title: $title) {
+      ...sourceFields
+    }
+  }
+}

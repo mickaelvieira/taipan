@@ -3,11 +3,13 @@ import { Datetime } from "./scalars";
 export interface Subscription {
   id: string;
   url: string;
+  domain: string | null;
   title: string;
   type: string;
   isSubscribed: boolean;
-  createdAt: Datetime;
-  updatedAt: Datetime;
+  frequency: string;
+  createdAt: Datetime | null;
+  updatedAt: Datetime | null;
 }
 
 export interface SubscriptionResults {
@@ -15,4 +17,10 @@ export interface SubscriptionResults {
   total: number;
   offset: number;
   results: Subscription[];
+}
+
+export interface SearchParams {
+  terms: string[];
+  showDeleted: boolean;
+  pausedOnly: boolean;
 }

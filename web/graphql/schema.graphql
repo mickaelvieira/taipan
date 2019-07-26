@@ -18,6 +18,7 @@ type Query {
   feeds: FeedsQuery
   syndication: SyndicationQuery
   subscriptions: SubscriptionsQuery
+  bot: BotQuery
 }
 
 type Mutation {
@@ -113,27 +114,36 @@ type FeedsQuery {
 }
 
 type SyndicationQuery {
+  # "Returns a web syndication source matching the URL"
+  source(url: URL!): Source
+
   # "Returns a list of web syndication sources"
   sources(pagination: OffsetPaginationInput!, search: SearchSourcesInput!): SourceCollection
 }
 
 type SyndicationMutation {
-  # "Returns a web syndication source matching the URL"
-  source(url: URL!): Source
+  # "Add a new web syndication source if it does not exist already"
+  create(url: URL!): Source
 
-  # "Enable the web syndication source matching the URL"
+  # "Update the title of an existing web syndication source"
+  updateTitle(url: URL!, title: String!): Source
+
+  # "Resumes the web syndication source matching the URL"
+  resume(url: URL!): Source
+
+  # "Pauses the web syndication source matching the URL"
+  pause(url: URL!): Source
+
+  # "Enables the web syndication source matching the URL"
   enable(url: URL!): Source
 
-  # "Disable the web syndication source matching the URL"
+  # "Disables the web syndication source matching the URL"
   disable(url: URL!): Source
-
-  # "Delete the web syndication source matching the URL"
-  delete(url: URL!): Source
 }
 
 type SubscriptionsQuery {
   # "Returns a list of user's subscription"
-  subscriptions(pagination: OffsetPaginationInput!): SubscriptionCollection
+  subscriptions(pagination: OffsetPaginationInput!, search: SubscriptionSearchInput): SubscriptionCollection
 }
 
 type SubscriptionsMutation {
@@ -145,6 +155,16 @@ type SubscriptionsMutation {
 
   # "Unsubscribe the user to a web syndication"
   unsubscribe(url: URL!): UserSubscription
+}
+
+type BotQuery {
+  logs(url: URL!, pagination: OffsetPaginationInput!): HTTPClientLogCollection
+}
+
+input SubscriptionSearchInput {
+  terms: [String!]!
+  showDeleted: Boolean!
+  pausedOnly: Boolean!
 }
 
 input SearchSourcesInput {
@@ -229,7 +249,7 @@ type Bookmark implements Node {
   image: Image
   updatedAt: DateTime!
   addedAt: DateTime!
-  favoritedAt: DateTime!
+  favoritedAt: DateTime
   isFavorite: Boolean!
 }
 
@@ -240,13 +260,15 @@ type Bookmark implements Node {
 type Source implements Node {
   id: ID!
   url: URL!
+  domain: URL
   type: String!
   title: String!
-  status: String!
+  frequency: String!
   isPaused: Boolean!
+  isDeleted: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
-  parsedAt: DateTime!
+  parsedAt: DateTime
   logEntries: [HTTPClientLog]
 }
 
@@ -257,11 +279,13 @@ type Source implements Node {
 type UserSubscription implements Node {
   id: ID!
   url: URL!
+  domain: URL
   type: String!
   title: String!
   isSubscribed: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  frequency: String!
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 # "The HTTPClientLog type describes an entry in the HTTP client history"
@@ -269,10 +293,20 @@ type HTTPClientLog implements Node {
   id: ID!
   checksum: String!
   requestURI: URL!
+  requestMethod: String!
+  hasFailed: Boolean!
+  failureReason: String!
   # finalURI: URL!
   statusCode: Int!
   contentType: String!
   createdAt: DateTime!
+}
+
+type HTTPClientLogCollection {
+  offset: Int!
+  total: Int!
+  limit: Int!
+  results: [HTTPClientLog!]!
 }
 
 # "A collection of web documents"

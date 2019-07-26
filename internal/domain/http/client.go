@@ -3,6 +3,7 @@ package http
 import (
 	"bytes"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"io/ioutil"
@@ -89,7 +90,7 @@ type Client struct{}
 // - a network error occured
 // - we could not read the body
 func (c *Client) Get(URL *url.URL) *Result {
-	log.Printf("Fetching %s", URL.String())
+	logger.Error(fmt.Sprintf("Fetching %s", URL.String()))
 
 	client := mustCreateClient()
 	req := mustCreateRequest("GET", URL)

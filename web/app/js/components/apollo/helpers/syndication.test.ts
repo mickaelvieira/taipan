@@ -5,10 +5,13 @@ function getSource(id: string): Source {
   return {
     id,
     url: "baz",
+    domain: "foo",
     title: "baz",
     type: "baz",
     status: "baz",
+    frequency: "hourly",
     isPaused: false,
+    isDeleted: false,
     createdAt: "baz",
     updatedAt: "baz",
     parsedAt: "baz"

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Hidden from "@material-ui/core/Hidden";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Table from "@material-ui/core/Table";
 import Paper from "@material-ui/core/Paper";
 import TableBody from "@material-ui/core/TableBody";
@@ -12,9 +13,12 @@ import Loader from "../../ui/Loader";
 
 import SubscriptionsQuery, {
   variables,
-  query
+  query,
+  Data
 } from "../../apollo/Query/Subscriptions";
 import Row from "./Row";
+import { UserContext } from "../../context";
+import { isAdmin } from "../../../helpers/users";
 
 const useStyles = makeStyles(() => ({
   table: {
@@ -33,24 +37,50 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function SubscriptionsTable(): JSX.Element {
+interface Props {
+  terms: string[];
+  showDeleted: boolean;
+  pausedOnly: boolean;
+  editSource: (url: string) => void;
+}
+
+export default React.memo(function SubscriptionsTable({
+  terms,
+  showDeleted,
+  pausedOnly,
+  editSource
+}: Props): JSX.Element {
   const classes = useStyles();
+  const user = useContext(UserContext);
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up("md"));
+  const canEdit = isAdmin(user);
 
   return (
-    <SubscriptionsQuery>
+    <SubscriptionsQuery
+      fetchPolicy="network-only"
+      variables={{ ...variables, search: { terms, pausedOnly, showDeleted } }}
+    >
       {({ data, loading, error, fetchMore }) => {
         if (loading) {
           return <Loader />;
         }
 
         if (error) {
-          return <span>{error.message}</span>;
+          return <Paper className={classes.message}>{error.message}</Paper>;
         }
 
         if (!data) {
+          return null;
+        }
+
+        const { total, results } = data.subscriptions.subscriptions;
+        const showLoadMoreButton = results.length < total;
+
+        if (results.length === 0) {
           return (
             <Paper className={classes.message}>
-              You don&apos;t have any web syndication sources yet.
+              We could not find any sources matching your query.
             </Paper>
           );
         }
@@ -64,65 +94,68 @@ export default function SubscriptionsTable(): JSX.Element {
             >
               <TableHead>
                 <TableRow>
-                  <TableCell align="center">Title</TableCell>
-                  <Hidden mdDown>
-                    <TableCell align="center">Domain</TableCell>
-                  </Hidden>
-                  <TableCell align="center">Active</TableCell>
-                  <Hidden mdDown>
-                    <TableCell></TableCell>
-                  </Hidden>
+                  <TableCell>Title</TableCell>
+                  {md && <TableCell>Domain</TableCell>}
+                  {md && <TableCell>{canEdit ? "" : "Updated"}</TableCell>}
+                  <TableCell align="center">Subscribed</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.subscriptions.subscriptions.results.map(subscription => {
-                  return (
-                    <Row key={subscription.id} subscription={subscription} />
-                  );
-                })}
+                {results.map(subscription => (
+                  <Row
+                    key={subscription.id}
+                    canEdit={canEdit}
+                    editSource={editSource}
+                    subscription={subscription}
+                  />
+                ))}
               </TableBody>
             </Table>
             <div className={classes.fetchMore}>
-              <Button
-                className={classes.button}
-                onClick={() =>
-                  fetchMore({
-                    query,
-                    variables: {
-                      ...variables,
-                      pagination: {
-                        ...variables.pagination,
-                        offset: data.subscriptions.subscriptions.results.length
-                      }
-                    },
-                    updateQuery: (prev, { fetchMoreResult: next }) => {
-                      if (!next) {
-                        return prev;
-                      }
-                      return {
-                        subscriptions: {
-                          ...prev.subscriptions,
-                          subscriptions: {
-                            ...prev.subscriptions.subscriptions,
-                            limit: next.subscriptions.subscriptions.limit,
-                            offset: next.subscriptions.subscriptions.offset,
-                            results: [
-                              ...prev.subscriptions.subscriptions.results,
-                              ...next.subscriptions.subscriptions.results
-                            ]
-                          }
+              {showLoadMoreButton && (
+                <Button
+                  className={classes.button}
+                  onClick={() =>
+                    fetchMore({
+                      query,
+                      variables: {
+                        ...variables,
+                        pagination: {
+                          ...variables.pagination,
+                          offset:
+                            data.subscriptions.subscriptions.results.length
+                        },
+                        search: { terms, pausedOnly, showDeleted }
+                      },
+                      updateQuery: (prev: Data, { fetchMoreResult: next }) => {
+                        if (!next) {
+                          return prev;
                         }
-                      };
-                    }
-                  })
-                }
-              >
-                Load more
-              </Button>
+                        return {
+                          subscriptions: {
+                            ...prev.subscriptions,
+                            subscriptions: {
+                              ...prev.subscriptions.subscriptions,
+                              limit: next.subscriptions.subscriptions.limit,
+                              offset: next.subscriptions.subscriptions.offset,
+                              results: [
+                                ...prev.subscriptions.subscriptions.results,
+                                ...next.subscriptions.subscriptions.results
+                              ]
+                            }
+                          }
+                        };
+                      }
+                    })
+                  }
+                >
+                  Load more
+                </Button>
+              )}
             </div>
           </>
         );
       }}
     </SubscriptionsQuery>
   );
-}
+});

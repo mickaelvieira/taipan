@@ -2,6 +2,8 @@ package resolvers
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
@@ -78,8 +80,9 @@ func (r *BookmarkResolver) AddedAt() scalars.Datetime {
 }
 
 // FavoritedAt resolves the FavoritedAt field
-func (r *BookmarkResolver) FavoritedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Bookmark.FavoritedAt)
+func (r *BookmarkResolver) FavoritedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Bookmark.FavoritedAt)
+	return &t
 }
 
 // UpdatedAt resolves the UpdatedAt field
@@ -162,6 +165,9 @@ func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 
 	b, err := r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("Not found")
+		}
 		return nil, err
 	}
 

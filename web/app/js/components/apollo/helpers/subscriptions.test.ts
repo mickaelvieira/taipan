@@ -5,8 +5,10 @@ function getSubscription(id: string): Subscription {
   return {
     id,
     url: "baz",
+    domain: "foo",
     title: "baz",
     type: "baz",
+    frequency: "hourly",
     isSubscribed: true,
     createdAt: "baz",
     updatedAt: "baz"

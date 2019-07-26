@@ -1,6 +1,7 @@
 import { Query } from "react-apollo";
 import query from "../graphql/query/subscriptions/subscriptions.graphql";
 import { OffsetPagination } from "../../../types";
+import { SearchParams } from "../../../types/subscription";
 import { SubscriptionResults } from "../../../types/subscription";
 
 export interface Data {
@@ -11,12 +12,18 @@ export interface Data {
 
 export interface Variables {
   pagination: OffsetPagination;
+  search?: SearchParams;
 }
 
 const variables = {
   pagination: {
     limit: 50
   }
+  // search: {
+  //   terms: [],
+  //   showDeleted: false,
+  //   pausedOnly: false,
+  // }
 };
 
 export { query, variables };

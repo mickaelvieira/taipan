@@ -1,0 +1,1 @@
+ALTER TABLE `syndication` ADD COLUMN `domain` VARCHAR(255) COLLATE utf8mb4_unicode_520_ci NULL AFTER `url`;

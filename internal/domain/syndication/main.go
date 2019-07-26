@@ -80,13 +80,14 @@ const (
 type Source struct {
 	ID        string
 	URL       *url.URL
+	Domain    *url.URL
 	Type      Type
 	Title     string
 	Status    Status
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	ParsedAt  time.Time
-	Deleted   bool
+	IsDeleted bool
 	IsPaused  bool
 	Frequency http.Frequency
 }

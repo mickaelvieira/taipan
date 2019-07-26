@@ -11,23 +11,24 @@ const useStyles = makeStyles(() => ({
     width: LG_WIDTH,
     top: `50%`,
     left: `50%`,
-    transform: `translate(-50%, -50%)`
+    transform: `translate(-50%, -50%)`,
+    minHeight: 400
   }
 }));
 
 interface Props {
   isOpen: boolean;
-  setIsPanelOpen: (isOpen: boolean) => void;
+  close: () => void;
 }
 
 export default function AddForm({
   isOpen,
-  setIsPanelOpen,
+  close,
   children
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   return (
-    <Modal open={isOpen} onBackdropClick={() => setIsPanelOpen(false)}>
+    <Modal open={isOpen} onBackdropClick={() => close()}>
       <Paper className={classes.paper} elevation={0} square>
         {children}
       </Paper>

@@ -19,7 +19,7 @@ export default function SubscriptionLayout({
             isOpen={isModalOpen}
             toggleDialog={setModalStatus}
             onSubscriptionCreated={() => {
-              setMessageInfo("Nice one! The feed was added");
+              setMessageInfo({ message: "Nice one! The feed was added" });
               setModalStatus(false);
             }}
           />

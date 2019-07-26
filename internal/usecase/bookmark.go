@@ -9,9 +9,9 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/parser"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"time"
 )
 
@@ -25,7 +25,7 @@ var (
 
 // DeleteDocument soft deletes a document
 func DeleteDocument(ctx context.Context, repos *repository.Repositories, d *document.Document) (err error) {
-	fmt.Printf("Soft deleting document '%s'\n", d.URL)
+	logger.Info(fmt.Sprintf("Soft deleting document '%s'", d.URL))
 	d.Deleted = true
 	d.UpdatedAt = time.Now()
 	return repos.Documents.Delete(ctx, d)
@@ -34,17 +34,17 @@ func DeleteDocument(ctx context.Context, repos *repository.Repositories, d *docu
 func handleDuplicateDocument(ctx context.Context, repos *repository.Repositories, originalURI *url.URL, finalURI *url.URL) (err error) {
 	var b bool
 	var e *document.Document
-	fmt.Printf("Request was redirected %s => %s", originalURI, finalURI)
-	fmt.Println("Let's check for duplicate")
+	logger.Warn(fmt.Sprintf("Request was redirected %s => %s", originalURI, finalURI))
+	logger.Warn("Looking up duplicates...")
 	// Let's check whether there a document with the requested URI
 	e, err = repos.Documents.GetByURL(ctx, originalURI)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
-		fmt.Println("There is no duplicate")
+		logger.Warn("No duplicates!")
 	} else {
-		fmt.Printf("A duplicate was found %v\n", e)
+		logger.Warn(fmt.Sprintf("A duplicate was found %v", e))
 
 		// There is a document with the old URL
 		// Let's check whether there a document with the final URI
@@ -59,7 +59,7 @@ func handleDuplicateDocument(ctx context.Context, repos *repository.Repositories
 			return DeleteDocument(ctx, repos, e)
 		}
 
-		fmt.Printf("Document's URL needs to be updated %s => %s\n", e.URL, finalURI)
+		logger.Warn(fmt.Sprintf("Document's URL needs to be updated %s => %s", e.URL, finalURI))
 		e.URL = finalURI
 		e.UpdatedAt = time.Now()
 		repos.Documents.UpdateURL(ctx, e)
@@ -75,11 +75,15 @@ func handleDuplicateDocument(ctx context.Context, repos *repository.Repositories
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
 func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, findFeeds bool) (*document.Document, error) {
-	fmt.Printf("Fetching %s\n", u.String())
+	logger.Info(fmt.Sprintf("Fetching %s", u.String()))
 
 	result, err := FetchResource(ctx, repos, u)
 	if err != nil {
 		return nil, err
+	}
+
+	if result.RequestHasFailed() {
+		return nil, fmt.Errorf(result.GetFailureReason())
 	}
 
 	// The problem that we have here is the URL provided by the user or in the feed might be different from
@@ -91,7 +95,7 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 	var d *document.Document
 	d, err = repos.Documents.GetByChecksum(ctx, result.Checksum)
 	if !findFeeds && d != nil {
-		fmt.Println("Document's content has not changed")
+		logger.Info(fmt.Sprintln("Document's content has not changed"))
 		return d, nil
 	}
 	if err != nil && err != sql.ErrNoRows {
@@ -105,7 +109,7 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 	// Assign document checksum to document
 	d.Checksum = result.Checksum
 
-	fmt.Printf("Document was parsed: %s\n", d.URL)
+	logger.Info(fmt.Sprintf("Document was parsed: %s", d.URL))
 
 	if result.RequestWasRedirected() {
 		err = handleDuplicateDocument(ctx, repos, result.ReqURI, result.FinalURI)
@@ -119,7 +123,7 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 	err = HandleImage(ctx, repos, d)
 	if err != nil {
 		// We just log those errors, no need to send them back to the user
-		log.Println(err)
+		logger.Error(err)
 	}
 
 	err = repos.Syndication.InsertAllIfNotExists(ctx, d.Feeds)

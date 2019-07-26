@@ -34,9 +34,15 @@ func (r *SubscriptionResolver) ID() gql.ID {
 	return gql.ID(r.Subscription.ID)
 }
 
-// URL resolves the URL
+// URL resolves the URL field
 func (r *SubscriptionResolver) URL() scalars.URL {
 	return scalars.NewURL(r.Subscription.URL)
+}
+
+// Domain resolves the Domain field
+func (r *SubscriptionResolver) Domain() *scalars.URL {
+	d := scalars.NewURL(r.Subscription.Domain)
+	return &d
 }
 
 // Title resolves the Title field
@@ -54,14 +60,21 @@ func (r *SubscriptionResolver) IsSubscribed() bool {
 	return r.Subscription.Subscribed
 }
 
+// Frequency resolves the Frequency field
+func (r *SubscriptionResolver) Frequency() string {
+	return string(r.Subscription.Frequency)
+}
+
 // CreatedAt resolves the CreatedAt field
-func (r *SubscriptionResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Subscription.CreatedAt)
+func (r *SubscriptionResolver) CreatedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Subscription.CreatedAt)
+	return &t
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *SubscriptionResolver) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Subscription.UpdatedAt)
+func (r *SubscriptionResolver) UpdatedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Subscription.UpdatedAt)
+	return &t
 }
 
 // Subscription adds a syndication source and subscribes to it
@@ -121,18 +134,31 @@ func (r *SubscriptionsResolver) Unsubscribe(ctx context.Context, args struct {
 // Subscriptions --
 func (r *SubscriptionsResolver) Subscriptions(ctx context.Context, args struct {
 	Pagination offsetPaginationInput
+	Search     *subscriptionSearchInput
 }) (*SubscriptionCollectionResolver, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 
-	results, err := r.repositories.Subscriptions.FindAll(ctx, user, offset, limit)
+	var terms []string
+	showDeleted := false
+	pausedOnly := false
+
+	if args.Search != nil {
+		terms = args.Search.Terms
+		if user.ID == "1" {
+			showDeleted = args.Search.ShowDeleted
+			pausedOnly = args.Search.PausedOnly
+		}
+	}
+
+	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, showDeleted, pausedOnly, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
 	var total int32
-	total, err = r.repositories.Subscriptions.GetTotal(ctx, user)
+	total, err = r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,7 @@ import Latest from "./Latest";
 import FeedItem from "../../ui/Feed/Item/Item";
 import EmptyFeed from "../../ui/Feed/Empty";
 
-export default function DocumentList({
+export default React.memo(function DocumentList({
   results,
   firstId,
   lastId
@@ -24,4 +24,4 @@ export default function DocumentList({
       ))}
     </>
   );
-}
+});

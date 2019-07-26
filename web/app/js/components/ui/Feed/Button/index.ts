@@ -5,6 +5,14 @@ import RefreshButton from "./Refresh";
 import UnbookmarkButton from "./Unbookmark";
 import BookmarkAndFavoriteButton from "./BookmarkAndFavorite";
 import ShareButton from "./Share";
+import { Undoer, CacheUpdater } from "../../../../types";
+import { FeedItem } from "../../../../types/feed";
+
+export interface SuccessOptions {
+  undo: Undoer;
+  item: FeedItem;
+  updateCache: CacheUpdater;
+}
 
 export {
   FavoriteButton,

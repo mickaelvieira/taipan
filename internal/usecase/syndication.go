@@ -7,35 +7,50 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"time"
 
 	"github.com/mmcdole/gofeed"
 )
 
-// DeleteSyndicationSource soft deletes a source
-func DeleteSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
-	fmt.Printf("Soft deleting source '%s'\n", s.URL)
-	s.Deleted = true
-	s.UpdatedAt = time.Now()
-	return repos.Syndication.Delete(ctx, s)
-}
-
 // DisableSyndicationSource soft deletes a source
 func DisableSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
-	fmt.Printf("Disabling source '%s'\n", s.URL)
-	s.Deleted = true
+	logger.Warn(fmt.Sprintf("Disabling source '%s'", s.URL))
+	s.IsDeleted = true
 	s.UpdatedAt = time.Now()
-	return repos.Syndication.UpdateStatus(ctx, s)
+	return repos.Syndication.UpdateVisibility(ctx, s)
 }
 
 // EnableSyndicationSource soft deletes a source
 func EnableSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
-	fmt.Printf("Enabling source '%s'\n", s.URL)
-	s.Deleted = false
+	logger.Warn(fmt.Sprintf("Enabling source '%s'", s.URL))
+	s.IsDeleted = false
+	s.UpdatedAt = time.Now()
+	return repos.Syndication.UpdateVisibility(ctx, s)
+}
+
+// PauseSyndicationSource soft deletes a source
+func PauseSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
+	logger.Warn(fmt.Sprintf("Pausing source '%s'", s.URL))
+	s.IsPaused = true
 	s.UpdatedAt = time.Now()
 	return repos.Syndication.UpdateStatus(ctx, s)
+}
+
+// ResumeSyndicationSource soft deletes a source
+func ResumeSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
+	logger.Warn(fmt.Sprintf("Resuming source '%s'", s.URL))
+	s.IsPaused = false
+	s.UpdatedAt = time.Now()
+	return repos.Syndication.UpdateStatus(ctx, s)
+}
+
+// UpdateSourceTitle soft deletes a source
+func UpdateSourceTitle(ctx context.Context, repos *repository.Repositories, s *syndication.Source, t string) (err error) {
+	s.Title = t
+	s.UpdatedAt = time.Now()
+	return repos.Syndication.UpdateTitle(ctx, s)
 }
 
 func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r *http.Result, s *syndication.Source) error {
@@ -55,8 +70,8 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 			return nil
 		}
 
-		fmt.Printf("Failed request: '%s' was marked as paused\n", s.URL)
-		return DisableSyndicationSource(ctx, repos, s)
+		logger.Warn(fmt.Sprintf("Failed request: '%s' was marked as paused", s.URL))
+		return PauseSyndicationSource(ctx, repos, s)
 	}
 
 	if syndication.IsHTTPError(r.RespStatusCode) {
@@ -71,12 +86,12 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 		}
 
 		if syndication.IsHTTPErrorPermanent(r.RespStatusCode) {
-			fmt.Printf("Unexisting source: '%s' was marked as deleted\n", s.URL)
-			return DeleteSyndicationSource(ctx, repos, s)
+			logger.Warn(fmt.Sprintf("Unexisting source: '%s' was marked as deleted", s.URL))
+			return DisableSyndicationSource(ctx, repos, s)
 		}
 		if syndication.IsHTTPErrorTemporary(r.RespStatusCode) {
-			fmt.Printf("Server error: '%s' was marked as paused\n", s.URL)
-			return DisableSyndicationSource(ctx, repos, s)
+			logger.Warn(fmt.Sprintf("Server error: '%s' was marked as paused", s.URL))
+			return PauseSyndicationSource(ctx, repos, s)
 		}
 	}
 
@@ -92,12 +107,12 @@ func handleDuplicateFeed(ctx context.Context, repos *repository.Repositories, Fi
 	}
 
 	if !b {
-		fmt.Printf("Source's URL needs to be updated %s => %s\n", s.URL, FinalURI)
+		logger.Warn(fmt.Sprintf("Source's URL needs to be updated %s => %s", s.URL, FinalURI))
 		s.URL = FinalURI
 		s.UpdatedAt = time.Now()
 		err = repos.Syndication.UpdateURL(ctx, s)
 	} else {
-		err = DisableSyndicationSource(ctx, repos, s)
+		err = PauseSyndicationSource(ctx, repos, s)
 		if err == nil {
 			err = fmt.Errorf("Source '%s' was a duplicate. It's been deleted", s.URL)
 		}
@@ -182,12 +197,19 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 			}
 		}
 
+		if c.Link != "" {
+			l, err := url.FromRawURL(c.Link)
+			if err == nil {
+				s.Domain = l
+			}
+		}
+
 		if s.Type == "" {
 			feedType, e := syndication.FromGoFeedType(c.FeedType)
 			if e == nil {
 				s.Type = feedType
 			} else {
-				log.Println(e)
+				logger.Error(e)
 			}
 		}
 
@@ -200,13 +222,18 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 			// @TODO Add a list of Source proxy and resolve source's URLs before pushing to the queue
 			b, e := repos.Documents.ExistWithURL(ctx, u)
 			if e != nil {
-				log.Println(e)
+				logger.Error(e)
 				continue
 			}
 			if !b {
+				logger.Warn(fmt.Sprintf("Adding URL [%s]", u))
 				urls = append(urls, u)
+			} else {
+				logger.Warn(fmt.Sprintf("URL [%s] already exists", u))
 			}
 		}
+	} else {
+		logger.Info("Feed content has not changed")
 	}
 
 	// Reverse results
@@ -222,7 +249,7 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	// }
 
 	// f := http.CalculateFrequency(results)
-	// fmt.Printf("Source frequency: [%s], previous: [%s]", f, s.Frequency)
+	// logger.Info(fmt.Sprintf("Source frequency: [%s], previous: [%s]", f, s.Frequency))
 
 	// s.Frequency = f
 	s.ParsedAt = time.Now()

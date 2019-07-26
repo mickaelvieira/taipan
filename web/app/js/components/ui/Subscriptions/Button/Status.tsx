@@ -33,7 +33,7 @@ export default React.memo(function StatusCheckbox({
             }}
             checked={isChecked}
             inputProps={{
-              "aria-labelledby": "switch-list-label-source"
+              "aria-labelledby": "switch-list-label-subscription"
             }}
           />
         );

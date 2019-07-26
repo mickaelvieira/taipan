@@ -18,13 +18,10 @@ func AddDocumentToNewsFeeds(ctx context.Context, repos *repository.Repositories,
 		return fmt.Errorf("No subscribers to source [%s]", sourceID)
 	}
 
-	fmt.Println(subscribers)
-
 	entries := make([]*newsfeed.Entry, len(subscribers))
 	for i, s := range subscribers {
 		entries[i] = newsfeed.NewEntry(s, documentID)
 	}
-	fmt.Println(entries)
 
 	err = repos.NewsFeed.AddEntries(ctx, entries)
 	if err != nil {

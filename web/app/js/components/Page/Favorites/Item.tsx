@@ -39,34 +39,36 @@ export default React.memo(function FeedItem({
         <CardActions disableSpacing>
           <ShareButton
             item={bookmark}
-            onSuccess={message => {
+            onSucceed={message => {
               setMessageInfo({ message });
             }}
-            onError={message => setMessageInfo({ message })}
+            onFail={message => setMessageInfo({ message })}
           />
           <UnbookmarkButton
+            iconOnly
             bookmark={bookmark}
-            onSuccess={(update, undo) => {
+            onSucceed={({ updateCache, undo }) => {
               setMessageInfo({
                 message: "The document was removed from your bookmarks",
                 action: undo,
                 label: "undo"
               });
-              remove(update);
+              remove(updateCache);
             }}
-            onError={message => setMessageInfo({ message })}
+            onFail={message => setMessageInfo({ message })}
           />
           <UnfavoriteButton
+            iconOnly
             bookmark={bookmark}
-            onSuccess={(update, undo) => {
+            onSucceed={({ updateCache, undo }) => {
               setMessageInfo({
                 message: "The bookmark was added back to your reading list",
                 action: undo,
                 label: "undo"
               });
-              remove(update);
+              remove(updateCache);
             }}
-            onError={message => setMessageInfo({ message })}
+            onFail={message => setMessageInfo({ message })}
           />
         </CardActions>
       </ItemFooter>

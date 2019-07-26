@@ -9,7 +9,7 @@ import (
 
 // URL is a custom GraphQL type to represent a URL.
 type URL struct {
-	w *url.URL
+	url *url.URL
 }
 
 // ImplementsGraphQLType maps this custom Go type
@@ -19,11 +19,11 @@ func (URL) ImplementsGraphQLType(name string) bool {
 }
 
 // UnmarshalGraphQL is a custom unmarshaler for URL
-func (u *URL) UnmarshalGraphQL(input interface{}) error {
+func (s *URL) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
 	case string:
 		var err error
-		u.w, err = url.FromRawURL(input)
+		s.url, err = url.FromRawURL(input)
 		return err
 	default:
 		return fmt.Errorf("URL only accept string type as input")
@@ -31,16 +31,19 @@ func (u *URL) UnmarshalGraphQL(input interface{}) error {
 }
 
 // MarshalJSON is a custom marshaler for URL
-func (u URL) MarshalJSON() ([]byte, error) {
-	return json.Marshal(u.w.String())
+func (s URL) MarshalJSON() ([]byte, error) {
+	if s.url != nil {
+		return json.Marshal(s.url.String())
+	}
+	return json.Marshal(nil)
 }
 
 // ToDomain returns the domain URL
-func (u URL) ToDomain() *url.URL {
-	return u.w
+func (s *URL) ToDomain() *url.URL {
+	return s.url
 }
 
 // NewURL wrapped domain URL into a scalar URL
 func NewURL(u *url.URL) URL {
-	return URL{w: u}
+	return URL{url: u}
 }

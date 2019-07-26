@@ -5,7 +5,9 @@ import { ListProps } from "../../ui/Feed/Feed";
 import FeedItem from "../../ui/Feed/Item/Item";
 import EmptyFeed from "../../ui/Feed/Empty";
 
-export default function BookmarkList({ results }: ListProps): JSX.Element {
+export default React.memo(function BookmarkList({
+  results
+}: ListProps): JSX.Element {
   return (
     <>
       {results.length === 0 && (
@@ -20,4 +22,4 @@ export default function BookmarkList({ results }: ListProps): JSX.Element {
       ))}
     </>
   );
-}
+});

@@ -40,7 +40,7 @@ export default function Item({ children }: Props): JSX.Element {
       unmountOnExit
       timeout={{
         enter: 500,
-        exit: 400
+        exit: 300
       }}
       onExited={() => {
         if (typeof ref.current === "function") {

@@ -44,6 +44,68 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *http.Result) error {
 	return err
 }
 
+// FindAll finds the log entries for a given URL
+func (r *BotlogRepository) FindAll(ctx context.Context, URL *url.URL, cursor int32, limit int32) ([]*http.Result, error) {
+	var logs []*http.Result
+
+	query := `
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		FROM bot_logs AS l
+		WHERE l.request_uri = ?
+		ORDER BY created_at DESC
+		LIMIT ?, ?
+	`
+	var args []interface{}
+
+	args = append(args, URL.UnescapeString())
+	args = append(args, cursor)
+	args = append(args, limit)
+
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var log *http.Result
+		log, err = r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return logs, nil
+}
+
+// CountAll --
+func (r *BotlogRepository) CountAll(ctx context.Context, URL *url.URL) (int32, error) {
+	var total int32
+
+	query := `
+		SELECT COUNT(l.id) as total
+		FROM bot_logs AS l
+		WHERE l.request_uri = ?
+		ORDER BY created_at DESC
+	`
+	var args []interface{}
+
+	args = append(args, URL.UnescapeString())
+
+	query = formatQuery(query)
+
+	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
+	if err != nil {
+		return total, err
+	}
+
+	return total, nil
+}
+
 // FindLatestByURL find the latest log entry for a given URL
 func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*http.Result, error) {
 	query := `

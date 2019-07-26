@@ -1,57 +1,58 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Hidden from "@material-ui/core/Hidden";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import IconButton from "@material-ui/core/Button";
+import IconEdit from "@material-ui/icons/Edit";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
-import Link from "@material-ui/core/Link";
 import { Subscription } from "../../../types/subscription";
-import Domain from "../../ui/Domain";
 import { StatusButton } from "../../ui/Subscriptions/Button";
-import SubscriptionTitle from "./Title";
-
-const useStyles = makeStyles({
-  link: {
-    display: "inline-block",
-    padding: "16px 6px 12px",
-    position: "relative",
-    verticalAlign: "middle",
-    boxSizing: "border-box",
-    textAlign: "center"
-  }
-});
+import Title from "./Title";
+import Domain from "./Domain";
 
 interface Props {
+  canEdit: boolean;
   subscription: Subscription;
+  editSource: (url: string) => void;
 }
 
-export default React.memo(function Row({ subscription }: Props): JSX.Element {
-  const classes = useStyles();
+export default React.memo(function Row({
+  subscription,
+  editSource,
+  canEdit = false
+}: Props): JSX.Element {
   const { title } = subscription;
-  const url = new URL(subscription.url);
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up("md"));
 
   return (
     <TableRow>
       <TableCell>
         {title ? (
-          <SubscriptionTitle item={subscription} />
+          <Title item={subscription} shouldTruncate />
         ) : (
           <Domain item={subscription} />
         )}
       </TableCell>
-      <Hidden mdDown>
+      {md && (
         <TableCell>
-          <Link
-            underline="none"
-            href={`${url.protocol}//${url.host}`}
-            title={subscription.title ? subscription.title : subscription.url}
-            target="_blank"
-            rel="noopener"
-            className={classes.link}
-          >
-            {`${url.protocol}//${url.host}`}
-          </Link>
+          <Domain item={subscription} />
         </TableCell>
-      </Hidden>
+      )}
+      {md && (
+        <TableCell align="center">
+          {!canEdit ? (
+            subscription.frequency
+          ) : (
+            <IconButton
+              size="small"
+              onClick={() => editSource(subscription.url)}
+            >
+              <IconEdit fontSize="small" />
+            </IconButton>
+          )}
+        </TableCell>
+      )}
       <TableCell align="center">
         <StatusButton subscription={subscription} />
       </TableCell>

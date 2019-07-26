@@ -1,9 +1,11 @@
 fragment subscriptionFields on UserSubscription {
   id
   url
+  domain
   title
   type
   isSubscribed
+  frequency
   createdAt
   updatedAt
 }

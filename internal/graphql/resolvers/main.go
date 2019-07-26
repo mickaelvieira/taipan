@@ -14,6 +14,7 @@ type RootResolver struct {
 	Syndication   *SyndicationResolver
 	Subscriptions *SubscriptionsResolver
 	Feeds         *FeedsResolver
+	Bot           *BotResolver
 	publisher     *publisher.Subscription
 }
 
@@ -30,6 +31,7 @@ func GetRootResolver(repositories *repository.Repositories) *RootResolver {
 		Syndication:   &SyndicationResolver{repositories: repositories},
 		Subscriptions: &SubscriptionsResolver{repositories: repositories},
 		Feeds:         &FeedsResolver{repositories: repositories},
+		Bot:           &BotResolver{repositories: repositories},
 		publisher:     publisher,
 	}
 }

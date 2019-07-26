@@ -1,17 +1,16 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
 import CachedIcon from "@material-ui/icons/Cached";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import ButtonBase, { ButtonBaseProps } from "../../Button";
 import { Bookmark } from "../../../../types/bookmark";
 import CreateBookmarkMutation, {
   variables
 } from "../../../apollo/Mutation/Bookmarks/Create";
 
-interface Props {
+interface Props extends Partial<ButtonBaseProps> {
   bookmark: Bookmark;
-  onSuccess: (bookmark: Bookmark) => void;
-  onError: (message: string) => void;
+  onSucceed: (bookmark: Bookmark) => void;
+  onFail: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -22,17 +21,21 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function Refresh({
   bookmark,
-  onSuccess,
-  onError
+  onSucceed,
+  onFail,
+  ...rest
 }: Props): JSX.Element {
   const classes = useStyles();
   return (
     <CreateBookmarkMutation
-      onCompleted={data => onSuccess(data.bookmarks.create)}
-      onError={error => onError(error.message)}
+      onCompleted={data => onSucceed(data.bookmarks.create)}
+      onError={error => onFail(error.message)}
     >
       {(mutate, { loading }) => (
-        <IconButton
+        <ButtonBase
+          label="refresh"
+          Icon={CachedIcon}
+          isLoading={loading}
           aria-label="Refresh"
           disabled={loading}
           className={classes.button}
@@ -45,10 +48,8 @@ export default React.memo(function Refresh({
               }
             })
           }
-        >
-          {!loading && <CachedIcon />}
-          {loading && <CircularProgress size={16} />}
-        </IconButton>
+          {...rest}
+        />
       )}
     </CreateBookmarkMutation>
   );
