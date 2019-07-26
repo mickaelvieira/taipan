@@ -141,17 +141,24 @@ func (r *SubscriptionsResolver) Subscriptions(ctx context.Context, args struct {
 	offset, limit := fromArgs(args.Pagination)
 
 	var terms []string
+	showDeleted := false
+	pausedOnly := false
+
 	if args.Search != nil {
 		terms = args.Search.Terms
+		if user.ID == "1" {
+			showDeleted = args.Search.ShowDeleted
+			pausedOnly = args.Search.PausedOnly
+		}
 	}
 
-	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, offset, limit)
+	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, showDeleted, pausedOnly, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
 	var total int32
-	total, err = r.repositories.Subscriptions.GetTotal(ctx, user, terms)
+	total, err = r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,7 @@ import { User } from "../types/users";
 // @TODO to be implemented
 export function isAdmin(user: User | null): boolean {
   if (!user) {
-    false;
+    return false;
   }
-  return true;
+  return user.id === "1" ? true : false;
 }

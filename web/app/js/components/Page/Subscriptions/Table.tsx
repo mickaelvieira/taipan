@@ -39,11 +39,15 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   terms: string[];
+  showDeleted: boolean;
+  pausedOnly: boolean;
   editSource: (url: string) => void;
 }
 
-export default function SubscriptionsTable({
+export default React.memo(function SubscriptionsTable({
   terms,
+  showDeleted,
+  pausedOnly,
   editSource
 }: Props): JSX.Element {
   const classes = useStyles();
@@ -54,9 +58,8 @@ export default function SubscriptionsTable({
 
   return (
     <SubscriptionsQuery
-      variables={
-        terms.length === 0 ? variables : { ...variables, search: { terms } }
-      }
+      fetchPolicy="network-only"
+      variables={{ ...variables, search: { terms, pausedOnly, showDeleted } }}
     >
       {({ data, loading, error, fetchMore }) => {
         if (loading) {
@@ -122,7 +125,7 @@ export default function SubscriptionsTable({
                           offset:
                             data.subscriptions.subscriptions.results.length
                         },
-                        search: { terms }
+                        search: { terms, pausedOnly, showDeleted }
                       },
                       updateQuery: (prev: Data, { fetchMoreResult: next }) => {
                         if (!next) {
@@ -155,4 +158,4 @@ export default function SubscriptionsTable({
       }}
     </SubscriptionsQuery>
   );
-}
+});

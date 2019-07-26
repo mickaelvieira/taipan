@@ -158,6 +158,8 @@ type SubscriptionsMutation {
 
 input SubscriptionSearchInput {
   terms: [String!]!
+  showDeleted: Boolean!
+  pausedOnly: Boolean!
 }
 
 input SearchSourcesInput {

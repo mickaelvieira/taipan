@@ -12,7 +12,9 @@ type offsetPaginationInput struct {
 }
 
 type subscriptionSearchInput struct {
-	Terms []string
+	Terms       []string
+	ShowDeleted bool
+	PausedOnly  bool
 }
 
 type searchSourcesInput struct {
