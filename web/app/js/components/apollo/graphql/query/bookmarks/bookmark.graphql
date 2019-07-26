@@ -1,0 +1,9 @@
+#import "../../fragment/bookmark.graphql"
+
+query bookmark($url: URL!) {
+  bookmarks {
+    bookmark(url: $url) {
+      ...bookmarkFields
+    }
+  }
+}

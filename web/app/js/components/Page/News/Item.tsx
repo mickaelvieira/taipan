@@ -40,34 +40,36 @@ export default React.memo(function FeedItem({
         <CardActions disableSpacing>
           <ShareButton
             item={document}
-            onSuccess={message => {
+            onSucceed={message => {
               setMessageInfo({ message });
             }}
-            onError={message => setMessageInfo({ message })}
+            onFail={message => setMessageInfo({ message })}
           />
           <BookmarkAndFavoriteButton
+            iconOnly
             document={document}
-            onSuccess={(update, undo) => {
+            onSucceed={({ updateCache, undo }) => {
               setMessageInfo({
                 message: "The document was added to your favorites",
                 action: undo,
                 label: "undo"
               });
-              remove(update);
+              remove(updateCache);
             }}
-            onError={message => setMessageInfo({ message })}
+            onFail={message => setMessageInfo({ message })}
           />
           <BookmarkButton
+            iconOnly
             document={document}
-            onSuccess={(update, undo) => {
+            onSucceed={({ updateCache, undo }) => {
               setMessageInfo({
                 message: "The document was added to your reading list",
                 action: undo,
                 label: "undo"
               });
-              remove(update);
+              remove(updateCache);
             }}
-            onError={message => setMessageInfo({ message })}
+            onFail={message => setMessageInfo({ message })}
           />
         </CardActions>
       </ItemFooter>

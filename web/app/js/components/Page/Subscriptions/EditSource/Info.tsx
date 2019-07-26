@@ -52,6 +52,10 @@ export default React.memo(function Info({ url }: Props): JSX.Element {
           syndication: { source }
         } = data;
 
+        if (!source) {
+          return null;
+        }
+
         return (
           <List className={classes.list} dense>
             <ListItem>

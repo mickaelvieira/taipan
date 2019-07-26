@@ -51,6 +51,10 @@ export default React.memo(function Logs({ url }: Props): JSX.Element {
           syndication: { source }
         } = data;
 
+        if (!source) {
+          return null;
+        }
+
         return (
           <div className={classes.logs}>
             <Table className={classes.table} size="small">
@@ -63,34 +67,35 @@ export default React.memo(function Logs({ url }: Props): JSX.Element {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {source.logEntries.map(entry => (
-                  <TableRow key={entry.id}>
-                    <TableCell
-                      align="center"
-                      className={entry.hasFailed ? classes.error : ""}
-                    >
-                      {entry.checksum.substr(0, 6)}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      className={entry.hasFailed ? classes.error : ""}
-                    >
-                      {entry.statusCode}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      className={entry.hasFailed ? classes.error : ""}
-                    >
-                      {entry.contentType}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      className={entry.hasFailed ? classes.error : ""}
-                    >
-                      {entry.createdAt}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {source.logEntries &&
+                  source.logEntries.map(entry => (
+                    <TableRow key={entry.id}>
+                      <TableCell
+                        align="center"
+                        className={entry.hasFailed ? classes.error : ""}
+                      >
+                        {entry.checksum.substr(0, 6)}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        className={entry.hasFailed ? classes.error : ""}
+                      >
+                        {entry.statusCode}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        className={entry.hasFailed ? classes.error : ""}
+                      >
+                        {entry.contentType}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        className={entry.hasFailed ? classes.error : ""}
+                      >
+                        {entry.createdAt}
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </div>

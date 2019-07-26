@@ -1,18 +1,17 @@
 import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/DeleteOutline";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import ButtonBase, { ButtonBaseProps } from "../../Button";
 import { Bookmark } from "../../../../types/bookmark";
 import { Document } from "../../../../types/document";
 import UnbookmarkMutation from "../../../apollo/Mutation/Bookmarks/Unbookmark";
 import { FeedsContext, FeedsCacheContext } from "../../../context";
-import { Undoer, CacheUpdater } from "../../../../types";
+import { SuccessOptions } from ".";
 
-interface Props {
+interface Props extends Partial<ButtonBaseProps> {
   bookmark: Bookmark;
-  onSuccess: (update: CacheUpdater, undo: Undoer) => void;
-  onError: (message: string) => void;
+  onSucceed: (options: SuccessOptions) => void;
+  onFail: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -23,8 +22,9 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function Unbookmark({
   bookmark,
-  onSuccess,
-  onError
+  onSucceed,
+  onFail,
+  ...rest
 }: Props): JSX.Element {
   const classes = useStyles();
   const updater = useContext(FeedsCacheContext);
@@ -46,16 +46,20 @@ export default React.memo(function Unbookmark({
 
   return (
     <UnbookmarkMutation
-      onCompleted={data =>
-        onSuccess(
-          getUpdater(data.bookmarks.remove),
-          getUndoer(data.bookmarks.remove)
-        )
-      }
-      onError={error => onError(error.message)}
+      onCompleted={data => {
+        const item = data.bookmarks.remove;
+        onSucceed({
+          updateCache: getUpdater(item),
+          undo: getUndoer(item),
+          item
+        });
+      }}
+      onError={error => onFail(error.message)}
     >
       {(mutate, { loading }) => (
-        <IconButton
+        <ButtonBase
+          label="remove"
+          Icon={DeleteIcon}
           aria-label="Remove bookmark"
           disabled={loading}
           onClick={() =>
@@ -64,10 +68,8 @@ export default React.memo(function Unbookmark({
             })
           }
           className={classes.button}
-        >
-          {!loading && <DeleteIcon />}
-          {loading && <CircularProgress size={16} />}
-        </IconButton>
+          {...rest}
+        />
       )}
     </UnbookmarkMutation>
   );

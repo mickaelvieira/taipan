@@ -1,18 +1,17 @@
 import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import ButtonBase, { ButtonBaseProps } from "../../Button";
 import { Document } from "../../../../types/document";
 import { Bookmark } from "../../../../types/bookmark";
 import BookmarkMutation from "../../../apollo/Mutation/Bookmarks/Bookmark";
 import { FeedsContext, FeedsCacheContext } from "../../../context";
-import { Undoer, CacheUpdater } from "../../../../types";
+import { SuccessOptions } from ".";
 
-interface Props {
+interface Props extends Partial<ButtonBaseProps> {
   document: Document;
-  onSuccess: (update: CacheUpdater, undo: Undoer) => void;
-  onError: (message: string) => void;
+  onSucceed: (options: SuccessOptions) => void;
+  onFail: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -23,8 +22,9 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function BookmarkAndFavorite({
   document,
-  onSuccess,
-  onError
+  onSucceed,
+  onFail,
+  ...rest
 }: Props): JSX.Element {
   const classes = useStyles();
   const updater = useContext(FeedsCacheContext);
@@ -46,13 +46,20 @@ export default React.memo(function BookmarkAndFavorite({
 
   return (
     <BookmarkMutation
-      onCompleted={data =>
-        onSuccess(getUpdater(data.bookmarks.add), getUndoer(data.bookmarks.add))
-      }
-      onError={error => onError(error.message)}
+      onCompleted={data => {
+        const item = data.bookmarks.add;
+        onSucceed({
+          updateCache: getUpdater(item),
+          undo: getUndoer(item),
+          item
+        });
+      }}
+      onError={error => onFail(error.message)}
     >
       {(mutate, { loading }) => (
-        <IconButton
+        <ButtonBase
+          label="favorites"
+          Icon={FavoriteIcon}
           aria-label="Bookmark and mark as favorite"
           disabled={loading}
           className={classes.button}
@@ -61,10 +68,8 @@ export default React.memo(function BookmarkAndFavorite({
               variables: { url: document.url, isFavorite: true }
             })
           }
-        >
-          {!loading && <FavoriteIcon />}
-          {loading && <CircularProgress size={16} />}
-        </IconButton>
+          {...rest}
+        />
       )}
     </BookmarkMutation>
   );

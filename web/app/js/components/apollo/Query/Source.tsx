@@ -4,7 +4,7 @@ import { Source } from "../../../types/syndication";
 
 export interface Data {
   syndication: {
-    source: Source;
+    source: Source | null;
   };
 }
 

@@ -6,8 +6,8 @@ import { FeedItem } from "../../../../types/feed";
 
 interface Props {
   item: FeedItem;
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
+  onSucceed: (message: string) => void;
+  onFail: (message: string) => void;
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -22,8 +22,8 @@ function canShare(): boolean {
 
 export default React.memo(function ShareButton({
   item,
-  onSuccess,
-  onError
+  onSucceed,
+  onFail
 }: Props): JSX.Element | null {
   const classes = useStyles();
   return !canShare() ? null : (
@@ -37,10 +37,10 @@ export default React.memo(function ShareButton({
             url: item.url
           })
           .then(() => {
-            onSuccess("Thanks for sharing!");
+            onSucceed("Thanks for sharing!");
           })
           .catch((error: Error) => {
-            onError(error.message);
+            onFail(error.message);
           });
       }}
     >

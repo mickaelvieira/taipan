@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
@@ -7,7 +7,6 @@ import { Bookmark } from "../../../../../types/bookmark";
 import FormDocument from "./FormDocument";
 import FormBookmark from "./FormBookmark";
 import { Typography } from "@material-ui/core";
-import { FeedsCacheContext } from "../../../../context";
 import Panel from "../../../Panel";
 
 // @TODO The BE needs to check whether the link is already in my bookmarks.
@@ -50,7 +49,6 @@ export default function CreateBookmark({
   onBookmarkCreated
 }: Props): JSX.Element {
   const classes = useStyles();
-  const updater = useContext(FeedsCacheContext);
   const [document, setDocument] = useState<Document | null>(null);
 
   return (
@@ -68,11 +66,8 @@ export default function CreateBookmark({
         {document && (
           <FormBookmark
             document={document}
-            onRemoveBookmark={() => setDocument(null)}
-            onBookmarkCreated={bookmark => {
-              if (updater) {
-                updater.bookmark(bookmark);
-              }
+            onCancel={() => setDocument(null)}
+            onFinish={bookmark => {
               setDocument(null);
               onBookmarkCreated(bookmark);
             }}
