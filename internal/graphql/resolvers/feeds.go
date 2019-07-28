@@ -27,7 +27,7 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 	first, last := getBookmarksBoundaryIDs(results)
 
 	var total int32
-	total, err = r.repositories.Bookmarks.GetTotalFavorites(ctx, user)
+	total, err = r.repositories.Bookmarks.CountFavorites(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 	first, last := getBookmarksBoundaryIDs(results)
 
 	var total int32
-	total, err = r.repositories.Bookmarks.GetTotalReadingList(ctx, user)
+	total, err = r.repositories.Bookmarks.CountReadingList(ctx, user)
 	if err != nil {
 		return nil, err
 	}

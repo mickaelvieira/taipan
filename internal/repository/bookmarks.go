@@ -31,9 +31,38 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 		ORDER BY b.added_at DESC
 		LIMIT ?
 	`
-	where, args, err := r.getPagination(ctx, fromID, toID)
+
+	var where []string
+	var args []interface{}
+
+	fromDate, err := r.getCursorDate(ctx, fromID, "added_at")
 	if err != nil {
 		return nil, err
+	}
+
+	toDate, err := r.getCursorDate(ctx, toID, "added_at")
+	if err != nil {
+		return nil, err
+	}
+
+	if fromID != "" && toID != "" {
+		where = append(where, "b.added_at <= ?")
+		where = append(where, "b.added_at >= ?")
+		where = append(where, "d.id NOT IN (?, ?)")
+		args = append(args, fromDate)
+		args = append(args, toDate)
+		args = append(args, fromID)
+		args = append(args, toID)
+	} else if fromID != "" && toID == "" {
+		where = append(where, "b.added_at <= ?")
+		where = append(where, "d.id != ?")
+		args = append(args, fromDate)
+		args = append(args, fromID)
+	} else if fromID == "" && toID != "" {
+		where = append(where, "b.added_at >= ?")
+		where = append(where, "d.id != ?")
+		args = append(args, toDate)
+		args = append(args, toID)
 	}
 
 	where = append(where, "d.deleted = 0")
@@ -80,9 +109,38 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 		ORDER BY b.favorited_at DESC
 		LIMIT ?
 	`
-	where, args, err := r.getPagination(ctx, fromID, toID)
+
+	var where []string
+	var args []interface{}
+
+	fromDate, err := r.getCursorDate(ctx, fromID, "favorited_at")
 	if err != nil {
 		return nil, err
+	}
+
+	toDate, err := r.getCursorDate(ctx, toID, "favorited_at")
+	if err != nil {
+		return nil, err
+	}
+
+	if fromID != "" && toID != "" {
+		where = append(where, "b.favorited_at <= ?")
+		where = append(where, "b.favorited_at >= ?")
+		where = append(where, "d.id NOT IN (?, ?)")
+		args = append(args, fromDate)
+		args = append(args, toDate)
+		args = append(args, fromID)
+		args = append(args, toID)
+	} else if fromID != "" && toID == "" {
+		where = append(where, "b.favorited_at <= ?")
+		where = append(where, "d.id != ?")
+		args = append(args, fromDate)
+		args = append(args, fromID)
+	} else if fromID == "" && toID != "" {
+		where = append(where, "b.favorited_at >= ?")
+		where = append(where, "d.id != ?")
+		args = append(args, toDate)
+		args = append(args, toID)
 	}
 
 	where = append(where, "d.deleted = 0")
@@ -117,8 +175,8 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	return results, nil
 }
 
-// GetTotalFavorites count latest entries
-func (r *BookmarkRepository) GetTotalFavorites(ctx context.Context, user *user.User) (int32, error) {
+// CountFavorites count latest entries
+func (r *BookmarkRepository) CountFavorites(ctx context.Context, user *user.User) (int32, error) {
 	var total int32
 
 	query := `
@@ -135,8 +193,8 @@ func (r *BookmarkRepository) GetTotalFavorites(ctx context.Context, user *user.U
 	return total, nil
 }
 
-// GetTotalReadingList count latest entries
-func (r *BookmarkRepository) GetTotalReadingList(ctx context.Context, user *user.User) (int32, error) {
+// CountReadingList count latest entries
+func (r *BookmarkRepository) CountReadingList(ctx context.Context, user *user.User) (int32, error) {
 	var total int32
 
 	query := `
@@ -170,9 +228,9 @@ func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *u
 	return b, nil
 }
 
-func (r *BookmarkRepository) getCursorDate(ctx context.Context, id string) (t time.Time, err error) {
+func (r *BookmarkRepository) getCursorDate(ctx context.Context, id string, date string) (t time.Time, err error) {
 	query := `
-		SELECT b.updated_at
+		SELECT b.%s
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE d.id = ?
@@ -182,48 +240,12 @@ func (r *BookmarkRepository) getCursorDate(ctx context.Context, id string) (t ti
 		return t, err
 	}
 
-	err = r.db.QueryRowContext(ctx, formatQuery(query), id).Scan(&t)
+	err = r.db.QueryRowContext(ctx, formatQuery(fmt.Sprintf(query, date)), id).Scan(&t)
 	if err != nil && err != sql.ErrNoRows {
 		return time.Now(), err
 	}
 
 	return t, nil
-}
-
-func (r *BookmarkRepository) getPagination(ctx context.Context, fromID string, toID string) (where []string, args []interface{}, err error) {
-	var fromDate, toDate time.Time
-	fromDate, err = r.getCursorDate(ctx, fromID)
-	if err != nil {
-		return
-	}
-
-	toDate, err = r.getCursorDate(ctx, toID)
-	if err != nil {
-		return
-	}
-
-	var query string
-	if fromID != "" && toID != "" {
-		query = "b.updated_at <= ? AND b.updated_at >= ? AND d.id NOT IN (?, ?)"
-		args = append(args, fromDate)
-		args = append(args, toDate)
-		args = append(args, fromID)
-		args = append(args, toID)
-	} else if fromID != "" && toID == "" {
-		query = "b.updated_at <= ? AND d.id != ?"
-		args = append(args, fromDate)
-		args = append(args, fromID)
-	} else if fromID == "" && toID != "" {
-		query = "b.updated_at >= ? AND d.id != ?"
-		args = append(args, toDate)
-		args = append(args, toID)
-	} else {
-		return
-	}
-
-	where = append(where, query)
-
-	return
 }
 
 // BookmarkDocument the bookmark to the user

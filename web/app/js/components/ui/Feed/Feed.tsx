@@ -33,30 +33,31 @@ export default withApollo(function Feed({
   }, [isAtTheBottom, loadMore]);
 
   return (
-    <>
-      {/* <FeedSubscription updater={updater} subscription={subscription} /> */}
-      <FeedQuery query={query}>
-        {({ data, loading, error, fetchMore }) => {
-          const [hasResults, result] = hasReceivedData(data);
-          const { results = [], first = "", last = "" } = result;
+    <FeedQuery query={query}>
+      {({ data, loading, error, fetchMore, networkStatus }) => {
+        const [hasResults, result] = hasReceivedData(data);
+        const { results = [], first = "", last = "" } = result;
+        const isFetchingFirst = loading && networkStatus === 1
+        const isFetchingMore = loading && networkStatus === 3
 
-          if (hasResults) {
-            loadMore.current = getFetchMore(fetchMore, data);
-          }
+        if (hasResults) {
+          loadMore.current = getFetchMore(fetchMore, data);
+        }
 
-          return (
-            <>
-              {loading && !hasResults && <Loader />}
-              {error && !hasResults && <span>{error.message}</span>}
+        return (
+          <>
+            {isFetchingFirst && !hasResults && <Loader />}
+            {error && !hasResults && <span>{error.message}</span>}
+            {!isFetchingFirst && !error && (
               <FeedContainer>
                 <List results={results} firstId={first} lastId={last} />
               </FeedContainer>
-              {loading && hasResults && <Loader />}
-              {error && hasResults && <span>{error.message}</span>}
-            </>
-          );
-        }}
-      </FeedQuery>
-    </>
+            )}
+            {isFetchingMore && hasResults && <Loader />}
+            {error && hasResults && <span>{error.message}</span>}
+          </>
+        );
+      }}
+    </FeedQuery>
   );
 });

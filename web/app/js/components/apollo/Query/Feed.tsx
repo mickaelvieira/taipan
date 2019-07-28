@@ -42,7 +42,10 @@ function getFetchMore(
     : () =>
         fetchMore({
           variables: {
-            pagination: { from: data ? data.feeds[key].last : "" }
+            pagination: {
+              ...variables.pagination,
+              from: data ? data.feeds[key].last : ""
+            }
           },
           updateQuery: (prev, { fetchMoreResult: next }) => {
             if (!next) {
