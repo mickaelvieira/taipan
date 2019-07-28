@@ -19,11 +19,6 @@ const variables = {
   pagination: {
     limit: 50
   }
-  // search: {
-  //   terms: [],
-  //   showDeleted: false,
-  //   pausedOnly: false,
-  // }
 };
 
 export { query, variables };

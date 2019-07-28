@@ -1,10 +1,9 @@
 import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import { MessageContext } from "../../../../context";
-import { Bookmark } from "../../../../../types/bookmark";
-import { FavoriteButton } from "../../../../ui/Feed/Button";
+import { MessageContext } from "../../../../../context";
+import { Bookmark } from "../../../../../../types/bookmark";
+import { FavoriteButton } from "../../../Button";
 
 const useStyles = makeStyles(({ breakpoints, typography, palette }) => ({
   actions: {
@@ -39,12 +38,10 @@ const useStyles = makeStyles(({ breakpoints, typography, palette }) => ({
 interface Props {
   bookmark: Bookmark;
   onFinish: (bookmark: Bookmark) => void;
-  onCancel: () => void;
 }
 
 export default function ExistingBookmark({
   bookmark,
-  onCancel,
   onFinish
 }: Props): JSX.Element {
   const classes = useStyles();
@@ -82,16 +79,8 @@ export default function ExistingBookmark({
                 }}
                 onFail={message => setMessageInfo({ message })}
               />
-              <Typography className={classes.addto}>or</Typography>
             </>
           )}
-          <ButtonBase
-            onClick={onCancel}
-            className={`${classes.button} ${classes.cancel}`}
-          >
-            Cancel
-          </ButtonBase>
-          {!bookmark.isFavorite && "?"}
         </div>
       </div>
     </>

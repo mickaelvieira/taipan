@@ -14,7 +14,7 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   isOpen: boolean;
-  close: () => void;
+  prev: () => void;
 }
 
 export default function AddForm({

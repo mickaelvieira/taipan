@@ -57,7 +57,11 @@ input UserInput {
 }
 
 type UsersMutation {
+  # "Updates the user's details
   update(id: ID!, user: UserInput!): User
+
+  # "Updates the user's theme
+  theme(id: ID!, theme: String!): User
 }
 
 type DocumentMutation {
@@ -202,6 +206,7 @@ type User implements Node {
   firstname: String!
   lastname: String!
   username: String!
+  theme: String!
   image: Image
 }
 

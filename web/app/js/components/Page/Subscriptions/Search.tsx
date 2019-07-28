@@ -83,14 +83,14 @@ type SearchReducer = Reducer<State, [SearchActions, Payload]>;
 export default function Search(): JSX.Element {
   const classes = useStyles();
   const user = useContext(UserContext);
+  const canEdit = isAdmin(user);
   const [state, dispatch] = useReducer<SearchReducer>(reducer, {
     terms: [],
     showDeleted: false,
     pausedOnly: false
   });
-
-  const [value, setValue] = useState<string>("");
-  const [editUrl, setEditURL] = useState<string>("");
+  const [value, setValue] = useState("");
+  const [editUrl, setEditURL] = useState("");
   const debouncedDispatch = useCallback(debounce(dispatch, 400), []);
   const onChange = useCallback(
     (terms: string[], debounced = true) => {
@@ -111,7 +111,6 @@ export default function Search(): JSX.Element {
       <form onSubmit={event => event.preventDefault()}>
         <div className={classes.search}>
           <InputBase
-            autoFocus
             placeholder="Search..."
             fullWidth
             value={value}
@@ -125,7 +124,7 @@ export default function Search(): JSX.Element {
             <CloseIcon />
           </IconButton>
         </div>
-        {isAdmin(user) && (
+        {canEdit && (
           <FormGroup row className={classes.options}>
             <RadioGroup
               aria-label="deleted"
@@ -161,13 +160,16 @@ export default function Search(): JSX.Element {
         terms={terms}
         showDeleted={showDeleted}
         pausedOnly={pausedOnly}
+        canEdit={canEdit}
         editSource={setEditURL}
       />
-      <EditSource
-        url={editUrl}
-        isOpen={editUrl !== ""}
-        close={() => setEditURL("")}
-      />
+      {canEdit && (
+        <EditSource
+          url={editUrl}
+          isOpen={editUrl !== ""}
+          close={() => setEditURL("")}
+        />
+      )}
     </>
   );
 }

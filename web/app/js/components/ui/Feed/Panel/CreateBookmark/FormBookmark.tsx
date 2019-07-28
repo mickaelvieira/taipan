@@ -9,8 +9,8 @@ import Description from "../../Item/Description";
 import { getImageWidth } from "../../../../../helpers/image";
 import BookmarkQuery from "../../../../apollo/Query/Bookmark";
 import Loader from "../../../Loader";
-import NewBookmark from "./NewBookmark";
-import ExistingBookmark from "./ExistingBookmark";
+import NewBookmark from "./FormBookmarkActions/NewBookmark";
+import ExistingBookmark from "./FormBookmarkActions/ExistingBookmark";
 
 const useStyles = makeStyles(({ breakpoints }) => ({
   form: {
@@ -52,12 +52,10 @@ const useStyles = makeStyles(({ breakpoints }) => ({
 interface Props {
   document: Document;
   onFinish: (bookmark: Bookmark) => void;
-  onCancel: () => void;
 }
 
-export default function FormDocument({
+export default function FormBookmark({
   document,
-  onCancel,
   onFinish
 }: Props): JSX.Element {
   const classes = useStyles();
@@ -80,13 +78,7 @@ export default function FormDocument({
             return <Loader />;
           }
           if (error) {
-            return (
-              <NewBookmark
-                document={document}
-                onFinish={onFinish}
-                onCancel={onCancel}
-              />
-            );
+            return <NewBookmark document={document} onFinish={onFinish} />;
           }
           if (!data || !data.bookmarks.bookmark) {
             return null;
@@ -95,7 +87,6 @@ export default function FormDocument({
             <ExistingBookmark
               bookmark={data.bookmarks.bookmark}
               onFinish={onFinish}
-              onCancel={onCancel}
             />
           );
         }}

@@ -1,5 +1,7 @@
 import React, { useRef, useContext, useReducer, Reducer } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
@@ -10,11 +12,11 @@ import AvatarEditor from "react-avatar-editor";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { MessageContext } from "../../context";
 import UserProfileMutation from "../../apollo/Mutation/User/Profile";
-import { UserContext } from "../../context";
 import { User } from "../../../types/users";
 import Title from "./Title";
+import Theme from "./Theme";
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(({ palette, breakpoints }) => ({
   actions: {
     padding: 16,
     justifyContent: "flex-end"
@@ -22,7 +24,10 @@ const useStyles = makeStyles(({ palette }) => ({
   avatar: {
     display: "flex",
     flexDirection: "column",
-    width: 350,
+    width: "100%",
+    [breakpoints.up("md")]: {
+      width: 350
+    },
     margin: "0 auto",
     alignItems: "center"
   },
@@ -123,11 +128,16 @@ function getInputFile(file: File | null, user: User | null): File | string {
   return "";
 }
 
-export default function Profile(): JSX.Element | null {
+interface Props {
+  user: User;
+}
+
+export default function UserProfile({ user }: Props): JSX.Element | null {
   const editor = useRef<AvatarEditor | null>();
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up("md"));
   const setMessageInfo = useContext(MessageContext);
   const classes = useStyles();
-  const user = useContext(UserContext);
   const [state, dispatch] = useReducer<ProfileReducer, User | null>(
     reducer,
     user,
@@ -147,7 +157,7 @@ export default function Profile(): JSX.Element | null {
               image={getInputFile(file, user)}
               width={250}
               height={250}
-              border={50}
+              border={md ? 50 : 10}
               color={[255, 255, 255, 0.6]}
               scale={scale}
               className={classes.editor}
@@ -182,8 +192,8 @@ export default function Profile(): JSX.Element | null {
               </Button>
             </label>
           </div>
+          <Theme user={user} />
           <TextField
-            autoFocus
             fullWidth
             margin="normal"
             id="firtname"

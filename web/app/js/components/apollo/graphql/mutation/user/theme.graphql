@@ -1,0 +1,9 @@
+#import "../../fragment/user.graphql"
+
+mutation update($id: ID!, $theme: String!) {
+  users {
+    theme(id: $id, theme: $theme) {
+      ...userFields
+    }
+  }
+}

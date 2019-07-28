@@ -31,6 +31,7 @@ type User struct {
 	Lastname  string
 	Password  string
 	Image     *Image
+	Theme     string
 	Status    Status
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -4,7 +4,6 @@ import Paper from "@material-ui/core/Paper";
 
 const useStyles = makeStyles(() => ({
   paper: {
-    padding: 16,
     display: "flex",
     flexDirection: "column"
   },

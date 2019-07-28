@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD COLUMN `theme` VARCHAR(255) COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT "" AFTER `status`;

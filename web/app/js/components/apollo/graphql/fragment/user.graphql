@@ -5,6 +5,7 @@ fragment userFields on User {
   username
   firstname
   lastname
+  theme
   image {
     ...imageFields
   }

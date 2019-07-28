@@ -45,6 +45,11 @@ func (r *UserResolver) Lastname() string {
 	return r.User.Lastname
 }
 
+// Theme resolves the Theme field
+func (r *UserResolver) Theme() string {
+	return r.User.Theme
+}
+
 // Image resolves the Image field
 func (r *UserResolver) Image() *UserImageResolver {
 	if !r.User.HasImage() {
@@ -120,6 +125,36 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 		args.User.Firstname,
 		args.User.Lastname,
 		args.User.Image,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	res := UserResolver{User: user}
+
+	return &res, nil
+}
+
+// Theme resolves the mutation
+func (r *UsersResolver) Theme(ctx context.Context, args struct {
+	ID    string
+	Theme string
+}) (*UserResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+	if args.ID != user.ID {
+		return nil, fmt.Errorf("You are not allowed to modify this user")
+	}
+
+	err := usecase.UpdateTheme(
+		ctx,
+		r.repositories,
+		user,
+		args.Theme,
 	)
 	if err != nil {
 		return nil, err
