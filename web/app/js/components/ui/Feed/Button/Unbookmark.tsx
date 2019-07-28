@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import DeleteIcon from "@material-ui/icons/DeleteOutline";
+import DeleteIcon from "@material-ui/icons/Delete";
 import ButtonBase, { ButtonBaseProps } from "../../Button";
 import { Bookmark } from "../../../../types/bookmark";
 import { Document } from "../../../../types/document";

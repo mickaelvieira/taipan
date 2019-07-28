@@ -9,11 +9,11 @@ import ListItem from "@material-ui/core/ListItem";
 import Divider from "@material-ui/core/Divider";
 import Link from "@material-ui/core/Link";
 import ListItemText from "@material-ui/core/ListItemText";
-import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
-import AccountIcon from "@material-ui/icons/AccountCircleOutlined";
-import HomeIcon from "@material-ui/icons/HomeOutlined";
-import FavoriteIcon from "@material-ui/icons/FavoriteBorderOutlined";
-import RssFeedIcon from "@material-ui/icons/RssFeedOutlined";
+import LibraryIcon from "@material-ui/icons/LocalLibrarySharp";
+import AccountIcon from "@material-ui/icons/AccountCircleSharp";
+import HomeIcon from "@material-ui/icons/HomeSharp";
+import FavoriteIcon from "@material-ui/icons/FavoriteSharp";
+import RssFeedIcon from "@material-ui/icons/RssFeedSharp";
 import UserInfo from "./UserInfo";
 import AppInfo from "./AppInfo";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
@@ -24,8 +24,17 @@ const useStyles = makeStyles(
     drawer: {
       [breakpoints.up("md")]: {
         width: SIDEBAR_WIDTH,
-        flexShrink: 0
+        flexShrink: 0,
+        backgroundColor: palette.grey[500]
       }
+    },
+    paper: {
+      [breakpoints.up("md")]: {
+        backgroundColor: palette.grey[900] // "#252525"
+      }
+    },
+    divider: {
+      margin: "0 1rem"
     },
     list: {
       width: SIDEBAR_WIDTH
@@ -36,9 +45,11 @@ const useStyles = makeStyles(
     },
     link: {
       display: "block",
-      fontWeight: 500,
       fontSize: typography.fontSize,
-      color: palette.grey[900],
+      color: palette.grey[600],
+      [breakpoints.up("md")]: {
+        color: palette.grey[100]
+      },
       "&.active": {
         color: palette.primary.main
       }
@@ -82,8 +93,12 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         open={isOpen}
         variant={matches ? "permanent" : "temporary"}
         onClose={() => toggleDrawer(false)}
+        classes={{
+          paper: classes.paper
+        }}
       >
         <UserInfo />
+        <Divider className={classes.divider} />
         <List className={classes.list}>
           {entries.map(entry => (
             <Link
@@ -106,7 +121,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
             </Link>
           ))}
         </List>
-        <Divider />
+        <Divider className={classes.divider} />
         <List>
           <Link
             to="/account"
@@ -124,7 +139,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
             </ListItem>
           </Link>
         </List>
-        <Divider />
+        <Divider className={classes.divider} />
         <AppInfo />
       </Drawer>
     </nav>

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import LibraryIcon from "@material-ui/icons/LocalLibraryOutlined";
+import LibraryIcon from "@material-ui/icons/LocalLibrarySharp";
 import ButtonBase, { ButtonBaseProps } from "../../Button";
 import { Document } from "../../../../types/document";
 import BookmarkMutation from "../../../apollo/Mutation/Bookmarks/Bookmark";

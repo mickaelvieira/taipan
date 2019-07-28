@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
@@ -17,8 +17,6 @@ import SubscriptionsQuery, {
   Data
 } from "../../apollo/Query/Subscriptions";
 import Row from "./Row";
-import { UserContext } from "../../context";
-import { isAdmin } from "../../../helpers/users";
 
 const useStyles = makeStyles(() => ({
   table: {
@@ -41,20 +39,20 @@ interface Props {
   terms: string[];
   showDeleted: boolean;
   pausedOnly: boolean;
-  editSource: (url: string) => void;
+  canEdit?: boolean;
+  editSource?: (url: string) => void;
 }
 
 export default React.memo(function SubscriptionsTable({
   terms,
   showDeleted,
   pausedOnly,
+  canEdit = false,
   editSource
 }: Props): JSX.Element {
   const classes = useStyles();
-  const user = useContext(UserContext);
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
-  const canEdit = isAdmin(user);
 
   return (
     <SubscriptionsQuery

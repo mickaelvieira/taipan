@@ -1,15 +1,11 @@
 import React, { useState, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import { MessageContext } from "../../../../context";
-import { Document } from "../../../../../types/document";
-import { Bookmark } from "../../../../../types/bookmark";
-import {
-  BookmarkButton,
-  BookmarkAndFavoriteButton
-} from "../../../../ui/Feed/Button";
-import Syndication from "./Syndication";
+import { MessageContext } from "../../../../../context";
+import { Document } from "../../../../../../types/document";
+import { Bookmark } from "../../../../../../types/bookmark";
+import { BookmarkButton, BookmarkAndFavoriteButton } from "../../../Button";
+import Syndication from "../Syndication";
 
 const useStyles = makeStyles(({ breakpoints, typography, palette }) => ({
   actions: {
@@ -40,12 +36,10 @@ const useStyles = makeStyles(({ breakpoints, typography, palette }) => ({
 interface Props {
   document: Document;
   onFinish: (bookmark: Bookmark) => void;
-  onCancel: () => void;
 }
 
 export default function NewBookmark({
   document,
-  onCancel,
   onFinish
 }: Props): JSX.Element {
   const classes = useStyles();
@@ -91,13 +85,6 @@ export default function NewBookmark({
             }}
             onFail={message => setMessageInfo({ message })}
           />
-          <Typography className={classes.addto}>or</Typography>
-          <ButtonBase
-            onClick={onCancel}
-            className={`${classes.button} ${classes.cancel}`}
-          >
-            cancel
-          </ButtonBase>
           {"?"}
         </div>
       </div>

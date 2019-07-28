@@ -5,7 +5,6 @@ import Paper from "@material-ui/core/Paper";
 import { LG_WIDTH } from "../../../constant/feed";
 
 const useStyles = makeStyles(() => ({
-  dialog: {},
   paper: {
     position: "absolute",
     width: LG_WIDTH,
@@ -18,17 +17,17 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   isOpen: boolean;
-  close: () => void;
+  prev: () => void;
 }
 
 export default function AddForm({
   isOpen,
-  close,
+  prev,
   children
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   return (
-    <Modal open={isOpen} onBackdropClick={() => close()}>
+    <Modal open={isOpen} onBackdropClick={prev}>
       <Paper className={classes.paper} elevation={0} square>
         {children}
       </Paper>

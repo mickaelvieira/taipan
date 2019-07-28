@@ -12,7 +12,7 @@ import {
   SyndicationPage,
   AccountPage
 } from "../Page";
-import uiTheme from "../ui/theme";
+import getThemeOptions, { defaultTheme } from "../ui/themes";
 import Loader from "../ui/Loader";
 import InitQuery, { Data } from "../apollo/Query/Init";
 import { ClientContext, AppContext } from "../context";
@@ -41,35 +41,36 @@ function canBoostrap(data: Data | undefined): boolean {
 export default function App(): JSX.Element {
   const clientId = genRandomId();
   const client = getApolloClient(clientId);
-  const theme = createMuiTheme(uiTheme);
-
-  console.log(theme);
 
   return (
     <ClientContext.Provider value={clientId}>
       <ApolloProvider client={client}>
         <CssBaseline />
-        <MuiThemeProvider theme={theme}>
-          <BrowserRouter>
-            <InitQuery>
-              {({ data, loading, error }) => {
-                if (loading) {
-                  return <Loader />;
-                }
+        <BrowserRouter>
+          <InitQuery>
+            {({ data, loading, error }) => {
+              if (loading) {
+                return <Loader />;
+              }
 
-                if (error) {
-                  return <ErrorPage error={error} />;
-                }
+              if (error) {
+                return <ErrorPage error={error} />;
+              }
 
-                if (!canBoostrap(data)) {
-                  return null;
-                }
+              if (!canBoostrap(data)) {
+                return null;
+              }
 
-                const { users, app } = data as Data;
+              const { users, app } = data as Data;
+              const { loggedIn: user } = users;
+              const name = user.theme ? user.theme : defaultTheme;
+              const theme = createMuiTheme(getThemeOptions(name));
+              console.log(theme);
 
-                return (
+              return (
+                <MuiThemeProvider theme={theme}>
                   <AppContext.Provider value={app.info}>
-                    <AppUser loggedIn={users.loggedIn}>
+                    <AppUser loggedIn={user}>
                       <AppFeeds client={client}>
                         <Switch>
                           <Route exact path="/" component={NewsPage} />
@@ -97,11 +98,11 @@ export default function App(): JSX.Element {
                       </AppFeeds>
                     </AppUser>
                   </AppContext.Provider>
-                );
-              }}
-            </InitQuery>
-          </BrowserRouter>
-        </MuiThemeProvider>
+                </MuiThemeProvider>
+              );
+            }}
+          </InitQuery>
+        </BrowserRouter>
       </ApolloProvider>
     </ClientContext.Provider>
   );

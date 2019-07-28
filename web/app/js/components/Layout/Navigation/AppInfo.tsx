@@ -3,17 +3,20 @@ import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import { AppContext } from "../../context";
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(({ breakpoints, palette }) => ({
   root: {
     display: "flex",
     flexDirection: "column"
   },
   appInfo: {
     lineHeight: 1.33,
-    color: palette.grey[500],
+    color: palette.grey[600],
     textAlign: "center",
     paddingTop: "1.2rem",
-    margin: 0
+    margin: 0,
+    [breakpoints.up("md")]: {
+      color: palette.grey[100]
+    }
   },
   reload: {
     color: palette.primary.main,

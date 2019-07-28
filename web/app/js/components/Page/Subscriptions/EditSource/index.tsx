@@ -1,30 +1,11 @@
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import CloseIcon from "@material-ui/icons/Close";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import Typography from "@material-ui/core/Typography";
 import Panel from "../../../ui/Panel";
 import TabPanel from "./TabPanel";
-
 import Info from "./Info";
 import Logs from "./Logs";
-
-const useStyles = makeStyles(({ palette }) => ({
-  header: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "start",
-    margin: 0,
-    padding: 0,
-    backgroundColor: palette.grey[200]
-  },
-  title: {
-    paddingTop: 12,
-    paddingBottom: 12
-  }
-}));
 
 interface Props {
   url: string;
@@ -33,19 +14,15 @@ interface Props {
 }
 
 export default function EditSource({ url, isOpen, close }: Props): JSX.Element {
-  const classes = useStyles();
   const [tab, setTab] = useState(0);
 
   return (
-    <Panel isOpen={isOpen} close={close}>
-      <header className={classes.header}>
-        <IconButton onClick={() => close()}>
-          <CloseIcon />
-        </IconButton>
-        <Typography component="h5" variant="h6" className={classes.title}>
-          Edit web syndication source
-        </Typography>
-      </header>
+    <Panel
+      BackButton={CloseIcon}
+      title="Edit web syndication source"
+      isOpen={isOpen}
+      prev={close}
+    >
       <Tabs value={tab} onChange={(_, value) => setTab(value)}>
         <Tab label="Information" value={0}></Tab>
         <Tab label="Logs" value={1}></Tab>

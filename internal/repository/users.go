@@ -14,7 +14,7 @@ type UserRepository struct {
 // GetByID find a single entry
 func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, error) {
 	query := `
-		SELECT u.id, u.username, u.firstname, u.lastname, u.status, u.image_name, u.image_width, u.image_height, u.image_format, u.created_at, u.updated_at
+		SELECT u.id, u.username, u.firstname, u.lastname, u.status, u.theme, u.image_name, u.image_width, u.image_height, u.image_format, u.created_at, u.updated_at
 		FROM users as u
 		WHERE u.id = ?
 	`
@@ -31,7 +31,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 func (r *UserRepository) Update(ctx context.Context, u *user.User) error {
 	query := `
 		UPDATE users
-		SET firstname = ?, lastname = ?
+		SET firstname = ?, lastname = ?, updated_at = ?
 		WHERE id = ?
 	`
 	_, err := r.db.ExecContext(
@@ -39,6 +39,25 @@ func (r *UserRepository) Update(ctx context.Context, u *user.User) error {
 		formatQuery(query),
 		u.Firstname,
 		u.Lastname,
+		u.UpdatedAt,
+		u.ID,
+	)
+
+	return err
+}
+
+// UpdateTheme update a user's theme
+func (r *UserRepository) UpdateTheme(ctx context.Context, u *user.User) error {
+	query := `
+		UPDATE users
+		SET theme = ?, updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		u.Theme,
+		u.UpdatedAt,
 		u.ID,
 	)
 
@@ -77,6 +96,7 @@ func (r *UserRepository) scan(rows Scanable) (*user.User, error) {
 		&u.Firstname,
 		&u.Lastname,
 		&u.Status,
+		&u.Theme,
 		&imageName,
 		&imageWidth,
 		&imageHeight,

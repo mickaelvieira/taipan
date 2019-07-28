@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import CreateDocumentMutation from "../../../../apollo/Mutation/Documents/Create";
-import { Document } from "../../../../../types/document";
+import { Subscription } from "../../../../../types/subscription";
+import SubscriptionMutation from "../../../../apollo/Mutation/Subscriptions/Subscription";
 
 const useStyles = makeStyles(() => ({
   form: {
@@ -12,32 +11,33 @@ const useStyles = makeStyles(() => ({
     flexDirection: "column"
   },
   button: {
-    marginTop: 16,
     alignSelf: "flex-end"
   }
 }));
 
 interface Props {
-  onFetchDocument: (document: Document) => void;
+  onSubscriptionCreated: (subscription: Subscription) => void;
 }
 
-export default function FormDocument({ onFetchDocument }: Props): JSX.Element {
+export default function FormSubscription({
+  onSubscriptionCreated
+}: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
+
   return (
-    <CreateDocumentMutation
-      onCompleted={({ documents: { create } }) => onFetchDocument(create)}
+    <SubscriptionMutation
+      onCompleted={({ subscriptions: { subscription } }) =>
+        onSubscriptionCreated(subscription)
+      }
     >
       {(mutate, { loading, error }) => {
         return (
           <form className={classes.form}>
-            <Typography paragraph>
-              Enter the URL of the page you would like to bookmark
-            </Typography>
             <TextField
               autoFocus
               margin="dense"
-              id="bookmark_url"
+              id="feed_url"
               label="URL"
               placeholder="https://"
               type="url"
@@ -56,15 +56,15 @@ export default function FormDocument({ onFetchDocument }: Props): JSX.Element {
                   variables: { url }
                 })
               }
+              className={classes.button}
               color="primary"
               disabled={loading}
-              className={classes.button}
             >
-              Preview
+              Add
             </Button>
           </form>
         );
       }}
-    </CreateDocumentMutation>
+    </SubscriptionMutation>
   );
 }

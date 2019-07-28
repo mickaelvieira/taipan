@@ -1,5 +1,5 @@
 import React, { useState, PropsWithChildren } from "react";
-import AddSubscriptionModal from "../ui/Subscriptions/Modal/AddSubscription";
+import AddSubscriptionModal from "../ui/Subscriptions/Panel/AddSubscription";
 import { AddButton } from "../ui/Fab";
 import MainLayout from "./Layout";
 import MainContent from "./Content";
@@ -11,13 +11,21 @@ export default function SubscriptionLayout({
 
   return (
     <MainLayout>
-      {({ setMessageInfo }) => (
+      {({ setMessageInfo, setIsContained }) => (
         <>
           <MainContent>{children}</MainContent>
-          <AddButton onClick={() => setModalStatus(true)} />
+          <AddButton
+            onClick={() => {
+              setIsContained(true);
+              setModalStatus(true);
+            }}
+          />
           <AddSubscriptionModal
             isOpen={isModalOpen}
-            toggleDialog={setModalStatus}
+            toggleDialog={status => {
+              setIsContained(status);
+              setModalStatus(status);
+            }}
             onSubscriptionCreated={() => {
               setMessageInfo({ message: "Nice one! The feed was added" });
               setModalStatus(false);

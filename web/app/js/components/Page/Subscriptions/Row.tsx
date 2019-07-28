@@ -11,9 +11,9 @@ import Title from "./Title";
 import Domain from "./Domain";
 
 interface Props {
-  canEdit: boolean;
   subscription: Subscription;
-  editSource: (url: string) => void;
+  canEdit?: boolean;
+  editSource?: (url: string) => void;
 }
 
 export default React.memo(function Row({
@@ -46,7 +46,11 @@ export default React.memo(function Row({
           ) : (
             <IconButton
               size="small"
-              onClick={() => editSource(subscription.url)}
+              onClick={() => {
+                if (typeof editSource === "function") {
+                  editSource(subscription.url);
+                }
+              }}
             >
               <IconEdit fontSize="small" />
             </IconButton>
