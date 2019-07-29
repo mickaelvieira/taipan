@@ -9,7 +9,7 @@
   "lang": "en-GB",
   "default_locale": "en",
   "manifest_version": 1,
-  "theme_color": "#673ab7",
+  "theme_color": "#1d1d1d",
   "background_color": "#fff",
   "orientation": "portrait-primary",
   "icons": [
