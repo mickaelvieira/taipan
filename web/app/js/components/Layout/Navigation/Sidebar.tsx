@@ -84,14 +84,14 @@ interface Props {
 export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
   const classes = useStyles();
   const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up("md"));
+  const md = useMediaQuery(theme.breakpoints.up("md"));
 
   return (
     <nav className={classes.drawer}>
       <Drawer
         anchor="left"
         open={isOpen}
-        variant={matches ? "permanent" : "temporary"}
+        variant={md ? "permanent" : "temporary"}
         onClose={() => toggleDrawer(false)}
         classes={{
           paper: classes.paper

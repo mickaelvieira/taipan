@@ -9,10 +9,11 @@ import {
   NewsPage,
   ReadingListPage,
   FavoritesPage,
+  SearchPage,
   SyndicationPage,
   AccountPage
 } from "../Page";
-import getThemeOptions, { defaultTheme } from "../ui/themes";
+import getThemeOptions from "../ui/themes";
 import Loader from "../ui/Loader";
 import InitQuery, { Data } from "../apollo/Query/Init";
 import { ClientContext, AppContext } from "../context";
@@ -63,8 +64,7 @@ export default function App(): JSX.Element {
 
               const { users, app } = data as Data;
               const { loggedIn: user } = users;
-              const name = user.theme ? user.theme : defaultTheme;
-              const theme = createMuiTheme(getThemeOptions(name));
+              const theme = createMuiTheme(getThemeOptions(user.theme));
               console.log(theme);
 
               return (
@@ -83,6 +83,11 @@ export default function App(): JSX.Element {
                             exact
                             path="/favorites"
                             component={FavoritesPage}
+                          />
+                          <Route
+                            exact
+                            path="/search/:type?"
+                            component={SearchPage}
                           />
                           <Route
                             exact

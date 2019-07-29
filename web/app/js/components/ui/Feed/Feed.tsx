@@ -37,8 +37,8 @@ export default withApollo(function Feed({
       {({ data, loading, error, fetchMore, networkStatus }) => {
         const [hasResults, result] = hasReceivedData(data);
         const { results = [], first = "", last = "" } = result;
-        const isFetchingFirst = loading && networkStatus === 1
-        const isFetchingMore = loading && networkStatus === 3
+        const isFetchingFirst = loading && networkStatus === 1;
+        const isFetchingMore = loading && networkStatus === 3;
 
         if (hasResults) {
           loadMore.current = getFetchMore(fetchMore, data);
