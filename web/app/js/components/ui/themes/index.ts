@@ -3,9 +3,9 @@ import { SimplePaletteColorOptions } from "@material-ui/core/styles/createPalett
 import { CSSProperties } from "@material-ui/core/styles/withStyles";
 import amber from "./amber";
 import blue from "./blue";
-import cyan from "./cyan";
-import green from "./green";
-import indigo from "./indigo";
+// import cyan from "./cyan";
+// import green from "./green";
+// import indigo from "./indigo";
 import orange from "./orange";
 import pink from "./pink";
 import purple from "./purple";
@@ -13,9 +13,9 @@ import purple from "./purple";
 export type ThemeName =
   | "amber"
   | "blue"
-  | "cyan"
-  | "green"
-  | "indigo"
+  // | "cyan"
+  // | "green"
+  // | "indigo"
   | "orange"
   | "pink"
   | "purple";
@@ -27,9 +27,9 @@ type Themes = {
 export const themes: Themes = {
   amber,
   blue,
-  cyan,
-  green,
-  indigo,
+  // cyan,
+  // green,
+  // indigo,
   orange,
   pink,
   purple

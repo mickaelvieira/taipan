@@ -6,4 +6,5 @@ export function isAdmin(user: User | null): boolean {
     return false;
   }
   return user.id === "1" ? true : false;
+  // return false;
 }

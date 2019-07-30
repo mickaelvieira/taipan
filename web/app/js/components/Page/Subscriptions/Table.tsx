@@ -120,8 +120,7 @@ export default React.memo(function SubscriptionsTable({
                         ...variables,
                         pagination: {
                           ...variables.pagination,
-                          offset:
-                            data.subscriptions.subscriptions.results.length
+                          offset: results.length
                         },
                         search: { terms, pausedOnly, showDeleted }
                       },

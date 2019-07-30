@@ -31,6 +31,14 @@ type BookmarkCollectionResolver struct {
 	Limit   int32
 }
 
+// BookmarkSearchResultsResolver resolver
+type BookmarkSearchResultsResolver struct {
+	Results []*BookmarkResolver
+	Total   int32
+	Offset  int32
+	Limit   int32
+}
+
 // BookmarkResolver resolves the bookmark entity
 type BookmarkResolver struct {
 	*bookmark.Bookmark
@@ -305,4 +313,46 @@ func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
 	res := &DocumentResolver{Document: d}
 
 	return res, nil
+}
+
+// Search --
+func (r *BookmarksResolver) Search(ctx context.Context, args struct {
+	Pagination offsetPaginationInput
+	Search     bookmarkSearchInput
+}) (*BookmarkSearchResultsResolver, error) {
+	user := auth.FromContext(ctx)
+	fromArgs := getOffsetBasedPagination(10)
+	offset, limit := fromArgs(args.Pagination)
+	terms := args.Search.Terms
+
+	var bookmarks []*BookmarkResolver
+	var total int32
+
+	if len(terms) > 0 {
+		results, err := r.repositories.Bookmarks.FindAll(ctx, user, terms, offset, limit)
+		if err != nil {
+			return nil, err
+		}
+
+		total, err = r.repositories.Bookmarks.CountAll(ctx, user, terms)
+		if err != nil {
+			return nil, err
+		}
+
+		bookmarks = make([]*BookmarkResolver, len(results))
+		for i, result := range results {
+			bookmarks[i] = &BookmarkResolver{
+				Bookmark: result,
+			}
+		}
+	}
+
+	res := BookmarkSearchResultsResolver{
+		Results: bookmarks,
+		Total:   total,
+		Offset:  offset,
+		Limit:   limit,
+	}
+
+	return &res, nil
 }

@@ -19,6 +19,98 @@ type BookmarkRepository struct {
 	db *sql.DB
 }
 
+func getBookmarkSearch(terms []string) (string, []interface{}) {
+	var search string
+	var args []interface{}
+	if len(terms) > 0 {
+		var and = make([]string, len(terms))
+		for i, t := range terms {
+			var or = make([]string, 3)
+			or[0] = "d.url LIKE ?"
+			or[1] = "d.title LIKE ?"
+			or[2] = "d.description LIKE ?"
+			args = append(args, "%"+t+"%")
+			args = append(args, "%"+t+"%")
+			args = append(args, "%"+t+"%")
+			and[i] = fmt.Sprintf("(%s)", strings.Join(or, " OR "))
+		}
+		search = fmt.Sprintf("AND %s ", strings.Join(and, " AND "))
+	}
+	return search, args
+}
+
+// FindAll find bookmarks
+func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms []string, offset int32, limit int32) ([]*bookmark.Bookmark, error) {
+	var results []*bookmark.Bookmark
+
+	query := `
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
+		FROM documents AS d
+		INNER JOIN bookmarks AS b ON b.document_id = d.id
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.user_id = ? %s
+		ORDER BY b.added_at DESC
+		LIMIT ?, ?
+	`
+
+	search, t := getBookmarkSearch(terms)
+
+	var args []interface{}
+	args = append(args, user.ID)
+	args = append(args, t...)
+	args = append(args, offset)
+	args = append(args, limit)
+
+	query = fmt.Sprintf(formatQuery(query), search)
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		b, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, b)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+// CountAll --
+func (r *BookmarkRepository) CountAll(ctx context.Context, user *user.User, terms []string) (int32, error) {
+	var total int32
+
+	query := `
+		SELECT COUNT(d.id) as total
+		FROM documents AS d
+		INNER JOIN bookmarks AS b ON b.document_id = d.id
+		WHERE d.deleted = 0 AND b.linked = 1 AND b.user_id = ? %s
+		ORDER BY b.added_at DESC
+	`
+	search, t := getBookmarkSearch(terms)
+
+	var args []interface{}
+	args = append(args, user.ID)
+	args = append(args, t...)
+
+	query = fmt.Sprintf(formatQuery(query), search)
+	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
+	if err != nil {
+		return total, err
+	}
+
+	return total, nil
+}
+
 // GetReadingList find latest entries
 func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User, fromID string, toID string, limit int32) ([]*bookmark.Bookmark, error) {
 	var results []*bookmark.Bookmark

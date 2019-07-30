@@ -1,0 +1,10 @@
+#import "./document.graphql"
+
+fragment documentResultsFields on DocumentSearchResults {
+  total
+  offset
+  limit
+  results {
+    ...documentFields
+  }
+}

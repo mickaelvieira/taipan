@@ -1,0 +1,9 @@
+#import "../../fragment/search-documents.graphql"
+
+query search($pagination: OffsetPaginationInput!, $search: DocumentSearchInput!) {
+  documents {
+    search(pagination: $pagination, search: $search) @connection(key: "search_documents", filter: ["search"]) {
+      ...documentResultsFields
+    }
+  }
+}

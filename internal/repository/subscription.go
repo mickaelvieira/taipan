@@ -19,7 +19,7 @@ type SubscriptionRepository struct {
 	db *sql.DB
 }
 
-func getSearch(terms []string) (string, []interface{}) {
+func getSubscriptionSearch(terms []string) (string, []interface{}) {
 	var search string
 	var args []interface{}
 
@@ -34,7 +34,9 @@ func getSearch(terms []string) (string, []interface{}) {
 			j = j + 2
 		}
 
-		search = fmt.Sprintf("AND (%s)", strings.Join(clause, " OR "))
+		search = fmt.Sprintf("(%s)", strings.Join(clause, " OR "))
+	} else {
+		search = "su.subscribed = 1"
 	}
 
 	return search, args
@@ -84,23 +86,23 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 }
 
 // FindAll --
-func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, showDeleted bool, pausedOnly bool, cursor int32, limit int32) ([]*subscription.Subscription, error) {
+func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
 		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM syndication AS sy
 		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE %s AND (su.user_id = ? OR su.user_id IS NULL) %s
+		WHERE (su.user_id = ? OR su.user_id IS NULL) AND %s AND %s
 		ORDER BY sy.title ASC
 		LIMIT ?, ?
 	`
 	var args []interface{}
 
-	search, t := getSearch(terms)
+	search, t := getSubscriptionSearch(terms)
 	where := getWhere(showDeleted, pausedOnly)
 
 	args = append(args, u.ID)
 	args = append(args, t...)
-	args = append(args, cursor)
+	args = append(args, offset)
 	args = append(args, limit)
 
 	query = formatQuery(fmt.Sprintf(query, where, search))
@@ -134,11 +136,11 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 		SELECT COUNT(sy.id) as total
 		FROM syndication AS sy
 		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE %s AND (su.user_id = ? OR su.user_id IS NULL) %s
+		WHERE (su.user_id = ? OR su.user_id IS NULL) AND %s AND %s
 	`
 	var args []interface{}
 
-	search, t := getSearch(terms)
+	search, t := getSubscriptionSearch(terms)
 	where := getWhere(showDeleted, pausedOnly)
 
 	args = append(args, u.ID)

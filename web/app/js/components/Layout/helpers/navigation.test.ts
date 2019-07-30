@@ -6,24 +6,28 @@ describe("Navigation helpers", () => {
       expect(getSectionTitle("")).toBe("");
     });
 
-    it("returns the news page title", () => {
+    it("returns the news section title", () => {
       expect(getSectionTitle("/")).toBe("News");
     });
 
-    it("returns the reading list page title", () => {
+    it("returns the reading list section title", () => {
       expect(getSectionTitle("/reading-list")).toBe("Reading List");
     });
 
-    it("returns the favorites page title", () => {
+    it("returns the favorites section title", () => {
       expect(getSectionTitle("/favorites")).toBe("Favorites");
     });
 
-    it("returns the syndication page title", () => {
+    it("returns the syndication section title", () => {
       expect(getSectionTitle("/syndication")).toBe("RSS");
     });
 
-    it("returns the account page title", () => {
+    it("returns the account section title", () => {
       expect(getSectionTitle("/account")).toBe("My Account");
+    });
+
+    it("returns the search results section title", () => {
+      expect(getSectionTitle("/search")).toBe("Search");
     });
   });
 
@@ -60,6 +64,12 @@ describe("Navigation helpers", () => {
     it("returns the account page title", () => {
       expect(getPageTitle("/account")).toBe(
         `${appTitle} - ${appBaseline} - My Account`
+      );
+    });
+
+    it("returns the search results page title", () => {
+      expect(getPageTitle("/search")).toBe(
+        `${appTitle} - ${appBaseline} - Search`
       );
     });
   });

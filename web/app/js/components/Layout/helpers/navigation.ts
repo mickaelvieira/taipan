@@ -10,15 +10,20 @@ const titles: Titles = {
   "/reading-list": "Reading List",
   "/favorites": "Favorites",
   "/syndication": "RSS",
-  "/account": "My Account"
+  "/account": "My Account",
+  "/search": "Search"
 };
 
-export function getSectionTitle(path: string): string {
-  return titles[path] ? titles[path] : "";
+export function getSectionTitle(pathname: string): string {
+  return titles[pathname] ? titles[pathname] : "";
 }
 
-export function getPageTitle(path: string): string {
-  return titles[path]
-    ? `${appTitle} - ${appBaseline} - ${getSectionTitle(path)}`
+export function getPageTitle(pathname: string): string {
+  return titles[pathname]
+    ? `${appTitle} - ${appBaseline} - ${getSectionTitle(pathname)}`
     : "";
+}
+
+export function isSearchResultsPage(pathname: string): boolean {
+  return pathname === "/search";
 }

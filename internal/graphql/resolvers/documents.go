@@ -32,6 +32,14 @@ type DocumentCollectionResolver struct {
 	Limit   int32
 }
 
+// DocumentSearchResultsResolver resolver
+type DocumentSearchResultsResolver struct {
+	Results []*DocumentResolver
+	Total   int32
+	Offset  int32
+	Limit   int32
+}
+
 // DocumentResolver resolves the bookmark entity
 type DocumentResolver struct {
 	*document.Document
@@ -215,6 +223,48 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 		Total:   total,
 		First:   first,
 		Last:    last,
+		Limit:   limit,
+	}
+
+	return &res, nil
+}
+
+// Search --
+func (r *DocumentsResolver) Search(ctx context.Context, args struct {
+	Pagination offsetPaginationInput
+	Search     bookmarkSearchInput
+}) (*DocumentSearchResultsResolver, error) {
+	user := auth.FromContext(ctx)
+	fromArgs := getOffsetBasedPagination(10)
+	offset, limit := fromArgs(args.Pagination)
+	terms := args.Search.Terms
+
+	var documents []*DocumentResolver
+	var total int32
+
+	if len(terms) > 0 {
+		results, err := r.repositories.Documents.FindAll(ctx, user, terms, offset, limit)
+		if err != nil {
+			return nil, err
+		}
+
+		total, err = r.repositories.Documents.CountAll(ctx, user, terms)
+		if err != nil {
+			return nil, err
+		}
+
+		documents = make([]*DocumentResolver, len(results))
+		for i, result := range results {
+			documents[i] = &DocumentResolver{
+				Document: result,
+			}
+		}
+	}
+
+	res := DocumentSearchResultsResolver{
+		Results: documents,
+		Total:   total,
+		Offset:  offset,
 		Limit:   limit,
 	}
 

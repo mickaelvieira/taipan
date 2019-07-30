@@ -72,11 +72,17 @@ type DocumentMutation {
 type DocumentsQuery {
   # "Returns a list of documents"
   documents(pagination: CursorPaginationInput!): DocumentCollection
+
+  # "Look up user's newsfeed
+  search(pagination: OffsetPaginationInput!, search: DocumentSearchInput!): DocumentSearchResults
 }
 
 type BookmarksQuery {
   # "Returns the bookmark matching the URL"
   bookmark(url: URL!): Bookmark
+
+  # "Look up user's bookmarks
+  search(pagination: OffsetPaginationInput!, search: BookmarkSearchInput!): BookmarkSearchResults
 }
 
 type BookmarksMutation {
@@ -169,6 +175,14 @@ input SubscriptionSearchInput {
   terms: [String!]!
   showDeleted: Boolean!
   pausedOnly: Boolean!
+}
+
+input BookmarkSearchInput {
+  terms: [String!]!
+}
+
+input DocumentSearchInput {
+  terms: [String!]!
 }
 
 input SearchSourcesInput {
@@ -318,6 +332,20 @@ type HTTPClientLogCollection {
 type DocumentCollection {
   first: String!
   last: String!
+  total: Int!
+  limit: Int!
+  results: [Document!]!
+}
+
+type BookmarkSearchResults {
+  offset: Int!
+  total: Int!
+  limit: Int!
+  results: [Bookmark!]!
+}
+
+type DocumentSearchResults {
+  offset: Int!
   total: Int!
   limit: Int!
   results: [Document!]!

@@ -14,3 +14,14 @@ export interface Document {
   updatedAt: Datetime;
   syndication?: Source[];
 }
+
+export interface SearchResults {
+  limit: number;
+  total: number;
+  offset: number;
+  results: Document[];
+}
+
+export interface SearchParams {
+  terms: string[];
+}
