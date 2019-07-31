@@ -8,7 +8,7 @@ export interface User {
   lastname: string;
   username: string;
   image: Image | null;
-  theme?: ThemeName;
+  theme?: ThemeName | null;
 }
 
 export interface UserEvent extends Event {

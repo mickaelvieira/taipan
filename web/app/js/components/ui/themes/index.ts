@@ -1,9 +1,11 @@
 import { ThemeOptions } from "@material-ui/core/styles/createMuiTheme";
+import { SimplePaletteColorOptions } from "@material-ui/core/styles/createPalette";
+import { CSSProperties } from "@material-ui/core/styles/withStyles";
 import amber from "./amber";
 import blue from "./blue";
-import cyan from "./cyan";
-import green from "./green";
-import indigo from "./indigo";
+// import cyan from "./cyan";
+// import green from "./green";
+// import indigo from "./indigo";
 import orange from "./orange";
 import pink from "./pink";
 import purple from "./purple";
@@ -11,9 +13,9 @@ import purple from "./purple";
 export type ThemeName =
   | "amber"
   | "blue"
-  | "cyan"
-  | "green"
-  | "indigo"
+  // | "cyan"
+  // | "green"
+  // | "indigo"
   | "orange"
   | "pink"
   | "purple";
@@ -25,9 +27,9 @@ type Themes = {
 export const themes: Themes = {
   amber,
   blue,
-  cyan,
-  green,
-  indigo,
+  // cyan,
+  // green,
+  // indigo,
   orange,
   pink,
   purple
@@ -35,47 +37,29 @@ export const themes: Themes = {
 
 export const defaultTheme = "pink";
 
-export function getThemeColors(): string[] {
-  return Object.keys(themes)
-    .map((name: string): string => {
-      const { palette } = themes[name as ThemeName];
-      if (!palette) {
-        return "";
-      }
-      const { primary } = palette;
-      if (!primary) {
-        return "";
-      }
-      return primary.main;
-    })
-    .filter(v => v !== "");
-}
-
-interface ThemeClassName {
-  border: string;
-  backgroundColor: string;
-}
-
 type ThemeClasseNames = {
-  [k in ThemeName]?: ThemeClassName;
+  [k in ThemeName]: CSSProperties;
 };
 
 export function getThemeClasses(): ThemeClasseNames {
-  const classNames: ThemeClasseNames = {};
-  Object.keys(themes).forEach(name => {
-    const { palette } = themes[name as ThemeName];
-    if (palette && palette.primary && palette.primary.main) {
-      classNames[name as ThemeName] = {
-        border: `1px solid ${palette.primary.main}`,
-        backgroundColor: palette.primary.main
-      };
-    }
-  });
-  return classNames;
+  const classes = Object.keys(themes).reduce(
+    (acc: { [k: string]: CSSProperties }, name) => {
+      const { palette } = themes[name as ThemeName];
+      if (palette && palette.primary) {
+        const primary = palette.primary as SimplePaletteColorOptions;
+        acc[name] = {
+          backgroundColor: primary.main
+        };
+      }
+      return acc;
+    },
+    {}
+  );
+  return classes as ThemeClasseNames;
 }
 
 export default function getThemeOptions(
-  name: ThemeName
+  name: ThemeName | null = defaultTheme
 ): Partial<ThemeOptions> {
-  return themes[name];
+  return themes[name === null ? defaultTheme : name];
 }

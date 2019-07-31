@@ -1,0 +1,9 @@
+#import "../../fragment/search-bookmarks.graphql"
+
+query search($pagination: OffsetPaginationInput!, $search: BookmarkSearchInput!) {
+  bookmarks {
+    search(pagination: $pagination, search: $search) @connection(key: "search_bookmarks", filter: ["search"]) {
+      ...bookmarkResultsFields
+    }
+  }
+}

@@ -3,20 +3,16 @@ import Link from "@material-ui/core/Link";
 import { Bookmark } from "../../types/bookmark";
 import { Document } from "../../types/document";
 import { Subscription } from "../../types/subscription";
-import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles({
-  link: {
-    padding: 12
-  }
-});
-
-interface Props {
+export interface DomainProps {
   item: Bookmark | Document | Subscription;
+  className?: string;
 }
 
-export default React.memo(function Domain({ item }: Props): JSX.Element {
-  const classes = useStyles();
+export default React.memo(function Domain({
+  item,
+  className
+}: DomainProps): JSX.Element {
   const url = new URL(item.url);
   return (
     <Link
@@ -25,7 +21,7 @@ export default React.memo(function Domain({ item }: Props): JSX.Element {
       title={item.title ? item.title : item.url}
       target="_blank"
       rel="noopener"
-      className={classes.link}
+      className={className}
     >
       {url.host}
     </Link>

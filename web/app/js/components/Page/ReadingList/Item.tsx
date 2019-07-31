@@ -7,7 +7,7 @@ import {
   UnbookmarkButton,
   ShareButton
 } from "../../ui/Feed/Button";
-import Domain from "../../ui/Domain";
+import Domain from "../../ui/Feed/Item/Domain";
 import ItemTitle from "../../ui/Feed/Item/Title";
 import ItemDescription from "../../ui/Feed/Item/Description";
 import ItemImage from "../../ui/Feed/Image";

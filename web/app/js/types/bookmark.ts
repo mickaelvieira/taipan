@@ -14,3 +14,14 @@ export interface Bookmark {
   updatedAt: Datetime;
   isFavorite: boolean;
 }
+
+export interface SearchResults {
+  limit: number;
+  total: number;
+  offset: number;
+  results: Bookmark[];
+}
+
+export interface SearchParams {
+  terms: string[];
+}

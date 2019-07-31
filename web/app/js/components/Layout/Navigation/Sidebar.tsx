@@ -1,5 +1,8 @@
 import React from "react";
-import { NavLink as RouterLink } from "react-router-dom";
+import {
+  NavLink as RouterLink,
+  LinkProps as RouterLinkProps
+} from "react-router-dom";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { makeStyles } from "@material-ui/core/styles";
@@ -17,7 +20,17 @@ import RssFeedIcon from "@material-ui/icons/RssFeedSharp";
 import UserInfo from "./UserInfo";
 import AppInfo from "./AppInfo";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
-import { getSectionTitle } from "../helpers/navigation";
+import { getSectionTitle } from "../../../helpers/navigation";
+
+const AdapterLink = React.forwardRef<HTMLAnchorElement, RouterLinkProps>(
+  (props, ref) => (
+    <RouterLink
+      exact
+      innerRef={ref as React.Ref<HTMLAnchorElement>}
+      {...props}
+    />
+  )
+);
 
 const useStyles = makeStyles(
   ({ breakpoints, spacing, palette, typography }) => ({
@@ -30,7 +43,7 @@ const useStyles = makeStyles(
     },
     paper: {
       [breakpoints.up("md")]: {
-        backgroundColor: palette.grey[900] // "#252525"
+        backgroundColor: palette.grey[900]
       }
     },
     divider: {
@@ -84,14 +97,14 @@ interface Props {
 export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
   const classes = useStyles();
   const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up("md"));
+  const md = useMediaQuery(theme.breakpoints.up("md"));
 
   return (
     <nav className={classes.drawer}>
       <Drawer
         anchor="left"
         open={isOpen}
-        variant={matches ? "permanent" : "temporary"}
+        variant={md ? "permanent" : "temporary"}
         onClose={() => toggleDrawer(false)}
         classes={{
           paper: classes.paper
@@ -102,13 +115,12 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         <List className={classes.list}>
           {entries.map(entry => (
             <Link
-              exact
               key={entry.path}
               to={entry.path}
               classes={{
                 root: classes.link
               }}
-              component={RouterLink}
+              component={AdapterLink}
               underline="none"
               onClick={() => toggleDrawer(false)}
             >
@@ -125,11 +137,10 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         <List>
           <Link
             to="/account"
-            exact
             classes={{
               root: classes.link
             }}
-            component={RouterLink}
+            component={AdapterLink}
             underline="none"
             onClick={() => toggleDrawer(false)}
           >

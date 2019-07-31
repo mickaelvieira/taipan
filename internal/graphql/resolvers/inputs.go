@@ -17,6 +17,14 @@ type subscriptionSearchInput struct {
 	PausedOnly  bool
 }
 
+type bookmarkSearchInput struct {
+	Terms []string
+}
+
+type documentSearchInput struct {
+	Terms []string
+}
+
 type searchSourcesInput struct {
 	IsPaused bool
 }

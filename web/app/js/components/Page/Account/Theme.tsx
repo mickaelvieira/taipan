@@ -1,5 +1,6 @@
 import React from "react";
 import ButtonBase from "@material-ui/core/ButtonBase";
+import TickedIcom from "@material-ui/icons/Done";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   themes,
@@ -7,6 +8,7 @@ import {
   getThemeClasses,
   ThemeName
 } from "../../ui/themes";
+import Empty from "../../ui/Empty";
 import UserThemeMutation from "../../apollo/Mutation/User/Theme";
 import { User } from "../../../types/users";
 
@@ -21,13 +23,11 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
     width: 25,
     height: 25,
     margin: 4,
+    color: palette.common.white,
     [breakpoints.up("md")]: {
       width: 50,
       height: 50
     }
-  },
-  active: {
-    border: `1px solid ${palette.grey[900]}`
   }
 }));
 
@@ -41,7 +41,7 @@ export default function UserTheme({ user }: Props): JSX.Element {
     <section className={classes.buttons}>
       <UserThemeMutation>
         {mutate => {
-          return Object.keys(themes).map((name: string): JSX.Element | null => {
+          return Object.keys(themes).map((name): JSX.Element | null => {
             const { palette } = themes[name as ThemeName];
             if (!palette) {
               return null;
@@ -56,9 +56,7 @@ export default function UserTheme({ user }: Props): JSX.Element {
 
             return (
               <ButtonBase
-                className={`${classes[name]} ${classes.button} ${
-                  isActive ? classes.active : ""
-                }`}
+                className={`${classes[name as ThemeName]} ${classes.button}`}
                 key={name}
                 onClick={() =>
                   mutate({
@@ -69,7 +67,7 @@ export default function UserTheme({ user }: Props): JSX.Element {
                   })
                 }
               >
-                &nbsp;
+                {isActive ? <TickedIcom /> : <Empty />}
               </ButtonBase>
             );
           });

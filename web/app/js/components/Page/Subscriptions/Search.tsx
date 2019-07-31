@@ -6,6 +6,8 @@ import React, {
   Reducer
 } from "react";
 import { debounce } from "lodash";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import RadioGroup from "@material-ui/core/RadioGroup";
@@ -83,6 +85,8 @@ type SearchReducer = Reducer<State, [SearchActions, Payload]>;
 export default function Search(): JSX.Element {
   const classes = useStyles();
   const user = useContext(UserContext);
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up("md"));
   const canEdit = isAdmin(user);
   const [state, dispatch] = useReducer<SearchReducer>(reducer, {
     terms: [],
@@ -124,7 +128,7 @@ export default function Search(): JSX.Element {
             <CloseIcon />
           </IconButton>
         </div>
-        {canEdit && (
+        {canEdit && md && (
           <FormGroup row className={classes.options}>
             <RadioGroup
               aria-label="deleted"

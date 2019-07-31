@@ -1,0 +1,10 @@
+#import "./bookmark.graphql"
+
+fragment bookmarkResultsFields on BookmarkSearchResults {
+  total
+  offset
+  limit
+  results {
+    ...bookmarkFields
+  }
+}

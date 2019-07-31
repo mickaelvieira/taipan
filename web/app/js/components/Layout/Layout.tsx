@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
-import useConnectionStatus from "../../hooks/connection-status";
+import useConnectionStatus from "../../hooks/useConnectionStatus";
 import { SnackbarInfo } from "../ui/Snackbar";
 import { MessageContext } from "../context";
 import { MessageInfo } from "../../types";
