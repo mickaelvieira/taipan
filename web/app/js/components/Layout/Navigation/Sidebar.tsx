@@ -1,5 +1,8 @@
 import React from "react";
-import { NavLink as RouterLink, LinkProps as RouterLinkProps } from "react-router-dom";
+import {
+  NavLink as RouterLink,
+  LinkProps as RouterLinkProps
+} from "react-router-dom";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,9 +22,15 @@ import AppInfo from "./AppInfo";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
 import { getSectionTitle } from "../helpers/navigation";
 
-const AdapterLink = React.forwardRef<HTMLAnchorElement, RouterLinkProps>((props, ref) => (
-  <RouterLink exact innerRef={ref as any} {...props} />
-));
+const AdapterLink = React.forwardRef<HTMLAnchorElement, RouterLinkProps>(
+  (props, ref) => (
+    <RouterLink
+      exact
+      innerRef={ref as React.Ref<HTMLAnchorElement>}
+      {...props}
+    />
+  )
+);
 
 const useStyles = makeStyles(
   ({ breakpoints, spacing, palette, typography }) => ({

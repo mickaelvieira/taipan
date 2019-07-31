@@ -4,5 +4,5 @@ import App from "./components/App";
 import initSW from "./services/sw";
 import "regenerator-runtime/runtime";
 
-initSW(window.navigator);
+initSW(window);
 render(React.createElement(App), document.querySelector(".root"));
