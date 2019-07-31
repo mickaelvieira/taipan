@@ -28,6 +28,7 @@ export default function SubscriptionLayout({
             }}
             onSubscriptionCreated={() => {
               setMessageInfo({ message: "Nice one! The feed was added" });
+              setIsContained(false);
               setModalStatus(false);
             }}
           />
