@@ -264,7 +264,7 @@ func (p *Parser) parseCanonicalURL() *url.URL {
 func (p *Parser) parseFeeds() []*syndication.Source {
 	var feeds []*syndication.Source
 	for _, s := range p.linkTags {
-		u := p.normalizeAttrValue(s.AttrOr("href", ""))
+		u := strings.Trim(s.AttrOr("href", ""), " ")
 		title := p.normalizeHTMLText(s.AttrOr("title", ""))
 		feedType, err := syndication.GetSourceType(p.normalizeAttrValue(s.AttrOr("type", "")))
 		if !syndication.IsBlacklisted(u) {
