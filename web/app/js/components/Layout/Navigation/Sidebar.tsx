@@ -20,7 +20,7 @@ import RssFeedIcon from "@material-ui/icons/RssFeedSharp";
 import UserInfo from "./UserInfo";
 import AppInfo from "./AppInfo";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
-import { getSectionTitle } from "../helpers/navigation";
+import { getSectionTitle } from "../../../helpers/navigation";
 
 const AdapterLink = React.forwardRef<HTMLAnchorElement, RouterLinkProps>(
   (props, ref) => (

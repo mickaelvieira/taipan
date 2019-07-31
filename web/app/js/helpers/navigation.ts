@@ -27,3 +27,20 @@ export function getPageTitle(pathname: string): string {
 export function isSearchResultsPage(pathname: string): boolean {
   return pathname === "/search";
 }
+
+export class Page {
+  url: URL;
+
+  constructor(url: string) {
+    this.url = new URL(url);
+  }
+  getTitle(): string {
+    return getPageTitle(this.url.pathname);
+  }
+  getSection(): string {
+    return getSectionTitle(this.url.pathname);
+  }
+  isSearchResults(): boolean {
+    return isSearchResultsPage(this.url.pathname);
+  }
+}

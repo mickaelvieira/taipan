@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { debounce } from "lodash";
 import { withRouter } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
@@ -7,7 +9,6 @@ import ButtonBase from "@material-ui/core/ButtonBase";
 import SearchIcon from "@material-ui/icons/Search";
 import CloseIcon from "@material-ui/icons/Close";
 import { RoutesProps } from "../../../types/routes";
-import { getSearchTerms, getSearchType } from "../../../helpers/search";
 
 const useStyles = makeStyles(({ palette }) => ({
   search: {
@@ -32,16 +33,24 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
+interface Props extends RoutesProps {
+  type: string;
+  terms: string[];
+  className?: string;
+}
+
 export default withRouter(function Search({
-  history
-}: RoutesProps): JSX.Element {
+  type,
+  terms,
+  history,
+  className
+}: Props): JSX.Element {
   const classes = useStyles();
-  const url = new URL(`${document.location}`);
-  const terms = getSearchTerms(url.searchParams.get("terms"));
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up("md"));
   const [search, setSearch] = useState<string[]>(terms);
   const [value, setValue] = useState<string>(search.join(" "));
   const redirect = useCallback(debounce(history.push, 1000), []);
-  const type = getSearchType(url.pathname, url.searchParams.get("type"));
 
   useEffect(() => {
     if (search.length > 0) {
@@ -52,7 +61,10 @@ export default withRouter(function Search({
   }, [redirect, search, type]);
 
   return (
-    <form className={classes.search} action={`/search`}>
+    <form
+      className={`${classes.search} ${className ? className : ""}`}
+      action={`/search`}
+    >
       <ButtonBase type="submit" className={classes.searchIcon}>
         <SearchIcon />
       </ButtonBase>
@@ -75,15 +87,17 @@ export default withRouter(function Search({
           }}
         />
       </label>
-      <ButtonBase
-        className={classes.searchIcon}
-        onClick={() => {
-          setValue("");
-          setSearch([]);
-        }}
-      >
-        <CloseIcon />
-      </ButtonBase>
+      {md && (
+        <ButtonBase
+          className={classes.searchIcon}
+          onClick={() => {
+            setValue("");
+            setSearch([]);
+          }}
+        >
+          <CloseIcon />
+        </ButtonBase>
+      )}
     </form>
   );
 });

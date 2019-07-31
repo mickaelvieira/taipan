@@ -67,6 +67,7 @@
     "react-highlight-words": "^0.16.0",
     "react-router": "5.0.1",
     "react-router-dom": "5.0.1",
+    "react-transition-group": "4.2.1",
     "roboto-fontface": "0.10.0",
     "subscriptions-transport-ws": "0.9.16",
     "terser-webpack-plugin": "1.3.0",
