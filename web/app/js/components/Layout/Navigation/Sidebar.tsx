@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink as RouterLink } from "react-router-dom";
+import { NavLink as RouterLink, LinkProps as RouterLinkProps } from "react-router-dom";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,6 +19,10 @@ import AppInfo from "./AppInfo";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
 import { getSectionTitle } from "../helpers/navigation";
 
+const AdapterLink = React.forwardRef<HTMLAnchorElement, RouterLinkProps>((props, ref) => (
+  <RouterLink exact innerRef={ref as any} {...props} />
+));
+
 const useStyles = makeStyles(
   ({ breakpoints, spacing, palette, typography }) => ({
     drawer: {
@@ -30,7 +34,7 @@ const useStyles = makeStyles(
     },
     paper: {
       [breakpoints.up("md")]: {
-        backgroundColor: palette.grey[900] // "#252525"
+        backgroundColor: palette.grey[900]
       }
     },
     divider: {
@@ -102,13 +106,12 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         <List className={classes.list}>
           {entries.map(entry => (
             <Link
-              exact
               key={entry.path}
               to={entry.path}
               classes={{
                 root: classes.link
               }}
-              component={RouterLink}
+              component={AdapterLink}
               underline="none"
               onClick={() => toggleDrawer(false)}
             >
@@ -125,11 +128,10 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         <List>
           <Link
             to="/account"
-            exact
             classes={{
               root: classes.link
             }}
-            component={RouterLink}
+            component={AdapterLink}
             underline="none"
             onClick={() => toggleDrawer(false)}
           >
