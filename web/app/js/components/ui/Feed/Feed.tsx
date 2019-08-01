@@ -49,8 +49,10 @@ export default withApollo(function Feed({
             {isFetchingFirst && !hasResults && <Loader />}
             {error && !hasResults && <span>{error.message}</span>}
             {!isFetchingFirst && !error && (
-              <FeedContainer>
-                <List results={results} firstId={first} lastId={last} />
+              <FeedContainer results={results}>
+                {({ results }) => (
+                  <List results={results} firstId={first} lastId={last} />
+                )}
               </FeedContainer>
             )}
             {isFetchingMore && hasResults && <Loader />}

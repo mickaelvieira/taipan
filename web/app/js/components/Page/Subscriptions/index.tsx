@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
-import Layout from "../../Layout/Subscriptions";
-import ScrollToTop from "../../ui/ScrollToTop";
+import AddSubscriptionModal from "../../ui/Subscriptions/Panel/AddSubscription";
+import { AddButton } from "../../ui/Fab";
+import { LayoutRenderProps } from "../../Layout/Layout";
+import Grid from "../../ui/Grid";
 import Search from "./Search";
 
 const useStyles = makeStyles(() => ({
@@ -12,16 +14,38 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function Subscriptions(): JSX.Element {
+export default function Subscriptions({
+  setIsContained,
+  setMessageInfo
+}: LayoutRenderProps): JSX.Element {
   const classes = useStyles();
+  const [isModalOpen, setModalStatus] = useState(false);
 
   return (
-    <Layout>
-      <ScrollToTop>
+    <>
+      <Grid>
         <Paper className={classes.paper}>
           <Search />
         </Paper>
-      </ScrollToTop>
-    </Layout>
+      </Grid>
+      <AddButton
+        onClick={() => {
+          setIsContained(true);
+          setModalStatus(true);
+        }}
+      />
+      <AddSubscriptionModal
+        isOpen={isModalOpen}
+        toggleDialog={status => {
+          setIsContained(status);
+          setModalStatus(status);
+        }}
+        onSubscriptionCreated={() => {
+          setMessageInfo({ message: "Nice one! The feed was added" });
+          setIsContained(false);
+          setModalStatus(false);
+        }}
+      />
+    </>
   );
 }

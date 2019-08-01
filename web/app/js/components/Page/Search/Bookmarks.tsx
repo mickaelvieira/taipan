@@ -1,118 +1,79 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
+import React, { useRef, useEffect } from "react";
 import BookmarkSearchSearch, {
-  query,
   variables,
-  Data
+  getFetchMore,
+  LoadMore
 } from "../../apollo/Query/Bookmarks";
-
-import NoResults from "./NoResults";
+import { hasReceivedData } from "../../apollo/helpers/search";
+import useWindowBottom from "../../../hooks/window-bottom";
+import Loader from "../../ui/Loader";
 import Pagination from "./Pagination";
 import Results from "./Results";
-
-const useStyles = makeStyles(() => ({
-  list: {
-    "& mark": {
-      backgroundColor: "yellow"
-    }
-  },
-  button: {}
-}));
+import { SearchType } from "../../../types/search";
 
 interface Props {
+  type: SearchType;
   terms: string[];
 }
 
-export default function SearchBookmarks({ terms }: Props): JSX.Element {
-  const classes = useStyles();
+export default function SearchBookmarks({ type, terms }: Props): JSX.Element {
+  const isAtTheBottom = useWindowBottom();
+  const loadMore = useRef<LoadMore | undefined>();
 
-  console.log(terms);
+  useEffect(() => {
+    if (isAtTheBottom && loadMore.current) {
+      loadMore.current();
+    }
+  }, [isAtTheBottom, loadMore]);
+
   return (
     <BookmarkSearchSearch
+      fetchPolicy="network-only"
       skip={terms.length === 0}
       variables={{ ...variables, search: { terms } }}
     >
-      {({ data, loading, error, fetchMore }) => {
-        if (error) {
-          return <div>{error.message}</div>;
+      {({ data, loading, error, networkStatus, fetchMore }) => {
+        const [hasResults, result] = hasReceivedData(data);
+        const { results = [], total = 0 } = result;
+        const isFetchingFirst = loading && networkStatus === 1;
+        const isFetchingMore = loading && networkStatus === 3;
+
+        if (hasResults) {
+          loadMore.current = getFetchMore(fetchMore, data, {
+            ...variables,
+            pagination: {
+              ...variables.pagination,
+              offset: results.length
+            },
+            search: { terms }
+          });
         }
-
-        if (loading) {
-          return <div>loading...</div>;
-        }
-
-        if (!data) {
-          return null;
-        }
-
-        const {
-          bookmarks: {
-            search: { results, total }
-          }
-        } = data;
-
-        if (results.length === 0) {
-          return <NoResults terms={terms} />;
-        }
-
-        const showLoadMoreButton = results.length < total;
 
         return (
-          <List className={classes.list}>
-            <Pagination count={results.length} total={total} terms={terms} />
-            <Results results={results} terms={terms} />
-            <Pagination count={results.length} total={total} terms={terms} />
-            {showLoadMoreButton && (
-              <ListItem>
-                <ListItemText>
-                  <ButtonBase
-                    className={classes.button}
-                    onClick={() =>
-                      fetchMore({
-                        query,
-                        variables: {
-                          ...variables,
-                          pagination: {
-                            ...variables.pagination,
-                            offset: results.length
-                          },
-                          search: { terms }
-                        },
-                        updateQuery: (
-                          prev: Data,
-                          { fetchMoreResult: next }
-                        ) => {
-                          if (!next) {
-                            return prev;
-                          }
-                          return {
-                            bookmarks: {
-                              ...prev.bookmarks,
-                              search: {
-                                ...prev.bookmarks.search,
-                                limit: next.bookmarks.search.limit,
-                                offset: next.bookmarks.search.offset,
-                                results: [
-                                  ...prev.bookmarks.search.results,
-                                  ...next.bookmarks.search.results
-                                ]
-                              }
-                            }
-                          };
-                        }
-                      })
-                    }
-                  >
-                    Load more
-                  </ButtonBase>
-                </ListItemText>
-              </ListItem>
+          <>
+            {isFetchingFirst && !hasResults && <Loader />}
+            {error && !hasResults && <span>{error.message}</span>}
+            {!isFetchingFirst && !error && (
+              <>
+                <Pagination
+                  count={results.length}
+                  total={total}
+                  terms={terms}
+                  type={type}
+                />
+                <Results results={results} type={type} terms={terms} />
+                <Pagination
+                  withCount
+                  count={results.length}
+                  total={total}
+                  terms={terms}
+                  type={type}
+                />
+              </>
             )}
-          </List>
+            {isFetchingMore && hasResults && <Loader />}
+            {error && hasResults && <span>{error.message}</span>}
+          </>
         );
       }}
     </BookmarkSearchSearch>

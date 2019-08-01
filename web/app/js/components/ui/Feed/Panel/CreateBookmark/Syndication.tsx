@@ -1,10 +1,10 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Link from "@material-ui/core/Link";
 import Checkbox from "@material-ui/core/Checkbox";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import ExternalLink from "../../../Link/External";
 import { Source } from "../../../../../types/syndication";
 
 const useStyles = makeStyles(() => ({
@@ -52,18 +52,16 @@ export default function Syndication({
                 onChange(sub);
               }}
             />
-            <Link
+            <ExternalLink
               underline="none"
               href={source.url}
               title={source.title}
-              target="_blank"
-              rel="noopener"
               className={classes.link}
             >
               {source.title && source.title != "wordpress feed"
                 ? source.title
                 : source.url}
-            </Link>
+            </ExternalLink>
           </ListItem>
         ))}
       </List>

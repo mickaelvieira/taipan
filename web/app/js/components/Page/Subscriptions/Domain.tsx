@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "@material-ui/core/Link";
+import ExternalLink from "../../ui/Link/External";
 import { Subscription } from "../../../types/subscription";
 import { Source } from "../../../types/syndication";
 import { getDomain } from "../../../helpers/syndication";
@@ -14,14 +14,11 @@ export default React.memo(function SubscriptionDomain({
   const url = getDomain(item);
 
   return (
-    <Link
-      underline="none"
+    <ExternalLink
       href={`${url.protocol}//${url.host}`}
       title={item.title ? item.title : item.url}
-      target="_blank"
-      rel="noopener"
     >
       {`${url.protocol}//${url.host}`}
-    </Link>
+    </ExternalLink>
   );
 });

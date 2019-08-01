@@ -19,7 +19,7 @@ import Search from "./Search";
 
 const duration = 200;
 
-const useStyles = makeStyles(({ breakpoints }) => ({
+const useStyles = makeStyles(({ breakpoints, palette }) => ({
   appBar: {
     marginLeft: SIDEBAR_WIDTH,
     [breakpoints.up("md")]: {
@@ -56,7 +56,8 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     marginLeft: -12
   },
   searchButton: {
-    marginRight: -12
+    marginRight: -12,
+    color: palette.common.white
   },
   container: {
     display: "flex",

@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "@material-ui/core/Link";
+import ExternalLink from "../../ui/Link/External";
 import { Subscription } from "../../../types/subscription";
 import { Source } from "../../../types/syndication";
 
@@ -11,14 +11,8 @@ export default React.memo(function SubscriptionLink({
   item
 }: Props): JSX.Element {
   return (
-    <Link
-      underline="none"
-      href={item.url}
-      title={item.title ? item.title : item.url}
-      target="_blank"
-      rel="noopener"
-    >
+    <ExternalLink href={item.url} title={item.title ? item.title : item.url}>
       {item.url}
-    </Link>
+    </ExternalLink>
   );
 });

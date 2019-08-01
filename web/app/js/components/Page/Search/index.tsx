@@ -1,21 +1,15 @@
 import React from "react";
-import Layout from "../../Layout/Search";
-import ScrollToTop from "../../ui/ScrollToTop";
+import Grid from "../../ui/Grid";
 import useSearch from "../../../hooks/useSearch";
 import Bookmarks from "./Bookmarks";
 import Documents from "./Documents";
 
 export default function Search(): JSX.Element {
   const [type, terms] = useSearch();
-  console.log(type);
-  console.log(terms);
-
   return (
-    <Layout>
-      <ScrollToTop>
-        {type === "bookmark" && <Bookmarks terms={terms} />}
-        {type === "document" && <Documents terms={terms} />}
-      </ScrollToTop>
-    </Layout>
+    <Grid>
+      {type === "bookmark" && <Bookmarks terms={terms} type={type} />}
+      {type === "document" && <Documents terms={terms} type={type} />}
+    </Grid>
   );
 }

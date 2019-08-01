@@ -1,16 +1,14 @@
 import React from "react";
-import Layout from "../../Layout/Feed";
-import ScrollToTop from "../../ui/ScrollToTop";
+import { LayoutRenderProps } from "../../Layout/Layout";
+import FeedPage from "../../ui/Feed/Page";
 import Feed from "../../ui/Feed/Feed";
 import List from "./List";
 import { queryNews } from "../../apollo/Query/Feed";
 
-export default function News(): JSX.Element {
+export default function News(props: LayoutRenderProps): JSX.Element {
   return (
-    <Layout>
-      <ScrollToTop>
-        <Feed List={List} query={queryNews} />
-      </ScrollToTop>
-    </Layout>
+    <FeedPage {...props}>
+      <Feed List={List} query={queryNews} />
+    </FeedPage>
   );
 }

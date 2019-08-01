@@ -4,6 +4,7 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import getApolloClient, { genRandomId } from "../../services/apollo";
+import Layout from "../Layout/Layout";
 import {
   ErrorPage,
   NewsPage,
@@ -72,34 +73,54 @@ export default function App(): JSX.Element {
                   <AppContext.Provider value={app.info}>
                     <AppUser loggedIn={user}>
                       <AppFeeds client={client}>
-                        <Switch>
-                          <Route exact path="/" component={NewsPage} />
-                          <Route
-                            exact
-                            path="/reading-list"
-                            component={ReadingListPage}
-                          />
-                          <Route
-                            exact
-                            path="/favorites"
-                            component={FavoritesPage}
-                          />
-                          <Route
-                            exact
-                            path="/search/:type?"
-                            component={SearchPage}
-                          />
-                          <Route
-                            exact
-                            path="/syndication"
-                            component={SyndicationPage}
-                          />
-                          <Route
-                            exact
-                            path="/account"
-                            component={AccountPage}
-                          />
-                        </Switch>
+                        <Layout>
+                          {props => (
+                            <Switch>
+                              <Route
+                                exact
+                                path="/"
+                                render={routeProps => (
+                                  <NewsPage {...routeProps} {...props} />
+                                )}
+                              />
+                              <Route
+                                exact
+                                path="/reading-list"
+                                render={routeProps => (
+                                  <ReadingListPage {...routeProps} {...props} />
+                                )}
+                              />
+                              <Route
+                                exact
+                                path="/favorites"
+                                render={routeProps => (
+                                  <FavoritesPage {...routeProps} {...props} />
+                                )}
+                              />
+                              <Route
+                                exact
+                                path="/search/:type?"
+                                render={routeProps => (
+                                  <SearchPage {...routeProps} {...props} />
+                                )}
+                              />
+                              <Route
+                                exact
+                                path="/syndication"
+                                render={routeProps => (
+                                  <SyndicationPage {...routeProps} {...props} />
+                                )}
+                              />
+                              <Route
+                                exact
+                                path="/account"
+                                render={routeProps => (
+                                  <AccountPage {...routeProps} {...props} />
+                                )}
+                              />
+                            </Switch>
+                          )}
+                        </Layout>
                       </AppFeeds>
                     </AppUser>
                   </AppContext.Provider>

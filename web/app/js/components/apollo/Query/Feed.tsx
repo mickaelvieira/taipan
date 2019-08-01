@@ -19,7 +19,7 @@ export type LoadMore = () => Promise<ApolloQueryResult<FeedQueryData>>;
 
 const variables = {
   pagination: {
-    limit: 20
+    limit: 10
   }
 };
 

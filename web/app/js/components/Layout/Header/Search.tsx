@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { debounce } from "lodash";
@@ -20,10 +20,19 @@ const useStyles = makeStyles(({ palette }) => ({
     flexGrow: 1,
     margin: "0 24px"
   },
-  searchIcon: {
+  searchButton: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
+  },
+  clearButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    visibility: "hidden",
+    "&.active": {
+      visibility: "visible"
+    }
   },
   inputRoot: {
     width: "100%"
@@ -46,6 +55,7 @@ export default withRouter(function Search({
   className
 }: Props): JSX.Element {
   const classes = useStyles();
+  const inputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const [search, setSearch] = useState<string[]>(terms);
@@ -65,17 +75,21 @@ export default withRouter(function Search({
       className={`${classes.search} ${className ? className : ""}`}
       action={`/search`}
     >
-      <ButtonBase type="submit" className={classes.searchIcon}>
+      <ButtonBase type="submit" className={classes.searchButton}>
         <SearchIcon />
       </ButtonBase>
       <label htmlFor="search-field" className={classes.searchLabel}>
         <input type="hidden" name="type" value={type} />
         <InputBase
+          autoFocus={terms.length > 0}
           id="search-field"
-          placeholder="Search..."
+          placeholder={`Search ${
+            type === "document" ? "the news" : "your bookmarks"
+          }`}
           name="terms"
           autoComplete="off"
           value={value}
+          inputRef={inputRef}
           onChange={event => {
             const value = event.target.value;
             setValue(value);
@@ -89,10 +103,15 @@ export default withRouter(function Search({
       </label>
       {md && (
         <ButtonBase
-          className={classes.searchIcon}
+          className={`${classes.clearButton} ${
+            search.length > 0 ? "active" : ""
+          }`}
           onClick={() => {
             setValue("");
             setSearch([]);
+            if (inputRef.current) {
+              inputRef.current.focus();
+            }
           }}
         >
           <CloseIcon />

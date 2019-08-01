@@ -18,14 +18,14 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-interface RenderProps {
+export interface LayoutRenderProps {
   setMessageInfo: (message: MessageInfo | null) => void;
   setIsContained: (contained: boolean) => void;
   setIsSidebarOpen: (open: boolean) => void;
 }
 
 interface Props {
-  children: (props: RenderProps) => JSX.Element;
+  children: (props: LayoutRenderProps) => JSX.Element;
 }
 
 export default function Layout({ children }: Props): JSX.Element {

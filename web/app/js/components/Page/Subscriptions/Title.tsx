@@ -1,7 +1,7 @@
 import React from "react";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import Link from "@material-ui/core/Link";
+import ExternalLink from "../../ui/Link/External";
 import Typography from "@material-ui/core/Typography";
 import { Subscription } from "../../../types/subscription";
 import { Source } from "../../../types/syndication";
@@ -35,12 +35,9 @@ export default React.memo(function SubscriptionTitle({
   }
 
   return (
-    <Link
-      underline="none"
+    <ExternalLink
       href={`${url.protocol}//${url.host}`}
       title={item.title ? item.title : item.url}
-      target="_blank"
-      rel="noopener"
       className={className ? className : ""}
     >
       <Typography component="span">
@@ -50,6 +47,6 @@ export default React.memo(function SubscriptionTitle({
             : item.title
           : "no title"}
       </Typography>
-    </Link>
+    </ExternalLink>
   );
 });

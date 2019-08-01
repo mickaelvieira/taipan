@@ -1,8 +1,8 @@
 import React from "react";
-import Link from "@material-ui/core/Link";
 import { Bookmark } from "../../types/bookmark";
 import { Document } from "../../types/document";
 import { Subscription } from "../../types/subscription";
+import ExternalLink from "./Link/External";
 
 export interface DomainProps {
   item: Bookmark | Document | Subscription;
@@ -15,15 +15,12 @@ export default React.memo(function Domain({
 }: DomainProps): JSX.Element {
   const url = new URL(item.url);
   return (
-    <Link
-      underline="none"
+    <ExternalLink
       href={item.url}
       title={item.title ? item.title : item.url}
-      target="_blank"
-      rel="noopener"
       className={className}
     >
       {url.host}
-    </Link>
+    </ExternalLink>
   );
 });

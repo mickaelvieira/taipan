@@ -13,8 +13,7 @@ import Loader from "../../ui/Loader";
 
 import SubscriptionsQuery, {
   variables,
-  query,
-  Data
+  getFetchMore
 } from "../../apollo/Query/Subscriptions";
 import Row from "./Row";
 
@@ -114,35 +113,13 @@ export default React.memo(function SubscriptionsTable({
                 <Button
                   className={classes.button}
                   onClick={() =>
-                    fetchMore({
-                      query,
-                      variables: {
-                        ...variables,
-                        pagination: {
-                          ...variables.pagination,
-                          offset: results.length
-                        },
-                        search: { terms, pausedOnly, showDeleted }
+                    getFetchMore(fetchMore, data, {
+                      ...variables,
+                      pagination: {
+                        ...variables.pagination,
+                        offset: results.length
                       },
-                      updateQuery: (prev: Data, { fetchMoreResult: next }) => {
-                        if (!next) {
-                          return prev;
-                        }
-                        return {
-                          subscriptions: {
-                            ...prev.subscriptions,
-                            subscriptions: {
-                              ...prev.subscriptions.subscriptions,
-                              limit: next.subscriptions.subscriptions.limit,
-                              offset: next.subscriptions.subscriptions.offset,
-                              results: [
-                                ...prev.subscriptions.subscriptions.results,
-                                ...next.subscriptions.subscriptions.results
-                              ]
-                            }
-                          }
-                        };
-                      }
+                      search: { terms, pausedOnly, showDeleted }
                     })
                   }
                 >
