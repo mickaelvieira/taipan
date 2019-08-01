@@ -48,11 +48,11 @@ export default function Item({ children }: Props): JSX.Element {
         }
       }}
     >
-    <Card className={`${classes.card} feed-item`}>
-      {children({
-        remove
-      })}
-    </Card>
+      <Card className={`${classes.card} feed-item`}>
+        {children({
+          remove
+        })}
+      </Card>
     </Fade>
   );
 }
