@@ -23,7 +23,7 @@ export default withApollo(function Feed({
   query,
   List
 }: WithApolloClient<Props>): JSX.Element {
-  const isAtTheBottom = useWindowBottom();
+  const isAtTheBottom = useWindowBottom(600);
   const loadMore = useRef<LoadMore | undefined>();
 
   useEffect(() => {
@@ -31,9 +31,8 @@ export default withApollo(function Feed({
       loadMore.current();
     }
   }, [isAtTheBottom, loadMore]);
-
   return (
-    <FeedQuery query={query}>
+    <FeedQuery query={query} notifyOnNetworkStatusChange>
       {({ data, loading, error, fetchMore, networkStatus }) => {
         const [hasResults, result] = hasReceivedData(data);
         const { results = [], first = "", last = "" } = result;
@@ -44,16 +43,23 @@ export default withApollo(function Feed({
           loadMore.current = getFetchMore(fetchMore, data);
         }
 
+        // console.log("render feed");
+        // console.log(loading);
+        // console.log(networkStatus);
+        // console.log(isAtTheBottom);
+        // console.log("---");
+
         return (
           <>
             {isFetchingFirst && !hasResults && <Loader />}
             {error && !hasResults && <span>{error.message}</span>}
             {!isFetchingFirst && !error && (
-              <FeedContainer results={results}>
-                {({ results }) => (
-                  <List results={results} firstId={first} lastId={last} />
-                )}
-              </FeedContainer>
+              <FeedContainer
+                List={List}
+                results={results}
+                firstId={first}
+                lastId={last}
+              />
             )}
             {isFetchingMore && hasResults && <Loader />}
             {error && hasResults && <span>{error.message}</span>}

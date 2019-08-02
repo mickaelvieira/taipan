@@ -24,7 +24,7 @@ interface RenderProps {
   remove: (cb: CacheUpdater) => void;
 }
 
-export default function Item({ children }: Props): JSX.Element {
+export default React.memo(function Item({ children }: Props): JSX.Element {
   const classes = useStyles();
   const ref = useRef<CacheUpdater>();
   const [visible, setIsVisible] = useState(true);
@@ -48,11 +48,13 @@ export default function Item({ children }: Props): JSX.Element {
         }
       }}
     >
-      <Card className={`${classes.card} feed-item`}>
-        {children({
-          remove
-        })}
-      </Card>
+      <div>
+        <Card className={`${classes.card} feed-item`}>
+          {children({
+            remove
+          })}
+        </Card>
+      </div>
     </Fade>
   );
-}
+});

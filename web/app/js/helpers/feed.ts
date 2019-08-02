@@ -1,60 +1,110 @@
-export function calculateTopGap(index: number, heights: number[]): number {
-  let n = 0;
-  for (let i = 0, l = heights.length - 1; i < l; i++) {
+export function calculateHeightUpToFirstIndex(
+  index: number,
+  heights: number[]
+): number {
+  let h = 0;
+  let l = heights.length - 1;
+  for (let i = 0; i < l; i++) {
     if (i < index) {
-      n = n + heights[i];
+      h = h + heights[i];
     } else {
       break;
     }
   }
-  return n;
+  return h;
 }
 
-export function calculateBottomGap(index: number, heights: number[]): number {
-  let n = 0;
-  for (let i = heights.length - 1, l = 0; i > l; i--) {
+export function calculateHeightFromIndex(
+  index: number,
+  heights: number[]
+): number {
+  let h = 0;
+  let l = 0;
+  for (let i = heights.length - 1; i > l; i--) {
     if (i > index) {
-      n = n + heights[i];
+      h = h + heights[i];
     } else {
       break;
     }
   }
-  return n;
+  return h;
 }
 
-export function calculateFirstIndex(gap: number, heights: number[]): number {
-  let n = 0;
-  let f = 0;
+export interface Padding {
+  top: number;
+  bottom: number;
+}
 
-  const t = heights.length;
+export function calculatePaddings(
+  firstIndex: number,
+  lastIndex: number,
+  heights: number[]
+): Padding {
+  const top = calculateHeightUpToFirstIndex(firstIndex, heights);
+  const bottom = calculateHeightFromIndex(lastIndex, heights);
+  return {
+    top,
+    bottom
+  };
+}
 
-  for (f = 0; f < t; f++) {
-    n = n + heights[f];
-    if (n < gap) {
+export function calculateCursor(gap: number, heights: number[]): number {
+  const total = heights.length;
+  let height = 0;
+  let cursor = 0;
+
+  for (cursor = 0; cursor < total; cursor++) {
+    height = height + heights[cursor];
+    if (height <= gap) {
       continue;
     } else {
       break;
     }
   }
-  return f;
+  return cursor;
 }
 
-export function calculateBoudaries(
-  first: number,
-  total: number
+function interval(a: number, b: number): number {
+  return b - a + 1;
+}
+
+export function calculateInterval(
+  cursor: number,
+  total: number,
+  down: boolean
 ): [number, number] {
-  const page = 12;
-  let f = first - page / 2;
+  const page = 10;
+  const halfPage = page / 2;
+  const firstIndex = 0;
+  const lastIndex = total === 0 ? total : total - 1;
 
-  if (f < 0) {
-    f = 0;
+  // if we have less than 15 items, we take all of them, regardless the cursor's position
+  if (total <= page + halfPage) {
+    return [firstIndex, lastIndex];
   }
 
-  let l = f + page - 1;
+  // we pick 11 items, 5 before and after the cursor
+  let startIndex = down ? cursor - halfPage : cursor - page;
+  let endIndex = down ? cursor + page : cursor + halfPage;
 
-  if (l > total) {
-    l = total;
+  // if we go below the first item,
+  // that means the cursor is close to the beginning
+  // so we pick a 10 items starting from the start
+  if (startIndex < firstIndex) {
+    startIndex = firstIndex;
+    endIndex = startIndex + (page - 1);
+  } else if (endIndex > lastIndex) {
+    // similarly if we go above the last item,
+    // that means the cursor is close to the end
+    // so we pick a 10 items starting from the end
+    endIndex = lastIndex;
+    startIndex = endIndex - (page - 1);
   }
 
-  return [f, l];
+  const ch = interval(startIndex, endIndex);
+  if (ch < 10) {
+    console.log(`Interval size should be equal to 10: got ${ch}`);
+  }
+
+  return [startIndex, endIndex];
 }

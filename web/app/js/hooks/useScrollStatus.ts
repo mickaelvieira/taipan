@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function useWindowScroll(): boolean {
+export default function useScrollStatus(): boolean {
   const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
@@ -18,7 +18,9 @@ export default function useWindowScroll(): boolean {
 
     function onScrollHandler(): void {
       clearTimer();
-      setIsScrolling(true);
+      if (!isScrolling) {
+        setIsScrolling(true);
+      }
       timeout = window.setTimeout(onScrollStop, 200);
     }
 
@@ -28,7 +30,7 @@ export default function useWindowScroll(): boolean {
       clearTimer();
       window.removeEventListener("scroll", onScrollHandler);
     };
-  }, []);
+  }, [isScrolling]);
 
   return isScrolling;
 }

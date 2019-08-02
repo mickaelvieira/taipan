@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { hasReachedTheBottom } from "../helpers/window";
 
-export default function useWindowBottom(): boolean {
+export default function useWindowBottom(gap?: number): boolean {
   const [atTheBotttom, setIsAtTheBotttom] = useState(false);
 
   useEffect(() => {
@@ -14,12 +14,12 @@ export default function useWindowBottom(): boolean {
     }
 
     function onScrollStop(): void {
-      setIsAtTheBotttom(hasReachedTheBottom());
+      setIsAtTheBotttom(hasReachedTheBottom(gap));
     }
 
     function onScrollHandler(): void {
       clearTimer();
-      setIsAtTheBotttom(hasReachedTheBottom());
+      setIsAtTheBotttom(hasReachedTheBottom(gap));
       timeout = window.setTimeout(onScrollStop, 400);
     }
 
@@ -29,7 +29,7 @@ export default function useWindowBottom(): boolean {
       clearTimer();
       window.removeEventListener("scroll", onScrollHandler);
     };
-  }, []);
+  }, [gap]);
 
   return atTheBotttom;
 }
