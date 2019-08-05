@@ -70,8 +70,8 @@ function interval(a: number, b: number): number {
 
 export function calculateInterval(
   cursor: number,
-  total: number,
-  down: boolean
+  total: number
+  // down: boolean
 ): [number, number] {
   const page = 10;
   const halfPage = page / 2;
@@ -84,8 +84,10 @@ export function calculateInterval(
   }
 
   // we pick 11 items, 5 before and after the cursor
-  let startIndex = down ? cursor - halfPage : cursor - page;
-  let endIndex = down ? cursor + page : cursor + halfPage;
+  // let startIndex = down ? cursor - halfPage : cursor - page;
+  // let endIndex = down ? cursor + page : cursor + halfPage;
+  let startIndex = cursor - halfPage;
+  let endIndex = cursor + halfPage;
 
   // if we go below the first item,
   // that means the cursor is close to the beginning

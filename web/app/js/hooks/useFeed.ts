@@ -84,8 +84,8 @@ class Feed {
     const cursor = calculateCursor(gap, this.heights);
     const [first, last] = calculateInterval(
       cursor,
-      results.length,
-      scroll.isDown()
+      results.length
+      // scroll.isDown()
     );
 
     if (first === this.first && last === this.last) {
