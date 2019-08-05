@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/user"
 )
 
@@ -14,7 +15,9 @@ type UserRepository struct {
 // GetByID find a single entry
 func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, error) {
 	query := `
-		SELECT u.id, u.username, u.firstname, u.lastname, u.status, u.theme, u.image_name, u.image_width, u.image_height, u.image_format, u.created_at, u.updated_at
+		SELECT u.id, u.username, u.firstname, u.lastname, u.status, u.theme,
+		u.image_name, u.image_width, u.image_height, u.image_format,
+		u.created_at, u.updated_at
 		FROM users as u
 		WHERE u.id = ?
 	`
@@ -24,7 +27,106 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 		return nil, err
 	}
 
+	emails, err := r.GetUserEmails(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	u.Emails = emails
+
 	return u, nil
+}
+
+// CreateUserEmail --
+func (r *UserRepository) CreateUserEmail(ctx context.Context, u *user.User, e *user.Email) error {
+	query := `
+		INSERT INTO users_emails
+		(user_id, value, 'primary', confirmed, created_at, updated_at)
+		VALUES
+		(?, ?, ?, ?, ?, ?)
+	`
+	res, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		u.ID,
+		e.Value,
+		e.IsPrimary,
+		e.IsConfirmed,
+		e.CreatedAt,
+		e.UpdatedAt,
+	)
+
+	if err == nil {
+		e.ID = db.GetLastInsertID(res)
+	}
+
+	return err
+}
+
+// DeleteUserEmail --
+func (r *UserRepository) DeleteUserEmail(ctx context.Context, u *user.User, e *user.Email) error {
+	query := `
+		DELETE FROM users_emails WHERE user_id = ? AND id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		u.ID,
+		e.ID,
+	)
+
+	return err
+}
+
+// PrimaryUserEmail --
+func (r *UserRepository) PrimaryUserEmail(ctx context.Context, u *user.User, e *user.Email) error {
+	query := `
+		UPDATE users_emails
+		SET primary = ?, updated_at = ?
+		WHERE user_id = ? AND id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		e.IsPrimary,
+		e.UpdatedAt,
+		u.ID,
+		e.ID,
+	)
+
+	return err
+}
+
+// GetUserEmails returns user's emails
+func (r *UserRepository) GetUserEmails(ctx context.Context, id string) ([]*user.Email, error) {
+	query := `
+		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at
+		FROM users_emails as e
+		WHERE e.user_id = ?
+		`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), id)
+	if err != nil {
+		return nil, err
+	}
+
+	var emails []*user.Email
+	for rows.Next() {
+		var e user.Email
+		if err := rows.Scan(&e.ID, &e.Value, &e.IsPrimary, &e.IsConfirmed, &e.CreatedAt, &e.UpdatedAt); err != nil {
+			return nil, err
+		}
+		emails = append(emails, &e)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return emails, nil
 }
 
 // Update update a user

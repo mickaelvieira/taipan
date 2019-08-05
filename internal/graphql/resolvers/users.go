@@ -2,10 +2,10 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -45,6 +45,15 @@ func (r *UserResolver) Lastname() string {
 	return r.User.Lastname
 }
 
+// Emails resolves the Emails field
+func (r *UserResolver) Emails() []*EmailResolver {
+	emails := make([]*EmailResolver, len(r.User.Emails))
+	for i, e := range r.User.Emails {
+		emails[i] = &EmailResolver{Email: e}
+	}
+	return emails
+}
+
 // Theme resolves the Theme field
 func (r *UserResolver) Theme() string {
 	return r.User.Theme
@@ -59,6 +68,51 @@ func (r *UserResolver) Image() *UserImageResolver {
 	return &UserImageResolver{
 		Image: r.User.Image,
 	}
+}
+
+// CreatedAt resolves the CreatedAt field
+func (r *UserResolver) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.User.CreatedAt)
+}
+
+// UpdatedAt resolves the UpdatedAt field
+func (r *UserResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.User.UpdatedAt)
+}
+
+// EmailResolver --
+type EmailResolver struct {
+	*user.Email
+}
+
+// ID resolves the ID field
+func (r *EmailResolver) ID() gql.ID {
+	return gql.ID(r.Email.ID)
+}
+
+// Value resolves the Value field
+func (r *EmailResolver) Value() string {
+	return r.Email.Value
+}
+
+// IsPrimary resolves the IsPrimary field
+func (r *EmailResolver) IsPrimary() bool {
+	return r.Email.IsPrimary
+}
+
+// IsConfirmed resolves the IsConfirmed field
+func (r *EmailResolver) IsConfirmed() bool {
+	return r.Email.IsConfirmed
+}
+
+// CreatedAt resolves the CreatedAt field
+func (r *EmailResolver) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Email.CreatedAt)
+}
+
+// UpdatedAt resolves the UpdatedAt field
+func (r *EmailResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Email.UpdatedAt)
 }
 
 // UserEventResolver resolves an bookmark event
@@ -109,14 +163,10 @@ func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEventResolve
 
 // Update resolves the mutation
 func (r *UsersResolver) Update(ctx context.Context, args struct {
-	ID   string
 	User userInput
 }) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	if args.ID != user.ID {
-		return nil, fmt.Errorf("You are not allowed to modify this user")
-	}
 
 	err := usecase.UpdateUser(
 		ctx,
@@ -141,14 +191,10 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 
 // Theme resolves the mutation
 func (r *UsersResolver) Theme(ctx context.Context, args struct {
-	ID    string
 	Theme string
 }) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	if args.ID != user.ID {
-		return nil, fmt.Errorf("You are not allowed to modify this user")
-	}
 
 	err := usecase.UpdateTheme(
 		ctx,
@@ -156,6 +202,69 @@ func (r *UsersResolver) Theme(ctx context.Context, args struct {
 		user,
 		args.Theme,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	res := UserResolver{User: user}
+
+	return &res, nil
+}
+
+// CreateEmail --
+func (r *UsersResolver) CreateEmail(ctx context.Context, args struct {
+	Email string
+}) (*UserResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
+	err := usecase.CreateUserEmail(ctx, r.repositories, user, args.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	res := UserResolver{User: user}
+
+	return &res, nil
+}
+
+// DeleteEmail --
+func (r *UsersResolver) DeleteEmail(ctx context.Context, args struct {
+	Email string
+}) (*UserResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
+	err := usecase.DeleteUserEmail(ctx, r.repositories, user, args.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	res := UserResolver{User: user}
+
+	return &res, nil
+}
+
+// PrimaryEmail --
+func (r *UsersResolver) PrimaryEmail(ctx context.Context, args struct {
+	Email string
+}) (*UserResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
+	err := usecase.PrimaryUserEmail(ctx, r.repositories, user, args.Email)
 	if err != nil {
 		return nil, err
 	}

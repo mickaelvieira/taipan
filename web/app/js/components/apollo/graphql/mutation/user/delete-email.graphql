@@ -1,8 +1,8 @@
 #import "../../fragment/user.graphql"
 
-mutation update($theme: String!) {
+mutation deleteEmail($email: String!) {
   users {
-    theme(theme: $theme) {
+    deleteEmail(email: $email) {
       ...userFields
     }
   }

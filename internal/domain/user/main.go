@@ -15,11 +15,12 @@ const (
 
 // Email user's email
 type Email struct {
-	ID        string
-	Email     string
-	Primary   bool
-	CreatedAt time.Time
-	IpdatedAt time.Time
+	ID          string
+	Value       string
+	IsPrimary   bool
+	IsConfirmed bool
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 // User represents a single user wihthin the application
@@ -63,5 +64,14 @@ func NewImage(name string, width int32, height int32, format string) *Image {
 		Width:  width,
 		Height: height,
 		Format: format,
+	}
+}
+
+// NewEmail creates a new user email address
+func NewEmail(value string) *Email {
+	return &Email{
+		Value:     value,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 }

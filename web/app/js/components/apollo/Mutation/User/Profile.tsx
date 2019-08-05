@@ -9,7 +9,6 @@ interface Data {
 }
 
 interface Variables {
-  id: string;
   user: {
     firstname: string;
     lastname: string;

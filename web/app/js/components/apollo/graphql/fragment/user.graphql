@@ -5,8 +5,18 @@ fragment userFields on User {
   username
   firstname
   lastname
+  emails {
+    id
+    value
+    isPrimary
+    isConfirmed
+    createdAt
+    updatedAt
+  }
   theme
   image {
     ...imageFields
   }
+  createdAt
+  updatedAt
 }

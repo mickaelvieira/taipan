@@ -7,6 +7,15 @@ import { HttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
+import { Log } from "../../types/http";
+import { AppInfo } from "../../types/app";
+import { Image } from "../../types/image";
+import { User } from "../../types/users";
+import { Email } from "../../types/users";
+import { Document } from "../../types/document";
+import { Bookmark } from "../../types/bookmark";
+import { Subscription } from "../../types/subscription";
+import { Source } from "../../types/syndication";
 
 export function genRandomId(): string {
   return [...Array(20)]
@@ -14,11 +23,38 @@ export function genRandomId(): string {
     .join("");
 }
 
+type Models = IdGetterObj &
+  Partial<AppInfo> &
+  Partial<User> &
+  Partial<Email> &
+  Partial<Document> &
+  Partial<Bookmark> &
+  Partial<Image> &
+  Partial<Source> &
+  Partial<Subscription> &
+  Partial<Log>;
+
 export default (clientId: string): ApolloClient<object> => {
-  const cache = new InMemoryCache({
+    const cache = new InMemoryCache({
     freezeResults: true,
-    dataIdFromObject: ({ id, __typename }: IdGetterObj) =>
-      id && __typename ? `${__typename}@${id}` : null
+    dataIdFromObject: ({ id, url, name, value, __typename }: Models) => {
+      if (!__typename) {
+        return null;
+      }
+      if (id) {
+        return `${__typename}@${id}`;
+      }
+      if (url) {
+        return `${__typename}@${url}`;
+      }
+      if (__typename === "Email") {
+        return `${__typename}@${value}`;
+      }
+      if (__typename === "AppInfo") {
+        return `${__typename}@${name}`;
+      }
+      return null;
+    }
   });
 
   const headerName = process.env.APP_CLIENT_ID_HEADER as string;
@@ -37,10 +73,6 @@ export default (clientId: string): ApolloClient<object> => {
     options: {
       reconnect: true,
       reconnectionAttempts: Infinity,
-      connectionCallback: _ => {
-        // console.log("Connected to WS");
-        // console.log(_);
-      },
       inactivityTimeout: 0
     }
   });

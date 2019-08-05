@@ -233,7 +233,6 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
                       const image = getAvatar(file, editor.current);
                       mutate({
                         variables: {
-                          id: user.id,
                           user: {
                             firstname,
                             lastname,

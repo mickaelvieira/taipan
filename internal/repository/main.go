@@ -38,7 +38,7 @@ func GetRepositories() *Repositories {
 }
 
 func formatQuery(query string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(query, "\t", " "), "\n", "")
+	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(query, "'", "`"), "\t", " "), "\n", "")
 }
 
 func getMultiInsertPlacements(t int, n int) string {

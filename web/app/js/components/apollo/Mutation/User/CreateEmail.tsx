@@ -1,18 +1,18 @@
 import { Mutation } from "react-apollo";
 import { User } from "../../../../types/users";
-import mutation from "../../graphql/mutation/user/theme.graphql";
+import mutation from "../../graphql/mutation/user/create-email.graphql";
 
 interface Data {
   users: {
-    theme: User;
+    createEmail: User;
   };
 }
 
 interface Variables {
-  theme: string;
+  email: string;
 }
 
-class UserThemeMutation extends Mutation<Data, Variables> {
+class CreateUserEmailMutation extends Mutation<Data, Variables> {
   static defaultProps = {
     mutation
   };
@@ -20,4 +20,4 @@ class UserThemeMutation extends Mutation<Data, Variables> {
 
 export { mutation };
 
-export default UserThemeMutation;
+export default CreateUserEmailMutation;

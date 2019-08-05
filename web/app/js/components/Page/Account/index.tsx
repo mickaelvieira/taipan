@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { UserContext } from "../../context";
 import Grid from "../../ui/Grid";
 import Prolile from "./Profile";
+import Emails from "./Emails";
 
 const useStyles = makeStyles(() => ({
   content: {
@@ -21,6 +22,7 @@ export default function Account(): JSX.Element | null {
   return (
     <Grid className={classes.content}>
       <Prolile user={user} />
+      <Emails user={user} />
     </Grid>
   );
 }

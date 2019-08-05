@@ -61,7 +61,6 @@ export default function UserTheme({ user }: Props): JSX.Element {
                 onClick={() =>
                   mutate({
                     variables: {
-                      id: user.id,
                       theme: name
                     }
                   })
