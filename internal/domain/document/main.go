@@ -7,17 +7,6 @@ import (
 	"time"
 )
 
-// Status defines the status of a bookmark
-type Status string
-
-// Status values
-const (
-	FETCHED  Status = "fetched"
-	PENDING  Status = "pending"
-	FETCHING Status = "fetching"
-	FAILED   Status = "failed"
-)
-
 // Document struct represents a web document
 type Document struct {
 	ID          string
@@ -29,7 +18,6 @@ type Document struct {
 	Description string
 	Image       *Image
 	Feeds       []*syndication.Source
-	Status      Status
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Deleted     bool
@@ -64,7 +52,6 @@ func New(url *url.URL, lang string, charset string, title string, desc string, i
 		Description: desc,
 		Image:       image,
 		Feeds:       feeds,
-		Status:      FETCHED,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}

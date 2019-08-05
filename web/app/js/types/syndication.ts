@@ -7,7 +7,6 @@ export interface Source {
   domain: string | null;
   title: string;
   type: string;
-  status: string;
   isPaused: boolean;
   isDeleted: boolean;
   frequency: string;

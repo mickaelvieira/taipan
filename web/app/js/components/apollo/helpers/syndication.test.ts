@@ -8,7 +8,6 @@ function getSource(id: string): Source {
     domain: "foo",
     title: "baz",
     type: "baz",
-    status: "baz",
     frequency: "hourly",
     isPaused: false,
     isDeleted: false,
