@@ -1,4 +1,6 @@
 import ErrorPage from "./Error";
+import NotFoundPage from "./NotFound";
+import LoginPage from "./Login";
 import NewsPage from "./News";
 import ReadingListPage from "./ReadingList";
 import FavoritesPage from "./Favorites";
@@ -8,6 +10,8 @@ import AccountPage from "./Account";
 
 export {
   ErrorPage,
+  NotFoundPage,
+  LoginPage,
   NewsPage,
   ReadingListPage,
   FavoritesPage,

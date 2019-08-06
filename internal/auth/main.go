@@ -8,6 +8,8 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
 	"net/http"
+
+	"github.com/go-session/session"
 )
 
 // NewContext creates a new context with the userID attached to it
@@ -29,8 +31,24 @@ func WithUser(next http.HandlerFunc, repository *repository.UserRepository) http
 	return func(w http.ResponseWriter, req *http.Request) {
 		// Get the current context or create a new one
 		ctx := req.Context()
-		// @TODO I need to implement authentication
-		user, err := repository.GetByID(ctx, "1")
+		store, err := session.Start(ctx, w, req)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		value, ok := store.Get("user_id")
+		if !ok {
+			w.WriteHeader(401)
+			return
+		}
+
+		userID, ok := value.(string)
+		if !ok {
+			w.WriteHeader(401)
+			return
+		}
+
+		user, err := repository.GetByID(ctx, userID)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				w.WriteHeader(401)

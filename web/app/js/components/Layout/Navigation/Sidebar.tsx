@@ -13,6 +13,7 @@ import Divider from "@material-ui/core/Divider";
 import Link from "@material-ui/core/Link";
 import ListItemText from "@material-ui/core/ListItemText";
 import LibraryIcon from "@material-ui/icons/LocalLibrarySharp";
+import ExitIcon from "@material-ui/icons/ExitToApp";
 import AccountIcon from "@material-ui/icons/AccountCircleSharp";
 import HomeIcon from "@material-ui/icons/HomeSharp";
 import FavoriteIcon from "@material-ui/icons/FavoriteSharp";
@@ -21,6 +22,7 @@ import UserInfo from "./UserInfo";
 import AppInfo from "./AppInfo";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
 import { getSectionTitle } from "../../../helpers/navigation";
+import { logout } from "../../../helpers/app";
 
 const AdapterLink = React.forwardRef<HTMLAnchorElement, RouterLinkProps>(
   (props, ref) => (
@@ -149,6 +151,22 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
               <ListItemText disableTypography>Account</ListItemText>
             </ListItem>
           </Link>
+          <ListItem
+            button
+            key="Account"
+            onClick={() => {
+              logout()
+                .then(() => {
+                  window.location.href = "/sign-in";
+                })
+                .catch(e => {
+                  console.warn(e);
+                });
+            }}
+          >
+            <ExitIcon className={classes.icon} />
+            <ListItemText disableTypography>Sign out</ListItemText>
+          </ListItem>
         </List>
         <Divider className={classes.divider} />
         <AppInfo />
@@ -156,3 +174,5 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
     </nav>
   );
 }
+
+//

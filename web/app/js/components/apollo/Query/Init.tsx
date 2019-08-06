@@ -11,7 +11,7 @@ export interface AppQueryData {
 
 export interface UserQueryData {
   users: {
-    loggedIn: User;
+    loggedIn: User | null;
   };
 }
 

@@ -35,6 +35,8 @@ func runWeb(c *cli.Context) {
 
 	// Routing
 	http.HandleFunc("/", server.IndexHandler)
+	http.HandleFunc("/login", server.SigninHandler)
+	http.HandleFunc("/logout", server.SignoutHandler)
 	http.HandleFunc("/graphql", clientid.WithClientID(auth.WithUser(server.QueryHandler, server.Repositories.Users)))
 
 	// Start the server

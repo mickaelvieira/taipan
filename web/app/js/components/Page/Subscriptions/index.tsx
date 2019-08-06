@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
+import { RouteSubscriptionProps } from "../../../types/routes";
+import { LayoutContext, MessageContext } from "../../context";
 import AddSubscriptionModal from "../../ui/Subscriptions/Panel/AddSubscription";
 import { AddButton } from "../../ui/Fab";
-import { LayoutRenderProps } from "../../Layout/Layout";
 import Grid from "../../ui/Grid";
 import Search from "./Search";
 
@@ -14,11 +15,10 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function Subscriptions({
-  setIsContained,
-  setMessageInfo
-}: LayoutRenderProps): JSX.Element {
+export default function Subscriptions(_: RouteSubscriptionProps): JSX.Element {
   const classes = useStyles();
+  const setMessageInfo = useContext(MessageContext);
+  const setIsContained = useContext(LayoutContext);
   const [isModalOpen, setModalStatus] = useState(false);
 
   return (

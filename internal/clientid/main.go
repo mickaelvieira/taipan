@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+// @TODO sign and validate the client ID instead to strenghen security
+// The resulting token should be forged with some kind of session ID and timestamp
+// https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
+
 // NewContext creates a new context with the userID attached to it
 func NewContext(ctx context.Context, clientID string) context.Context {
 	return context.WithValue(ctx, config.ClientIDContextKey, clientID)

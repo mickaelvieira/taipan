@@ -1,11 +1,15 @@
 package app
 
 import (
+	"context"
+	"encoding/json"
 	"github/mickaelvieira/taipan/internal/assets"
 	"github/mickaelvieira/taipan/internal/repository"
 	"html/template"
 	"net/http"
 	"os"
+
+	"github.com/go-session/session"
 
 	graphql "github.com/graph-gophers/graphql-go"
 
@@ -36,6 +40,53 @@ func (s *Server) IndexHandler(w http.ResponseWriter, req *http.Request) {
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// SigninHandler sign into the application
+func (s *Server) SigninHandler(w http.ResponseWriter, req *http.Request) {
+	ctx := context.Background()
+	store, err := session.Start(ctx, w, req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	user, err := s.Repositories.Users.GetByID(ctx, "1")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+	} else {
+		store.Set("user_id", user.ID)
+		err = store.Save()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+		} else {
+			w.WriteHeader(http.StatusOK)
+			js, err := json.Marshal(user)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		}
+	}
+}
+
+// SignoutHandler sign out of the application
+func (s *Server) SignoutHandler(w http.ResponseWriter, req *http.Request) {
+	store, err := session.Start(context.Background(), w, req)
+	if err != nil {
+		return
+	}
+
+	store.Delete("user_id")
+	err = store.Save()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 }
 

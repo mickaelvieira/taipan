@@ -1,14 +1,14 @@
-import React, { useState, PropsWithChildren } from "react";
+import React, { useState, PropsWithChildren, useContext } from "react";
 import CreateBookmark from "./Panel/CreateBookmark";
 import { AddButton } from "../Fab";
-import { LayoutRenderProps } from "../../Layout/Layout";
 import Grid from "../Grid";
+import { LayoutContext, MessageContext } from "../../context";
 
 export default function FeedPage({
-  children,
-  setMessageInfo,
-  setIsContained
-}: PropsWithChildren<LayoutRenderProps>): JSX.Element {
+  children
+}: PropsWithChildren<{}>): JSX.Element {
+  const setMessageInfo = useContext(MessageContext);
+  const setIsContained = useContext(LayoutContext);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   return (

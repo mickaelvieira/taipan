@@ -4,9 +4,10 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import getApolloClient, { genRandomId } from "../../services/apollo";
-import Layout from "../Layout/Layout";
+import Layout from "../Layout";
 import {
-  ErrorPage,
+  NotFoundPage,
+  LoginPage,
   NewsPage,
   ReadingListPage,
   FavoritesPage,
@@ -16,29 +17,8 @@ import {
 } from "../Page";
 import getThemeOptions from "../ui/themes";
 import Loader from "../ui/Loader";
-import InitQuery, { Data } from "../apollo/Query/Init";
+import InitQuery from "../apollo/Query/Init";
 import { ClientContext, AppContext } from "../context";
-import AppUser from "./User";
-import AppFeeds from "./Feeds";
-
-function canBoostrap(data: Data | undefined): boolean {
-  if (!data) {
-    return false;
-  }
-  if (!data.users) {
-    return false;
-  }
-  if (!data.users.loggedIn) {
-    return false;
-  }
-  if (!data.app) {
-    return false;
-  }
-  if (!data.app.info) {
-    return false;
-  }
-  return true;
-}
 
 export default function App(): JSX.Element {
   const clientId = genRandomId();
@@ -55,74 +35,73 @@ export default function App(): JSX.Element {
                 return <Loader />;
               }
 
-              if (error) {
-                return <ErrorPage error={error} />;
+              let user = null;
+              let appInfo = { info: { name: "Taipan", version: "0.0.0" } };
+              if (data && !error) {
+                let { users, app } = data;
+                if (users.loggedIn) {
+                  user = users.loggedIn;
+                }
+                if (app) {
+                  appInfo = app;
+                }
               }
 
-              if (!canBoostrap(data)) {
-                return null;
-              }
+              const theme = createMuiTheme(
+                getThemeOptions(user ? user.theme : null)
+              );
 
-              const { users, app } = data as Data;
-              const { loggedIn: user } = users;
-              const theme = createMuiTheme(getThemeOptions(user.theme));
               console.log(theme);
 
               return (
                 <MuiThemeProvider theme={theme}>
-                  <AppContext.Provider value={app.info}>
-                    <AppUser loggedIn={user}>
-                      <AppFeeds client={client}>
-                        <Layout>
-                          {props => (
-                            <Switch>
-                              <Route
-                                exact
-                                path="/"
-                                render={routeProps => (
-                                  <NewsPage {...routeProps} {...props} />
-                                )}
-                              />
-                              <Route
-                                exact
-                                path="/reading-list"
-                                render={routeProps => (
-                                  <ReadingListPage {...routeProps} {...props} />
-                                )}
-                              />
-                              <Route
-                                exact
-                                path="/favorites"
-                                render={routeProps => (
-                                  <FavoritesPage {...routeProps} {...props} />
-                                )}
-                              />
-                              <Route
-                                exact
-                                path="/search/:type?"
-                                render={routeProps => (
-                                  <SearchPage {...routeProps} {...props} />
-                                )}
-                              />
-                              <Route
-                                exact
-                                path="/syndication"
-                                render={routeProps => (
-                                  <SyndicationPage {...routeProps} {...props} />
-                                )}
-                              />
-                              <Route
-                                exact
-                                path="/account"
-                                render={routeProps => (
-                                  <AccountPage {...routeProps} {...props} />
-                                )}
-                              />
-                            </Switch>
+                  <AppContext.Provider value={appInfo.info}>
+                    <Layout user={user}>
+                      <Switch>
+                        <Route
+                          exact
+                          path="/"
+                          render={routeProps => <NewsPage {...routeProps} />}
+                        />
+                        <Route
+                          exact
+                          path="/reading-list"
+                          render={routeProps => (
+                            <ReadingListPage {...routeProps} />
                           )}
-                        </Layout>
-                      </AppFeeds>
-                    </AppUser>
+                        />
+                        <Route
+                          exact
+                          path="/favorites"
+                          render={routeProps => (
+                            <FavoritesPage {...routeProps} />
+                          )}
+                        />
+                        <Route
+                          exact
+                          path="/search/:type?"
+                          render={routeProps => <SearchPage {...routeProps} />}
+                        />
+                        <Route
+                          exact
+                          path="/syndication"
+                          render={routeProps => (
+                            <SyndicationPage {...routeProps} />
+                          )}
+                        />
+                        <Route
+                          exact
+                          path="/account"
+                          render={routeProps => <AccountPage {...routeProps} />}
+                        />
+                        <Route
+                          exact
+                          path="/sign-in"
+                          render={routeProps => <LoginPage {...routeProps} />}
+                        />
+                        <Route component={NotFoundPage} />
+                      </Switch>
+                    </Layout>
                   </AppContext.Provider>
                 </MuiThemeProvider>
               );

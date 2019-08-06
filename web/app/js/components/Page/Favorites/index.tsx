@@ -1,13 +1,13 @@
 import React from "react";
-import { LayoutRenderProps } from "../../Layout/Layout";
+import { RouteFeedProps } from "../../../types/routes";
 import FeedPage from "../../ui/Feed/Page";
 import Feed from "../../ui/Feed/Feed";
 import List from "./List";
 import { queryFavorites } from "../../apollo/Query/Feed";
 
-export default function Favorites(props: LayoutRenderProps): JSX.Element {
+export default function Favorites(_: RouteFeedProps): JSX.Element {
   return (
-    <FeedPage {...props}>
+    <FeedPage>
       <Feed List={List} query={queryFavorites} />
     </FeedPage>
   );
