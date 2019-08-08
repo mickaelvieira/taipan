@@ -117,11 +117,9 @@ interface Props {
   lastId?: string;
 }
 
-export default function Latest({
-  firstId = ""
-}: Props) {
+export default function Latest({ firstId = "" }: Props): JSX.Element | null {
   const classes = useStyles();
-  const client = useApolloClient()
+  const client = useApolloClient();
   const [state, dispatch] = useReducer<Reducer<State, [QueueActions, Payload]>>(
     reducer,
     initialState

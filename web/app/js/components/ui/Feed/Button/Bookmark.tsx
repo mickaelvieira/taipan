@@ -10,7 +10,6 @@ import {
   Variables
 } from "../../../apollo/Mutation/Bookmarks/Bookmark";
 import { FeedsContext, FeedsCacheContext } from "../../../context";
-import { Bookmark } from "../../../../types/bookmark";
 import { SuccessOptions } from ".";
 
 interface Props extends Partial<ButtonBaseProps> {
@@ -34,26 +33,20 @@ export default React.memo(function BookmarkButton({
   const classes = useStyles();
   const updater = useContext(FeedsCacheContext);
   const mutator = useContext(FeedsContext);
-  const getUpdater = (bookmark: Bookmark) => {
-    return function() {
-      if (updater) {
-        updater.bookmark(bookmark);
-      }
-    };
-  };
-  const getUndoer = (bookmark: Bookmark) => {
-    return function() {
-      if (mutator) {
-        mutator.unbookmark(bookmark);
-      }
-    };
-  };
   const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
     onCompleted: data => {
       const item = data.bookmarks.add;
       onSucceed({
-        updateCache: getUpdater(item),
-        undo: getUndoer(item),
+        updateCache: () => {
+          if (updater) {
+            updater.bookmark(item);
+          }
+        },
+        undo: () => {
+          if (mutator) {
+            mutator.unbookmark(item);
+          }
+        },
         item
       });
     },

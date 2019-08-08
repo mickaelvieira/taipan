@@ -25,26 +25,20 @@ export default React.memo(function Favorite({
 }: Props): JSX.Element {
   const updater = useContext(FeedsCacheContext);
   const mutator = useContext(FeedsContext);
-  const getUpdater = (bookmark: Bookmark) => {
-    return function() {
-      if (updater) {
-        updater.favorite(bookmark);
-      }
-    };
-  };
-  const getUndoer = (bookmark: Bookmark) => {
-    return function() {
-      if (mutator) {
-        mutator.unfavorite(bookmark);
-      }
-    };
-  };
   const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
     onCompleted: data => {
       const item = data.bookmarks.favorite;
       onSucceed({
-        updateCache: getUpdater(item),
-        undo: getUndoer(item),
+        updateCache: () => {
+          if (updater) {
+            updater.favorite(item);
+          }
+        },
+        undo: () => {
+          if (mutator) {
+            mutator.unfavorite(item);
+          }
+        },
         item
       });
     },
