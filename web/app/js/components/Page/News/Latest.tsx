@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, Reducer } from "react";
 import { cloneDeep } from "lodash";
 import { ApolloClient } from "apollo-client";
-import { withApollo, WithApolloClient } from "react-apollo";
+import { useApolloClient } from "@apollo/react-hooks";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import query from "../../apollo/graphql/query/feeds/latest-news.graphql";
@@ -117,11 +117,11 @@ interface Props {
   lastId?: string;
 }
 
-export default withApollo(function Latest({
-  client,
+export default function Latest({
   firstId = ""
-}: WithApolloClient<Props>) {
+}: Props) {
   const classes = useStyles();
+  const client = useApolloClient()
   const [state, dispatch] = useReducer<Reducer<State, [QueueActions, Payload]>>(
     reducer,
     initialState
@@ -224,4 +224,4 @@ export default withApollo(function Latest({
       </Button>
     </div>
   );
-});
+}

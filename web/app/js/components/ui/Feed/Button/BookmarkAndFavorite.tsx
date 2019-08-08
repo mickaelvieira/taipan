@@ -1,10 +1,15 @@
 import React, { useContext } from "react";
+import { useMutation } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import ButtonBase, { ButtonBaseProps } from "../../Button";
 import { Document } from "../../../../types/document";
 import { Bookmark } from "../../../../types/bookmark";
-import BookmarkMutation from "../../../apollo/Mutation/Bookmarks/Bookmark";
+import {
+  mutation,
+  Data,
+  Variables
+} from "../../../apollo/Mutation/Bookmarks/Bookmark";
 import { FeedsContext, FeedsCacheContext } from "../../../context";
 import { SuccessOptions } from ".";
 
@@ -43,34 +48,31 @@ export default React.memo(function BookmarkAndFavorite({
       }
     };
   };
+  const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
+    onCompleted: data => {
+      const item = data.bookmarks.add;
+      onSucceed({
+        updateCache: getUpdater(item),
+        undo: getUndoer(item),
+        item
+      });
+    },
+    onError: error => onFail(error.message)
+  });
 
   return (
-    <BookmarkMutation
-      onCompleted={data => {
-        const item = data.bookmarks.add;
-        onSucceed({
-          updateCache: getUpdater(item),
-          undo: getUndoer(item),
-          item
-        });
-      }}
-      onError={error => onFail(error.message)}
-    >
-      {(mutate, { loading }) => (
-        <ButtonBase
-          label="favorites"
-          Icon={FavoriteIcon}
-          aria-label="Bookmark and mark as favorite"
-          disabled={loading}
-          className={classes.button}
-          onClick={() =>
-            mutate({
-              variables: { url: document.url, isFavorite: true }
-            })
-          }
-          {...rest}
-        />
-      )}
-    </BookmarkMutation>
+    <ButtonBase
+      label="favorites"
+      Icon={FavoriteIcon}
+      aria-label="Bookmark and mark as favorite"
+      disabled={loading}
+      className={classes.button}
+      onClick={() =>
+        mutate({
+          variables: { url: document.url, isFavorite: true }
+        })
+      }
+      {...rest}
+    />
   );
 });

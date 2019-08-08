@@ -1,10 +1,15 @@
 import React, { useState } from "react";
+import { useMutation } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
 import CancelIcon from "@material-ui/icons/Cancel";
 import InputBase from "@material-ui/core/InputBase";
-import UpdateSourceTitleMutation from "../../../apollo/Mutation/Syndication/Title";
+import {
+  mutation,
+  Data,
+  Variables
+} from "../../../apollo/Mutation/Syndication/Title";
 import Title from "../Title";
 import { Source } from "../../../../types/syndication";
 
@@ -33,6 +38,9 @@ export default function EditTitle({ source }: Props): JSX.Element {
   const classes = useStyles();
   const [value, setValue] = useState(source.title);
   const [editMode, setEditMode] = useState(false);
+  const [mutate] = useMutation<Data, Variables>(mutation, {
+    onCompleted: () => setEditMode(false)
+  });
 
   return (
     <>
@@ -56,28 +64,22 @@ export default function EditTitle({ source }: Props): JSX.Element {
             value={value}
             onChange={event => setValue(event.target.value)}
           />
-          <UpdateSourceTitleMutation onCompleted={() => setEditMode(false)}>
-            {mutate => (
-              <>
-                <IconButton
-                  className={classes.button}
-                  onClick={() =>
-                    mutate({
-                      variables: { url: source.url, title: value }
-                    })
-                  }
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  onClick={() => setEditMode(false)}
-                  className={classes.button}
-                >
-                  <CancelIcon fontSize="small" />
-                </IconButton>
-              </>
-            )}
-          </UpdateSourceTitleMutation>
+          <IconButton
+            className={classes.button}
+            onClick={() =>
+              mutate({
+                variables: { url: source.url, title: value }
+              })
+            }
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            onClick={() => setEditMode(false)}
+            className={classes.button}
+          >
+            <CancelIcon fontSize="small" />
+          </IconButton>
         </div>
       )}
     </>

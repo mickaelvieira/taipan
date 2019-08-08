@@ -1,7 +1,8 @@
 import React, { PropsWithChildren } from "react";
-import { User } from "../../types/users";
+import { useSubscription } from "@apollo/react-hooks";
+import { User, UserEvent } from "../../types/users";
 import { UserContext } from "../context";
-import UserSubscription from "../apollo/Subscription/User";
+import { userSubscription } from "../apollo/Subscription/User";
 
 interface Props {
   loggedIn: User;
@@ -11,10 +12,8 @@ export default function AppUser({
   children,
   loggedIn
 }: PropsWithChildren<Props>): JSX.Element {
+  useSubscription<UserEvent>(userSubscription);
   return (
-    <UserContext.Provider value={loggedIn}>
-      <UserSubscription />
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={loggedIn}>{children}</UserContext.Provider>
   );
 }

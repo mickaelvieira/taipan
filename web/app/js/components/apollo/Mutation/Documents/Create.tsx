@@ -1,8 +1,7 @@
-import { Mutation } from "react-apollo";
 import { Document } from "../../../../types/document";
 import mutation from "../../graphql/mutation/documents/create.graphql";
 
-interface Data {
+export interface Data {
   documents: {
     create: Document;
   };
@@ -17,13 +16,4 @@ const variables = {
   withFeeds: true
 };
 
-class CreateDocumentMutation extends Mutation<Data, Variables> {
-  static defaultProps = {
-    mutation,
-    variables
-  };
-}
-
 export { mutation, variables };
-
-export default CreateDocumentMutation;

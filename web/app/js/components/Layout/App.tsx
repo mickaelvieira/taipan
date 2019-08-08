@@ -1,5 +1,4 @@
 import React, { PropsWithChildren, useState, useEffect } from "react";
-import { withApollo, WithApolloClient } from "react-apollo";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import AppUser from "../App/User";
@@ -26,11 +25,10 @@ interface Props {
   user: User | null;
 }
 
-export default withApollo(function AppLayout({
-  client,
+export default function AppLayout({
   user,
   children
-}: WithApolloClient<PropsWithChildren<Props>>): JSX.Element | null {
+}: PropsWithChildren<Props>): JSX.Element | null {
   const classes = useStyles();
   const [info, setMessageInfo] = useState<MessageInfo | null>(null);
   const [isSideOpen, setIsSidebarOpen] = useState(false);
@@ -47,7 +45,7 @@ export default withApollo(function AppLayout({
 
   return !user ? null : (
     <AppUser loggedIn={user}>
-      <AppFeeds client={client}>
+      <AppFeeds>
         <div className={classes.root}>
           <Sidebar isOpen={isSideOpen} toggleDrawer={setIsSidebarOpen} />
           <Header toggleDrawer={setIsSidebarOpen} />
@@ -73,4 +71,4 @@ export default withApollo(function AppLayout({
       </AppFeeds>
     </AppUser>
   );
-});
+}

@@ -1,23 +1,14 @@
-import { Mutation } from "react-apollo";
 import { Bookmark } from "../../../../types/bookmark";
 import mutation from "../../graphql/mutation/bookmarks/unfavorite.graphql";
 
-interface Data {
+export interface Data {
   bookmarks: {
     unfavorite: Bookmark;
   };
 }
 
-interface Variables {
+export interface Variables {
   url: string;
 }
 
-class UnfavoriteMutation extends Mutation<Data, Variables> {
-  static defaultProps = {
-    mutation
-  };
-}
-
 export { mutation };
-
-export default UnfavoriteMutation;

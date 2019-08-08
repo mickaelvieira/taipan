@@ -1,4 +1,3 @@
-import { Query } from "react-apollo";
 import query from "../graphql/query/init.graphql";
 import { AppInfo } from "../../../types/app";
 import { User } from "../../../types/users";
@@ -15,16 +14,8 @@ export interface UserQueryData {
   };
 }
 
-export type Data = AppQueryData & UserQueryData;
+export type InitQueryData = AppQueryData & UserQueryData;
 
 const variables = {};
 
 export { query, variables };
-
-class InitQuery extends Query<Data, {}> {
-  static defaultProps = {
-    query
-  };
-}
-
-export default InitQuery;

@@ -1,14 +1,13 @@
-import { Mutation } from "react-apollo";
 import { User } from "../../../../types/users";
 import mutation from "../../graphql/mutation/user/profile.graphql";
 
-interface Data {
+export interface Data {
   users: {
     update: User;
   };
 }
 
-interface Variables {
+export interface Variables {
   user: {
     firstname: string;
     lastname: string;
@@ -16,12 +15,4 @@ interface Variables {
   };
 }
 
-class UserProfileMutation extends Mutation<Data, Variables> {
-  static defaultProps = {
-    mutation
-  };
-}
-
 export { mutation };
-
-export default UserProfileMutation;

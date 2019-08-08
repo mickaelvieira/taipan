@@ -1,9 +1,8 @@
-import { Query } from "react-apollo";
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
   FetchMoreOptions
-} from "apollo-boost";
+} from "apollo-client";
 import query from "../graphql/query/subscriptions/subscriptions.graphql";
 import { OffsetPagination } from "../../../types";
 import { SearchParams } from "../../../types/subscription";
@@ -73,12 +72,3 @@ export function getFetchMore(
 }
 
 export { query, variables };
-
-class SubscriptionsQuery extends Query<Data, Variables> {
-  static defaultProps = {
-    query,
-    variables
-  };
-}
-
-export default SubscriptionsQuery;

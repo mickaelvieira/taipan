@@ -1,10 +1,14 @@
 import React from "react";
+import { useMutation } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import CachedIcon from "@material-ui/icons/Cached";
 import ButtonBase, { ButtonBaseProps } from "../../Button";
 import { Bookmark } from "../../../../types/bookmark";
-import CreateBookmarkMutation, {
-  variables
+import {
+  mutation,
+  variables,
+  Data,
+  Variables
 } from "../../../apollo/Mutation/Bookmarks/Create";
 
 interface Props extends Partial<ButtonBaseProps> {
@@ -26,31 +30,28 @@ export default React.memo(function Refresh({
   ...rest
 }: Props): JSX.Element {
   const classes = useStyles();
+  const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
+    onCompleted: data => onSucceed(data.bookmarks.create),
+    onError: error => onFail(error.message)
+  });
   return (
-    <CreateBookmarkMutation
-      onCompleted={data => onSucceed(data.bookmarks.create)}
-      onError={error => onFail(error.message)}
-    >
-      {(mutate, { loading }) => (
-        <ButtonBase
-          label="refresh"
-          Icon={CachedIcon}
-          isLoading={loading}
-          aria-label="Refresh"
-          disabled={loading}
-          className={classes.button}
-          onClick={() =>
-            mutate({
-              variables: {
-                ...variables,
-                isFavorite: bookmark.isFavorite,
-                url: bookmark.url
-              }
-            })
+    <ButtonBase
+      label="refresh"
+      Icon={CachedIcon}
+      isLoading={loading}
+      aria-label="Refresh"
+      disabled={loading}
+      className={classes.button}
+      onClick={() =>
+        mutate({
+          variables: {
+            ...variables,
+            isFavorite: bookmark.isFavorite,
+            url: bookmark.url
           }
-          {...rest}
-        />
-      )}
-    </CreateBookmarkMutation>
+        })
+      }
+      {...rest}
+    />
   );
 });

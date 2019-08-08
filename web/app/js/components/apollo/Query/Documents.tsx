@@ -1,9 +1,8 @@
-import { Query } from "react-apollo";
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
   FetchMoreOptions
-} from "apollo-boost";
+} from "apollo-client";
 import query from "../graphql/query/documents/search.graphql";
 import { OffsetPagination } from "../../../types";
 import { SearchQueryData } from "../../../types/search";
@@ -71,12 +70,3 @@ const variables = {
 };
 
 export { query, variables };
-
-class DocumentsQuery extends Query<Data, Variables> {
-  static defaultProps = {
-    query,
-    variables
-  };
-}
-
-export default DocumentsQuery;

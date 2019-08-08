@@ -1,4 +1,5 @@
 import React, { useRef, useContext, useReducer, Reducer } from "react";
+import { useMutation } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
@@ -11,7 +12,7 @@ import Slider from "@material-ui/core/Slider";
 import AvatarEditor from "react-avatar-editor";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { MessageContext } from "../../context";
-import UserProfileMutation from "../../apollo/Mutation/User/Profile";
+import { mutation, Data, Variables } from "../../apollo/Mutation/User/Profile";
 import { User } from "../../../types/users";
 import Title from "./Title";
 import Theme from "./Theme";
@@ -143,6 +144,13 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
     user,
     getInitialState
   );
+  const [mutate, { loading, error }] = useMutation<Data, Variables>(mutation, {
+    onCompleted: () => {
+      dispatch([ProfileActions.AVATAR, null]);
+      dispatch([ProfileActions.SCALE, 1]);
+      setMessageInfo({ message: "You profile has been saved" });
+    }
+  });
 
   const { firstname, lastname, scale, file } = state;
 
@@ -215,42 +223,28 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
           />
         </CardContent>
         <CardActions className={classes.actions}>
-          <UserProfileMutation
-            onCompleted={() => {
-              dispatch([ProfileActions.AVATAR, null]);
-              dispatch([ProfileActions.SCALE, 1]);
-              setMessageInfo({ message: "You profile has been saved" });
+          <Button
+            disabled={loading}
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              if (user) {
+                const image = getAvatar(file, editor.current);
+                mutate({
+                  variables: {
+                    user: {
+                      firstname,
+                      lastname,
+                      image
+                    }
+                  }
+                });
+              }
             }}
           >
-            {(mutate, { loading, error }) => (
-              <>
-                <Button
-                  disabled={loading}
-                  variant="contained"
-                  color="primary"
-                  onClick={() => {
-                    if (user) {
-                      const image = getAvatar(file, editor.current);
-                      mutate({
-                        variables: {
-                          user: {
-                            firstname,
-                            lastname,
-                            image
-                          }
-                        }
-                      });
-                    }
-                  }}
-                >
-                  Save
-                </Button>
-                {error && (
-                  <FormHelperText error>{error.message}</FormHelperText>
-                )}
-              </>
-            )}
-          </UserProfileMutation>
+            Save
+          </Button>
+          {error && <FormHelperText error>{error.message}</FormHelperText>}
         </CardActions>
       </form>
     </Card>

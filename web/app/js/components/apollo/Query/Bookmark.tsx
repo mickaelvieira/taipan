@@ -1,4 +1,3 @@
-import { Query } from "react-apollo";
 import query from "../graphql/query/bookmarks/bookmark.graphql";
 import { Bookmark } from "../../../types/bookmark";
 
@@ -13,11 +12,3 @@ export interface Variables {
 }
 
 export { query };
-
-class BookmarkQuery extends Query<Data, Variables> {
-  static defaultProps = {
-    query
-  };
-}
-
-export default BookmarkQuery;

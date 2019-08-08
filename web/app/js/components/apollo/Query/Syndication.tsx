@@ -1,4 +1,3 @@
-import { Query } from "react-apollo";
 import query from "../graphql/query/syndication/sources.graphql";
 import { OffsetPagination } from "../../../types";
 import { SyndicationResults, SearchParams } from "../../../types/syndication";
@@ -24,12 +23,3 @@ const variables = {
 };
 
 export { query, variables };
-
-class SyndicationQuery extends Query<Data, Variables> {
-  static defaultProps = {
-    query,
-    variables
-  };
-}
-
-export default SyndicationQuery;
