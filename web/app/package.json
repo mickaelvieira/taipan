@@ -61,7 +61,7 @@
     "mini-css-extract-plugin": "0.8.0",
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "react": "16.9.0",
-    "react-apollo": "2.5.8",
+    "react-apollo": "3.0.0",
     "react-avatar-editor": "11.0.7",
     "react-dom": "16.9.0",
     "react-highlight-words": "0.16.0",
