@@ -24,6 +24,8 @@ export default function UserEmails({ user }: Props): JSX.Element {
   const classes = useStyles();
   let canAdd = true;
 
+  // If the user has only one email and it hasn't been confirmed yet
+  // the user is not allowed to add a new one.
   if (user.emails.length === 1 && !user.emails[0].isConfirmed) {
     canAdd = false;
   }

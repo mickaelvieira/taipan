@@ -23,14 +23,14 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface Props {
-  onFetchDocument: (document: Document) => void;
+  onDocumentFetched: (document: Document) => void;
 }
 
-export default function FormDocument({ onFetchDocument }: Props): JSX.Element {
+export default function FormDocument({ onDocumentFetched }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
   const [mutate, { loading, error }] = useMutation<Data, Variables>(mutation, {
-    onCompleted: ({ documents: { create } }) => onFetchDocument(create)
+    onCompleted: ({ documents: { create } }) => onDocumentFetched(create)
   });
 
   return (

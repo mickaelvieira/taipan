@@ -27,7 +27,7 @@ export default function CreateBookmark({
 
   return (
     <Panel title="Bookmark a webpage" isOpen={isOpen} prev={prev}>
-      {!document && <FormDocument onFetchDocument={setDocument} />}
+      {!document && <FormDocument onDocumentFetched={setDocument} />}
       {document && (
         <FormBookmark
           document={document}

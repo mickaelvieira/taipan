@@ -22,7 +22,7 @@ interface Props {
 export default function Feed({
   query,
   List
-}: WithApolloClient<Props>): JSX.Element {
+}: Props): JSX.Element {
   const isAtTheBottom = useWindowBottom(600);
   const loadMore = useRef<LoadMore | undefined>();
   const { loading, error, data, fetchMore, networkStatus } = useQuery<

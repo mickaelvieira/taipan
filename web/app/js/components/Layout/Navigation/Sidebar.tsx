@@ -151,10 +151,15 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
               <ListItemText disableTypography>Account</ListItemText>
             </ListItem>
           </Link>
-          <ListItem
-            button
-            key="Account"
-            onClick={() => {
+          <Link
+            to="/sign-in"
+            classes={{
+              root: classes.link
+            }}
+            component={AdapterLink}
+            underline="none"
+            onClick={(event: React.MouseEvent) => {
+              event.preventDefault();
               logout()
                 .then(() => {
                   window.location.href = "/sign-in";
@@ -164,9 +169,11 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
                 });
             }}
           >
-            <ExitIcon className={classes.icon} />
-            <ListItemText disableTypography>Sign out</ListItemText>
-          </ListItem>
+            <ListItem button key="Sign out">
+              <ExitIcon className={classes.icon} />
+              <ListItemText disableTypography>Sign out</ListItemText>
+            </ListItem>
+          </Link>
         </List>
         <Divider className={classes.divider} />
         <AppInfo />
