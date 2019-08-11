@@ -1,6 +1,6 @@
 import React from "react";
 import EagerLoadingImage from "./EagerLoading";
-import ExternalLink from "../../../ui/Link/External";
+import { ExternalLink } from "../../../ui/Link";
 import { Bookmark } from "../../../../types/bookmark";
 import { Document } from "../../../../types/document";
 

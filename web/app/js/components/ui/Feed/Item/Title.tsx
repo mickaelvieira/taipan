@@ -1,6 +1,6 @@
 import React from "react";
 import Typography from "@material-ui/core/Typography";
-import ExternalLink from "../../../ui/Link/External";
+import { ExternalLink } from "../../../ui/Link";
 import { Bookmark } from "../../../../types/bookmark";
 import { Document } from "../../../../types/document";
 

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import {
   mutation,
@@ -10,6 +9,10 @@ import {
   Variables
 } from "../../../../apollo/Mutation/Documents/Create";
 import { Document } from "../../../../../types/document";
+import Group from "../../../../ui/Form/Group";
+import Label from "../../../../ui/Form/Label";
+import Hint from "../../../../ui/Form/Hint";
+import { InputBase } from "../../../../ui/Form/Input";
 
 const useStyles = makeStyles(() => ({
   form: {
@@ -26,7 +29,9 @@ interface Props {
   onDocumentFetched: (document: Document) => void;
 }
 
-export default function FormDocument({ onDocumentFetched }: Props): JSX.Element {
+export default function FormDocument({
+  onDocumentFetched
+}: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
   const [mutate, { loading, error }] = useMutation<Data, Variables>(mutation, {
@@ -38,22 +43,22 @@ export default function FormDocument({ onDocumentFetched }: Props): JSX.Element 
       <Typography paragraph>
         Enter the URL of the page you would like to bookmark
       </Typography>
-      <TextField
-        autoFocus
-        margin="dense"
-        id="bookmark_url"
-        label="URL"
-        placeholder="https://"
-        type="url"
-        value={url}
-        error={!!error}
-        autoComplete="off"
-        autoCapitalize="off"
-        autoCorrect="off"
-        helperText={!error ? "" : error.message}
-        onChange={event => setUrl(event.target.value)}
-        fullWidth
-      />
+      <Group>
+        <Label htmlFor="feed-url">URL</Label>
+        <InputBase
+          id="bookmark-url"
+          autoFocus
+          placeholder="https://"
+          type="url"
+          value={url}
+          error={!!error}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          onChange={event => setUrl(event.target.value)}
+        />
+        {error && <Hint>{error.message}</Hint>}
+      </Group>
       <Button
         onClick={() =>
           mutate({

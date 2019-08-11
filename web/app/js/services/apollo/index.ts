@@ -1,7 +1,7 @@
 import ApolloClient from "apollo-client";
 import { IdGetterObj } from "apollo-boost";
 import { InMemoryCache } from "apollo-cache-inmemory";
-import { split, concat } from "apollo-link";
+import { ApolloLink, split, concat } from "apollo-link";
 import { onError } from "apollo-link-error";
 import { HttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
@@ -16,6 +16,19 @@ import { Document } from "../../types/document";
 import { Bookmark } from "../../types/bookmark";
 import { Subscription } from "../../types/subscription";
 import { Source } from "../../types/syndication";
+import { transformFeedData, transformItemData } from "./transformers";
+
+function isSubscriptionOperation(name: string): boolean {
+  return ["onBookmarkChange", "onDocumentChange", "onUserChange"].includes(
+    name
+  );
+}
+function isFeedOpertion(name: string): boolean {
+  return ["news", "latestNews", "favorites", "readingList"].includes(name);
+}
+function isBookmarkOperation(name: string): boolean {
+  return ["favorite", "unfavorite", "bookmark", "unbookmark"].includes(name);
+}
 
 export function genRandomId(): string {
   return [...Array(20)]
@@ -76,7 +89,6 @@ export default (clientId: string): ApolloClient<object> => {
       inactivityTimeout: 0
     }
   });
-
   const transportLink = split(
     ({ query }) => {
       const definition = getMainDefinition(query);
@@ -88,7 +100,6 @@ export default (clientId: string): ApolloClient<object> => {
     wsLink,
     httpLink
   );
-
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors)
       graphQLErrors.map(({ message, locations, path }) =>
@@ -100,14 +111,34 @@ export default (clientId: string): ApolloClient<object> => {
       console.log(`[Network error]: ${networkError}`);
     }
   });
-
+  const transformationLink = new ApolloLink((operation, forward) => {
+    const name = operation.operationName;
+    if (!forward) {
+      return null;
+    }
+    if (isSubscriptionOperation(name)) {
+      return forward(operation);
+    }
+    return forward(operation).map(data => {
+      if (isFeedOpertion(name)) {
+        data = transformFeedData(name, data);
+      }
+      if (isBookmarkOperation(name)) {
+        data = transformItemData(data);
+      }
+      return data;
+    });
+  });
   const clientIdLink = setContext(() => ({
     headers: {
       [headerName]: clientId
     }
   }));
 
-  const link = concat(concat(errorLink, clientIdLink), transportLink);
+  const link = concat(
+    concat(concat(errorLink, clientIdLink), transformationLink),
+    transportLink
+  );
   const client = new ApolloClient({
     link,
     cache

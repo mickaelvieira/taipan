@@ -2,7 +2,7 @@ import React from "react";
 import { Bookmark } from "../../types/bookmark";
 import { Document } from "../../types/document";
 import { Subscription } from "../../types/subscription";
-import ExternalLink from "./Link/External";
+import { ExternalLink } from "./Link";
 
 export interface DomainProps {
   item: Bookmark | Document | Subscription;

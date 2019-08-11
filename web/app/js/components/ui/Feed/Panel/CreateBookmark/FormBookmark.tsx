@@ -6,7 +6,6 @@ import NoImage from "../../../NoImage";
 import { Document } from "../../../../../types/document";
 import { Bookmark } from "../../../../../types/bookmark";
 import Title from "../../Item/Title";
-import Description from "../../Item/Description";
 import { getImageWidth } from "../../../../../helpers/image";
 import { query, Data, Variables } from "../../../../apollo/Query/Bookmark";
 import Loader from "../../../Loader";
@@ -67,7 +66,6 @@ export default function FormBookmark({
   return (
     <form className={classes.form}>
       <Title item={document} />
-      <Description item={document} />
       {document.image && (
         <CardMedia
           className={classes.media}

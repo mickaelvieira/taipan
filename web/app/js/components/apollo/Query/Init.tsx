@@ -4,7 +4,7 @@ import { User } from "../../../types/users";
 
 export interface AppQueryData {
   app: {
-    info: AppInfo;
+    info: AppInfo | null;
   };
 }
 

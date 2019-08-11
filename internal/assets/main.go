@@ -13,14 +13,18 @@ const AssetsBasePath = "/static"
 
 // Assets represents the list of available assets
 type Assets struct {
-	App    string `json:"app"`
-	Vendor string `json:"vendor"`
+	App        string `json:"app"`
+	Vendor     string `json:"vendor"`
+	React      string `json:"react"`
+	Materialui string `json:"materialui"`
 }
 
 // AppendFileServerBasePath removes the base path from assets filepaths
 func (a *Assets) AppendFileServerBasePath() {
 	a.App = AssetsBasePath + a.App
 	a.Vendor = AssetsBasePath + a.Vendor
+	a.React = AssetsBasePath + a.React
+	a.Materialui = AssetsBasePath + a.Materialui
 }
 
 // MakeCDNBaseURL returns the CDN base URL

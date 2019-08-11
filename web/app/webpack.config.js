@@ -16,16 +16,20 @@ const patternCssFiles = isProduction
   : "[name].css";
 
 function getPathnames(chunk) {
-  let { vendor, app } = chunk
+  let { vendor, app, react, materialui } = chunk
 
   if (!isProduction) {
     vendor = vendor[0];
     app = app[0];
+    react = react[0];
+    materialui = materialui[0];
   }
 
   return {
     vendor: `/${vendor}`,
     app: `/${app}`,
+    react: `/${react}`,
+    materialui: `/${materialui}`,
   }
 }
 
@@ -36,26 +40,32 @@ module.exports = {
   entry: {
     app: srcDir + "/app.ts"
   },
-  performance: {
-    maxEntrypointSize: 614400, // 600 KiB
-    maxAssetSize: 614400 // 600 KiB
-  },
   output: {
     filename: `js/${patternJsFiles}`,
     chunkFilename: `js/${patternJsFiles}`,
-    path: tgtDir
+    path: tgtDir,
+    publicPath: isProduction ? "/" : "/static/"
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
   },
   optimization: {
     splitChunks: {
-      name: "vendor",
+      name: true,
       chunks: "all",
       cacheGroups: {
         default: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendor"
+          name(module) {
+            let name = "vendor";
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+            if (packageName === "@material-ui") {
+              name = "materialui";
+            } else if (packageName.indexOf("react") !== -1 || packageName === "prop-types") {
+              name = "react";
+            }
+            return name;
+          },
         }
       }
     },

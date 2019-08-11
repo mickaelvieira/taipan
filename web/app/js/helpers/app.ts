@@ -1,5 +1,27 @@
 import { User } from "../types/users";
 
+export function getAppInfoFromEnv(): [string, string] {
+  return [process.env.APP_NAME || "", process.env.APP_VERSION || ""];
+}
+
+export async function join(email: string, password: string): Promise<User> {
+  try {
+    const result = await fetch("/sign-up", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    }).then(response => response.json());
+    return result;
+  } catch (e) {
+    throw e;
+  }
+}
+
 export async function login(username: string, password: string): Promise<User> {
   try {
     const result = await fetch("/login", {

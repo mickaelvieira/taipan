@@ -4,7 +4,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ExternalLink from "../../../Link/External";
+import { ExternalLink } from "../../../Link";
 import { Source } from "../../../../../types/syndication";
 
 const useStyles = makeStyles(() => ({

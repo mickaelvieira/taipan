@@ -19,10 +19,7 @@ interface Props {
   query: PropTypes.Validator<object>;
 }
 
-export default function Feed({
-  query,
-  List
-}: Props): JSX.Element {
+export default function Feed({ query, List }: Props): JSX.Element {
   const isAtTheBottom = useWindowBottom(600);
   const loadMore = useRef<LoadMore | undefined>();
   const { loading, error, data, fetchMore, networkStatus } = useQuery<

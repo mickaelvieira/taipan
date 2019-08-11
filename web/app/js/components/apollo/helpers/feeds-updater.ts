@@ -11,35 +11,6 @@ import { Bookmark } from "../../../types/bookmark";
 import { Document } from "../../../types/document";
 import { queryNews, queryReadingList, queryFavorites } from "../Query/Feed";
 
-// @TODO workaround for now, since apollo client does not support custom scalar transformation
-function transformBookmarks(bookmarks: Bookmark[]): Bookmark[] {
-  return bookmarks.map(bookmark => {
-    if (typeof bookmark.addedAt === "string") {
-      bookmark.addedAt = new Date(bookmark.addedAt);
-    }
-    if (typeof bookmark.favoritedAt === "string") {
-      bookmark.favoritedAt = new Date(bookmark.favoritedAt);
-    }
-    if (typeof bookmark.updatedAt === "string") {
-      bookmark.updatedAt = new Date(bookmark.updatedAt);
-    }
-    return bookmark;
-  });
-}
-
-// @TODO workaround for now, since apollo client does not support custom scalar transformation
-// function transformDocuments(documents: Document[]): Document[] {
-//   return documents.map(document => {
-//     if (typeof document.createdAt === "string") {
-//       document.createdAt = new Date(document.createdAt);
-//     }
-//     if (typeof document.updatedAt === "string") {
-//       document.updatedAt = new Date(document.updatedAt);
-//     }
-//     return document;
-//   });
-// }
-
 export default class FeedsUpdater {
   client: ApolloClient<object>;
 
@@ -59,9 +30,7 @@ export default class FeedsUpdater {
       };
     },
     readinglist: (result: FeedResults): FeedResults => {
-      const results = sortBy(transformBookmarks(result.results as Bookmark[]), [
-        "addedAt"
-      ]);
+      const results = sortBy(result.results as Bookmark[], ["addedAt"]);
       results.reverse();
       return {
         ...result,
@@ -69,9 +38,7 @@ export default class FeedsUpdater {
       };
     },
     favorites: (result: FeedResults): FeedResults => {
-      const results = sortBy(transformBookmarks(result.results as Bookmark[]), [
-        "favoritedAt"
-      ]);
+      const results = sortBy(result.results as Bookmark[], ["favoritedAt"]);
       results.reverse();
       return {
         ...result,
