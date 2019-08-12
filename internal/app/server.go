@@ -21,12 +21,12 @@ import (
 type Server struct {
 	templates    *template.Template
 	schema       *graphql.Schema
-	assets       *assets.Assets
+	assets       assets.Assets
 	Repositories *repository.Repositories
 }
 
 type tmplData struct {
-	Assets   *assets.Assets
+	Assets   assets.Assets
 	BasePath string
 	CDN      string
 }

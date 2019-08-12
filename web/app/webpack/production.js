@@ -1,19 +1,9 @@
 const path = require("path");
 const merge = require("webpack-merge");
-const { StatsWriterPlugin } = require("webpack-stats-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const common = require("./common.js");
-
-function getPathnames(chunk) {
-  let { vendor, app } = chunk
-
-  return {
-    vendor: `/${vendor}`,
-    app: `/${app}`
-  }
-}
 
 module.exports = merge(common, {
   mode: "production",
@@ -30,7 +20,16 @@ module.exports = merge(common, {
       cacheGroups: {
         default: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendor"
+          name(module) {
+            let name = "vendor";
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+            if (packageName.indexOf("material-ui") !== -1) {
+              name = "materialui";
+            } else if (packageName.indexOf("react") !== -1) {
+              name = "react";
+            }
+            return name;
+          }
         }
       }
     },
@@ -46,14 +45,6 @@ module.exports = merge(common, {
     new MiniCssExtractPlugin({
       filename: "css/[name].[contenthash].css",
       chunkFilename: "css/[name].[contenthash].css"
-    }),
-    new StatsWriterPlugin({
-      filename: "hashes.json",
-      transform({ assetsByChunkName }) {
-        return Promise.resolve().then(() =>
-          JSON.stringify(getPathnames(assetsByChunkName), null, 2)
-        );
-      }
     })
   ]
 });

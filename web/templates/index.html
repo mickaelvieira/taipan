@@ -48,10 +48,9 @@
       background-color: #eee
     }
   </style>
-  <script src="{{ .Assets.Vendor }}" defer></script>
-  <script src="{{ .Assets.React }}" defer></script>
-  <script src="{{ .Assets.Materialui }}" defer></script>
-  <script src="{{ .Assets.App }}" defer></script>
+  {{range $file := .Assets}}
+  <script src="{{ $file }}" defer></script>
+  {{end}}
 </head>
 
 <body>
