@@ -14,10 +14,17 @@ import Label from "../../../../ui/Form/Label";
 import Hint from "../../../../ui/Form/Hint";
 import { InputBase } from "../../../../ui/Form/Input";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ palette }) => ({
   form: {
     display: "flex",
     flexDirection: "column"
+  },
+  input: {
+    borderRadius: 0,
+    border: 0,
+    borderBottom: `1px solid ${palette.grey[400]}`,
+    paddingRight: 0,
+    paddingLeft: 0
   },
   button: {
     marginTop: 16,
@@ -56,6 +63,7 @@ export default function FormDocument({
           autoCapitalize="off"
           autoCorrect="off"
           onChange={event => setUrl(event.target.value)}
+          className={classes.input}
         />
         {error && <Hint>{error.message}</Hint>}
       </Group>

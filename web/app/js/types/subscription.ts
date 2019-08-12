@@ -1,15 +1,13 @@
-import { Datetime } from "./scalars";
-
 export interface Subscription {
   id: string;
-  url: string;
-  domain: string | null;
+  url: URL;
+  domain: URL | null;
   title: string;
   type: string;
   isSubscribed: boolean;
   frequency: string;
-  createdAt: Datetime | null;
-  updatedAt: Datetime | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
 
 export interface SubscriptionResults {

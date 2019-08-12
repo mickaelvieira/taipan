@@ -6,27 +6,13 @@ import {
   removeItem,
   getBoundaries
 } from "./feed";
-import { Bookmark } from "../../../types/bookmark";
 import {
   FeedResults,
   FeedItem,
   FeedEvent,
   FeedEventData
 } from "../../../types/feed";
-
-function getBookmark(id: string): Bookmark {
-  return {
-    id,
-    url: "baz",
-    title: "baz",
-    description: "baz",
-    image: null,
-    addedAt: "baz",
-    favoritedAt: "foo",
-    updatedAt: "baz",
-    isFavorite: false
-  };
-}
+import { getBookmark } from "../../../helpers/testing";
 
 describe("Feed helpers", () => {
   describe("getDataKey", () => {
@@ -88,7 +74,7 @@ describe("Feed helpers", () => {
     });
 
     it("has results when the result has data", () => {
-      const item = getBookmark("baz");
+      const item = getBookmark();
       const result = {
         feeds: {
           foo: {
@@ -118,7 +104,7 @@ describe("Feed helpers", () => {
     beforeAll(() => {
       event = {
         emitter: "baz",
-        item: getBookmark("baz"),
+        item: getBookmark(),
         action: "favorite",
         topic: "bookmark"
       };
@@ -148,9 +134,9 @@ describe("Feed helpers", () => {
     });
 
     it("returns the first and the last ID", () => {
-      const item1 = getBookmark("foo");
-      const item2 = getBookmark("bar");
-      const item3 = getBookmark("baz");
+      const item1 = getBookmark({ id: "foo" });
+      const item2 = getBookmark({ id: "bar" });
+      const item3 = getBookmark({ id: "baz" });
       const [first, last] = getBoundaries([item1, item2, item3]);
       expect(first).toBe("foo");
       expect(last).toBe("baz");
@@ -176,15 +162,15 @@ describe("Feed helpers", () => {
     });
 
     it("adds a item to a feed", () => {
-      const item1 = getBookmark("baz");
+      const item1 = getBookmark();
       feed = addItem(feed, item1);
       expect(feed.results.length).toEqual(1);
     });
 
     it("adds items on top of the feed", () => {
-      const item1 = getBookmark("foo");
-      const item2 = getBookmark("bar");
-      const item3 = getBookmark("baz");
+      const item1 = getBookmark({ id: "foo" });
+      const item2 = getBookmark({ id: "bar" });
+      const item3 = getBookmark({ id: "baz" });
       feed = addItem(feed, item1);
       feed = addItem(feed, item2);
       feed = addItem(feed, item3);
@@ -194,9 +180,9 @@ describe("Feed helpers", () => {
     });
 
     it("updates result's boundaries", () => {
-      const item1 = getBookmark("foo");
-      const item2 = getBookmark("bar");
-      const item3 = getBookmark("baz");
+      const item1 = getBookmark({ id: "foo" });
+      const item2 = getBookmark({ id: "bar" });
+      const item3 = getBookmark({ id: "baz" });
       feed = addItem(feed, item1);
       feed = addItem(feed, item2);
       feed = addItem(feed, item3);
@@ -205,9 +191,9 @@ describe("Feed helpers", () => {
     });
 
     it("clones existing items", () => {
-      const item1 = getBookmark("foo");
-      const item2 = getBookmark("bar");
-      const item3 = getBookmark("baz");
+      const item1 = getBookmark({ id: "foo" });
+      const item2 = getBookmark({ id: "bar" });
+      const item3 = getBookmark({ id: "baz" });
       feed = addItem(feed, item1);
       feed = addItem(feed, item2);
       feed = addItem(feed, item3);
@@ -219,16 +205,16 @@ describe("Feed helpers", () => {
     });
 
     it("updates result's total", () => {
-      const item1 = getBookmark("baz");
-      const item2 = getBookmark("bar");
+      const item1 = getBookmark({ id: "baz" });
+      const item2 = getBookmark({ id: "bar" });
       feed = addItem(feed, item1);
       feed = addItem(feed, item2);
       expect(feed.total).toEqual(2);
     });
 
     it("does not duplicate items", () => {
-      const item1 = getBookmark("baz");
-      const item2 = getBookmark("baz");
+      const item1 = getBookmark({ id: "baz" });
+      const item2 = getBookmark({ id: "baz" });
       feed = addItem(feed, item1);
       feed = addItem(feed, item2);
       expect(feed.total).toEqual(1);
@@ -237,9 +223,9 @@ describe("Feed helpers", () => {
   });
 
   describe("removeItem", () => {
-    const item1 = getBookmark("foo");
-    const item2 = getBookmark("bar");
-    const item3 = getBookmark("baz");
+    const item1 = getBookmark({ id: "foo" });
+    const item2 = getBookmark({ id: "bar" });
+    const item3 = getBookmark({ id: "baz" });
     let feed: FeedResults;
     beforeEach(() => {
       feed = {
@@ -252,25 +238,25 @@ describe("Feed helpers", () => {
     });
 
     it("removes an item from the feed", () => {
-      const item1 = getBookmark("baz");
+      const item1 = getBookmark();
       feed = removeItem(feed, item1);
       expect(feed.results.length).toEqual(2);
     });
 
     it("updates result's upper boundary", () => {
-      const item1 = getBookmark("foo");
+      const item1 = getBookmark();
       feed = removeItem(feed, item1);
       expect(feed.first).toEqual("bar");
     });
 
     it("updates result's lower boundary", () => {
-      const item1 = getBookmark("baz");
+      const item1 = getBookmark({ id: "bar" });
       feed = removeItem(feed, item1);
-      expect(feed.last).toEqual("bar");
+      expect(feed.last).toEqual("baz");
     });
 
     it("clones existing items", () => {
-      const item1 = getBookmark("foo");
+      const item1 = getBookmark();
       feed = removeItem(feed, item1);
       expect(feed.results[0]).toEqual(item2);
       expect(feed.results[0]).not.toBe(item2);
@@ -279,15 +265,15 @@ describe("Feed helpers", () => {
     });
 
     it("updates result's total", () => {
-      const item1 = getBookmark("baz");
-      const item2 = getBookmark("bar");
+      const item1 = getBookmark({ id: "baz" });
+      const item2 = getBookmark({ id: "bar" });
       feed = removeItem(feed, item1);
       feed = removeItem(feed, item2);
       expect(feed.total).toEqual(1);
     });
 
     it("does not alter the feed if the item is not present", () => {
-      const item1 = getBookmark("foobar");
+      const item1 = getBookmark();
       feed = removeItem(feed, item1);
       expect(feed).toBe(feed);
     });

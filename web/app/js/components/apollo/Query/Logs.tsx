@@ -9,7 +9,7 @@ export interface Data {
 }
 
 export interface Variables {
-  url: string;
+  url: URL;
   pagination: OffsetPagination;
 }
 

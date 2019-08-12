@@ -16,18 +16,12 @@ import { Document } from "../../types/document";
 import { Bookmark } from "../../types/bookmark";
 import { Subscription } from "../../types/subscription";
 import { Source } from "../../types/syndication";
-import { transformFeedData, transformItemData } from "./transformers";
+import transform from "./transform";
 
 function isSubscriptionOperation(name: string): boolean {
   return ["onBookmarkChange", "onDocumentChange", "onUserChange"].includes(
     name
   );
-}
-function isFeedOpertion(name: string): boolean {
-  return ["news", "latestNews", "favorites", "readingList"].includes(name);
-}
-function isBookmarkOperation(name: string): boolean {
-  return ["favorite", "unfavorite", "bookmark", "unbookmark"].includes(name);
 }
 
 export function genRandomId(): string {
@@ -119,15 +113,7 @@ export default (clientId: string): ApolloClient<object> => {
     if (isSubscriptionOperation(name)) {
       return forward(operation);
     }
-    return forward(operation).map(data => {
-      if (isFeedOpertion(name)) {
-        data = transformFeedData(name, data);
-      }
-      if (isBookmarkOperation(name)) {
-        data = transformItemData(data);
-      }
-      return data;
-    });
+    return forward(operation).map(transform);
   });
   const clientIdLink = setContext(() => ({
     headers: {

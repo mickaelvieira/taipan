@@ -16,7 +16,7 @@ export default React.memo(function SubscriptionDomain({
   return (
     <ExternalLink
       href={`${url.protocol}//${url.host}`}
-      title={item.title ? item.title : item.url}
+      title={item.title ? item.title : `${item.url}`}
     >
       {`${url.protocol}//${url.host}`}
     </ExternalLink>

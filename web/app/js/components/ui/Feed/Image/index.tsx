@@ -10,7 +10,7 @@ interface Props {
 
 export default function ItemImage({ item }: Props): JSX.Element | null {
   return !item.image ? null : (
-    <ExternalLink underline="none" href={item.url} title={item.title}>
+    <ExternalLink underline="none" href={`${item.url}`} title={item.title}>
       <EagerLoadingImage media={item.image} title={item.title} />
     </ExternalLink>
   );

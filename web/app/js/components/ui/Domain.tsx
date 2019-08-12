@@ -13,14 +13,13 @@ export default React.memo(function Domain({
   item,
   className
 }: DomainProps): JSX.Element {
-  const url = new URL(item.url);
   return (
     <ExternalLink
-      href={item.url}
-      title={item.title ? item.title : item.url}
+      href={`${item.url}`}
+      title={item.title ? item.title : `${item.url}`}
       className={className}
     >
-      {url.host}
+      {item.url.host}
     </ExternalLink>
   );
 });

@@ -69,14 +69,16 @@ export default function FormBookmark({
       {document.image && (
         <CardMedia
           className={classes.media}
-          image={document.image.url}
+          image={`${document.image.url}`}
           title={document.title}
         />
       )}
       {!document.image && <NoImage className={classes.nomedia} />}
       {loading && <Loader />}
-      {error && <NewBookmark document={document} onFinish={onFinish} />}
-      {data && data.bookmarks.bookmark && (
+      {!loading && error && (
+        <NewBookmark document={document} onFinish={onFinish} />
+      )}
+      {!loading && !error && data && data.bookmarks.bookmark && (
         <ExistingBookmark
           bookmark={data.bookmarks.bookmark}
           onFinish={onFinish}

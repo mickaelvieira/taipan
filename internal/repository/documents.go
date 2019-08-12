@@ -434,7 +434,7 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 		INSERT INTO documents
 		(url, checksum, charset, language, title, description, created_at, updated_at, deleted)
 		VALUES
-		(?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, UNHEX(?), ?, ?, ?, ?, ?, ?, ?)
 	`
 	res, err := r.db.ExecContext(
 		ctx,

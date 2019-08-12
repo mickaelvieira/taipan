@@ -1,19 +1,6 @@
 import { addSubscription, removeSubscription } from "./subscriptions";
 import { SubscriptionResults, Subscription } from "../../../types/subscription";
-
-function getSubscription(id: string): Subscription {
-  return {
-    id,
-    url: "baz",
-    domain: "foo",
-    title: "baz",
-    type: "baz",
-    frequency: "hourly",
-    isSubscribed: true,
-    createdAt: "baz",
-    updatedAt: "baz"
-  };
-}
+import { getSubscription } from "../../../helpers/testing";
 
 describe("Syndication helpers", () => {
   describe("addSubscription", () => {
@@ -34,15 +21,15 @@ describe("Syndication helpers", () => {
     });
 
     it("adds a item to a results", () => {
-      const item1 = getSubscription("baz");
+      const item1 = getSubscription();
       results = addSubscription(results, item1);
       expect(results.results.length).toEqual(1);
     });
 
     it("adds items on top of the results", () => {
-      const item1 = getSubscription("foo");
-      const item2 = getSubscription("bar");
-      const item3 = getSubscription("baz");
+      const item1 = getSubscription({ id: "foo" });
+      const item2 = getSubscription({ id: "bar" });
+      const item3 = getSubscription({ id: "baz" });
       results = addSubscription(results, item1);
       results = addSubscription(results, item2);
       results = addSubscription(results, item3);
@@ -52,9 +39,9 @@ describe("Syndication helpers", () => {
     });
 
     it("clones existing items", () => {
-      const item1 = getSubscription("foo");
-      const item2 = getSubscription("bar");
-      const item3 = getSubscription("baz");
+      const item1 = getSubscription({ id: "foo" });
+      const item2 = getSubscription({ id: "bar" });
+      const item3 = getSubscription({ id: "baz" });
       results = addSubscription(results, item1);
       results = addSubscription(results, item2);
       results = addSubscription(results, item3);
@@ -66,16 +53,16 @@ describe("Syndication helpers", () => {
     });
 
     it("updates result's total", () => {
-      const item1 = getSubscription("baz");
-      const item2 = getSubscription("bar");
+      const item1 = getSubscription({ id: "baz" });
+      const item2 = getSubscription({ id: "bar" });
       results = addSubscription(results, item1);
       results = addSubscription(results, item2);
       expect(results.total).toEqual(2);
     });
 
     it("does not duplicate items", () => {
-      const item1 = getSubscription("baz");
-      const item2 = getSubscription("baz");
+      const item1 = getSubscription({ id: "baz" });
+      const item2 = getSubscription({ id: "baz" });
       results = addSubscription(results, item1);
       results = addSubscription(results, item2);
       expect(results.total).toEqual(1);
@@ -84,9 +71,9 @@ describe("Syndication helpers", () => {
   });
 
   describe("removeSubscription", () => {
-    const item1 = getSubscription("foo");
-    const item2 = getSubscription("bar");
-    const item3 = getSubscription("baz");
+    const item1 = getSubscription({ id: "foo" });
+    const item2 = getSubscription({ id: "bar" });
+    const item3 = getSubscription({ id: "baz" });
     let results: SubscriptionResults;
     beforeEach(() => {
       results = {
@@ -98,13 +85,13 @@ describe("Syndication helpers", () => {
     });
 
     it("removes a source from the results", () => {
-      const item1 = getSubscription("baz");
+      const item1 = getSubscription({ id: "baz" });
       results = removeSubscription(results, item1);
       expect(results.results.length).toEqual(2);
     });
 
     it("clones existing sources", () => {
-      const item1 = getSubscription("foo");
+      const item1 = getSubscription({ id: "foo" });
       results = removeSubscription(results, item1);
       expect(results.results[0]).toEqual(item2);
       expect(results.results[0]).not.toBe(item2);
@@ -113,15 +100,15 @@ describe("Syndication helpers", () => {
     });
 
     it("updates result's total", () => {
-      const item1 = getSubscription("baz");
-      const item2 = getSubscription("bar");
+      const item1 = getSubscription({ id: "bar" });
+      const item2 = getSubscription({ id: "baz" });
       results = removeSubscription(results, item1);
       results = removeSubscription(results, item2);
       expect(results.total).toEqual(1);
     });
 
     it("does not alter the results if the source is not present", () => {
-      const item1 = getSubscription("foobar");
+      const item1 = getSubscription({ id: "foobar" });
       results = removeSubscription(results, item1);
       expect(results).toBe(results);
     });

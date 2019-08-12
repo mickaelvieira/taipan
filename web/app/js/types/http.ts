@@ -1,5 +1,3 @@
-import { Datetime } from "./scalars";
-
 export interface Log {
   id: string;
   checksum: string;
@@ -9,7 +7,7 @@ export interface Log {
   requestMethod: string;
   hasFailed: boolean;
   failureReason: string;
-  createdAt: Datetime;
+  createdAt: Date;
 }
 
 export interface LogResults {

@@ -10,12 +10,7 @@ import FeedsUpdater from "../../apollo/helpers/feeds-updater";
 import FeedsMutator from "../../apollo/helpers/feeds-mutator";
 import { documentSubscription } from "../../apollo/Subscription/Documents";
 import { bookmarkSubscription } from "../../apollo/Subscription/Bookmarks";
-import {
-  transformDocument,
-  DocumentWithTypeName,
-  transformerBookmark,
-  BookmarkWithTypeName
-} from "../../../services/apollo/transformers";
+import tranform from "../../../services/apollo/transformation";
 
 export default function FeedContextProvider({
   children
@@ -33,7 +28,7 @@ export default function FeedContextProvider({
         console.log(event);
         console.log(clientId);
         const { item, action } = event as FeedEvent;
-        const document = transformDocument(item as DocumentWithTypeName);
+        const document = tranform(item);
         console.log(document);
         switch (action) {
           case "unbookmark":
@@ -51,7 +46,7 @@ export default function FeedContextProvider({
         console.log(event);
         console.log(clientId);
         const { item, action } = event as FeedEvent;
-        const bookmark = transformerBookmark(item as BookmarkWithTypeName);
+        const bookmark = tranform(item);
         console.log(bookmark);
         switch (action) {
           case "bookmark":

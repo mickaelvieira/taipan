@@ -1,9 +1,8 @@
 import React from "react";
 import dayjs from "dayjs";
-import { Datetime as DatetimeType } from "../../types/scalars";
 
 interface Props {
-  value: DatetimeType;
+  value: Date;
   className?: string;
   format?: string;
 }

@@ -10,7 +10,7 @@ export interface Data {
 }
 
 export interface Variables {
-  url: string;
+  url: URL;
 }
 
 export { resumeMutation, pauseMutation };

@@ -1,18 +1,17 @@
-import { Datetime } from "./scalars";
 import { Log } from "./http";
 
 export interface Source {
   id: string;
-  url: string;
-  domain: string | null;
+  url: URL;
+  domain: URL | null;
   title: string;
   type: string;
   isPaused: boolean;
   isDeleted: boolean;
   frequency: string;
-  createdAt: Datetime;
-  updatedAt: Datetime;
-  parsedAt: Datetime | null;
+  createdAt: Date;
+  updatedAt: Date;
+  parsedAt: Date | null;
   stats?: Stats;
   logEntries?: Log[];
 }

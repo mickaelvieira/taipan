@@ -1,11 +1,12 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import CardMedia, { CardMediaProps } from "@material-ui/core/CardMedia";
+import CardMedia from "@material-ui/core/CardMedia";
 import { IMAGE_PLACEHOLDER } from "../../../../constant/image";
 import { Image } from "../../../../types/image";
 import { getImageWidth } from "../../../../helpers/image";
 
-interface Props extends CardMediaProps {
+interface Props {
+  title: string;
   media: Image | null;
 }
 
@@ -24,6 +25,6 @@ export default function EagerLoadingImage({
   title
 }: Props): JSX.Element {
   const classes = useStyles();
-  const src = media ? media.url : IMAGE_PLACEHOLDER;
+  const src = media ? `${media.url}` : IMAGE_PLACEHOLDER;
   return <CardMedia className={classes.media} image={src} title={title} />;
 }
