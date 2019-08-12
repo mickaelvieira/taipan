@@ -75,6 +75,7 @@
     "webpack": "4.39.2",
     "webpack-cli": "3.3.6",
     "webpack-graphql-loader": "1.0.2",
+    "webpack-merge": "^4.2.1",
     "webpack-stats-plugin": "0.3.0"
   },
   "devDependencies": {
