@@ -9,6 +9,7 @@ import { join } from "../../../helpers/app";
 import { RouterLink } from "../../ui/Link";
 import Group from "../../ui/Form/Group";
 import Label from "../../ui/Form/Label";
+import Hint from "../../ui/Form/Hint";
 import { InputBase, InputPassword } from "../../ui/Form/Input";
 
 const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
@@ -36,6 +37,7 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
 
 export default function Signup(_: RouteLoginProps): JSX.Element {
   const classes = useStyles();
+  const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -71,6 +73,7 @@ export default function Signup(_: RouteLoginProps): JSX.Element {
             Make sure it&apos;s at least 10 characters.
           </FormHelperText>
         </Group>
+        {error && <Hint>{error}</Hint>}
         <Button
           type="submit"
           variant="contained"
@@ -78,11 +81,15 @@ export default function Signup(_: RouteLoginProps): JSX.Element {
           className={classes.button}
           onClick={() => {
             join(email, password)
-              .then(() => {
-                window.location.href = "/";
+              .then(({ error, result }) => {
+                if (error) {
+                  setError(error.error);
+                } else if (result) {
+                  window.location.href = "/";
+                }
               })
               .catch(e => {
-                console.warn(e);
+                setError(e.message);
               });
           }}
         >

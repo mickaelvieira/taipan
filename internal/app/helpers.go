@@ -1,11 +1,14 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/logger"
+	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"github/mickaelvieira/taipan/internal/logger"
 )
 
 func isDev() bool {
@@ -37,4 +40,14 @@ func Signal(onStop func()) {
 			os.Exit(1)
 		}
 	}()
+}
+
+func writeJSONError(w http.ResponseWriter, status int, e error) {
+	j, err := json.Marshal(apiError{Error: e.Error()})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
 }

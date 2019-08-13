@@ -21,5 +21,6 @@ require (
 	github.com/streadway/amqp v0.0.0-20190815233558-eade30b20f1d
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	github.com/urfave/cli v1.21.0
+	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
 	golang.org/x/image v0.0.0-20190802004718-cff245a6509b
 )

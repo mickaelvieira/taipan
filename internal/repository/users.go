@@ -37,6 +37,48 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 	return u, nil
 }
 
+// GetByUsername find a single entry
+func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*user.User, error) {
+	query := `
+		SELECT u.id, u.username, u.firstname, u.lastname, u.status, u.theme,
+		u.image_name, u.image_width, u.image_height, u.image_format,
+		u.created_at, u.updated_at
+		FROM users as u
+		INNER JOIN users_emails as e ON u.id = e.user_id
+		WHERE e.value = ? AND e.primary = 1
+	`
+	row := r.db.QueryRowContext(ctx, formatQuery(query), username)
+	u, err := r.scan(row)
+	if err != nil {
+		return nil, err
+	}
+
+	emails, err := r.GetUserEmails(ctx, u.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	u.Emails = emails
+
+	return u, nil
+}
+
+// GetPassword find a single entry
+func (r *UserRepository) GetPassword(ctx context.Context, id string) (string, error) {
+	var password string
+	query := `
+		SELECT u.password
+		FROM users as u
+		WHERE u.id = ?
+	`
+	err := r.db.QueryRowContext(ctx, formatQuery(query), id).Scan(&password)
+	if err != nil {
+		return password, err
+	}
+
+	return password, nil
+}
+
 // CreateUserEmail --
 func (r *UserRepository) CreateUserEmail(ctx context.Context, u *user.User, e *user.Email) error {
 	query := `

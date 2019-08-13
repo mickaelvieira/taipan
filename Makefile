@@ -30,7 +30,6 @@ test-ui:
 	$(CDWEB) && yarn test
 
 watch-ui:
-	rm-scripts
 	$(RMSCRIPTS) && $(CDWEB) && yarn watch
 
 watch-test-ui:

@@ -148,11 +148,15 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
             onClick={(event: React.MouseEvent) => {
               event.preventDefault();
               logout()
-                .then(() => {
-                  window.location.href = "/sign-in";
+                .then(({ error, result }) => {
+                  if (error) {
+                    console.warn(error.error);
+                  } else if (result) {
+                    window.location.href = "/sign-in";
+                  }
                 })
                 .catch(e => {
-                  console.warn(e);
+                  console.warn(e.message);
                 });
             }}
           >
