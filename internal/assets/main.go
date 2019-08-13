@@ -28,17 +28,9 @@ func MakeImageURL(name string) *url.URL {
 	return u
 }
 
-// GetBasePath returns base path
-func GetBasePath(useFileServer bool) string {
-	if useFileServer {
-		return AssetsBasePath
-	}
-	return ""
-}
-
 // LoadAssetsDefinition loads the list of available assets
 func LoadAssetsDefinition(path string, useFileServer bool) Assets {
-	files, err := ioutil.ReadDir("./web/static/js")
+	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
 	}

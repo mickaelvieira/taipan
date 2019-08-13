@@ -3,8 +3,6 @@ package clientid
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/config"
-	"net/http"
-	"os"
 )
 
 // @TODO sign and validate the client ID instead to strenghen security
@@ -23,14 +21,4 @@ func FromContext(ctx context.Context) string {
 		clientID = ""
 	}
 	return clientID
-}
-
-// WithClientID stores the client (aka user agent) ID in the context
-func WithClientID(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		ctx := req.Context()
-		clientID := req.Header.Get(os.Getenv("APP_CLIENT_ID_HEADER"))
-		ctx = NewContext(ctx, clientID)
-		next.ServeHTTP(w, req.WithContext(ctx))
-	}
 }

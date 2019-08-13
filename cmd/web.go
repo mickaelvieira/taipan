@@ -1,16 +1,18 @@
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"net/http"
 	"os"
 
 	"github/mickaelvieira/taipan/internal/app"
+	"github/mickaelvieira/taipan/internal/app/middleware"
+	"github/mickaelvieira/taipan/internal/app/paths"
+	"github/mickaelvieira/taipan/internal/app/routes"
 	"github/mickaelvieira/taipan/internal/assets"
-	"github/mickaelvieira/taipan/internal/auth"
-	"github/mickaelvieira/taipan/internal/clientid"
+	"github/mickaelvieira/taipan/internal/graphql"
+	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/templates"
 
+	"github.com/labstack/echo/v4"
 	"github.com/urfave/cli"
 )
 
@@ -23,27 +25,30 @@ var Web = cli.Command{
 }
 
 func runWeb(c *cli.Context) {
-	server := app.Bootstrap()
-	port := os.Getenv("APP_PORT")
-	env := os.Getenv("TAIPAN_ENV")
-	webDir := os.Getenv("APP_WEB_DIR")
+	a := assets.LoadAssetsDefinition(paths.GetScriptsDir(), app.UseFileServer())
+	t := templates.NewRenderer(paths.GetTemplatesDir())
+	r := repository.GetRepositories()
+	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
 
+	e := echo.New()
+	e.Renderer = t
+	e.Use(middleware.ClientID())
+	e.Use(middleware.Session())
+	e.Use(middleware.Firewall())
+
+	if app.IsDev() {
+		e.Debug = true
+		e.Use(middleware.CORS())
+	}
 	if app.UseFileServer() {
-		fs := http.FileServer(http.Dir(webDir))
-		http.Handle(assets.AssetsBasePath+"/", fs)
+		e.Static(paths.GetBasePath(app.UseFileServer()), paths.GetStaticDir())
 	}
 
-	// Routing
-	http.HandleFunc("/", server.IndexHandler)
-	http.HandleFunc("/login", server.SigninHandler)
-	http.HandleFunc("/logout", server.SignoutHandler)
-	http.HandleFunc("/graphql", clientid.WithClientID(auth.WithUser(server.QueryHandler, server.Repositories.Users)))
+	e.POST("/login", routes.Signin(r))
+	e.POST("/logout", routes.Signout())
+	e.GET("/graphql", routes.GraphQL(s, r))
+	e.POST("/graphql", routes.GraphQL(s, r))
+	e.GET("/*", routes.Index(a))
 
-	// Start the server
-	fmt.Println("Listening: http://localhost:" + port)
-	fmt.Println("Environment", env)
-	err := http.ListenAndServe(":"+port, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	e.Logger.Fatal(e.Start(":" + os.Getenv("APP_PORT")))
 }
