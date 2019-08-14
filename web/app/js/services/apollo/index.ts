@@ -75,25 +75,25 @@ export default (clientId: string): ApolloClient<object> => {
   const httpLink = new HttpLink({
     uri: `http${isEncrypted ? "s" : ""}:${endpoint}`
   });
-  const wsLink = new WebSocketLink({
-    uri: `ws${isEncrypted ? "s" : ""}:${endpoint}`,
-    options: {
-      reconnect: true,
-      reconnectionAttempts: Infinity,
-      inactivityTimeout: 0
-    }
-  });
-  const transportLink = split(
-    ({ query }) => {
-      const definition = getMainDefinition(query);
-      return (
-        definition.kind === "OperationDefinition" &&
-        definition.operation === "subscription"
-      );
-    },
-    wsLink,
-    httpLink
-  );
+  // const wsLink = new WebSocketLink({
+  //   uri: `ws${isEncrypted ? "s" : ""}:${endpoint}`,
+  //   options: {
+  //     reconnect: true,
+  //     reconnectionAttempts: Infinity,
+  //     inactivityTimeout: 0
+  //   }
+  // });
+  // const transportLink = split(
+  //   ({ query }) => {
+  //     const definition = getMainDefinition(query);
+  //     return (
+  //       definition.kind === "OperationDefinition" &&
+  //       definition.operation === "subscription"
+  //     );
+  //   },
+  //   wsLink,
+  //   httpLink
+  // );
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors)
       graphQLErrors.map(({ message, locations, path }) =>
@@ -123,7 +123,7 @@ export default (clientId: string): ApolloClient<object> => {
 
   const link = concat(
     concat(concat(errorLink, clientIdLink), transformationLink),
-    transportLink
+    httpLink
   );
   const client = new ApolloClient({
     link,

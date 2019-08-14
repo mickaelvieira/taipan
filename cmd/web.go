@@ -36,7 +36,7 @@ func runWeb(c *cli.Context) {
 	e.Renderer = t
 	e.Use(middleware.ClientID())
 	e.Use(middleware.Session())
-	e.Use(middleware.Firewall())
+	e.Use(middleware.Firewall(r))
 
 	if web.IsDev() {
 		e.Debug = true

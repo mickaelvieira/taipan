@@ -157,6 +157,7 @@ func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 
 // UserChanged subscribes to user event
 func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEventResolver {
+	// @TODO better handle authentication
 	c := make(chan *UserEventResolver)
 	s := &userSubscriber{events: c}
 	r.publisher.Subscribe(publisher.TopicUser, s, ctx.Done())

@@ -155,6 +155,7 @@ func (r *DocumentEventResolver) Action() string {
 
 // DocumentChanged --
 func (r *RootResolver) DocumentChanged(ctx context.Context) <-chan *DocumentEventResolver {
+	// @TODO better handle authentication
 	c := make(chan *DocumentEventResolver)
 	s := &documentSubscriber{events: c}
 	r.publisher.Subscribe(publisher.TopicDocument, s, ctx.Done())

@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/clientid"
+	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/web"
 
 	"net/http"
@@ -13,14 +15,39 @@ import (
 	mw "github.com/labstack/echo/v4/middleware"
 )
 
+func isSecuredArea(path string) bool {
+	return path == "/graphql"
+}
+
+func isWebSocket(req *http.Request) bool {
+	return req.Header.Get("Upgrade") == "websocket"
+}
+
 // Firewall middleware
-func Firewall() echo.MiddlewareFunc {
+func Firewall(r *repository.Repositories) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			sess, _ := session.Get("session", c)
-			sess.Options = web.GetSessionOptions()
-			_, ok := sess.Values["user_id"].(string)
-			if c.Request().RequestURI == "/graphql" && !ok {
+			req := c.Request()
+			sess := web.GetSession(c)
+			authorized := false
+
+			// @TODO I need to investigate a better way of handling websocket authentication
+			if !isSecuredArea(c.Request().RequestURI) {
+				authorized = true
+			} else {
+				ctx := req.Context()
+				userID, ok := sess.Values["user_id"].(string)
+				if ok {
+					user, err := r.Users.GetByID(ctx, userID)
+					if err == nil && user != nil {
+						req = req.WithContext(auth.NewContext(ctx, user))
+						c.SetRequest(req)
+						authorized = true
+					}
+				}
+			}
+
+			if !authorized && !isWebSocket(c.Request()) {
 				return c.JSON(http.StatusUnauthorized, struct{}{})
 			}
 			return next(c)
