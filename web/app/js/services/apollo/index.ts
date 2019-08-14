@@ -1,12 +1,12 @@
 import ApolloClient from "apollo-client";
-import { IdGetterObj } from "apollo-boost";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { ApolloLink, split, concat } from "apollo-link";
+import { InMemoryCache, IdGetterObj } from "apollo-cache-inmemory";
+// import { ApolloLink, split, concat } from "apollo-link";
+import { ApolloLink, concat } from "apollo-link";
 import { onError } from "apollo-link-error";
 import { HttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
-import { WebSocketLink } from "apollo-link-ws";
-import { getMainDefinition } from "apollo-utilities";
+// import { WebSocketLink } from "apollo-link-ws";
+// import { getMainDefinition } from "apollo-utilities";
 import { Log } from "../../types/http";
 import { AppInfo } from "../../types/app";
 import { Image } from "../../types/image";
