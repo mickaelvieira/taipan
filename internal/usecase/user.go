@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
 	"strings"
@@ -15,13 +14,17 @@ import (
 
 // Users use cases errors
 var (
-	ErrUserDoesNotExist = errors.New("User does not exist")
-	ErrWeakPassword     = errors.New("Your password must be at least 10 characters long")
-	ErrInvalidEmail     = errors.New("Your email does not seem to be valid")
-	ErrNoEmail          = errors.New("Please provide your email")
-	ErrNoPassword       = errors.New("Please provide a valid password")
-	ErrEmailExists      = errors.New("There is already an account associated to this email address")
-	ErrInvalidCreds     = errors.New("Email or password does not match any records in our database")
+	ErrUserDoesNotExist         = errors.New("User does not exist")
+	ErrWeakPassword             = errors.New("Your password must be at least 10 characters long")
+	ErrInvalidEmail             = errors.New("Your email does not seem to be valid")
+	ErrNoEmail                  = errors.New("Please provide your email")
+	ErrDoesNotExist             = errors.New("Email does not exist")
+	ErrNoPassword               = errors.New("Please provide a valid password")
+	ErrEmailExists              = errors.New("There is already an account associated to this email address")
+	ErrInvalidCreds             = errors.New("Email or password does not match any records in our database")
+	ErrPrimaryEmailDeletion     = errors.New("You cannot delete your primary email address")
+	ErrPrimaryEmailNotConfirmed = errors.New("You cannot add new email address before confirming your primary email")
+	ErrEmailNotConfirmed        = errors.New("You cannot use this address as your primary email since it hasn't been unconfirmed yet")
 )
 
 // Signin --
@@ -100,7 +103,7 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 		return nil, err
 	}
 
-	emails, err := repos.Emails.GetUserEmails(ctx, u.ID)
+	emails, err := repos.Emails.GetUserEmails(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -144,63 +147,64 @@ func UpdateTheme(ctx context.Context, repos *repository.Repositories, usr *user.
 
 // CreateUserEmail --
 func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
-	e := user.NewEmail(v)
-
-	if len(usr.Emails) == 0 {
-		e.IsPrimary = true
+	_, err := repos.Emails.GetEmail(ctx, v)
+	if err == nil {
+		return ErrEmailExists
 	}
 
-	if len(usr.Emails) == 1 && !usr.Emails[0].IsConfirmed {
-		return fmt.Errorf("You cannot add new email address before confirming your primary email")
-	}
-
-	err := repos.Emails.CreateUserEmail(ctx, usr, e)
+	emails, err := repos.Emails.GetUserEmails(ctx, usr)
 	if err != nil {
 		return err
 	}
 
-	usr.Emails = append(usr.Emails, e)
+	if len(emails) == 1 && !emails[0].IsConfirmed {
+		return ErrPrimaryEmailNotConfirmed
+	}
+
+	err = repos.Emails.CreateUserEmail(ctx, usr, user.NewEmail(v))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // DeleteUserEmail --
 func DeleteUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
-	var email *user.Email
-	var emails []*user.Email
-	for _, e := range usr.Emails {
-		if e.Value == v {
-			email = e
-		} else {
-			emails = append(emails, e)
-		}
-	}
-
-	if email == nil {
-		return fmt.Errorf("Email %s does not exist", v)
-	}
-
-	if email.IsPrimary {
-		return fmt.Errorf("Cannot delete primary email address %s", v)
-	}
-
-	err := repos.Emails.DeleteUserEmail(ctx, usr, email)
+	e, err := repos.Emails.GetUserEmail(ctx, usr, v)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrDoesNotExist
+		}
 		return err
 	}
 
-	usr.Emails = emails
+	if e.IsPrimary {
+		return ErrPrimaryEmailDeletion
+	}
+
+	err = repos.Emails.DeleteUserEmail(ctx, usr, e)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // PrimaryUserEmail --
 func PrimaryUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
-	for _, e := range usr.Emails {
+	emails, err := repos.Emails.GetUserEmails(ctx, usr)
+	if err != nil {
+		return err
+	}
+
+	found := false
+	for _, e := range emails {
 		if e.Value == v {
 			if !e.IsConfirmed {
-				return fmt.Errorf("Cannot mark unconfirmed email address %s as primary", v)
+				return ErrEmailNotConfirmed
 			}
+			found = true
 			e.IsPrimary = true
 			e.UpdatedAt = time.Now()
 		} else {
@@ -209,7 +213,11 @@ func PrimaryUserEmail(ctx context.Context, repos *repository.Repositories, usr *
 		}
 	}
 
-	for _, e := range usr.Emails {
+	if !found {
+		return ErrDoesNotExist
+	}
+
+	for _, e := range emails {
 		err := repos.Emails.PrimaryUserEmail(ctx, usr, e)
 		if err != nil {
 			return err

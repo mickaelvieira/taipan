@@ -79,7 +79,10 @@ export default React.memo(function SubscriptionsTable({
   if (results.length === 0) {
     return (
       <Paper className={classes.message}>
-        We could not find any sources matching your query.
+        {terms.length === 0 &&
+          "You haven't subscribed to any feeds. Use the search field above to find new sources of excitement."}
+        {terms.length > 0 &&
+          "We could not find any sources matching your query."}
       </Paper>
     );
   }

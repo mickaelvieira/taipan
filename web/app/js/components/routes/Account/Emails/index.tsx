@@ -39,16 +39,19 @@ export default function UserEmails({ user }: Props): JSX.Element {
             <UserEmail
               key={email.id}
               email={email}
-              onDeleted={() => {
-                setMessageInfo({ message: "Email was deleted" });
+              onDeletionFailure={message => {
+                setMessageInfo({ message });
+              }}
+              onStatusFailure={message => {
+                setMessageInfo({ message });
               }}
             />
           ))}
         </List>
         {canAdd && (
           <FormUserEmail
-            onCreated={() => {
-              setMessageInfo({ message: "Email was created" });
+            onCreationFailure={message => {
+              setMessageInfo({ message });
             }}
           />
         )}

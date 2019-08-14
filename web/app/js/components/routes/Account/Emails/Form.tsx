@@ -10,6 +10,7 @@ import {
 import Group from "../../../ui/Form/Group";
 import { InputBase } from "../../../ui/Form/Input";
 import Label from "../../../ui/Form/Label";
+import { getErrorMessage } from "../../../apollo/helpers/error";
 
 const useStyles = makeStyles(({ spacing }) => ({
   form: {
@@ -23,17 +24,20 @@ const useStyles = makeStyles(({ spacing }) => ({
 }));
 
 interface Props {
-  onCreated: () => void;
+  onCreationSuccess?: () => void;
+  onCreationFailure: (message: string) => void;
 }
 
-export default function UserEmailForm({ onCreated }: Props): JSX.Element {
+export default function UserEmailForm({
+  onCreationFailure
+}: Props): JSX.Element {
   const [email, setEmail] = useState("");
   const classes = useStyles();
   const [mutate] = useMutation<Data, Variables>(mutation, {
     onCompleted: () => {
       setEmail("");
-      onCreated();
-    }
+    },
+    onError: error => onCreationFailure(getErrorMessage(error))
   });
 
   return (

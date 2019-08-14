@@ -28,6 +28,22 @@ func (r *UserEmailRepository) GetEmail(ctx context.Context, email string) (*user
 	return u, nil
 }
 
+// GetUserEmail retrieves an address email
+func (r *UserEmailRepository) GetUserEmail(ctx context.Context, u *user.User, email string) (*user.Email, error) {
+	query := `
+		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at
+		FROM users_emails as e
+		WHERE e.value = ? AND e.user_id = ?
+	`
+	row := r.db.QueryRowContext(ctx, formatQuery(query), email, u.ID)
+	e, err := r.scan(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return e, nil
+}
+
 // CreateUserEmail --
 func (r *UserEmailRepository) CreateUserEmail(ctx context.Context, u *user.User, e *user.Email) error {
 	query := `
@@ -73,7 +89,7 @@ func (r *UserEmailRepository) DeleteUserEmail(ctx context.Context, u *user.User,
 func (r *UserEmailRepository) PrimaryUserEmail(ctx context.Context, u *user.User, e *user.Email) error {
 	query := `
 		UPDATE users_emails
-		SET primary = ?, updated_at = ?
+		SET 'primary' = ?, updated_at = ?
 		WHERE user_id = ? AND id = ?
 	`
 	_, err := r.db.ExecContext(
@@ -89,13 +105,13 @@ func (r *UserEmailRepository) PrimaryUserEmail(ctx context.Context, u *user.User
 }
 
 // GetUserEmails returns user's emails
-func (r *UserEmailRepository) GetUserEmails(ctx context.Context, id string) ([]*user.Email, error) {
+func (r *UserEmailRepository) GetUserEmails(ctx context.Context, u *user.User) ([]*user.Email, error) {
 	query := `
 		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at
 		FROM users_emails as e
-		WHERE e.user_id = ?
+		WHERE e.user_id = ? ORDER BY e.primary DESC
 		`
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), id)
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), u.ID)
 	if err != nil {
 		return nil, err
 	}

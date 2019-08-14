@@ -8,6 +8,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/logger"
 	"strings"
 	"time"
 
@@ -62,7 +63,6 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 		FROM subscriptions AS su
 		WHERE su.source_id = ? AND su.subscribed = 1
 	`
-
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), sourceID)
 	if err != nil {
 		return nil, err
@@ -106,6 +106,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	args = append(args, limit)
 
 	query = formatQuery(fmt.Sprintf(query, where, search))
+
+	logger.Debug(query)
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {

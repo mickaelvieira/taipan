@@ -16,6 +16,7 @@ import {
   Variables as DeleteUserEmailMutationVariables,
   Data as DeleteUserEmailMutationData
 } from "../../../apollo/Mutation/User/DeleteEmail";
+import { getErrorMessage } from "../../../apollo/helpers/error";
 import { Email } from "../../../../types/users";
 import ButtonBase from "../../../ui/Button";
 import ConfirmDeleteEmail from "./ConfirmDelete";
@@ -31,22 +32,31 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   email: Email;
-  onDeleted: () => void;
+  onDeletionSuccess?: () => void;
+  onDeletionFailure: (message: string) => void;
+  onStatusSuccess?: () => void;
+  onStatusFailure: (message: string) => void;
 }
 
-export default function UserEmail({ email, onDeleted }: Props): JSX.Element {
+export default function UserEmail({
+  email,
+  onDeletionFailure,
+  onStatusFailure
+}: Props): JSX.Element {
   const classes = useStyles();
   const [isShown, setIsShown] = useState(false);
   const [primaryStatus, { loading: isChangingStatus }] = useMutation<
     PrimaryStatusMutationData,
     PrimaryStatusMutationVariables
   >(primaryStatusMutation, {
-    onCompleted: () => onDeleted()
+    onError: error => onStatusFailure(getErrorMessage(error))
   });
   const [deleteEmail, { loading: isDeleting }] = useMutation<
     DeleteUserEmailMutationData,
     DeleteUserEmailMutationVariables
-  >(deleteUserEmailMutation);
+  >(deleteUserEmailMutation, {
+    onError: error => onDeletionFailure(getErrorMessage(error))
+  });
 
   return (
     <ListItem>

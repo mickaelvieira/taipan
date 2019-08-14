@@ -23,6 +23,7 @@ type UsersResolver struct {
 // UserResolver resolves the user entity
 type UserResolver struct {
 	*user.User
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
@@ -41,12 +42,18 @@ func (r *UserResolver) Lastname() string {
 }
 
 // Emails resolves the Emails field
-func (r *UserResolver) Emails() []*EmailResolver {
-	emails := make([]*EmailResolver, len(r.User.Emails))
-	for i, e := range r.User.Emails {
+func (r *UserResolver) Emails(ctx context.Context) ([]*EmailResolver, error) {
+	results, err := r.repositories.Emails.GetUserEmails(ctx, r.User)
+	if err != nil {
+		return nil, err
+	}
+
+	emails := make([]*EmailResolver, len(results))
+	for i, e := range results {
 		emails[i] = &EmailResolver{Email: e}
 	}
-	return emails
+
+	return emails, nil
 }
 
 // Theme resolves the Theme field
@@ -143,14 +150,10 @@ func (r *UserEventResolver) Action() string {
 func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 
-	emails, err := r.repositories.Emails.GetUserEmails(ctx, user.ID)
-	if err != nil {
-		return nil, err
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
 	}
-
-	user.Emails = emails
-
-	res := UserResolver{User: user}
 
 	return &res, nil
 }
@@ -187,7 +190,10 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
@@ -213,7 +219,10 @@ func (r *UsersResolver) Theme(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
@@ -234,7 +243,10 @@ func (r *UsersResolver) CreateEmail(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
@@ -255,7 +267,10 @@ func (r *UsersResolver) DeleteEmail(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
@@ -276,7 +291,10 @@ func (r *UsersResolver) PrimaryEmail(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
