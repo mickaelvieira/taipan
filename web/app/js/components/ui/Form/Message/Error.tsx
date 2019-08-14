@@ -1,11 +1,9 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography, {
-  TypographyProps
-} from "@material-ui/core/Typography";
+import Typography, { TypographyProps } from "@material-ui/core/Typography";
 import red from "@material-ui/core/colors/red";
 
-const useStyles = makeStyles(({spacing}) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   element: {
     marginTop: spacing(2),
     color: red[800]

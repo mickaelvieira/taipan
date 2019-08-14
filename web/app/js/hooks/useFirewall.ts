@@ -5,7 +5,7 @@ const login = "/sign-in";
 const unsecured = [login, "/join", "/sign-out"];
 
 function shouldRedirect(redirect: string): boolean {
-  return location.pathname !== redirect
+  return location.pathname !== redirect;
 }
 
 export default function useFirewall(user: User | null): string | null {
