@@ -1,16 +1,16 @@
 package cmd
 
 import (
-	"os"
-
 	"github/mickaelvieira/taipan/internal/assets"
 	"github/mickaelvieira/taipan/internal/graphql"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/templates"
 	"github/mickaelvieira/taipan/internal/web"
 	"github/mickaelvieira/taipan/internal/web/middleware"
 	"github/mickaelvieira/taipan/internal/web/paths"
 	"github/mickaelvieira/taipan/internal/web/routes"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/urfave/cli"
@@ -31,6 +31,8 @@ func runWeb(c *cli.Context) {
 	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
 
 	e := echo.New()
+	logger.Init(e, os.Getenv("APP_LOG_LEVEL"))
+
 	e.Renderer = t
 	e.Use(middleware.ClientID())
 	e.Use(middleware.Session())
