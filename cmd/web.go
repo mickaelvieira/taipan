@@ -3,14 +3,14 @@ package cmd
 import (
 	"os"
 
-	"github/mickaelvieira/taipan/internal/app"
-	"github/mickaelvieira/taipan/internal/app/middleware"
-	"github/mickaelvieira/taipan/internal/app/paths"
-	"github/mickaelvieira/taipan/internal/app/routes"
 	"github/mickaelvieira/taipan/internal/assets"
 	"github/mickaelvieira/taipan/internal/graphql"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/templates"
+	"github/mickaelvieira/taipan/internal/web"
+	"github/mickaelvieira/taipan/internal/web/middleware"
+	"github/mickaelvieira/taipan/internal/web/paths"
+	"github/mickaelvieira/taipan/internal/web/routes"
 
 	"github.com/labstack/echo/v4"
 	"github.com/urfave/cli"
@@ -25,7 +25,7 @@ var Web = cli.Command{
 }
 
 func runWeb(c *cli.Context) {
-	a := assets.LoadAssetsDefinition(paths.GetScriptsDir(), app.UseFileServer())
+	a := assets.LoadAssetsDefinition(paths.GetScriptsDir(), web.UseFileServer())
 	t := templates.NewRenderer(paths.GetTemplatesDir())
 	r := repository.GetRepositories()
 	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
@@ -36,16 +36,17 @@ func runWeb(c *cli.Context) {
 	e.Use(middleware.Session())
 	e.Use(middleware.Firewall())
 
-	if app.IsDev() {
+	if web.IsDev() {
 		e.Debug = true
 		e.Use(middleware.CORS())
 	}
-	if app.UseFileServer() {
-		e.Static(paths.GetBasePath(app.UseFileServer()), paths.GetStaticDir())
+	if web.UseFileServer() {
+		e.Static(paths.GetBasePath(web.UseFileServer()), paths.GetStaticDir())
 	}
 
-	e.POST("/login", routes.Signin(r))
-	e.POST("/logout", routes.Signout())
+	e.POST("/signin", routes.Signin(r))
+	e.POST("/signout", routes.Signout())
+	e.POST("/signup", routes.Signup(r))
 	e.GET("/graphql", routes.GraphQL(s, r))
 	e.POST("/graphql", routes.GraphQL(s, r))
 	e.GET("/*", routes.Index(a))

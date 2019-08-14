@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github/mickaelvieira/taipan/internal/cmd"
 	"github/mickaelvieira/taipan/internal/domain/messages"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/logger"
@@ -10,8 +11,6 @@ import (
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"log"
-
-	"github/mickaelvieira/taipan/internal/app"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/urfave/cli"
@@ -42,7 +41,7 @@ func runDocumentsWorker(c *cli.Context) {
 		// Close RabbitMQ connection
 		client.Close()
 	}
-	app.Signal(onStop)
+	cmd.Signal(onStop)
 	defer onStop()
 
 	queue := client.GetDocumentQueue()

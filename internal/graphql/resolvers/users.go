@@ -30,11 +30,6 @@ func (r *UserResolver) ID() gql.ID {
 	return gql.ID(r.User.ID)
 }
 
-// Username resolves the Username field
-func (r *UserResolver) Username() string {
-	return r.User.Username
-}
-
 // Firstname resolves the Firstname field
 func (r *UserResolver) Firstname() string {
 	return r.User.Firstname
@@ -147,6 +142,13 @@ func (r *UserEventResolver) Action() string {
 // LoggedIn resolves the query
 func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
+
+	emails, err := r.repositories.Emails.GetUserEmails(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Emails = emails
 
 	res := UserResolver{User: user}
 

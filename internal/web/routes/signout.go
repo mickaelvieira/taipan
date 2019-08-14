@@ -3,13 +3,13 @@ package routes
 import (
 	"net/http"
 
-	"github/mickaelvieira/taipan/internal/app"
+	"github/mickaelvieira/taipan/internal/web"
 
 	"github.com/labstack/echo/v4"
 )
 
 func signout(c echo.Context) error {
-	sess := app.GetSession(c)
+	sess := web.GetSession(c)
 
 	// delete user session
 	sess.Values["user_id"] = nil

@@ -10,7 +10,7 @@ import {
 } from "../../../../apollo/Mutation/Subscriptions/Subscription";
 import Group from "../../../../ui/Form/Group";
 import Label from "../../../../ui/Form/Label";
-import Hint from "../../../../ui/Form/Hint";
+import { Hint } from "../../../Form/Message";
 import { InputBase } from "../../../../ui/Form/Input";
 
 const useStyles = makeStyles(({ palette }) => ({

@@ -1,11 +1,7 @@
-package app
+package web
 
 import (
-	"fmt"
-	"github/mickaelvieira/taipan/internal/logger"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
@@ -37,25 +33,4 @@ func GetSession(c echo.Context) *sessions.Session {
 	sess, _ := session.Get("session", c)
 	sess.Options = GetSessionOptions()
 	return sess
-}
-
-// Signal enables os signal catching
-func Signal(onStop func()) {
-	// Create a channel to handle os signals
-	c := make(chan os.Signal, 1)
-	// Send the following signals to the channel
-	signal.Notify(c, syscall.SIGINT)
-	signal.Notify(c, syscall.SIGKILL)
-	signal.Notify(c, syscall.SIGTERM)
-
-	// Clean up when we receive a signal
-	go func() {
-		select {
-		case sig := <-c:
-			logger.Warn(fmt.Sprintf("Signal received '%s'", sig))
-			signal.Stop(c)
-			onStop()
-			os.Exit(1)
-		}
-	}()
 }

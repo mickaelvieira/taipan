@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import { LG_WIDTH, SM_WIDTH } from "../../constant/feed";
+import { LG_WIDTH, SM_WIDTH } from "../../constant/layout";
 
 const useStyles = makeStyles(({ breakpoints }) => ({
   root: {

@@ -4,36 +4,14 @@ import (
 	"time"
 )
 
-// Status the user's status, whether or not the account has been approved
-type Status int
-
-// Status values
-const (
-	PENDING Status = iota
-	APPROVED
-)
-
-// Email user's email
-type Email struct {
-	ID          string
-	Value       string
-	IsPrimary   bool
-	IsConfirmed bool
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-}
-
 // User represents a single user wihthin the application
 type User struct {
 	ID        string
 	Emails    []*Email
-	Username  string
 	Firstname string
 	Lastname  string
-	Password  string
 	Image     *Image
 	Theme     string
-	Status    Status
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -65,6 +43,16 @@ func NewImage(name string, width int32, height int32, format string) *Image {
 		Height: height,
 		Format: format,
 	}
+}
+
+// Email user's email
+type Email struct {
+	ID          string
+	Value       string
+	IsPrimary   bool
+	IsConfirmed bool
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 // NewEmail creates a new user email address

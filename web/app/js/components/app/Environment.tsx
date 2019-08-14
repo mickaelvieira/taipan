@@ -27,9 +27,12 @@ export default function Environment(): JSX.Element {
     }
   }
 
-  const theme = createMuiTheme(getThemeOptions(user ? user.theme : null));
+  const theme = createMuiTheme(
+    getThemeOptions(user && user.theme ? user.theme : null)
+  );
 
   console.log(theme);
+  console.log(user);
 
   return (
     <>

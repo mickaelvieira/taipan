@@ -1,4 +1,4 @@
-import { SM_WIDTH, LG_WIDTH } from "../constant/feed";
+import { SM_WIDTH, LG_WIDTH } from "../constant/layout";
 
 type Size = "sm" | "lg";
 

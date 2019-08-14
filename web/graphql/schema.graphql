@@ -228,7 +228,6 @@ type User implements Node {
   id: ID!
   firstname: String!
   lastname: String!
-  username: String!
   emails: [Email!]!
   theme: String!
   image: Image

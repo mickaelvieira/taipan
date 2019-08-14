@@ -8,7 +8,7 @@ import Link from "@material-ui/core/Link";
 import { RouterLink } from "../../ui/Link";
 import Group from "../../ui/Form/Group";
 import Label from "../../ui/Form/Label";
-import Hint from "../../ui/Form/Hint";
+import { Hint } from "../../ui/Form/Message";
 import { InputBase, InputPassword } from "../../ui/Form/Input";
 
 const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({

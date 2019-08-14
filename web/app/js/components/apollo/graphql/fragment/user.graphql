@@ -2,7 +2,6 @@
 
 fragment userFields on User {
   id
-  username
   firstname
   lastname
   emails {

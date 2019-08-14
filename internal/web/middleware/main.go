@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github/mickaelvieira/taipan/internal/app"
 	"github/mickaelvieira/taipan/internal/clientid"
+	"github/mickaelvieira/taipan/internal/web"
 
 	"net/http"
 	"os"
@@ -18,7 +18,7 @@ func Firewall() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			sess, _ := session.Get("session", c)
-			sess.Options = app.GetSessionOptions()
+			sess.Options = web.GetSessionOptions()
 			_, ok := sess.Values["user_id"].(string)
 			if c.Request().RequestURI == "/graphql" && !ok {
 				return c.JSON(http.StatusUnauthorized, struct{}{})

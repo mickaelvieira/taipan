@@ -3,9 +3,9 @@ package routes
 import (
 	"net/http"
 
-	"github/mickaelvieira/taipan/internal/app"
-	"github/mickaelvieira/taipan/internal/app/paths"
 	"github/mickaelvieira/taipan/internal/assets"
+	"github/mickaelvieira/taipan/internal/web"
+	"github/mickaelvieira/taipan/internal/web/paths"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,7 +17,7 @@ func index(c echo.Context, a assets.Assets) error {
 		CDN      string
 	}{
 		Assets:   a,
-		BasePath: paths.GetBasePath(app.UseFileServer()),
+		BasePath: paths.GetBasePath(web.UseFileServer()),
 		CDN:      paths.GetCDNBaseURL(),
 	}
 	return c.Render(http.StatusOK, "index.html", data)

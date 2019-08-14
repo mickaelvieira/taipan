@@ -9,7 +9,7 @@ import { join } from "../../../helpers/app";
 import { RouterLink } from "../../ui/Link";
 import Group from "../../ui/Form/Group";
 import Label from "../../ui/Form/Label";
-import Hint from "../../ui/Form/Hint";
+import { ErrorMessage } from "../../ui/Form/Message";
 import { InputBase, InputPassword } from "../../ui/Form/Input";
 
 const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
@@ -73,7 +73,7 @@ export default function Signup(_: RouteLoginProps): JSX.Element {
             Make sure it&apos;s at least 10 characters.
           </FormHelperText>
         </Group>
-        {error && <Hint>{error}</Hint>}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         <Button
           type="submit"
           variant="contained"

@@ -56,6 +56,8 @@ function getFetchedSubscription(o?: Record<string, any>): any {
   };
 }
 
+// @TODO add users and emails
+
 describe("Transformer", () => {
   let result: FetchResult;
   beforeAll(() => {

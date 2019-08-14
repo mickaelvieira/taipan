@@ -9,13 +9,12 @@ import (
 
 // Authentication errors
 var (
-	ErrorInvalidCreds = errors.New("Username or password does not match any records in our database")
 	ErrorServerIssue  = errors.New("Something went wrong. Please try again later")
 )
 
 // Credentials user's credential necessary to log into the application
 type Credentials struct {
-	Username string
+	Email    string
 	Password string
 }
 

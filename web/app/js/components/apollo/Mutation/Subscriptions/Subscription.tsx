@@ -8,7 +8,7 @@ export interface Data {
 }
 
 export interface Variables {
-  url: URL;
+  url: string;
 }
 
 export { mutation };

@@ -5,7 +5,7 @@ const common = require("./common.js");
 
 module.exports = merge(common, {
   mode: "development",
-  devtool: "source-map",
+  devtool: "inline-source-map",
   output: {
     filename: "js/[name].js",
     chunkFilename: "js/[name].js",

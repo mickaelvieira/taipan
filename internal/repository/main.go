@@ -14,6 +14,7 @@ type Scanable interface {
 // Repositories holds a reference to the repositories
 type Repositories struct {
 	Users         *UserRepository
+	Emails        *UserEmailRepository
 	NewsFeed      *NewsFeedRepository
 	Syndication   *SyndicationRepository
 	Subscriptions *SubscriptionRepository
@@ -28,6 +29,7 @@ func GetRepositories() *Repositories {
 
 	return &Repositories{
 		Users:         &UserRepository{db: db},
+		Emails:        &UserEmailRepository{db: db},
 		NewsFeed:      &NewsFeedRepository{db: db},
 		Syndication:   &SyndicationRepository{db: db},
 		Subscriptions: &SubscriptionRepository{db: db},

@@ -29,7 +29,7 @@ export function join(
   password: string
 ): Promise<APIResponse<User>> {
   return fetch(
-    getJSONRequest("/sign-up", {
+    getJSONRequest("/signup", {
       email,
       password
     })
@@ -39,12 +39,12 @@ export function join(
 }
 
 export function login(
-  username: string,
+  email: string,
   password: string
 ): Promise<APIResponse<User>> {
   return fetch(
-    getJSONRequest("/login", {
-      username,
+    getJSONRequest("/signin", {
+      email,
       password
     })
   )
@@ -53,7 +53,7 @@ export function login(
 }
 
 export function logout(): Promise<APIResponse<{}>> {
-  return fetch(getJSONRequest("/logout", {}))
+  return fetch(getJSONRequest("/signout", {}))
     .then(response => response.json())
     .then(json => processResponse<User>(json));
 }

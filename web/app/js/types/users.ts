@@ -1,18 +1,16 @@
 import { Image } from "./image";
 import { Event } from "./events";
 import { ThemeName } from "../components/ui/themes";
-import { Datetime } from "./scalars";
 
 export interface User {
   id: string;
   firstname: string;
   lastname: string;
-  username: string;
   emails: Email[];
   image: Image | null;
   theme?: ThemeName | null;
-  createdAt: Datetime;
-  updatedAt: Datetime;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Email {
@@ -20,8 +18,8 @@ export interface Email {
   value: string;
   isPrimary: boolean;
   isConfirmed: boolean;
-  createdAt: Datetime;
-  updatedAt: Datetime;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface UserEvent extends Event {
