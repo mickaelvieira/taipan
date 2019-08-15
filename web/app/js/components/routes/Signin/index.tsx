@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { RouteLoginProps } from "../../../types/routes";
+import { RouteSigninProps } from "../../../types/routes";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { login } from "../../../helpers/app";
@@ -34,7 +34,7 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
   }
 }));
 
-export default function Signin(_: RouteLoginProps): JSX.Element {
+export default function Signin(_: RouteSigninProps): JSX.Element {
   const classes = useStyles();
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");

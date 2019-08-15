@@ -1,20 +1,21 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import FormHelperText, {
-  FormHelperTextProps
-} from "@material-ui/core/FormHelperText";
+import Typography, { TypographyProps } from "@material-ui/core/Typography";
 
-const useStyles = makeStyles(() => ({
-  element: {}
+const useStyles = makeStyles(({ spacing }) => ({
+  element: {
+    marginTop: spacing(2)
+  }
 }));
 
 export default function Hint({
   className,
   ...rest
-}: FormHelperTextProps): JSX.Element {
+}: TypographyProps): JSX.Element {
   const classes = useStyles();
   return (
-    <FormHelperText
+    <Typography
+      component="p"
       className={`${classes.element} ${className ? className : ""}`}
       {...rest}
     />

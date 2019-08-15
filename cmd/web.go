@@ -46,12 +46,27 @@ func runWeb(c *cli.Context) {
 		e.Static(paths.GetBasePath(web.UseFileServer()), paths.GetStaticDir())
 	}
 
-	e.POST("/signin", routes.Signin(r))
+	index := routes.Index(a)
+	api := routes.GraphQL(s, r)
+
 	e.POST("/signout", routes.Signout())
-	e.POST("/signup", routes.Signup(r))
-	e.GET("/graphql", routes.GraphQL(s, r))
-	e.POST("/graphql", routes.GraphQL(s, r))
-	e.GET("/*", routes.Index(a))
+
+	e.POST("/signin", routes.Signin(r))
+	e.GET("/signin", index)
+
+	e.POST("/join", routes.Signup(r))
+	e.GET("/join", index)
+
+	e.POST("/forgot-password", routes.ForgoPassword(r))
+	e.GET("/forgot-password", index)
+
+	e.POST("/reset-password", routes.ResetPassword(r))
+	e.GET("/reset-password", index)
+
+	e.GET("/graphql", api)
+	e.POST("/graphql", api)
+
+	e.GET("/*", index)
 
 	e.Logger.Fatal(e.Start(":" + os.Getenv("APP_PORT")))
 }

@@ -21,6 +21,7 @@ type Repositories struct {
 	Documents     *DocumentRepository
 	Bookmarks     *BookmarkRepository
 	Botlogs       *BotlogRepository
+	ResetToken    *PasswordResetRepository
 }
 
 // GetRepositories builds the repository holder
@@ -36,6 +37,7 @@ func GetRepositories() *Repositories {
 		Documents:     &DocumentRepository{db: db},
 		Bookmarks:     &BookmarkRepository{db: db},
 		Botlogs:       &BotlogRepository{db: db},
+		ResetToken:    &PasswordResetRepository{db: db},
 	}
 }
 

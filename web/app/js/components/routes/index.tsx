@@ -2,6 +2,12 @@ import React, { lazy, Suspense } from "react";
 import { Route, Switch } from "react-router-dom";
 import Loader from "../ui/Loader";
 
+const ForgotPasswordPage = lazy(() =>
+  import(/* webpackChunkName: "ForgotPassword" */ "./ForgotPassword")
+);
+const ResetPasswordPage = lazy(() =>
+  import(/* webpackChunkName: "ResetPassword" */ "./ResetPassword")
+);
 const SignupPage = lazy(() =>
   import(/* webpackChunkName: "Signup" */ "./Signup")
 );
@@ -64,7 +70,17 @@ export default function Routes(): JSX.Element {
         />
         <Route
           exact
-          path="/sign-in"
+          path="/forgot-password"
+          render={routeProps => <ForgotPasswordPage {...routeProps} />}
+        />
+        <Route
+          exact
+          path="/reset-password"
+          render={routeProps => <ResetPasswordPage {...routeProps} />}
+        />
+        <Route
+          exact
+          path="/signin"
           render={routeProps => <SigninPage {...routeProps} />}
         />
         <Route

@@ -4,8 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github/mickaelvieira/taipan/internal/domain/password"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
+	"log"
 	"strings"
 	"time"
 
@@ -26,6 +29,7 @@ var (
 	ErrPrimaryEmailDeletion     = errors.New("You cannot delete your primary email address")
 	ErrPrimaryEmailNotConfirmed = errors.New("You cannot add new email address before confirming your primary email")
 	ErrEmailNotConfirmed        = errors.New("You cannot use this address as your primary email since it hasn't been unconfirmed yet")
+	ErrInvalidResetToken        = errors.New("Your reset token does seem to be valid")
 )
 
 // Signin --
@@ -70,7 +74,7 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 		return nil, ErrWeakPassword
 	}
 
-	h, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
+	h, err := password.Hash(p)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +90,7 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 		return nil, err
 	}
 
-	ID, err := repos.Users.CreateUser(ctx, string(h))
+	ID, err := repos.Users.CreateUser(ctx, h)
 	if err != nil {
 		return nil, err
 	}
@@ -112,6 +116,82 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 	u.Emails = emails
 
 	return u, nil
+}
+
+// ForgotPassword --
+func ForgotPassword(ctx context.Context, repos *repository.Repositories, e string) error {
+	// @TODO can we do a something better here?
+	if !strings.Contains(e, "@") {
+		return ErrInvalidEmail
+	}
+
+	// can we find the user?
+	u, err := repos.Users.GetByPrimaryEmail(ctx, e)
+	if err != nil {
+		return ErrInvalidCreds
+	}
+
+	// is there an active token?
+	t, err := repos.ResetToken.FindUserActiveToken(ctx, u)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		err = repos.ResetToken.Create(ctx, password.NewResetPasswordToken(u))
+		if err != nil {
+			return err
+		}
+	} else {
+		logger.Warn("Re-using active token")
+		log.Println(t)
+	}
+
+	return nil
+}
+
+// ResetPassword --
+func ResetPassword(ctx context.Context, repos *repository.Repositories, t string, p string) error {
+	if p == "" {
+		return ErrNoPassword
+	}
+
+	if len(p) < 10 {
+		return ErrWeakPassword
+	}
+
+	h, err := password.Hash(p)
+	if err != nil {
+		return err
+	}
+
+	e, err := repos.ResetToken.GetToken(ctx, t)
+	if err != nil {
+		return ErrInvalidResetToken
+	}
+
+	if e.IsExpired() || e.IsUsed {
+		return ErrInvalidResetToken
+	}
+
+	u, err := repos.Users.GetByID(ctx, e.UserID)
+	if err != nil {
+		return ErrInvalidResetToken
+	}
+
+	err = repos.Users.UpdatePassword(ctx, u, h)
+	if err != nil {
+		return err
+	}
+
+	e.IsUsed = true
+	e.UsedAt = time.Now()
+
+	err = repos.ResetToken.UpdateUsage(ctx, e)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // UpdateUser usecase
@@ -142,7 +222,7 @@ func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *us
 		return ErrInvalidPassword
 	}
 
-	// do the password match?
+	// is the old password correct?
 	if err := bcrypt.CompareHashAndPassword([]byte(p), []byte(o)); err != nil {
 		return ErrInvalidPassword
 	}
@@ -156,12 +236,12 @@ func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *us
 		return ErrWeakPassword
 	}
 
-	h, err := bcrypt.GenerateFromPassword([]byte(n), bcrypt.DefaultCost)
+	h, err := password.Hash(n)
 	if err != nil {
 		return err
 	}
 
-	err = repos.Users.UpdatePassword(ctx, usr, string(h))
+	err = repos.Users.UpdatePassword(ctx, usr, h)
 	if err != nil {
 		return err
 	}

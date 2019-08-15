@@ -139,7 +139,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
             </ListItem>
           </Link>
           <Link
-            to="/sign-in"
+            to="/signin"
             classes={{
               root: classes.link
             }}
@@ -152,7 +152,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
                   if (error) {
                     console.warn(error.error);
                   } else if (result) {
-                    window.location.href = "/sign-in";
+                    window.location.href = "/signin";
                   }
                 })
                 .catch(e => {

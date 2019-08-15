@@ -13,6 +13,7 @@ import (
 var db *sql.DB
 
 // GetDB returns a database connection
+// NOTE: The MySQL driver convert all timestamp to UTC by default
 func GetDB() *sql.DB {
 	if db == nil {
 		dsn := os.Getenv("APP_DB_USER") + ":" + os.Getenv("APP_DB_PWD") + "@tcp(" + os.Getenv("APP_DB_ADDR") + ")/" + os.Getenv("APP_DB_NAME")

@@ -9,12 +9,17 @@ import (
 
 // Authentication errors
 var (
-	ErrorServerIssue  = errors.New("Something went wrong. Please try again later")
+	ErrorServerIssue = errors.New("Something went wrong. Please try again later")
 )
 
 // Credentials user's credential necessary to log into the application
 type Credentials struct {
 	Email    string
+	Password string
+}
+
+type ResetPassword struct {
+	Token    string
 	Password string
 }
 

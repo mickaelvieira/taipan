@@ -1,8 +1,14 @@
 import { User } from "../types/users";
 
 const home = "/";
-const login = "/sign-in";
-const unsecured = [login, "/join", "/sign-out"];
+const login = "/signin";
+const unsecured = [
+  login,
+  "/join",
+  "/sign-out",
+  "/forgot-password",
+  "/reset-password"
+];
 
 function shouldRedirect(redirect: string): boolean {
   return location.pathname !== redirect;

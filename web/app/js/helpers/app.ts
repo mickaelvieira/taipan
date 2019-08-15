@@ -24,36 +24,62 @@ function getJSONRequest(endpoint: string, body: any): Request {
   });
 }
 
-export function join(
+export async function join(
   email: string,
   password: string
 ): Promise<APIResponse<User>> {
-  return fetch(
-    getJSONRequest("/signup", {
+  const response = await fetch(
+    getJSONRequest("/join", {
       email,
       password
     })
-  )
-    .then(response => response.json())
-    .then(json => processResponse<User>(json));
+  );
+  const json = await response.json();
+  return processResponse<User>(json);
 }
 
-export function login(
+export async function login(
   email: string,
   password: string
 ): Promise<APIResponse<User>> {
-  return fetch(
+  const response = await fetch(
     getJSONRequest("/signin", {
       email,
       password
     })
-  )
-    .then(response => response.json())
-    .then(json => processResponse<User>(json));
+  );
+  const json = await response.json();
+  return processResponse<User>(json);
 }
 
-export function logout(): Promise<APIResponse<{}>> {
-  return fetch(getJSONRequest("/signout", {}))
-    .then(response => response.json())
-    .then(json => processResponse<User>(json));
+export async function logout(): Promise<APIResponse<{}>> {
+  const response = await fetch(getJSONRequest("/signout", {}));
+  const json = await response.json();
+  return processResponse<User>(json);
+}
+
+export async function askForResetEmail(
+  email: string
+): Promise<APIResponse<{}>> {
+  const response = await fetch(
+    getJSONRequest("/forgot-password", {
+      email
+    })
+  );
+  const json = await response.json();
+  return processResponse<{}>(json);
+}
+
+export async function resetPassword(
+  token: string,
+  password: string
+): Promise<APIResponse<{}>> {
+  const response = await fetch(
+    getJSONRequest("/reset-password", {
+      token,
+      password
+    })
+  );
+  const json = await response.json();
+  return processResponse<{}>(json);
 }

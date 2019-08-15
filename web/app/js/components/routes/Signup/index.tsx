@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { RouteLoginProps } from "../../../types/routes";
+import { RouteSignupProps } from "../../../types/routes";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
@@ -35,7 +35,7 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
   }
 }));
 
-export default function Signup(_: RouteLoginProps): JSX.Element {
+export default function Signup(_: RouteSignupProps): JSX.Element {
   const classes = useStyles();
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
@@ -92,7 +92,7 @@ export default function Signup(_: RouteLoginProps): JSX.Element {
         </Button>
       </form>
       <div className={classes.links}>
-        <Link to="/sign-in" component={RouterLink}>
+        <Link to="/signin" component={RouterLink}>
           I already have an account
         </Link>
       </div>
