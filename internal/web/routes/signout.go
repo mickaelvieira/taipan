@@ -13,6 +13,7 @@ func signout(c echo.Context) error {
 
 	// delete user session
 	sess.Values["user_id"] = nil
+	sess.Options.MaxAge = -1
 	sess.Save(c.Request(), c.Response())
 
 	return c.JSON(http.StatusOK, struct{}{})

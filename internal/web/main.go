@@ -25,6 +25,7 @@ func GetSessionOptions() *sessions.Options {
 		Path:     "/",
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
+		Secure:   !IsDev(),
 	}
 }
 
