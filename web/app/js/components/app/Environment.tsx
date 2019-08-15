@@ -18,7 +18,7 @@ export default function Environment(): JSX.Element {
   let user = null;
   let appInfo = null;
   if (data && !error) {
-    let { users, app } = data;
+    const { users, app } = data;
     if (users.loggedIn) {
       user = users.loggedIn;
     }

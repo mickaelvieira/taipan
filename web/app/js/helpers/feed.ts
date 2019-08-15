@@ -3,7 +3,7 @@ export function calculateHeightUpToFirstIndex(
   heights: number[]
 ): number {
   let h = 0;
-  let l = heights.length - 1;
+  const l = heights.length - 1;
   for (let i = 0; i < l; i++) {
     if (i < index) {
       h = h + heights[i];
@@ -19,7 +19,7 @@ export function calculateHeightFromIndex(
   heights: number[]
 ): number {
   let h = 0;
-  let l = 0;
+  const l = 0;
   for (let i = heights.length - 1; i > l; i--) {
     if (i > index) {
       h = h + heights[i];

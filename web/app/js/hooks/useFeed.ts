@@ -69,7 +69,7 @@ class Feed {
     // console.log("collect");
     // console.log(j);
     // console.log(items);
-    for (var i = 0, l = items.length; i < l; i++) {
+    for (let i = 0, l = items.length; i < l; i++) {
       if (!this.heights[j]) {
         const rect = items[i].getBoundingClientRect();
         this.heights[j] = rect.height + 24;

@@ -42,7 +42,7 @@ type Models = IdGetterObj &
   Partial<Log>;
 
 export default (clientId: string): ApolloClient<object> => {
-    const cache = new InMemoryCache({
+  const cache = new InMemoryCache({
     freezeResults: true,
     dataIdFromObject: ({ id, url, name, value, __typename }: Models) => {
       if (!__typename) {
