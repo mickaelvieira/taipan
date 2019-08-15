@@ -198,6 +198,32 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 	return &res, nil
 }
 
+// Password resolves the mutation
+func (r *UsersResolver) Password(ctx context.Context, args struct {
+	Old string
+	New string
+}) (bool, error) {
+	user := auth.FromContext(ctx)
+	// clientID := clientid.FromContext(ctx)
+
+	err := usecase.ChangePassword(
+		ctx,
+		r.repositories,
+		user,
+		args.Old,
+		args.New,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	// r.publisher.Publish(
+	// 	publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	// )
+
+	return true, nil
+}
+
 // Theme resolves the mutation
 func (r *UsersResolver) Theme(ctx context.Context, args struct {
 	Theme string

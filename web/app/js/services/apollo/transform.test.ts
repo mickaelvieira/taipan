@@ -63,6 +63,10 @@ describe("Transformer", () => {
   beforeAll(() => {
     result = {
       data: {
+        foonull: null,
+        barnull: {
+          bar: null
+        },
         document: {
           bar: getFetchedDocument()
         },
@@ -138,6 +142,12 @@ describe("Transformer", () => {
         }
       }
     };
+  });
+
+  it("handles null data", () => {
+    const data = transformer(result);
+    expect(data.data.foonull).toBe(null);
+    expect(data.data.barnull.bar).toBe(null);
   });
 
   it("does not transform unknown types", () => {

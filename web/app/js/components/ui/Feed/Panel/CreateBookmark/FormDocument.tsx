@@ -11,7 +11,7 @@ import {
 import { Document } from "../../../../../types/document";
 import Group from "../../../../ui/Form/Group";
 import Label from "../../../../ui/Form/Label";
-import { Hint } from "../../../Form/Message";
+import { ErrorMessage } from "../../../Form/Message";
 import { InputBase } from "../../../../ui/Form/Input";
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -65,7 +65,7 @@ export default function FormDocument({
           onChange={event => setUrl(event.target.value)}
           className={classes.input}
         />
-        {error && <Hint>{error.message}</Hint>}
+        {error && <ErrorMessage>{error.message}</ErrorMessage>}
       </Group>
       <Button
         onClick={() =>

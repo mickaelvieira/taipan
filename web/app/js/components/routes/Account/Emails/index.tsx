@@ -1,19 +1,12 @@
 import React, { useContext } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
-import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { MessageContext } from "../../../context";
 import Title from "../Title";
+import Card from "../Card";
 import UserEmail from "./Email";
 import FormUserEmail from "./Form";
 import { User } from "../../../../types/users";
-
-const useStyles = makeStyles(() => ({
-  card: {
-    marginTop: 16
-  }
-}));
 
 interface Props {
   user: User;
@@ -21,7 +14,6 @@ interface Props {
 
 export default function UserEmails({ user }: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
-  const classes = useStyles();
   let canAdd = true;
 
   // If the user has only one email and it hasn't been confirmed yet
@@ -31,7 +23,7 @@ export default function UserEmails({ user }: Props): JSX.Element {
   }
 
   return (
-    <Card className={classes.card}>
+    <Card>
       <Title value="Emails" />
       <CardContent>
         <List>

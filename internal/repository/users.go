@@ -108,6 +108,24 @@ func (r *UserRepository) Update(ctx context.Context, u *user.User) error {
 	return err
 }
 
+// UpdatePassword update a user's password
+func (r *UserRepository) UpdatePassword(ctx context.Context, u *user.User, h string) error {
+	query := `
+		UPDATE users
+		SET password = ?, updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		h,
+		time.Now(),
+		u.ID,
+	)
+
+	return err
+}
+
 // UpdateTheme update a user's theme
 func (r *UserRepository) UpdateTheme(ctx context.Context, u *user.User) error {
 	query := `

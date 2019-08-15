@@ -4,11 +4,11 @@ import { RouteLoginProps } from "../../../types/routes";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import { join } from "../../../helpers/app";
 import { RouterLink } from "../../ui/Link";
 import Group from "../../ui/Form/Group";
 import Label from "../../ui/Form/Label";
+import { PasswordHint, EmailHint } from "../../ui/Form/Message/Hint";
 import { ErrorMessage } from "../../ui/Form/Message";
 import { InputBase, InputPassword } from "../../ui/Form/Input";
 
@@ -55,10 +55,7 @@ export default function Signup(_: RouteLoginProps): JSX.Element {
             aria-describedby="email-helper-text"
             onChange={event => setEmail(event.target.value)}
           />
-          <FormHelperText id="email-helper-text">
-            Make sure it&apos;s correct, we will send you a comfirmation email.
-            your email.
-          </FormHelperText>
+          <EmailHint id="email-helper-text" />
         </Group>
         <Group>
           <Label htmlFor="password">Password</Label>
@@ -69,9 +66,7 @@ export default function Signup(_: RouteLoginProps): JSX.Element {
             aria-describedby="password-helper-text"
             onChange={event => setPassword(event.target.value)}
           />
-          <FormHelperText id="password-helper-text">
-            Make sure it&apos;s at least 10 characters.
-          </FormHelperText>
+          <PasswordHint id="password-helper-text" />
         </Group>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <Button

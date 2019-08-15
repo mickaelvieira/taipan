@@ -5,6 +5,7 @@ import { UserContext } from "../../context";
 import Grid from "../../ui/Grid";
 import Prolile from "./Profile";
 import Emails from "./Emails";
+import Password from "./Password";
 
 const useStyles = makeStyles(() => ({
   content: {
@@ -24,6 +25,7 @@ export default function Account(_: RouteAccountProps): JSX.Element | null {
     <Grid className={classes.content}>
       <Prolile user={user} />
       <Emails user={user} />
+      <Password />
     </Grid>
   );
 }

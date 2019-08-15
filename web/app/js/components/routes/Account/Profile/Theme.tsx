@@ -8,10 +8,10 @@ import {
   defaultTheme,
   getThemeClasses,
   ThemeName
-} from "../../ui/themes";
-import Empty from "../../ui/Empty";
-import { mutation, Data, Variables } from "../../apollo/Mutation/User/Theme";
-import { User } from "../../../types/users";
+} from "../../../ui/themes";
+import Empty from "../../../ui/Empty";
+import { mutation, Data, Variables } from "../../../apollo/Mutation/User/Theme";
+import { User } from "../../../../types/users";
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
   ...getThemeClasses(),

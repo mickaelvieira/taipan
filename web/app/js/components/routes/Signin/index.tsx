@@ -8,7 +8,7 @@ import Link from "@material-ui/core/Link";
 import { RouterLink } from "../../ui/Link";
 import Group from "../../ui/Form/Group";
 import Label from "../../ui/Form/Label";
-import { Hint } from "../../ui/Form/Message";
+import { ErrorMessage } from "../../ui/Form/Message";
 import { InputBase, InputPassword } from "../../ui/Form/Input";
 
 const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
@@ -64,7 +64,7 @@ export default function Signin(_: RouteLoginProps): JSX.Element {
             onChange={event => setPassword(event.target.value)}
           />
         </Group>
-        {error && <Hint>{error}</Hint>}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         <Button
           type="submit"
           variant="contained"

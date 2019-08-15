@@ -22,6 +22,7 @@ var (
 	ErrNoPassword               = errors.New("Please provide a valid password")
 	ErrEmailExists              = errors.New("There is already an account associated to this email address")
 	ErrInvalidCreds             = errors.New("Email or password does not match any records in our database")
+	ErrInvalidPassword          = errors.New("Your password is not correct") // only for password change
 	ErrPrimaryEmailDeletion     = errors.New("You cannot delete your primary email address")
 	ErrPrimaryEmailNotConfirmed = errors.New("You cannot add new email address before confirming your primary email")
 	ErrEmailNotConfirmed        = errors.New("You cannot use this address as your primary email since it hasn't been unconfirmed yet")
@@ -130,6 +131,41 @@ func UpdateUser(ctx context.Context, repos *repository.Repositories, usr *user.U
 			return err
 		}
 	}
+	return nil
+}
+
+// ChangePassword --
+func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *user.User, o string, n string) error {
+	// can we find the user's password?
+	p, err := repos.Users.GetPassword(ctx, usr.ID)
+	if err != nil {
+		return ErrInvalidPassword
+	}
+
+	// do the password match?
+	if err := bcrypt.CompareHashAndPassword([]byte(p), []byte(o)); err != nil {
+		return ErrInvalidPassword
+	}
+
+	if n == "" {
+		return ErrNoPassword
+	}
+
+	// @TODO can we do a something better here?
+	if len(n) < 10 {
+		return ErrWeakPassword
+	}
+
+	h, err := bcrypt.GenerateFromPassword([]byte(n), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	err = repos.Users.UpdatePassword(ctx, usr, string(h))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

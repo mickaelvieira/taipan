@@ -60,6 +60,9 @@ type UsersMutation {
   # "Updates the user's details
   update(user: UserInput!): User
 
+  # "Change user's password
+  password(old: String!, new: String!): Boolean!
+
   # "Add a new user's email address
   createEmail(email: String!): User
 

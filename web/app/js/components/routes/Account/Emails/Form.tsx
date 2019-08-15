@@ -11,11 +11,16 @@ import Group from "../../../ui/Form/Group";
 import { InputBase } from "../../../ui/Form/Input";
 import Label from "../../../ui/Form/Label";
 import { getErrorMessage } from "../../../apollo/helpers/error";
+import CardActions from "../CardActions";
+import { EmailHint } from "../../../ui/Form/Message/Hint";
 
 const useStyles = makeStyles(({ spacing }) => ({
   form: {
     display: "flex",
     flexDirection: "column"
+  },
+  actions: {
+    paddingRight: 0
   },
   button: {
     marginTop: spacing(1),
@@ -47,18 +52,22 @@ export default function UserEmailForm({
         <InputBase
           id="new-email"
           value={email}
+          aria-describedby="new-email-helper-text"
           onChange={event => setEmail(event.target.value)}
         />
+        <EmailHint id="new-email-helper-text" />
       </Group>
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        onClick={() => mutate({ variables: { email } })}
-        className={classes.button}
-      >
-        Add email
-      </Button>
+      <CardActions className={classes.actions}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          onClick={() => mutate({ variables: { email } })}
+          className={classes.button}
+        >
+          Add email
+        </Button>
+      </CardActions>
     </form>
   );
 }

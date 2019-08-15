@@ -8,7 +8,10 @@ import InputBase from "./Base";
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   wrapper: {
-    display: "flex"
+    display: "flex",
+    ["&:focus-within .revealer"]: {
+      borderColor: palette.primary.main
+    }
   },
   element: {
     flexGrow: 1,
@@ -37,12 +40,13 @@ export default function InputPassword({
     <div className={classes.wrapper}>
       <InputBase
         type={isVisible ? "text" : "password"}
+        autoComplete="on"
         className={`${classes.element} ${className ? className : ""}`}
         {...rest}
       />
       <IconButton
         onClick={() => setVisibility(!isVisible)}
-        className={classes.button}
+        className={`revealer ${classes.button}`}
       >
         {isVisible ? <HiddenIcon /> : <VisibleIcon />}
       </IconButton>

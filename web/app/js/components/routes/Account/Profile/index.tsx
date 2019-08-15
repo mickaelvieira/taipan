@@ -3,28 +3,28 @@ import { useMutation } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import Card from "@material-ui/core/Card";
+import Card from "../Card";
 import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
+import CardActions from "../CardActions";
 import Button from "@material-ui/core/Button";
 import Slider from "@material-ui/core/Slider";
 import AvatarEditor from "react-avatar-editor";
 import FormHelperText from "@material-ui/core/FormHelperText";
-import { MessageContext } from "../../context";
-import { mutation, Data, Variables } from "../../apollo/Mutation/User/Profile";
-import { User } from "../../../types/users";
-import Title from "./Title";
+import { MessageContext } from "../../../context";
+import {
+  mutation,
+  Data,
+  Variables
+} from "../../../apollo/Mutation/User/Profile";
+import { User } from "../../../../types/users";
+import Title from "../Title";
 import Theme from "./Theme";
-import Group from "../../ui/Form/Group";
-import { InputBase } from "../../ui/Form/Input";
-import Label from "../../ui/Form/Label";
-import useProfileReducer, { Action } from "./useProfileReducer";
+import Group from "../../../ui/Form/Group";
+import { InputBase } from "../../../ui/Form/Input";
+import Label from "../../../ui/Form/Label";
+import useProfileReducer, { Action } from "../useProfileReducer";
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
-  actions: {
-    padding: 16,
-    justifyContent: "flex-end"
-  },
   avatar: {
     display: "flex",
     flexDirection: "column",
@@ -154,7 +154,7 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
             />
           </Group>
         </CardContent>
-        <CardActions className={classes.actions}>
+        <CardActions>
           <Button
             disabled={loading}
             variant="contained"
