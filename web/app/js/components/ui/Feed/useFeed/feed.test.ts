@@ -3,7 +3,7 @@ import {
   calculateInterval,
   calculateHeightUpToFirstIndex,
   calculateHeightFromIndex
-} from "./feed";
+} from "./helpers";
 
 function interval(a: number, b: number): number {
   return b - a + 1;

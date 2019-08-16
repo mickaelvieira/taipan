@@ -8,7 +8,7 @@ import { queryFavorites } from "../../apollo/Query/Feed";
 export default function Favorites(_: RouteFeedProps): JSX.Element {
   return (
     <FeedPage>
-      <Feed List={List} query={queryFavorites} />
+      <Feed List={List} query={queryFavorites} name="favorites" />
     </FeedPage>
   );
 }

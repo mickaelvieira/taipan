@@ -1,9 +1,9 @@
 import React, { useRef, PropsWithChildren } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import useFeed from "../../../hooks/useFeed";
+import useFeed from "./useFeed";
 import { ListProps } from "./Feed";
 import PointerEvents from "./PointerEvents";
-import { FeedItem } from "../../../types/feed";
+import { FeedItem, FeedName } from "../../../types/feed";
 
 const useStyles = makeStyles({
   container: {
@@ -19,18 +19,20 @@ const useStyles = makeStyles({
 });
 
 interface Props extends ListProps {
+  name: FeedName;
   List: React.FunctionComponent<ListProps>;
   results: FeedItem[];
 }
 
 export default React.memo(function FeedContainer({
+  name,
   List,
   results,
   ...rest
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
-  const ref = useRef<HTMLElement>();
-  const { padding, items } = useFeed(ref, results);
+  const ref = useRef<HTMLElement>(null);
+  const { padding, items } = useFeed(name, ref, results);
 
   return (
     <PointerEvents>

@@ -8,7 +8,7 @@ import { queryNews } from "../../apollo/Query/Feed";
 export default function News(_: RouteFeedProps): JSX.Element {
   return (
     <FeedPage>
-      <Feed List={List} query={queryNews} />
+      <Feed List={List} query={queryNews} name="news" />
     </FeedPage>
   );
 }

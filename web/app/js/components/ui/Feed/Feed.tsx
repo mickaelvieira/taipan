@@ -3,10 +3,15 @@ import { useQuery } from "@apollo/react-hooks";
 import PropTypes from "prop-types";
 import Loader from "../Loader";
 import { LoadMore, getFetchMore, variables } from "../../apollo/Query/Feed";
-import { FeedItem, FeedVariables, FeedQueryData } from "../../../types/feed";
+import {
+  FeedItem,
+  FeedVariables,
+  FeedQueryData,
+  FeedName
+} from "../../../types/feed";
 import { hasReceivedData } from "../../apollo/helpers/feed";
 import FeedContainer from "./Container";
-import useWindowBottom from "../../../hooks/window-bottom";
+import useWindowBottom from "../../../hooks/useWindowBottom";
 
 export interface ListProps {
   results: FeedItem[];
@@ -15,12 +20,13 @@ export interface ListProps {
 }
 
 interface Props {
+  name: FeedName;
   List: React.FunctionComponent<ListProps>;
   query: PropTypes.Validator<object>;
 }
 
-export default function Feed({ query, List }: Props): JSX.Element {
-  const isAtTheBottom = useWindowBottom(600);
+export default function Feed({ query, List, name }: Props): JSX.Element {
+  const isAtTheBottom = useWindowBottom(1000);
   const loadMore = useRef<LoadMore | undefined>();
   const { loading, error, data, fetchMore, networkStatus } = useQuery<
     FeedQueryData,
@@ -51,6 +57,7 @@ export default function Feed({ query, List }: Props): JSX.Element {
       {error && !hasResults && <span>{error.message}</span>}
       {!isFetchingFirst && !error && (
         <FeedContainer
+          name={name}
           List={List}
           results={results}
           firstId={first}

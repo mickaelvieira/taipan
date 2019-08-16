@@ -15,9 +15,7 @@ export default React.memo(function BookmarkList({
       )}
       {results.map(result => (
         <FeedItem key={result.id}>
-          {({ remove }) => (
-            <Item bookmark={result as Bookmark} remove={remove} />
-          )}
+          <Item bookmark={result as Bookmark} />
         </FeedItem>
       ))}
     </>

@@ -8,7 +8,7 @@ import { queryReadingList } from "../../apollo/Query/Feed";
 export default function ReadingList(_: RouteFeedProps): JSX.Element {
   return (
     <FeedPage>
-      <Feed List={List} query={queryReadingList} />
+      <Feed List={List} query={queryReadingList} name="readinglist" />
     </FeedPage>
   );
 }

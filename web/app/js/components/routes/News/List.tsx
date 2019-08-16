@@ -17,9 +17,7 @@ export default React.memo(function DocumentList({
       {results.length === 0 && <EmptyFeed message="No news today" />}
       {results.map(result => (
         <FeedItem key={result.id}>
-          {({ remove }) => (
-            <Item document={result as Document} remove={remove} />
-          )}
+          <Item document={result as Document} />
         </FeedItem>
       ))}
     </>

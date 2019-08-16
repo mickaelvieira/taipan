@@ -40,36 +40,36 @@ describe("Navigation helpers", () => {
     });
 
     it("returns the news page title", () => {
-      expect(getPageTitle("/")).toBe(`${appTitle} - ${appBaseline} - News`);
+      expect(getPageTitle("/")).toBe(`News | ${appTitle} - ${appBaseline}`);
     });
 
     it("returns the reading list page title", () => {
       expect(getPageTitle("/reading-list")).toBe(
-        `${appTitle} - ${appBaseline} - Reading List`
+        `Reading List | ${appTitle} - ${appBaseline}`
       );
     });
 
     it("returns the favorites page title", () => {
       expect(getPageTitle("/favorites")).toBe(
-        `${appTitle} - ${appBaseline} - Favorites`
+        `Favorites | ${appTitle} - ${appBaseline}`
       );
     });
 
     it("returns the syndication page title", () => {
       expect(getPageTitle("/syndication")).toBe(
-        `${appTitle} - ${appBaseline} - RSS`
+        `RSS | ${appTitle} - ${appBaseline}`
       );
     });
 
     it("returns the account page title", () => {
       expect(getPageTitle("/account")).toBe(
-        `${appTitle} - ${appBaseline} - My Account`
+        `My Account | ${appTitle} - ${appBaseline}`
       );
     });
 
     it("returns the search results page title", () => {
       expect(getPageTitle("/search")).toBe(
-        `${appTitle} - ${appBaseline} - Search`
+        `Search | ${appTitle} - ${appBaseline}`
       );
     });
   });

@@ -9,7 +9,7 @@ import {
 } from "../../apollo/Query/Documents";
 import { SearchQueryData } from "../../../types/search";
 import { hasReceivedData } from "../../apollo/helpers/search";
-import useWindowBottom from "../../../hooks/window-bottom";
+import useWindowBottom from "../../../hooks/useWindowBottom";
 import Loader from "../../ui/Loader";
 import Pagination from "./Pagination";
 import Results from "./Results";

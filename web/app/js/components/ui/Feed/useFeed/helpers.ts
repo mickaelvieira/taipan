@@ -35,19 +35,6 @@ export interface Padding {
   bottom: number;
 }
 
-export function calculatePaddings(
-  firstIndex: number,
-  lastIndex: number,
-  heights: number[]
-): Padding {
-  const top = calculateHeightUpToFirstIndex(firstIndex, heights);
-  const bottom = calculateHeightFromIndex(lastIndex, heights);
-  return {
-    top,
-    bottom
-  };
-}
-
 export function calculateCursor(gap: number, heights: number[]): number {
   const total = heights.length;
   let height = 0;
@@ -83,8 +70,6 @@ export function calculateInterval(
   }
 
   // we pick 11 items, 5 before and after the cursor
-  // let startIndex = down ? cursor - halfPage : cursor - page;
-  // let endIndex = down ? cursor + page : cursor + halfPage;
   let startIndex = cursor - halfPage;
   let endIndex = cursor + halfPage;
 

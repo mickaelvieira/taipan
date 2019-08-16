@@ -13,17 +13,12 @@ import ItemDescription from "../../ui/Feed/Item/Description";
 import ItemImage from "../../ui/Feed/Image";
 import ItemFooter from "../../ui/Feed/Item/Footer";
 import { MessageContext } from "../../context";
-import { CacheUpdater } from "../../../types";
 
 interface Props {
-  remove: (cb: CacheUpdater) => void;
   bookmark: Bookmark;
 }
 
-export default React.memo(function FeedItem({
-  bookmark,
-  remove
-}: Props): JSX.Element {
+export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
   return (
     <>
@@ -53,7 +48,7 @@ export default React.memo(function FeedItem({
                 action: undo,
                 label: "undo"
               });
-              remove(updateCache);
+              updateCache();
             }}
             onFail={message => setMessageInfo({ message })}
           />
@@ -66,7 +61,7 @@ export default React.memo(function FeedItem({
                 action: undo,
                 label: "undo"
               });
-              remove(updateCache);
+              updateCache();
             }}
             onFail={message => setMessageInfo({ message })}
           />
