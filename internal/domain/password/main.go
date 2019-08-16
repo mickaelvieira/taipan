@@ -75,6 +75,11 @@ func NewResetPasswordToken(u *user.User) *ResetToken {
 	}
 }
 
+// IsValid is the password strong enough
+func IsValid(p string) bool {
+	return len(p) >= 10
+}
+
 // Hash generates a hash for the given password
 func Hash(p string) (string, error) {
 	h, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)

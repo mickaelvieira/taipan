@@ -55,6 +55,7 @@
     "dayjs": "1.8.15",
     "dotenv-flow": "3.1.0",
     "dotenv-flow-webpack": "1.0.0",
+    "fastdom": "^1.0.9",
     "graphql": "14.4.2",
     "graphql-tag": "2.10.1",
     "lodash": "4.17.15",

@@ -71,7 +71,6 @@ function interval(a: number, b: number): number {
 export function calculateInterval(
   cursor: number,
   total: number
-  // down: boolean
 ): [number, number] {
   const page = 10;
   const halfPage = page / 2;
@@ -89,6 +88,18 @@ export function calculateInterval(
   let startIndex = cursor - halfPage;
   let endIndex = cursor + halfPage;
 
+  // if the distance between the start index and the first one
+  // is less than a page, we then take the full page
+  if (startIndex < page) {
+    startIndex = firstIndex;
+  }
+
+  // if the distance between the end index and the last one
+  // is less than a page, we then take the full page
+  if (total - endIndex < page) {
+    endIndex = lastIndex;
+  }
+
   // if we go below the first item,
   // that means the cursor is close to the beginning
   // so we pick a 10 items starting from the start
@@ -105,7 +116,7 @@ export function calculateInterval(
 
   const ch = interval(startIndex, endIndex);
   if (ch < 10) {
-    console.log(`Interval size should be equal to 10: got ${ch}`);
+    // console.log(`Interval size should be equal to 10: got ${ch}`);
   }
 
   return [startIndex, endIndex];

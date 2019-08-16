@@ -6,10 +6,11 @@ import FeedContextProvider from "../context/provider/Feeds";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
 import useConnectionStatus from "../../hooks/useConnectionStatus";
-import { SnackbarInfo } from "../ui/Snackbar";
+import { SnackbarInfo, SnackbarWarning } from "../ui/Snackbar";
 import { MessageContext, LayoutContext } from "../context";
 import { MessageInfo } from "../../types";
 import { User } from "../../types/users";
+import { getPrimaryEmail } from "../../helpers/users";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -35,6 +36,7 @@ export default function AppLayout({
   const [isContained, setIsContained] = useState(false);
   const isOnline = useConnectionStatus();
   const body = document.querySelector("body");
+  const email = getPrimaryEmail(user);
 
   useEffect(() => {
     const overflow = isContained ? "hidden" : "initial";
@@ -50,6 +52,10 @@ export default function AppLayout({
           <Sidebar isOpen={isSideOpen} toggleDrawer={setIsSidebarOpen} />
           <Header toggleDrawer={setIsSidebarOpen} />
           <Grid container>
+            <SnackbarWarning
+              open={!!(email && !email.isConfirmed)}
+              message="Your primary has not been confirm yet. Please confirm it."
+            />
             <LayoutContext.Provider value={setIsContained}>
               <MessageContext.Provider value={setMessageInfo}>
                 {children}

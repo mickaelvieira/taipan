@@ -1,3 +1,4 @@
 import SnackbarInfo from "./Info";
+import SnackbarWarning from "./Warning";
 
-export { SnackbarInfo };
+export { SnackbarInfo, SnackbarWarning };

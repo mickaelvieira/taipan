@@ -56,7 +56,31 @@ function getFetchedSubscription(o?: Record<string, any>): any {
   };
 }
 
-// @TODO add users and emails
+function getFetchEmail(o?: Record<string, any>): any {
+  return {
+    id: "foo",
+    value: "foo@bar.baz",
+    isPrimary: false,
+    isConfirmed: false,
+    createdAt: "2019-07-28T11:15:39Z",
+    updatedAt: "2019-07-28T11:15:39Z",
+    __typename: "Email",
+    ...o
+  };
+}
+
+function getFetchUser(o?: Record<string, any>): any {
+  return {
+    id: "foo",
+    firstname: "foo",
+    lastname: "bar",
+    emails: [getFetchEmail()],
+    createdAt: "2019-07-28T11:15:39Z",
+    updatedAt: "2019-07-28T11:15:39Z",
+    __typename: "User",
+    ...o
+  };
+}
 
 describe("Transformer", () => {
   let result: FetchResult;
@@ -74,6 +98,9 @@ describe("Transformer", () => {
           bar: getFetchedDocument({
             image: { url: "https://foo.bar/baz.jpeg", __typename: "Image" }
           })
+        },
+        user: {
+          bar: getFetchUser()
         },
         bookmark: {
           bar: getFetchedBookmark()
@@ -169,6 +196,15 @@ describe("Transformer", () => {
     const data = transformer(result);
     const document = data.data.image.bar;
     expect(document.image.url instanceof URL).toBe(true);
+  });
+
+  it("transform a single user", () => {
+    const data = transformer(result);
+    const user = data.data.user.bar;
+    expect(user.createdAt instanceof Date).toBe(true);
+    expect(user.updatedAt instanceof Date).toBe(true);
+    expect(user.emails[0].createdAt instanceof Date).toBe(true);
+    expect(user.emails[0].updatedAt instanceof Date).toBe(true);
   });
 
   it("transform a single bookmark", () => {

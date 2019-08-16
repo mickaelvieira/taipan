@@ -1,6 +1,7 @@
 package user
 
 import (
+	"strings"
 	"time"
 )
 
@@ -53,6 +54,11 @@ type Email struct {
 	IsConfirmed bool
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+// IsEmailValid is the email valid?
+func IsEmailValid(e string) bool {
+	return len(e) > 0 && strings.Contains(e, "@")
 }
 
 // NewEmail creates a new user email address

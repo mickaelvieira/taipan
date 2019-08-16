@@ -2,6 +2,8 @@ import React, { useRef, PropsWithChildren } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import useFeed from "../../../hooks/useFeed";
 import { ListProps } from "./Feed";
+import PointerEvents from "./PointerEvents";
+import { FeedItem } from "../../../types/feed";
 
 const useStyles = makeStyles({
   container: {
@@ -18,6 +20,7 @@ const useStyles = makeStyles({
 
 interface Props extends ListProps {
   List: React.FunctionComponent<ListProps>;
+  results: FeedItem[];
 }
 
 export default React.memo(function FeedContainer({
@@ -26,23 +29,22 @@ export default React.memo(function FeedContainer({
   ...rest
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
-  const div = useRef<HTMLElement>(null);
-  const items = div.current
-    ? Array.from(div.current.querySelectorAll(".feed-item"))
-    : [];
-  const result = useFeed(items, results);
+  const ref = useRef<HTMLElement>();
+  const { padding, items } = useFeed(ref, results);
 
   return (
-    <section
-      id="feed"
-      ref={div}
-      style={{
-        paddingTop: `${result.padding.top}px`,
-        paddingBottom: `${result.padding.bottom}px`
-      }}
-      className={`${classes.container} ${false ? classes.scrolling : ""}`}
-    >
-      <List results={result.items} {...rest} />
-    </section>
+    <PointerEvents>
+      <section
+        id="feed"
+        ref={ref}
+        style={{
+          paddingTop: `${padding.top}px`,
+          paddingBottom: `${padding.bottom}px`
+        }}
+        className={`${classes.container}`}
+      >
+        <List results={items} {...rest} />
+      </section>
+    </PointerEvents>
   );
 });

@@ -26,8 +26,8 @@ export default function Feed({ query, List }: Props): JSX.Element {
     FeedQueryData,
     FeedVariables
   >(query, {
-    variables,
-    notifyOnNetworkStatusChange: true
+    variables
+    // notifyOnNetworkStatusChange: true
   });
 
   useEffect(() => {
@@ -44,12 +44,6 @@ export default function Feed({ query, List }: Props): JSX.Element {
   if (hasResults) {
     loadMore.current = getFetchMore(fetchMore, data);
   }
-
-  // console.log("render feed");
-  // console.log(loading);
-  // console.log(networkStatus);
-  // console.log(isAtTheBottom);
-  // console.log("---");
 
   return (
     <>

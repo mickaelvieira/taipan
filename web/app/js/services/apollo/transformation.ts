@@ -21,6 +21,8 @@ const transformers: Transformers = {
   Source: transformItem,
   UserSubscription: transformItem,
   Image: transformItem,
+  User: transformItem,
+  Email: transformItem,
   FeedBookmarkResults: data => transformCollection(data as Collection),
   FeedDocumentResults: data => transformCollection(data as Collection),
   BookmarkSearchResults: data => transformCollection(data as Collection),
@@ -48,7 +50,9 @@ function transformItem(input: Item): Item {
       } else if (isDate(key)) {
         output[key] = new Date(value);
       } else if (isObject(value)) {
-        output[key] = tranform(value);
+        output[key] = transform(value);
+      } else if (Array.isArray(value)) {
+        output[key] = value.map(transform);
       } else {
         output[key] = value;
       }
@@ -62,11 +66,11 @@ function transformItem(input: Item): Item {
 function transformCollection(result: Collection): Collection {
   return {
     ...result,
-    results: result.results.map(tranform)
+    results: result.results.map(transform)
   };
 }
 
-export default function tranform(
+export default function transform(
   input: Record<string, any>
 ): Item | Collection {
   if (input && isTransformable(input.__typename)) {

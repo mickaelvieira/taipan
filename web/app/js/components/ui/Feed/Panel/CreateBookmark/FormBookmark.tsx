@@ -79,12 +79,16 @@ export default function FormBookmark({
         <NewBookmark document={document} onFinish={onFinish} />
       )}
       {/* https://github.com/apollographql/react-apollo/issues/3323 */}
-      {!loading && !error && data && Object.keys(data).length > 0 && data.bookmarks.bookmark && (
-        <ExistingBookmark
-          bookmark={data.bookmarks.bookmark}
-          onFinish={onFinish}
-        />
-      )}
+      {!loading &&
+        !error &&
+        data &&
+        Object.keys(data).length > 0 &&
+        data.bookmarks.bookmark && (
+          <ExistingBookmark
+            bookmark={data.bookmarks.bookmark}
+            onFinish={onFinish}
+          />
+        )}
     </form>
   );
 }

@@ -1,4 +1,5 @@
 import { sortBy } from "lodash";
+import { cloneDeep } from "lodash";
 import {
   FeedQueryData,
   FeedItem,
@@ -6,7 +7,7 @@ import {
   FeedResults
 } from "../../../types/feed";
 import { ApolloClient } from "apollo-client";
-import { getDataKey, addItem, removeItemWithId } from "./feed";
+import { getBoundaries, getDataKey, addItem, removeItemWithId } from "./feed";
 import { Bookmark } from "../../../types/bookmark";
 import { Document } from "../../../types/document";
 import { queryNews, queryReadingList, queryFavorites } from "../Query/Feed";
@@ -120,5 +121,45 @@ export default class FeedsUpdater {
   unfavorite(bookmark: Bookmark): void {
     this.addTo("readinglist", bookmark);
     this.removeFrom("favorites", bookmark.id);
+  }
+
+  appendLatest(documents: Document[]): void {
+    const query = this.query["news"];
+
+    try {
+      const data = this.client.readQuery({ query }) as FeedQueryData;
+      if (data) {
+        const key = getDataKey(data);
+
+        if (key) {
+          const cloned = cloneDeep(data.feeds[key]);
+          const total = cloned.total + documents.length;
+          const results = cloned.results;
+
+          // Append documents at the top of the feed
+          documents.reverse();
+          results.unshift(...documents);
+          const [first, last] = getBoundaries(results);
+
+          this.client.writeQuery({
+            query,
+            data: {
+              feeds: {
+                ...data.feeds,
+                [key]: {
+                  ...cloned,
+                  first,
+                  last,
+                  total,
+                  results
+                }
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn(e);
+    }
   }
 }

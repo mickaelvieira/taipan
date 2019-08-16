@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, MutableRefObject, useCallback } from "react";
+
+import FastDomBase from "fastdom";
+import fastdomPromised from "fastdom/extensions/fastdom-promised";
 import {
   Padding,
   calculateCursor,
@@ -7,6 +10,8 @@ import {
   calculateInterval
 } from "../helpers/feed";
 import { FeedItem } from "../types/feed";
+
+const FastDom = FastDomBase.extend(fastdomPromised);
 
 interface Result {
   padding: Padding;
@@ -27,9 +32,10 @@ class Scroll {
   record(active: boolean): void {
     this.active = active;
     if (active) {
-      const position = document.documentElement.getBoundingClientRect().top;
-      this.previous = this.position;
-      this.position = position;
+      FastDom.measure(() => window.scrollY).then(position => {
+        this.previous = this.position;
+        this.position = position;
+      });
     }
   }
 
@@ -55,38 +61,50 @@ class Scroll {
 }
 
 class Feed {
-  // // first index in the feed
+  // first index in the feed
   private first = 0;
 
-  // // last index in the feed
+  // last index in the feed
   private last = 0;
 
   // Heigts of the HTML elements present in the feed
   private heights: number[] = [];
 
-  collectHeights(items: Element[]): void {
+  async collectHeights(container: HTMLElement): Promise<void> {
     let j = this.first;
-    // console.log("collect");
-    // console.log(j);
-    // console.log(items);
-    for (let i = 0, l = items.length; i < l; i++) {
+
+    const elements = Array.from(container.querySelectorAll(".feed-item"));
+    const tasks = [];
+    for (let i = 0, l = elements.length; i < l; i++) {
       if (!this.heights[j]) {
-        const rect = items[i].getBoundingClientRect();
-        this.heights[j] = rect.height + 24;
+        tasks.push(
+          FastDom.measure(
+            (function(index) {
+              return () => {
+                const rect = elements[i].getBoundingClientRect();
+                return {
+                  index,
+                  height: rect.height + 24
+                };
+              };
+            })(j)
+          )
+        );
       }
       j++;
     }
+
+    const heights = await Promise.all(tasks);
+
+    heights.forEach(({ index, height }) => {
+      this.heights[index] = height;
+    });
   }
 
   adjust(scroll: Scroll, results: FeedItem[]): Result | null {
-    console.log(this.heights);
     const gap = Math.abs(scroll.getPosition()) + 70;
     const cursor = calculateCursor(gap, this.heights);
-    const [first, last] = calculateInterval(
-      cursor,
-      results.length
-      // scroll.isDown()
-    );
+    const [first, last] = calculateInterval(cursor, results.length);
 
     if (first === this.first && last === this.last) {
       return null;
@@ -94,16 +112,6 @@ class Feed {
 
     this.first = first;
     this.last = last;
-
-    // console.log(this.previous)
-    // console.log(this.interval)
-    // console.log(`UP: ${scroll.isUp()}`)
-    // console.log(`DOWN: ${scroll.isDown()}`)
-    // console.log(`IDLE ${scroll.isIdle()}`)
-
-    // console.log(`TOTAL ${results.length}`)
-    // console.log(`FIRST ${this.first}`)
-    // console.log(`LAST ${this.last}`)
 
     const items = [];
     for (let index = 0, l = results.length; index < l; index++) {
@@ -137,46 +145,72 @@ const feed = new Feed();
 const scroll = new Scroll();
 
 export default function useFeed(
-  elements: Element[],
+  ref: MutableRefObject<HTMLElement | undefined>,
   results: FeedItem[]
 ): Result {
-  console.log("=================== useFeedScrolling ===================");
   const [result, setResult] = useState<Result>({
     padding: { top: 0, bottom: 0 },
     items: results
   });
 
+  const adjust = useCallback(() => {
+    if (ref.current) {
+      feed.collectHeights(ref.current).then(() => {
+        const result = feed.adjust(scroll, results);
+        if (result) {
+          setResult(result);
+        }
+      });
+    }
+  }, [ref, results]);
+
   useEffect(() => {
-    let timeout: number | undefined = undefined;
+    let stopTimeout: number | undefined = undefined;
+    let scrollTimeout: number | undefined = undefined;
 
     function clearTimer(): void {
-      if (timeout) {
-        window.clearTimeout(timeout);
+      window.clearTimeout(stopTimeout);
+      stopTimeout = undefined;
+    }
+
+    function clearLongTimer(): void {
+      window.clearTimeout(scrollTimeout);
+      scrollTimeout = undefined;
+    }
+
+    function onLongTimer(): void {
+      clearLongTimer();
+      adjust();
+    }
+
+    function startLongTime(): void {
+      if (!scrollTimeout) {
+        scrollTimeout = window.setTimeout(onLongTimer, 400);
       }
     }
 
     function onScrollStop(): void {
+      clearLongTimer();
       scroll.record(false);
-      feed.collectHeights(elements);
-      const result = feed.adjust(scroll, results);
-      if (result) {
-        setResult(result);
-      }
+      adjust();
     }
 
     function onScrollHandler(): void {
       clearTimer();
+      startLongTime();
       scroll.record(true);
-      timeout = window.setTimeout(onScrollStop, 400);
+      stopTimeout = window.setTimeout(onScrollStop, 200);
     }
 
     window.addEventListener("scroll", onScrollHandler);
+
+    adjust();
 
     return () => {
       clearTimer();
       window.removeEventListener("scroll", onScrollHandler);
     };
-  }, [elements, results]);
+  }, [adjust, results]);
 
   return result;
 }

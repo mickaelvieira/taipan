@@ -60,7 +60,7 @@ function getInputFile(file: File | null, user: User | null): File | string {
     return file;
   }
   if (user && user.image) {
-    return user.image.url;
+    return `${user.image.url}`;
   }
   return "";
 }

@@ -21,7 +21,7 @@ func resetPassword(c echo.Context, r *repository.Repositories) error {
 	}
 
 	if err := usecase.ResetPassword(ctx, r, args.Token, args.Password); err != nil {
-		if err == usecase.ErrNoPassword || err == usecase.ErrWeakPassword || err == usecase.ErrInvalidResetToken {
+		if err == usecase.ErrWeakPassword || err == usecase.ErrInvalidResetToken {
 			return c.JSON(http.StatusBadRequest, &apiError{Error: err.Error()})
 		}
 		logger.Warn(err)

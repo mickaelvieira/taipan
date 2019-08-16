@@ -87,7 +87,7 @@ export default function ForgotPassword(
                       setError(error.error);
                     } else {
                       setMessage(
-                        `Please check your inbox, we have sent you an email to the address ${email} to reset your password`
+                        `If you have an account registered with us, we have sent you an email to the address ${email} to reset your password`
                       );
                     }
                   })

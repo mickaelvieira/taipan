@@ -37,7 +37,7 @@ export default function UserInfo(): JSX.Element | null {
       {user.image && (
         <Avatar
           alt={`${user.firstname} ${user.lastname}`}
-          src={user.image.url}
+          src={`${user.image.url}`}
           className={classes.avatar}
         />
       )}

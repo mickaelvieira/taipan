@@ -9,7 +9,6 @@ import (
 	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"log"
-	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -20,9 +19,7 @@ var (
 	ErrUserDoesNotExist         = errors.New("User does not exist")
 	ErrWeakPassword             = errors.New("Your password must be at least 10 characters long")
 	ErrInvalidEmail             = errors.New("Your email does not seem to be valid")
-	ErrNoEmail                  = errors.New("Please provide your email")
 	ErrDoesNotExist             = errors.New("Email does not exist")
-	ErrNoPassword               = errors.New("Please provide a valid password")
 	ErrEmailExists              = errors.New("There is already an account associated to this email address")
 	ErrInvalidCreds             = errors.New("Email or password does not match any records in our database")
 	ErrInvalidPassword          = errors.New("Your password is not correct") // only for password change
@@ -56,21 +53,11 @@ func Signin(ctx context.Context, repos *repository.Repositories, e string, pwd s
 
 // Signup --
 func Signup(ctx context.Context, repos *repository.Repositories, e string, p string) (*user.User, error) {
-	if e == "" {
-		return nil, ErrNoEmail
-	}
-
-	// @TODO can we do a something better here?
-	if !strings.Contains(e, "@") {
+	if !user.IsEmailValid(e) {
 		return nil, ErrInvalidEmail
 	}
 
-	if p == "" {
-		return nil, ErrNoPassword
-	}
-
-	// @TODO can we do a something better here?
-	if len(p) < 10 {
+	if !password.IsValid(p) {
 		return nil, ErrWeakPassword
 	}
 
@@ -120,8 +107,7 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 
 // ForgotPassword --
 func ForgotPassword(ctx context.Context, repos *repository.Repositories, e string) error {
-	// @TODO can we do a something better here?
-	if !strings.Contains(e, "@") {
+	if !user.IsEmailValid(e) {
 		return ErrInvalidEmail
 	}
 
@@ -151,11 +137,7 @@ func ForgotPassword(ctx context.Context, repos *repository.Repositories, e strin
 
 // ResetPassword --
 func ResetPassword(ctx context.Context, repos *repository.Repositories, t string, p string) error {
-	if p == "" {
-		return ErrNoPassword
-	}
-
-	if len(p) < 10 {
+	if !password.IsValid(p) {
 		return ErrWeakPassword
 	}
 
@@ -227,12 +209,7 @@ func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *us
 		return ErrInvalidPassword
 	}
 
-	if n == "" {
-		return ErrNoPassword
-	}
-
-	// @TODO can we do a something better here?
-	if len(n) < 10 {
+	if !password.IsValid(n) {
 		return ErrWeakPassword
 	}
 

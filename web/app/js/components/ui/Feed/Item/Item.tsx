@@ -24,6 +24,7 @@ interface RenderProps {
   remove: (cb: CacheUpdater) => void;
 }
 
+// @TODO remove the fading effect
 export default React.memo(function Item({ children }: Props): JSX.Element {
   const classes = useStyles();
   const ref = useRef<CacheUpdater>();

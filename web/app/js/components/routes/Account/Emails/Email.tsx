@@ -59,7 +59,7 @@ export default function UserEmail({
   });
 
   return (
-    <ListItem>
+    <ListItem disableGutters>
       <ListItemText>{email.value}</ListItemText>
       {!email.isConfirmed && (
         <Chip
