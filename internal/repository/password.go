@@ -17,10 +17,10 @@ type PasswordResetRepository struct {
 // Create --
 func (r *PasswordResetRepository) Create(ctx context.Context, pr *password.ResetToken) error {
 	query := `
-	INSERT INTO password_reset
-	(token, user_id, used, expired_at, created_at)
-	VALUES
-	(?, ?, ?, ?, ?)
+		INSERT INTO password_reset
+		(token, user_id, used, expired_at, created_at)
+		VALUES
+		(?, ?, ?, ?, ?)
 `
 	_, err := r.db.ExecContext(
 		ctx,
