@@ -46,7 +46,7 @@ export default function Syndication({
             <Checkbox
               checked={subscriptions.includes(source.url)}
               onClick={() => {
-                let sub = subscriptions.includes(source.url)
+                const sub = subscriptions.includes(source.url)
                   ? subscriptions.filter(url => url != source.url)
                   : [source.url, ...subscriptions];
                 onChange(sub);

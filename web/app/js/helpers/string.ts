@@ -1,4 +1,4 @@
-const truncate = (input: string, len: number = 250): string => {
+const truncate = (input: string, len = 250): string => {
   if (input.length <= len) {
     return input;
   }

@@ -14,7 +14,7 @@ export function genRandomId(): string {
     .join("");
 }
 
-export default (clientId: string) => {
+export default (clientId: string): ApolloClient<object> => {
   const cache = new InMemoryCache({
     freezeResults: true,
     dataIdFromObject: ({ id, __typename }: IdGetterObj) =>

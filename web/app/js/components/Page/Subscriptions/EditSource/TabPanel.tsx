@@ -23,7 +23,7 @@ export default function TabPanel({
   className
 }: PropsWithChildren<Props>): JSX.Element | null {
   const classes = useStyles();
-  let styles = [classes.paper];
+  const styles = [classes.paper];
   if (!isVisible) {
     styles.push(classes.hidden);
   }

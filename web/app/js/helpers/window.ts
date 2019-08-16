@@ -61,7 +61,7 @@ const willBeSoonInViewport = (element: HTMLElement | null): boolean => {
   return bounding.top >= bottom + 200;
 };
 
-const hasReachedTheBottom = (gap: number = 400): boolean => {
+const hasReachedTheBottom = (gap = 400): boolean => {
   const win = getWindowDimensions();
   const doc = getDocumentDimensions();
   const scroll = getScrollPosition();
