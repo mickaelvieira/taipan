@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github/mickaelvieira/taipan/internal/app"
+	"github/mickaelvieira/taipan/internal/cmd"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/logger"
@@ -48,7 +48,7 @@ func runSyndicationWorker(c *cli.Context) {
 		// Close RabbitMQ connection
 		client.Close()
 	}
-	app.Signal(onStop)
+	cmd.Signal(onStop)
 	defer onStop()
 
 	for {

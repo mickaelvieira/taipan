@@ -25,7 +25,7 @@ export default function LazyLoadingImage({ media, title }: Props): JSX.Element {
   const classes = useStyles();
   const divRef = useRef(null);
   const isVisible = useLazyLoadedImage(divRef);
-  const src = isVisible && media ? media.url : IMAGE_PLACEHOLDER;
+  const src = isVisible && media ? `${media.url}` : IMAGE_PLACEHOLDER;
 
   return (
     <RootRef rootRef={divRef}>

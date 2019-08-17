@@ -1,23 +1,14 @@
-import { Mutation } from "react-apollo";
 import { Document } from "../../../../types/document";
 import mutation from "../../graphql/mutation/bookmarks/unbookmark.graphql";
 
-interface Data {
+export interface Data {
   bookmarks: {
     remove: Document;
   };
 }
 
-interface Variables {
-  url: string;
-}
-
-class UnbookmarkMutation extends Mutation<Data, Variables> {
-  static defaultProps = {
-    mutation
-  };
+export interface Variables {
+  url: URL;
 }
 
 export { mutation };
-
-export default UnbookmarkMutation;

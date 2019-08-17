@@ -1,3 +1,4 @@
+import { SearchType } from "../types/search";
 export function getSearchTerms(search: string | null): string[] {
   if (!search) {
     return [];
@@ -8,7 +9,10 @@ export function getSearchTerms(search: string | null): string[] {
     .filter(term => term !== "");
 }
 
-export function getSearchType(pathname: string, type: string | null): string {
+export function getSearchType(
+  pathname: string,
+  type: SearchType | null
+): SearchType {
   if (!type) {
     return pathname === "/" ? "document" : "bookmark";
   }

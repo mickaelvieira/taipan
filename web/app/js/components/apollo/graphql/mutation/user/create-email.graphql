@@ -1,0 +1,9 @@
+#import "../../fragment/user.graphql"
+
+mutation createEmail($email: String!) {
+  users {
+    createEmail(email: $email) {
+      ...userFields
+    }
+  }
+}

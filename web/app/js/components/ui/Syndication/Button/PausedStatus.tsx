@@ -1,8 +1,11 @@
 import React from "react";
+import { useMutation } from "@apollo/react-hooks";
 import IconButton from "@material-ui/core/IconButton";
 import PausedIcon from "@material-ui/icons/Pause";
 import PlayIcon from "@material-ui/icons/PlayArrow";
-import ChangeStatusMutation, {
+import {
+  Data,
+  Variables,
   pauseMutation,
   resumeMutation
 } from "../../../apollo/Mutation/Syndication/PausedStatus";
@@ -16,28 +19,25 @@ export default React.memo(function StatusButton({
   source
 }: Props): JSX.Element {
   const { isPaused } = source;
+  const [mutate] = useMutation<Data, Variables>(
+    isPaused ? resumeMutation : pauseMutation
+  );
 
   return (
-    <ChangeStatusMutation mutation={isPaused ? resumeMutation : pauseMutation}>
-      {mutate => {
-        return (
-          <IconButton
-            onClick={() => {
-              mutate({
-                variables: {
-                  url: source.url
-                }
-              });
-            }}
-          >
-            {isPaused ? (
-              <PausedIcon color="secondary" />
-            ) : (
-              <PlayIcon color="primary" />
-            )}
-          </IconButton>
-        );
+    <IconButton
+      onClick={() => {
+        mutate({
+          variables: {
+            url: source.url
+          }
+        });
       }}
-    </ChangeStatusMutation>
+    >
+      {isPaused ? (
+        <PausedIcon color="secondary" />
+      ) : (
+        <PlayIcon color="primary" />
+      )}
+    </IconButton>
   );
 });

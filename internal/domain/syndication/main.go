@@ -66,16 +66,6 @@ func IsBlacklisted(url string) bool {
 	return false
 }
 
-// Status represents the status of the feed during the fetching process
-type Status string
-
-// Status values
-const (
-	NEW      Status = "new"
-	PENDING  Status = "pending"
-	FETCHING Status = "fetching"
-)
-
 // Source represents what is the feed within the application
 type Source struct {
 	ID        string
@@ -83,7 +73,6 @@ type Source struct {
 	Domain    *url.URL
 	Type      Type
 	Title     string
-	Status    Status
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	ParsedAt  time.Time
@@ -98,7 +87,6 @@ func NewSource(url *url.URL, title string, feedType Type) *Source {
 		URL:       url,
 		Title:     title,
 		Type:      feedType,
-		Status:    NEW,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Frequency: http.Hourly,

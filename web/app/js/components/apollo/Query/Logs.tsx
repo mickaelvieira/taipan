@@ -1,4 +1,3 @@
-import { Query } from "react-apollo";
 import query from "../graphql/query/bot/logs.graphql";
 import { OffsetPagination } from "../../../types";
 import { LogResults } from "../../../types/http";
@@ -10,7 +9,7 @@ export interface Data {
 }
 
 export interface Variables {
-  url: string;
+  url: URL;
   pagination: OffsetPagination;
 }
 
@@ -21,12 +20,3 @@ const variables = {
 };
 
 export { query, variables };
-
-class LogsQuery extends Query<Data, Variables> {
-  static defaultProps = {
-    query,
-    variables
-  };
-}
-
-export default LogsQuery;

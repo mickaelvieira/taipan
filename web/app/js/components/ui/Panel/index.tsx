@@ -5,7 +5,7 @@ import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import IconButton from "@material-ui/core/IconButton";
 import NavigateBeforeIcon from "@material-ui/icons/NavigateBefore";
-import { Typography } from "@material-ui/core";
+import Typography from "@material-ui/core/Typography";
 import Modal from "./Modal";
 import Panel from "./Panel";
 

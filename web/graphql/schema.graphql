@@ -58,10 +58,22 @@ input UserInput {
 
 type UsersMutation {
   # "Updates the user's details
-  update(id: ID!, user: UserInput!): User
+  update(user: UserInput!): User
+
+  # "Change user's password
+  password(old: String!, new: String!): Boolean!
+
+  # "Add a new user's email address
+  createEmail(email: String!): User
+
+  # "Remove a existing user's email address
+  deleteEmail(email: String!): User
+
+  # "Mark a existing user's email address as primary
+  primaryEmail(email: String!): User
 
   # "Updates the user's theme
-  theme(id: ID!, theme: String!): User
+  theme(theme: String!): User
 }
 
 type DocumentMutation {
@@ -219,9 +231,20 @@ type User implements Node {
   id: ID!
   firstname: String!
   lastname: String!
-  username: String!
+  emails: [Email!]!
   theme: String!
   image: Image
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Email implements Node {
+  id: ID!
+  value: String!
+  isPrimary: Boolean!
+  isConfirmed: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 # """

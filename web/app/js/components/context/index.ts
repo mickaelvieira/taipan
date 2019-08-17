@@ -6,6 +6,7 @@ import FeedsUpdater from "../apollo/helpers/feeds-updater";
 import FeedsMutator from "../apollo/helpers/feeds-mutator";
 
 const ClientContext = React.createContext<string>("");
+const LayoutContext = React.createContext((_: boolean) => {});
 const AppContext = React.createContext<AppInfo | null>(null);
 const UserContext = React.createContext<User | null>(null);
 const MessageContext = React.createContext((_: MessageInfo | null) => {});
@@ -15,6 +16,7 @@ const FeedsContext = React.createContext<FeedsMutator | null>(null);
 export {
   ClientContext,
   AppContext,
+  LayoutContext,
   UserContext,
   MessageContext,
   FeedsCacheContext,

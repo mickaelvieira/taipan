@@ -7,7 +7,7 @@ export interface CursorPagination {
 }
 
 export interface OffsetPagination {
-  offset?: string;
+  offset?: number;
   limit?: number;
 }
 

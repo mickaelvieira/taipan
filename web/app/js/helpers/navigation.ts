@@ -20,7 +20,7 @@ export function getSectionTitle(pathname: string): string {
 
 export function getPageTitle(pathname: string): string {
   return titles[pathname]
-    ? `${appTitle} - ${appBaseline} - ${getSectionTitle(pathname)}`
+    ? `${getSectionTitle(pathname)} | ${appTitle} - ${appBaseline}`
     : "";
 }
 

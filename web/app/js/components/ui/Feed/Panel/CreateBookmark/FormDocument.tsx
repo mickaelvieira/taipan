@@ -1,15 +1,30 @@
 import React, { useState } from "react";
+import { useMutation } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import CreateDocumentMutation from "../../../../apollo/Mutation/Documents/Create";
+import {
+  mutation,
+  Data,
+  Variables
+} from "../../../../apollo/Mutation/Documents/Create";
 import { Document } from "../../../../../types/document";
+import Group from "../../../../ui/Form/Group";
+import Label from "../../../../ui/Form/Label";
+import { ErrorMessage } from "../../../Form/Message";
+import { InputBase } from "../../../../ui/Form/Input";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ palette }) => ({
   form: {
     display: "flex",
     flexDirection: "column"
+  },
+  input: {
+    borderRadius: 0,
+    border: 0,
+    borderBottom: `1px solid ${palette.grey[400]}`,
+    paddingRight: 0,
+    paddingLeft: 0
   },
   button: {
     marginTop: 16,
@@ -18,53 +33,52 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface Props {
-  onFetchDocument: (document: Document) => void;
+  onDocumentFetched: (document: Document) => void;
 }
 
-export default function FormDocument({ onFetchDocument }: Props): JSX.Element {
+export default function FormDocument({
+  onDocumentFetched
+}: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
+  const [mutate, { loading, error }] = useMutation<Data, Variables>(mutation, {
+    onCompleted: ({ documents: { create } }) => onDocumentFetched(create)
+  });
+
   return (
-    <CreateDocumentMutation
-      onCompleted={({ documents: { create } }) => onFetchDocument(create)}
-    >
-      {(mutate, { loading, error }) => {
-        return (
-          <form className={classes.form}>
-            <Typography paragraph>
-              Enter the URL of the page you would like to bookmark
-            </Typography>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="bookmark_url"
-              label="URL"
-              placeholder="https://"
-              type="url"
-              value={url}
-              error={!!error}
-              autoComplete="off"
-              autoCapitalize="off"
-              autoCorrect="off"
-              helperText={!error ? "" : error.message}
-              onChange={event => setUrl(event.target.value)}
-              fullWidth
-            />
-            <Button
-              onClick={() =>
-                mutate({
-                  variables: { url }
-                })
-              }
-              color="primary"
-              disabled={loading}
-              className={classes.button}
-            >
-              Preview
-            </Button>
-          </form>
-        );
-      }}
-    </CreateDocumentMutation>
+    <form className={classes.form}>
+      <Typography paragraph>
+        Enter the URL of the page you would like to bookmark
+      </Typography>
+      <Group>
+        <Label htmlFor="feed-url">URL</Label>
+        <InputBase
+          id="bookmark-url"
+          autoFocus
+          placeholder="https://"
+          type="url"
+          value={url}
+          error={!!error}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          onChange={event => setUrl(event.target.value)}
+          className={classes.input}
+        />
+        {error && <ErrorMessage>{error.message}</ErrorMessage>}
+      </Group>
+      <Button
+        onClick={() =>
+          mutate({
+            variables: { url }
+          })
+        }
+        color="primary"
+        disabled={loading}
+        className={classes.button}
+      >
+        Preview
+      </Button>
+    </form>
   );
 }

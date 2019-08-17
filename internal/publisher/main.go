@@ -1,10 +1,10 @@
 package publisher
 
 import (
-	"math/rand"
-	"time"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/logger"
+	"math/rand"
+	"time"
 )
 
 // Topic - a topic identifies a publisher topic
@@ -93,7 +93,7 @@ func (bus *Subscription) Subscribe(t Topic, s Subscriber, stop <-chan struct{}) 
 	id := randomID()
 	bus.subscribers[t][id] = s
 
-	logger.Info(fmt.Sprintf("New subscriber [%s] [%s]", t, id))
+	logger.Debug(fmt.Sprintf("New subscriber [%s] [%s]", t, id))
 
 	go func(id string, s <-chan struct{}) {
 		for {
@@ -112,6 +112,9 @@ func (bus *Subscription) Unsubscribe(id string) {
 	for _, v := range bus.subscribers {
 		for i := range v {
 			if i == id {
+
+				logger.Debug(fmt.Sprintf("Unsubscribe [%s]", id))
+
 				delete(v, id)
 			}
 		}
@@ -122,7 +125,7 @@ func (bus *Subscription) Unsubscribe(id string) {
 func (bus *Subscription) Publish(e *Event) {
 	t := e.Topic
 
-	logger.Info(fmt.Sprintf("Publish event [%s] [%s]", t, e.Action))
+	logger.Debug(fmt.Sprintf("Publish event [%s] [%s]", t, e.Action))
 
 	if bus.subscribers[t] != nil {
 		for _, s := range bus.subscribers[t] {

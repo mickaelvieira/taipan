@@ -158,6 +158,7 @@ func (s *documentSubscriber) Publish(e *publisher.Event) {
 
 // BookmarkChanged --
 func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEventResolver {
+	// @TODO better handle authentication
 	c := make(chan *BookmarkEventResolver)
 	s := &bookmarkSubscriber{events: c}
 	r.publisher.Subscribe(publisher.TopicBookmark, s, ctx.Done())

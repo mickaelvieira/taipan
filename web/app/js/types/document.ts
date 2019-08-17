@@ -1,17 +1,16 @@
 import { Image } from "./image";
 import { Source } from "./syndication";
-import { Datetime } from "./scalars";
 
 export interface Document {
   id: string;
-  url: string;
+  url: URL;
   lang?: string;
   charset?: string;
   title: string;
   description: string;
   image: Image | null;
-  createdAt: Datetime;
-  updatedAt: Datetime;
+  createdAt: Date;
+  updatedAt: Date;
   syndication?: Source[];
 }
 

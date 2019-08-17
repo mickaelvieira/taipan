@@ -59,11 +59,6 @@ func (r *SourceResolver) Type() string {
 	return string(r.Source.Type)
 }
 
-// Status resolves the Status field
-func (r *SourceResolver) Status() string {
-	return string(r.Source.Status)
-}
-
 // Frequency resolves the Frequency field
 func (r *SourceResolver) Frequency() string {
 	return string(r.Source.Frequency)

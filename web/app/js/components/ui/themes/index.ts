@@ -35,7 +35,7 @@ export const themes: Themes = {
   purple
 };
 
-export const defaultTheme = "pink";
+export const defaultTheme = "purple";
 
 type ThemeClasseNames = {
   [k in ThemeName]: CSSProperties;

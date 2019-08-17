@@ -6,9 +6,20 @@ export interface User {
   id: string;
   firstname: string;
   lastname: string;
-  username: string;
+  emails: Email[];
   image: Image | null;
   theme?: ThemeName | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Email {
+  id: string;
+  value: string;
+  isPrimary: boolean;
+  isConfirmed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface UserEvent extends Event {

@@ -14,12 +14,14 @@ type Scanable interface {
 // Repositories holds a reference to the repositories
 type Repositories struct {
 	Users         *UserRepository
+	Emails        *UserEmailRepository
 	NewsFeed      *NewsFeedRepository
 	Syndication   *SyndicationRepository
 	Subscriptions *SubscriptionRepository
 	Documents     *DocumentRepository
 	Bookmarks     *BookmarkRepository
 	Botlogs       *BotlogRepository
+	ResetToken    *PasswordResetRepository
 }
 
 // GetRepositories builds the repository holder
@@ -28,17 +30,19 @@ func GetRepositories() *Repositories {
 
 	return &Repositories{
 		Users:         &UserRepository{db: db},
+		Emails:        &UserEmailRepository{db: db},
 		NewsFeed:      &NewsFeedRepository{db: db},
 		Syndication:   &SyndicationRepository{db: db},
 		Subscriptions: &SubscriptionRepository{db: db},
 		Documents:     &DocumentRepository{db: db},
 		Bookmarks:     &BookmarkRepository{db: db},
 		Botlogs:       &BotlogRepository{db: db},
+		ResetToken:    &PasswordResetRepository{db: db},
 	}
 }
 
 func formatQuery(query string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(query, "\t", " "), "\n", "")
+	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(query, "'", "`"), "\t", " "), "\n", "")
 }
 
 func getMultiInsertPlacements(t int, n int) string {

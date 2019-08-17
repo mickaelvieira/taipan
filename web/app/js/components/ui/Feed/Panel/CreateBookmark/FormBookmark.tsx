@@ -1,13 +1,13 @@
 import React from "react";
+import { useQuery } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import CardMedia from "@material-ui/core/CardMedia";
 import NoImage from "../../../NoImage";
 import { Document } from "../../../../../types/document";
 import { Bookmark } from "../../../../../types/bookmark";
 import Title from "../../Item/Title";
-import Description from "../../Item/Description";
 import { getImageWidth } from "../../../../../helpers/image";
-import BookmarkQuery from "../../../../apollo/Query/Bookmark";
+import { query, Data, Variables } from "../../../../apollo/Query/Bookmark";
 import Loader from "../../../Loader";
 import NewBookmark from "./FormBookmarkActions/NewBookmark";
 import ExistingBookmark from "./FormBookmarkActions/ExistingBookmark";
@@ -59,38 +59,36 @@ export default function FormBookmark({
   onFinish
 }: Props): JSX.Element {
   const classes = useStyles();
+  const { data, loading, error } = useQuery<Data, Variables>(query, {
+    variables: { url: document.url }
+  });
 
   return (
     <form className={classes.form}>
       <Title item={document} />
-      <Description item={document} />
       {document.image && (
         <CardMedia
           className={classes.media}
-          image={document.image.url}
+          image={`${document.image.url}`}
           title={document.title}
         />
       )}
       {!document.image && <NoImage className={classes.nomedia} />}
-      <BookmarkQuery variables={{ url: document.url }}>
-        {({ data, loading, error }) => {
-          if (loading) {
-            return <Loader />;
-          }
-          if (error) {
-            return <NewBookmark document={document} onFinish={onFinish} />;
-          }
-          if (!data || !data.bookmarks.bookmark) {
-            return null;
-          }
-          return (
-            <ExistingBookmark
-              bookmark={data.bookmarks.bookmark}
-              onFinish={onFinish}
-            />
-          );
-        }}
-      </BookmarkQuery>
+      {loading && <Loader />}
+      {!loading && error && (
+        <NewBookmark document={document} onFinish={onFinish} />
+      )}
+      {/* https://github.com/apollographql/react-apollo/issues/3323 */}
+      {!loading &&
+        !error &&
+        data &&
+        Object.keys(data).length > 0 &&
+        data.bookmarks.bookmark && (
+          <ExistingBookmark
+            bookmark={data.bookmarks.bookmark}
+            onFinish={onFinish}
+          />
+        )}
     </form>
   );
 }

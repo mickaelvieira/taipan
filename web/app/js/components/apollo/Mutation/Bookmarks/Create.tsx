@@ -1,15 +1,14 @@
-import { Mutation } from "react-apollo";
 import { Bookmark } from "../../../../types/bookmark";
 import mutation from "../../graphql/mutation/bookmarks/create.graphql";
 
-interface Data {
+export interface Data {
   bookmarks: {
     create: Bookmark;
   };
 }
 
-interface Variables {
-  url: string;
+export interface Variables {
+  url: URL;
   isFavorite: boolean;
   withFeeds: boolean;
 }
@@ -19,13 +18,4 @@ const variables = {
   withFeeds: true
 };
 
-class CreateBookmarkMutation extends Mutation<Data, Variables> {
-  static defaultProps = {
-    mutation,
-    variables
-  };
-}
-
 export { mutation, variables };
-
-export default CreateBookmarkMutation;

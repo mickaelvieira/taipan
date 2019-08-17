@@ -1,22 +1,6 @@
 import { addSource, removeSource } from "./syndication";
 import { SyndicationResults, Source } from "../../../types/syndication";
-
-function getSource(id: string): Source {
-  return {
-    id,
-    url: "baz",
-    domain: "foo",
-    title: "baz",
-    type: "baz",
-    status: "baz",
-    frequency: "hourly",
-    isPaused: false,
-    isDeleted: false,
-    createdAt: "baz",
-    updatedAt: "baz",
-    parsedAt: "baz"
-  };
-}
+import { getSource } from "../../../helpers/testing";
 
 describe("Syndication helpers", () => {
   describe("addSource", () => {
@@ -37,15 +21,15 @@ describe("Syndication helpers", () => {
     });
 
     it("adds a item to a results", () => {
-      const item1 = getSource("baz");
+      const item1 = getSource({ id: "baz" });
       results = addSource(results, item1);
       expect(results.results.length).toEqual(1);
     });
 
     it("adds items on top of the results", () => {
-      const item1 = getSource("foo");
-      const item2 = getSource("bar");
-      const item3 = getSource("baz");
+      const item1 = getSource({ id: "foo" });
+      const item2 = getSource({ id: "bar" });
+      const item3 = getSource({ id: "baz" });
       results = addSource(results, item1);
       results = addSource(results, item2);
       results = addSource(results, item3);
@@ -55,9 +39,9 @@ describe("Syndication helpers", () => {
     });
 
     it("clones existing items", () => {
-      const item1 = getSource("foo");
-      const item2 = getSource("bar");
-      const item3 = getSource("baz");
+      const item1 = getSource({ id: "foo" });
+      const item2 = getSource({ id: "bar" });
+      const item3 = getSource({ id: "baz" });
       results = addSource(results, item1);
       results = addSource(results, item2);
       results = addSource(results, item3);
@@ -69,16 +53,16 @@ describe("Syndication helpers", () => {
     });
 
     it("updates result's total", () => {
-      const item1 = getSource("baz");
-      const item2 = getSource("bar");
+      const item1 = getSource({ id: "baz" });
+      const item2 = getSource({ id: "bar" });
       results = addSource(results, item1);
       results = addSource(results, item2);
       expect(results.total).toEqual(2);
     });
 
     it("does not duplicate items", () => {
-      const item1 = getSource("baz");
-      const item2 = getSource("baz");
+      const item1 = getSource({ id: "baz" });
+      const item2 = getSource({ id: "baz" });
       results = addSource(results, item1);
       results = addSource(results, item2);
       expect(results.total).toEqual(1);
@@ -87,9 +71,9 @@ describe("Syndication helpers", () => {
   });
 
   describe("removeSource", () => {
-    const item1 = getSource("foo");
-    const item2 = getSource("bar");
-    const item3 = getSource("baz");
+    const item1 = getSource({ id: "foo" });
+    const item2 = getSource({ id: "bar" });
+    const item3 = getSource({ id: "baz" });
     let results: SyndicationResults;
     beforeEach(() => {
       results = {
@@ -101,13 +85,13 @@ describe("Syndication helpers", () => {
     });
 
     it("removes a source from the results", () => {
-      const item1 = getSource("baz");
+      const item1 = getSource({ id: "baz" });
       results = removeSource(results, item1);
       expect(results.results.length).toEqual(2);
     });
 
     it("clones existing sources", () => {
-      const item1 = getSource("foo");
+      const item1 = getSource({ id: "foo" });
       results = removeSource(results, item1);
       expect(results.results[0]).toEqual(item2);
       expect(results.results[0]).not.toBe(item2);
@@ -116,15 +100,15 @@ describe("Syndication helpers", () => {
     });
 
     it("updates result's total", () => {
-      const item1 = getSource("baz");
-      const item2 = getSource("bar");
+      const item1 = getSource({ id: "baz" });
+      const item2 = getSource({ id: "bar" });
       results = removeSource(results, item1);
       results = removeSource(results, item2);
       expect(results.total).toEqual(1);
     });
 
     it("does not alter the results if the source is not present", () => {
-      const item1 = getSource("foobar");
+      const item1 = getSource({ id: "foobar" });
       results = removeSource(results, item1);
       expect(results).toBe(results);
     });

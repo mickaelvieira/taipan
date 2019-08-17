@@ -2,6 +2,7 @@ OS    := $(shell uname -s)
 SHELL := /bin/bash
 GOFMT := gofmt -s -w -l
 CDWEB := cd web/app
+RMSCRIPTS := rm -rf web/static/js/
 
 build: build-app build-ui
 
@@ -23,13 +24,13 @@ test-app:
 	go test ./...
 
 build-ui:
-	$(CDWEB) && yarn && yarn build
+	$(RMSCRIPTS) && $(CDWEB) && yarn && yarn build
 
 test-ui:
 	$(CDWEB) && yarn test
 
 watch-ui:
-	$(CDWEB) && yarn watch
+	$(RMSCRIPTS) && $(CDWEB) && yarn watch
 
 watch-test-ui:
 	$(CDWEB) && yarn watch-test

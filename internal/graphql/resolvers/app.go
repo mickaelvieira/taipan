@@ -1,6 +1,8 @@
 package resolvers
 
-import "os"
+import (
+	"os"
+)
 
 // AppResolver app's root resolver
 type AppResolver struct{}

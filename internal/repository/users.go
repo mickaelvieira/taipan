@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"time"
 )
 
 // UserRepository the Bookmark repository
@@ -11,10 +13,35 @@ type UserRepository struct {
 	db *sql.DB
 }
 
+// CreateUser --
+func (r *UserRepository) CreateUser(ctx context.Context, hash string) (string, error) {
+	query := `
+	INSERT INTO users
+	(password, created_at, updated_at)
+	VALUES
+	(?, ?, ?)
+`
+	res, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		hash,
+		time.Now(),
+		time.Now(),
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return db.GetLastInsertID(res), nil
+}
+
 // GetByID find a single entry
 func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, error) {
 	query := `
-		SELECT u.id, u.username, u.firstname, u.lastname, u.status, u.theme, u.image_name, u.image_width, u.image_height, u.image_format, u.created_at, u.updated_at
+		SELECT u.id, u.firstname, u.lastname, u.theme,
+		u.image_name, u.image_width, u.image_height, u.image_format,
+		u.created_at, u.updated_at
 		FROM users as u
 		WHERE u.id = ?
 	`
@@ -25,6 +52,41 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 	}
 
 	return u, nil
+}
+
+// GetByPrimaryEmail find a single entry
+func (r *UserRepository) GetByPrimaryEmail(ctx context.Context, email string) (*user.User, error) {
+	query := `
+		SELECT u.id, u.firstname, u.lastname, u.theme,
+		u.image_name, u.image_width, u.image_height, u.image_format,
+		u.created_at, u.updated_at
+		FROM users as u
+		INNER JOIN users_emails as e ON u.id = e.user_id
+		WHERE e.value = ? AND e.primary = 1
+	`
+	row := r.db.QueryRowContext(ctx, formatQuery(query), email)
+	u, err := r.scan(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
+// GetPassword find a single entry
+func (r *UserRepository) GetPassword(ctx context.Context, id string) (string, error) {
+	var password string
+	query := `
+		SELECT u.password
+		FROM users as u
+		WHERE u.id = ?
+	`
+	err := r.db.QueryRowContext(ctx, formatQuery(query), id).Scan(&password)
+	if err != nil {
+		return password, err
+	}
+
+	return password, nil
 }
 
 // Update update a user
@@ -40,6 +102,24 @@ func (r *UserRepository) Update(ctx context.Context, u *user.User) error {
 		u.Firstname,
 		u.Lastname,
 		u.UpdatedAt,
+		u.ID,
+	)
+
+	return err
+}
+
+// UpdatePassword update a user's password
+func (r *UserRepository) UpdatePassword(ctx context.Context, u *user.User, h string) error {
+	query := `
+		UPDATE users
+		SET password = ?, updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		h,
+		time.Now(),
 		u.ID,
 	)
 
@@ -92,10 +172,8 @@ func (r *UserRepository) scan(rows Scanable) (*user.User, error) {
 
 	err := rows.Scan(
 		&u.ID,
-		&u.Username,
 		&u.Firstname,
 		&u.Lastname,
-		&u.Status,
 		&u.Theme,
 		&imageName,
 		&imageWidth,

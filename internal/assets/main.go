@@ -1,27 +1,18 @@
 package assets
 
 import (
-	"encoding/json"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 )
 
 // AssetsBasePath assets directory
 const AssetsBasePath = "/static"
 
-// Assets represents the list of available assets
-type Assets struct {
-	App    string `json:"app"`
-	Vendor string `json:"vendor"`
-}
-
-// AppendFileServerBasePath removes the base path from assets filepaths
-func (a *Assets) AppendFileServerBasePath() {
-	a.App = AssetsBasePath + a.App
-	a.Vendor = AssetsBasePath + a.Vendor
-}
+// Assets contains the list of JS scripts
+type Assets []string
 
 // MakeCDNBaseURL returns the CDN base URL
 func MakeCDNBaseURL() string {
@@ -37,24 +28,25 @@ func MakeImageURL(name string) *url.URL {
 	return u
 }
 
-// GetBasePath returns base path
-func GetBasePath(useFileServer bool) string {
-	if useFileServer {
-		return AssetsBasePath
-	}
-	return ""
-}
-
 // LoadAssetsDefinition loads the list of available assets
-func LoadAssetsDefinition(path string) *Assets {
-	content, err := ioutil.ReadFile(path)
-
+func LoadAssetsDefinition(path string, useFileServer bool) Assets {
+	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var assets Assets
-	json.Unmarshal(content, &assets)
-
-	return &assets
+	var assets []string
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), "vendor") ||
+			strings.HasPrefix(file.Name(), "app") ||
+			strings.HasPrefix(file.Name(), "materialui") ||
+			strings.HasPrefix(file.Name(), "react") && strings.HasSuffix(file.Name(), ".js") {
+			if useFileServer {
+				assets = append(assets, AssetsBasePath+"/js/"+file.Name())
+			} else {
+				assets = append(assets, "/js/"+file.Name())
+			}
+		}
+	}
+	return assets
 }

@@ -147,6 +147,7 @@ func CreateSyndicationSource(ctx context.Context, repos *repository.Repositories
 		return nil, err
 	}
 
+	// @TODO URLs must be pushed to otherwise if the feed does not change they will never be sent to the parser
 	_, err = ParseSyndicationSource(ctx, repos, result, s)
 	if err != nil {
 		return nil, err

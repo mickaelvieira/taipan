@@ -1,16 +1,18 @@
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"net/http"
+	"github/mickaelvieira/taipan/internal/assets"
+	"github/mickaelvieira/taipan/internal/graphql"
+	"github/mickaelvieira/taipan/internal/logger"
+	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/templates"
+	"github/mickaelvieira/taipan/internal/web"
+	"github/mickaelvieira/taipan/internal/web/middleware"
+	"github/mickaelvieira/taipan/internal/web/paths"
+	"github/mickaelvieira/taipan/internal/web/routes"
 	"os"
 
-	"github/mickaelvieira/taipan/internal/app"
-	"github/mickaelvieira/taipan/internal/assets"
-	"github/mickaelvieira/taipan/internal/auth"
-	"github/mickaelvieira/taipan/internal/clientid"
-
+	"github.com/labstack/echo/v4"
 	"github.com/urfave/cli"
 )
 
@@ -23,25 +25,48 @@ var Web = cli.Command{
 }
 
 func runWeb(c *cli.Context) {
-	server := app.Bootstrap()
-	port := os.Getenv("APP_PORT")
-	env := os.Getenv("TAIPAN_ENV")
-	webDir := os.Getenv("APP_WEB_DIR")
+	a := assets.LoadAssetsDefinition(paths.GetScriptsDir(), web.UseFileServer())
+	t := templates.NewRenderer(paths.GetTemplatesDir())
+	r := repository.GetRepositories()
+	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
 
-	if app.UseFileServer() {
-		fs := http.FileServer(http.Dir(webDir))
-		http.Handle(assets.AssetsBasePath+"/", fs)
+	e := echo.New()
+	logger.Init(e, os.Getenv("APP_LOG_LEVEL"))
+
+	e.Renderer = t
+	e.Use(middleware.ClientID())
+	e.Use(middleware.Session())
+	e.Use(middleware.Firewall(r))
+
+	if web.IsDev() {
+		e.Debug = true
+		e.Use(middleware.CORS())
+	}
+	if web.UseFileServer() {
+		e.Static(paths.GetBasePath(web.UseFileServer()), paths.GetStaticDir())
 	}
 
-	// Routing
-	http.HandleFunc("/", server.IndexHandler)
-	http.HandleFunc("/graphql", clientid.WithClientID(auth.WithUser(server.QueryHandler, server.Repositories.Users)))
+	index := routes.Index(a)
+	api := routes.GraphQL(s, r)
 
-	// Start the server
-	fmt.Println("Listening: http://localhost:" + port)
-	fmt.Println("Environment", env)
-	err := http.ListenAndServe(":"+port, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	e.POST("/signout", routes.Signout())
+
+	e.POST("/signin", routes.Signin(r))
+	e.GET("/signin", index)
+
+	e.POST("/join", routes.Signup(r))
+	e.GET("/join", index)
+
+	e.POST("/forgot-password", routes.ForgoPassword(r))
+	e.GET("/forgot-password", index)
+
+	e.POST("/reset-password", routes.ResetPassword(r))
+	e.GET("/reset-password", index)
+
+	e.GET("/graphql", api)
+	e.POST("/graphql", api)
+
+	e.GET("/*", index)
+
+	e.Logger.Fatal(e.Start(":" + os.Getenv("APP_PORT")))
 }

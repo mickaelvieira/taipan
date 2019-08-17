@@ -2,7 +2,7 @@ import React, { PropsWithChildren } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Paper from "@material-ui/core/Paper";
-import { LG_WIDTH } from "../../../constant/feed";
+import { LG_WIDTH } from "../../../constant/layout";
 
 const useStyles = makeStyles(() => ({
   paper: {

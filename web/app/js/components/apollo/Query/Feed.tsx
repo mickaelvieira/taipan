@@ -1,9 +1,8 @@
-import { Query } from "react-apollo";
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
   FetchMoreOptions
-} from "apollo-boost";
+} from "apollo-client";
 import { FeedVariables, FeedQueryData } from "../../../types/feed";
 import { getDataKey } from "../helpers/feed";
 import queryNews from "../graphql/query/feeds/news.graphql";
@@ -19,7 +18,7 @@ export type LoadMore = () => Promise<ApolloQueryResult<FeedQueryData>>;
 
 const variables = {
   pagination: {
-    limit: 20
+    limit: 10
   }
 };
 
@@ -78,12 +77,3 @@ export {
   getFetchMore,
   getDataKey
 };
-
-class FeedQuery extends Query<FeedQueryData, FeedVariables> {
-  static defaultProps = {
-    fetchPolicy: "cache-first",
-    variables
-  };
-}
-
-export default FeedQuery;

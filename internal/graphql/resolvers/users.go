@@ -2,10 +2,10 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/clientid"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -23,16 +23,12 @@ type UsersResolver struct {
 // UserResolver resolves the user entity
 type UserResolver struct {
 	*user.User
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
 func (r *UserResolver) ID() gql.ID {
 	return gql.ID(r.User.ID)
-}
-
-// Username resolves the Username field
-func (r *UserResolver) Username() string {
-	return r.User.Username
 }
 
 // Firstname resolves the Firstname field
@@ -43,6 +39,21 @@ func (r *UserResolver) Firstname() string {
 // Lastname resolves the Lastname field
 func (r *UserResolver) Lastname() string {
 	return r.User.Lastname
+}
+
+// Emails resolves the Emails field
+func (r *UserResolver) Emails(ctx context.Context) ([]*EmailResolver, error) {
+	results, err := r.repositories.Emails.GetUserEmails(ctx, r.User)
+	if err != nil {
+		return nil, err
+	}
+
+	emails := make([]*EmailResolver, len(results))
+	for i, e := range results {
+		emails[i] = &EmailResolver{Email: e}
+	}
+
+	return emails, nil
 }
 
 // Theme resolves the Theme field
@@ -59,6 +70,51 @@ func (r *UserResolver) Image() *UserImageResolver {
 	return &UserImageResolver{
 		Image: r.User.Image,
 	}
+}
+
+// CreatedAt resolves the CreatedAt field
+func (r *UserResolver) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.User.CreatedAt)
+}
+
+// UpdatedAt resolves the UpdatedAt field
+func (r *UserResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.User.UpdatedAt)
+}
+
+// EmailResolver --
+type EmailResolver struct {
+	*user.Email
+}
+
+// ID resolves the ID field
+func (r *EmailResolver) ID() gql.ID {
+	return gql.ID(r.Email.ID)
+}
+
+// Value resolves the Value field
+func (r *EmailResolver) Value() string {
+	return r.Email.Value
+}
+
+// IsPrimary resolves the IsPrimary field
+func (r *EmailResolver) IsPrimary() bool {
+	return r.Email.IsPrimary
+}
+
+// IsConfirmed resolves the IsConfirmed field
+func (r *EmailResolver) IsConfirmed() bool {
+	return r.Email.IsConfirmed
+}
+
+// CreatedAt resolves the CreatedAt field
+func (r *EmailResolver) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Email.CreatedAt)
+}
+
+// UpdatedAt resolves the UpdatedAt field
+func (r *EmailResolver) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.Email.UpdatedAt)
 }
 
 // UserEventResolver resolves an bookmark event
@@ -94,13 +150,17 @@ func (r *UserEventResolver) Action() string {
 func (r *UsersResolver) LoggedIn(ctx context.Context) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
 
 // UserChanged subscribes to user event
 func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEventResolver {
+	// @TODO better handle authentication
 	c := make(chan *UserEventResolver)
 	s := &userSubscriber{events: c}
 	r.publisher.Subscribe(publisher.TopicUser, s, ctx.Done())
@@ -109,14 +169,10 @@ func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEventResolve
 
 // Update resolves the mutation
 func (r *UsersResolver) Update(ctx context.Context, args struct {
-	ID   string
 	User userInput
 }) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	if args.ID != user.ID {
-		return nil, fmt.Errorf("You are not allowed to modify this user")
-	}
 
 	err := usecase.UpdateUser(
 		ctx,
@@ -134,21 +190,46 @@ func (r *UsersResolver) Update(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
 
+// Password resolves the mutation
+func (r *UsersResolver) Password(ctx context.Context, args struct {
+	Old string
+	New string
+}) (bool, error) {
+	user := auth.FromContext(ctx)
+	// clientID := clientid.FromContext(ctx)
+
+	err := usecase.ChangePassword(
+		ctx,
+		r.repositories,
+		user,
+		args.Old,
+		args.New,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	// r.publisher.Publish(
+	// 	publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	// )
+
+	return true, nil
+}
+
 // Theme resolves the mutation
 func (r *UsersResolver) Theme(ctx context.Context, args struct {
-	ID    string
 	Theme string
 }) (*UserResolver, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
-	if args.ID != user.ID {
-		return nil, fmt.Errorf("You are not allowed to modify this user")
-	}
 
 	err := usecase.UpdateTheme(
 		ctx,
@@ -164,7 +245,82 @@ func (r *UsersResolver) Theme(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := UserResolver{User: user}
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
+
+	return &res, nil
+}
+
+// CreateEmail --
+func (r *UsersResolver) CreateEmail(ctx context.Context, args struct {
+	Email string
+}) (*UserResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
+	err := usecase.CreateUserEmail(ctx, r.repositories, user, args.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
+
+	return &res, nil
+}
+
+// DeleteEmail --
+func (r *UsersResolver) DeleteEmail(ctx context.Context, args struct {
+	Email string
+}) (*UserResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
+	err := usecase.DeleteUserEmail(ctx, r.repositories, user, args.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
+
+	return &res, nil
+}
+
+// PrimaryEmail --
+func (r *UsersResolver) PrimaryEmail(ctx context.Context, args struct {
+	Email string
+}) (*UserResolver, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
+	err := usecase.PrimaryUserEmail(ctx, r.repositories, user, args.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	res := UserResolver{
+		User:         user,
+		repositories: r.repositories,
+	}
 
 	return &res, nil
 }
