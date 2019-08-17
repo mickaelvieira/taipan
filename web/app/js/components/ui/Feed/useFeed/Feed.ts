@@ -1,7 +1,6 @@
 import FastDomBase from "fastdom";
 import fastdomPromised from "fastdom/extensions/fastdom-promised";
 import {
-  Padding,
   calculateCursor,
   calculateHeightUpToFirstIndex,
   calculateHeightFromIndex,
@@ -10,6 +9,11 @@ import {
 import { FeedName, FeedItem } from "../../../../types/feed";
 
 const FastDom = FastDomBase.extend(fastdomPromised);
+
+interface Padding {
+  top: number;
+  bottom: number;
+}
 
 export interface Result {
   padding: Padding;

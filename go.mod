@@ -17,7 +17,6 @@ require (
 	github.com/graph-gophers/graphql-transport-ws v0.0.0-20190611222414-40c048432299
 	github.com/grokify/html-strip-tags-go v0.0.0-20190424092004-025bd760b278
 	github.com/joho/godotenv v1.3.0
-	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo-contrib v0.6.0
 	github.com/labstack/echo/v4 v4.1.6
 	github.com/labstack/gommon v0.2.9
