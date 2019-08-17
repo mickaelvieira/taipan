@@ -51,6 +51,7 @@ export default function UserEmailForm({
         <Label htmlFor="new-email">Email</Label>
         <InputBase
           id="new-email"
+          type="email"
           value={email}
           aria-describedby="new-email-helper-text"
           onChange={event => setEmail(event.target.value)}

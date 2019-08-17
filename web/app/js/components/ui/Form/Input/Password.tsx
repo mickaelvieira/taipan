@@ -41,6 +41,8 @@ export default function InputPassword({
       <InputBase
         type={isVisible ? "text" : "password"}
         autoComplete="on"
+        autoCapitalize="off"
+        autoCorrect="off"
         className={`${classes.element} ${className ? className : ""}`}
         {...rest}
       />

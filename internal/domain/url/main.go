@@ -3,10 +3,14 @@ package url
 import (
 	"database/sql/driver"
 	"errors"
-	"fmt"
 	"log"
 	neturl "net/url"
 	"strings"
+)
+
+var (
+	ErrURLNotValid    = errors.New("URL is invalid")
+	ErrURLNotAbsolute = errors.New("URL is not absolute")
 )
 
 // URL represents a URL within the application
@@ -70,21 +74,18 @@ func removeFragment(r string) string {
 }
 
 // FromRawURL returns an URL struct only when the raw URL is absolute. It also removes the URL fragment
-func FromRawURL(r string) (u *URL, err error) {
+func FromRawURL(r string) (*URL, error) {
 	p, err := neturl.ParseRequestURI(removeFragment(r))
 	if err != nil {
-		err = fmt.Errorf("Invalid URL '%s'", r)
-		return
-	}
-
-	if !p.IsAbs() {
-		err = fmt.Errorf("URL must be absolute '%s'", r)
-		return
+		return nil, ErrURLNotValid
 	}
 
 	p = removeGAParams(p)
+	u := &URL{URL: p}
 
-	u = &URL{URL: p}
+	if !p.IsAbs() {
+		return u, ErrURLNotAbsolute
+	}
 
-	return
+	return u, nil
 }

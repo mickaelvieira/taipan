@@ -51,7 +51,7 @@ export default function FormDocument({
         Enter the URL of the page you would like to bookmark
       </Typography>
       <Group>
-        <Label htmlFor="feed-url">URL</Label>
+        <Label htmlFor="bookmark-url">URL</Label>
         <InputBase
           id="bookmark-url"
           autoFocus

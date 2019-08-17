@@ -8,7 +8,7 @@ import Info from "./Info";
 import Logs from "./Logs";
 
 interface Props {
-  url: string;
+  url: URL;
   isOpen: boolean;
   close: () => void;
 }

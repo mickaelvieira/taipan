@@ -103,9 +103,31 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         <Divider className={classes.divider} />
         <List className={classes.list}>
           {entries.map(entry => (
+            <li key={entry.path}>
+              <Link
+                to={entry.path}
+                classes={{
+                  root: classes.link
+                }}
+                component={RouterLink}
+                underline="none"
+                onClick={() => toggleDrawer(false)}
+              >
+                <ListItem button>
+                  <entry.icon className={classes.icon} />
+                  <ListItemText disableTypography>
+                    {getSectionTitle(entry.path)}
+                  </ListItemText>
+                </ListItem>
+              </Link>
+            </li>
+          ))}
+        </List>
+        <Divider className={classes.divider} />
+        <List>
+          <li>
             <Link
-              key={entry.path}
-              to={entry.path}
+              to="/account"
               classes={{
                 root: classes.link
               }}
@@ -114,57 +136,40 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
               onClick={() => toggleDrawer(false)}
             >
               <ListItem button>
-                <entry.icon className={classes.icon} />
-                <ListItemText disableTypography>
-                  {getSectionTitle(entry.path)}
-                </ListItemText>
+                <AccountIcon className={classes.icon} />
+                <ListItemText disableTypography>Account</ListItemText>
               </ListItem>
             </Link>
-          ))}
-        </List>
-        <Divider className={classes.divider} />
-        <List>
-          <Link
-            to="/account"
-            classes={{
-              root: classes.link
-            }}
-            component={RouterLink}
-            underline="none"
-            onClick={() => toggleDrawer(false)}
-          >
-            <ListItem button key="Account">
-              <AccountIcon className={classes.icon} />
-              <ListItemText disableTypography>Account</ListItemText>
-            </ListItem>
-          </Link>
-          <Link
-            to="/signin"
-            classes={{
-              root: classes.link
-            }}
-            component={RouterLink}
-            underline="none"
-            onClick={(event: React.MouseEvent) => {
-              event.preventDefault();
-              logout()
-                .then(({ error, result }) => {
-                  if (error) {
-                    console.warn(error.error);
-                  } else if (result) {
-                    window.location.href = "/signin";
-                  }
-                })
-                .catch(e => {
-                  console.warn(e.message);
-                });
-            }}
-          >
-            <ListItem button key="Sign out">
-              <ExitIcon className={classes.icon} />
-              <ListItemText disableTypography>Sign out</ListItemText>
-            </ListItem>
-          </Link>
+          </li>
+          <li>
+            <Link
+              to="/signin"
+              classes={{
+                root: classes.link
+              }}
+              component={RouterLink}
+              underline="none"
+              onClick={(event: React.MouseEvent) => {
+                event.preventDefault();
+                logout()
+                  .then(({ error, result }) => {
+                    if (error) {
+                      console.warn(error.error);
+                    } else if (result) {
+                      window.location.href = "/signin";
+                    }
+                  })
+                  .catch(e => {
+                    console.warn(e.message);
+                  });
+              }}
+            >
+              <ListItem button>
+                <ExitIcon className={classes.icon} />
+                <ListItemText disableTypography>Sign out</ListItemText>
+              </ListItem>
+            </Link>
+          </li>
         </List>
         <Divider className={classes.divider} />
         <AppInfo />

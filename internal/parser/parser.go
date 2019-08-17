@@ -347,8 +347,8 @@ func (p *Parser) makeURLAbs(u *url.URL) *url.URL {
 }
 
 func (p *Parser) parseAndNormalizeRawURL(rawURL string) (u *url.URL) {
-	u, _ = url.FromRawURL(rawURL)
-	if u != nil {
+	u, err := url.FromRawURL(rawURL)
+	if err == url.ErrURLNotAbsolute {
 		p.makeURLAbs(u)
 	}
 	return u
