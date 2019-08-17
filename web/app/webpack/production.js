@@ -11,7 +11,7 @@ module.exports = merge(common, {
     filename: "js/[name].[contenthash].js",
     chunkFilename: "js/[name].[contenthash].js",
     path: path.resolve(__dirname, "../../static"),
-    publicPath: "/static/"
+    publicPath: "/"
   },
   optimization: {
     splitChunks: {

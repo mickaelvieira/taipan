@@ -3,7 +3,6 @@ package logger
 import (
 	"strings"
 
-	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 )
 
@@ -20,13 +19,13 @@ func getLevel(l string) log.Lvl {
 }
 
 // Init the logger
-func Init(e *echo.Echo, level string) {
-	var ok bool
-	l, ok = e.Logger.(*log.Logger)
-	if ok {
-		l.SetHeader("${time_rfc3339} ${level}")
+func Init(lg *log.Logger, level string) {
+	if l != nil {
+		panic("Logger has already been initialized")
 	}
-	e.Logger.SetLevel(getLevel(level))
+	l = lg
+	l.SetHeader("${time_rfc3339} ${level}")
+	l.SetLevel(getLevel(level))
 }
 
 // Debug prints stuff in dev mode only
