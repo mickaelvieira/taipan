@@ -19,8 +19,8 @@ var (
 	ErrUserDoesNotExist         = errors.New("User does not exist")
 	ErrWeakPassword             = errors.New("Your password must be at least 10 characters long")
 	ErrInvalidEmail             = errors.New("Your email does not seem to be valid")
-	ErrDoesNotExist             = errors.New("Email does not exist")
-	ErrEmailExists              = errors.New("There is already an account associated to this email address")
+	ErrEmailDoesNotExist        = errors.New("Email does not exist")
+	ErrEmailIsAlreadyUsed       = errors.New("There is already an account associated to this email address")
 	ErrInvalidCreds             = errors.New("Email or password does not match any records in our database")
 	ErrInvalidPassword          = errors.New("Your password is not correct") // only for password change
 	ErrPrimaryEmailDeletion     = errors.New("You cannot delete your primary email address")
@@ -69,7 +69,7 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 	// can we find the user with the same email?
 	_, err = repos.Emails.GetEmail(ctx, e)
 	if err == nil {
-		return nil, ErrEmailExists
+		return nil, ErrEmailIsAlreadyUsed
 	}
 
 	// Any other errors?
@@ -242,7 +242,7 @@ func UpdateTheme(ctx context.Context, repos *repository.Repositories, usr *user.
 func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
 	_, err := repos.Emails.GetEmail(ctx, v)
 	if err == nil {
-		return ErrEmailExists
+		return ErrEmailIsAlreadyUsed
 	}
 
 	emails, err := repos.Emails.GetUserEmails(ctx, usr)
@@ -267,7 +267,7 @@ func DeleteUserEmail(ctx context.Context, repos *repository.Repositories, usr *u
 	e, err := repos.Emails.GetUserEmail(ctx, usr, v)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ErrDoesNotExist
+			return ErrEmailDoesNotExist
 		}
 		return err
 	}
@@ -307,7 +307,7 @@ func PrimaryUserEmail(ctx context.Context, repos *repository.Repositories, usr *
 	}
 
 	if !found {
-		return ErrDoesNotExist
+		return ErrEmailDoesNotExist
 	}
 
 	for _, e := range emails {
