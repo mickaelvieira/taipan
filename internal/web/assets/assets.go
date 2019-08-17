@@ -1,7 +1,6 @@
 package assets
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/url"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,15 +16,6 @@ type Assets []string
 // MakeCDNBaseURL returns the CDN base URL
 func MakeCDNBaseURL() string {
 	return "https://" + os.Getenv("AWS_BUCKET")
-}
-
-// MakeImageURL returns an image's URL based on its name
-func MakeImageURL(name string) *url.URL {
-	u, err := url.FromRawURL("https://" + os.Getenv("AWS_BUCKET") + "/" + name)
-	if err != nil {
-		u = &url.URL{}
-	}
-	return u
 }
 
 // LoadAssetsDefinition loads the list of available assets

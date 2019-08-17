@@ -2,8 +2,8 @@ package resolvers
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/web/auth"
 )
 
 // FeedsResolver feeds' root resolver
