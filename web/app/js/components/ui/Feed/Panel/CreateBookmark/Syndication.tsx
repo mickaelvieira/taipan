@@ -12,7 +12,7 @@ const useStyles = makeStyles(() => ({
     padding: 0
   },
   label: {
-    padding: "14px 8px",
+    padding: "14px 8px"
   }
 }));
 
@@ -51,10 +51,7 @@ export default function Syndication({
                 onChange(sub);
               }}
             />
-            <InputLabel
-              htmlFor={`feed-${index}`}
-              className={classes.label}
-            >
+            <InputLabel htmlFor={`feed-${index}`} className={classes.label}>
               {source.title && source.title != "wordpress feed"
                 ? source.title
                 : source.url}
