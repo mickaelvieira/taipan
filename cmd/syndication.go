@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
+	"os"
 	"time"
 
 	"github/mickaelvieira/taipan/internal/cmd"
@@ -14,6 +14,7 @@ import (
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
 
+	"github.com/labstack/gommon/log"
 	"github.com/urfave/cli"
 )
 
@@ -31,6 +32,9 @@ type fetchResult struct {
 }
 
 func runSyndicationWorker(c *cli.Context) {
+	l := log.New("syndication")
+	logger.Init(l, os.Getenv("APP_LOG_LEVEL"))
+
 	logger.Warn("Starting syndication worker")
 	ctx, cancel := context.WithCancel(context.Background())
 	repos := repository.GetRepositories()
@@ -39,7 +43,7 @@ func runSyndicationWorker(c *cli.Context) {
 	logger.Warn("Creating RabbitMQ client")
 	client, err := rmq.New()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	onStop := func() {
@@ -55,7 +59,7 @@ func runSyndicationWorker(c *cli.Context) {
 		logger.Warn(fmt.Sprintf("Get outdated sources with frequency [%s]", http.Hourly))
 		sources, err := repos.Syndication.GetOutdatedSources(ctx, http.Hourly)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 
 		if len(sources) == 0 {
@@ -85,7 +89,7 @@ func runSyndicationWorker(c *cli.Context) {
 					// we might have a SQL error
 					// but we always get an HTTP result
 					if err != nil {
-						log.Fatalln(err)
+						panic(err)
 					}
 					cr <- &fetchResult{source: s, result: r}
 				}(q.Shift())

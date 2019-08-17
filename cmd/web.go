@@ -12,6 +12,8 @@ import (
 	"github/mickaelvieira/taipan/internal/web/routes"
 	"os"
 
+	"github.com/labstack/gommon/log"
+
 	"github.com/labstack/echo/v4"
 	"github.com/urfave/cli"
 )
@@ -31,7 +33,11 @@ func runWeb(c *cli.Context) {
 	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
 
 	e := echo.New()
-	logger.Init(e, os.Getenv("APP_LOG_LEVEL"))
+	l, ok := e.Logger.(*log.Logger)
+	if !ok {
+		panic("Cannot init logger")
+	}
+	logger.Init(l, os.Getenv("APP_LOG_LEVEL"))
 
 	e.Renderer = t
 	e.Use(middleware.ClientID())

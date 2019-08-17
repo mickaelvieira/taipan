@@ -10,9 +10,10 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/rmq"
 	"github/mickaelvieira/taipan/internal/usecase"
-	"log"
+	"os"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/labstack/gommon/log"
 	"github.com/urfave/cli"
 )
 
@@ -25,6 +26,9 @@ var Documents = cli.Command{
 }
 
 func runDocumentsWorker(c *cli.Context) {
+	l := log.New("documents")
+	logger.Init(l, os.Getenv("APP_LOG_LEVEL"))
+
 	ctx, cancel := context.WithCancel(context.Background())
 	repositories := repository.GetRepositories()
 
@@ -60,7 +64,8 @@ func runDocumentsWorker(c *cli.Context) {
 		for d := range msgs {
 			dm := &messages.Document{}
 			if err := proto.Unmarshal(d.Body, dm); err != nil {
-				log.Fatalln("Failed to parse document message:", err)
+				logger.Error(fmt.Sprintf("Failed to parse document message: ", err))
+				continue
 			}
 			logger.Warn(fmt.Sprintf("Received a message: %s", dm))
 
