@@ -64,7 +64,7 @@ func runDocumentsWorker(c *cli.Context) {
 		for d := range msgs {
 			dm := &messages.Document{}
 			if err := proto.Unmarshal(d.Body, dm); err != nil {
-				logger.Error(fmt.Sprintf("Failed to parse document message: ", err))
+				logger.Error(fmt.Sprintf("Failed to parse document message: %s", err))
 				continue
 			}
 			logger.Warn(fmt.Sprintf("Received a message: %s", dm))
