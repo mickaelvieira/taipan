@@ -2,11 +2,11 @@ package resolvers
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
-	"github/mickaelvieira/taipan/internal/graphql/scalars"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
+	"github/mickaelvieira/taipan/internal/web/auth"
+	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 
 	gql "github.com/graph-gophers/graphql-go"
 )

@@ -13,7 +13,7 @@ import Domain from "./Domain";
 interface Props {
   subscription: Subscription;
   canEdit?: boolean;
-  editSource?: (url: string) => void;
+  editSource?: (url: URL) => void;
 }
 
 export default React.memo(function Row({
@@ -45,6 +45,7 @@ export default React.memo(function Row({
             subscription.frequency
           ) : (
             <IconButton
+              aria-label="Edit syndication source"
               size="small"
               onClick={() => {
                 if (typeof editSource === "function") {

@@ -1,10 +1,13 @@
 package parser
 
 import (
+	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
+	"github/mickaelvieira/taipan/internal/logger"
 	"html"
+	"io"
 	neturl "net/url"
 	"strings"
 
@@ -13,6 +16,21 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Parse parses the html tree and creates our parsed document
+func Parse(URL *url.URL, r io.Reader, findFeeds bool) (*document.Document, error) {
+	document, err := goquery.NewDocumentFromReader(r)
+	if err != nil {
+		return nil, err
+	}
+	logger.Info(fmt.Sprintf("Parsing RSS feeds too? [%t]", findFeeds))
+
+	var p = parser{origURL: URL, document: document}
+	if findFeeds {
+		p.shouldFindSyndicationSource()
+	}
+	return p.parse(), nil
+}
+
 type social struct {
 	Title       string
 	Description string
@@ -20,8 +38,8 @@ type social struct {
 	URL         *url.URL
 }
 
-// Parser parses the document
-type Parser struct {
+// parser parses the document
+type parser struct {
 	origURL   *url.URL
 	metaTags  []*goquery.Selection
 	linkTags  []*goquery.Selection
@@ -37,12 +55,12 @@ type Parser struct {
 // ShouldFindSyndicationSource when enabling this option,
 // the parser will find RSS and Atom feeds
 // present in the document's source
-func (p *Parser) ShouldFindSyndicationSource() {
+func (p *parser) shouldFindSyndicationSource() {
 	p.findFeeds = true
 }
 
 // Parse parse the document
-func (p *Parser) Parse() *document.Document {
+func (p *parser) parse() *document.Document {
 	// cache relevant tags
 	p.document.Find("meta").Each(func(i int, s *goquery.Selection) {
 		p.metaTags = append(p.metaTags, s)
@@ -90,7 +108,7 @@ func (p *Parser) Parse() *document.Document {
 	)
 }
 
-func (p *Parser) isWordpress() bool {
+func (p *parser) isWordpress() bool {
 	for _, s := range p.linkTags {
 		url := p.normalizeAttrValue(s.AttrOr("href", ""))
 		if strings.Contains(url, "wp-content") ||
@@ -102,7 +120,7 @@ func (p *Parser) isWordpress() bool {
 	return false
 }
 
-func (p *Parser) getWordpressFeed() []*syndication.Source {
+func (p *parser) getWordpressFeed() []*syndication.Source {
 	var feeds []*syndication.Source
 	u := &url.URL{URL: &neturl.URL{Path: "/feed/"}} // default WP feed
 	u = p.makeURLAbs(u)
@@ -113,7 +131,7 @@ func (p *Parser) getWordpressFeed() []*syndication.Source {
 
 // URL retrieves the URL of the document. It will first try to grab the canonical URL, if there isn't one
 // it will try to get one from the social media tags. If it can find any it will return the URL provided by the user
-func (p *Parser) url() *url.URL {
+func (p *parser) url() *url.URL {
 	var du *url.URL
 	if p.canonical != nil {
 		du = p.canonical
@@ -129,7 +147,7 @@ func (p *Parser) url() *url.URL {
 
 // Title retrieve the title of the document. If there isn't a title tag,
 // it will try to get the title from the socual media tags
-func (p *Parser) title() string {
+func (p *parser) title() string {
 	var t string
 	if p.docTitle != "" {
 		t = p.docTitle
@@ -143,7 +161,7 @@ func (p *Parser) title() string {
 
 // Description retrieve the description of the document. If there isn't a description meta tag,
 // it will try to get the description from the socual media tags
-func (p *Parser) description() string {
+func (p *parser) description() string {
 	var de string
 	if p.docDesc != "" {
 		de = p.docDesc
@@ -156,7 +174,7 @@ func (p *Parser) description() string {
 }
 
 // Image retrieves the image URL from the social media tag. It will return an empty string if there isn't any
-func (p *Parser) image() *document.Image {
+func (p *parser) image() *document.Image {
 	var iu *url.URL
 	if p.facebook.Image != nil {
 		iu = p.facebook.Image
@@ -173,7 +191,7 @@ func (p *Parser) image() *document.Image {
 	}
 }
 
-func (p *Parser) parseCharset() string {
+func (p *parser) parseCharset() string {
 	var charset string
 	for _, s := range p.metaTags {
 		var exist bool
@@ -197,7 +215,7 @@ func (p *Parser) parseCharset() string {
 	return charset
 }
 
-func (p *Parser) parseTitle() string {
+func (p *parser) parseTitle() string {
 	var title string
 	p.document.Find("title").EachWithBreak(func(i int, s *goquery.Selection) bool {
 		title = strip.StripTags(s.Text())
@@ -216,7 +234,7 @@ func (p *Parser) parseTitle() string {
 	return p.normalizeHTMLText(title)
 }
 
-func (p *Parser) parseLang() string {
+func (p *parser) parseLang() string {
 	var lang string
 
 	p.document.Find("html").EachWithBreak(func(i int, s *goquery.Selection) bool {
@@ -235,7 +253,7 @@ func (p *Parser) parseLang() string {
 	return lang
 }
 
-func (p *Parser) parseDescription() string {
+func (p *parser) parseDescription() string {
 	var desc string
 	for _, s := range p.metaTags {
 		name, exist := s.Attr("name")
@@ -248,7 +266,7 @@ func (p *Parser) parseDescription() string {
 	return p.normalizeHTMLText(desc)
 }
 
-func (p *Parser) parseCanonicalURL() *url.URL {
+func (p *parser) parseCanonicalURL() *url.URL {
 	var rawURL string
 	for _, s := range p.linkTags {
 		rel, exist := s.Attr("rel")
@@ -261,7 +279,7 @@ func (p *Parser) parseCanonicalURL() *url.URL {
 	return p.parseAndNormalizeRawURL(rawURL)
 }
 
-func (p *Parser) parseFeeds() []*syndication.Source {
+func (p *parser) parseFeeds() []*syndication.Source {
 	var feeds []*syndication.Source
 	for _, s := range p.linkTags {
 		u := strings.Trim(s.AttrOr("href", ""), " ")
@@ -282,15 +300,15 @@ func (p *Parser) parseFeeds() []*syndication.Source {
 	return feeds
 }
 
-func (p *Parser) parseFacebookTags() *social {
+func (p *parser) parseFacebookTags() *social {
 	return p.parseSocialTags("og:", "property")
 }
 
-func (p *Parser) parseTwitterTags() *social {
+func (p *parser) parseTwitterTags() *social {
 	return p.parseSocialTags("twitter:", "name")
 }
 
-func (p *Parser) parseSocialTags(prefix string, property string) *social {
+func (p *parser) parseSocialTags(prefix string, property string) *social {
 	var title, desc, image, u string
 	for _, s := range p.metaTags {
 		var exist bool
@@ -321,15 +339,15 @@ func (p *Parser) parseSocialTags(prefix string, property string) *social {
 	}
 }
 
-func (p *Parser) normalizeAttrValue(val string) string {
+func (p *parser) normalizeAttrValue(val string) string {
 	return strings.ToLower(strings.Trim(val, " "))
 }
 
-func (p *Parser) normalizeHTMLText(val string) string {
+func (p *parser) normalizeHTMLText(val string) string {
 	return html.UnescapeString(strings.Trim(val, " \n"))
 }
 
-func (p *Parser) makeURLAbs(u *url.URL) *url.URL {
+func (p *parser) makeURLAbs(u *url.URL) *url.URL {
 	if !u.IsAbs() {
 		username := p.origURL.User.Username()
 		password, _ := p.origURL.User.Password()
@@ -346,9 +364,9 @@ func (p *Parser) makeURLAbs(u *url.URL) *url.URL {
 	return u
 }
 
-func (p *Parser) parseAndNormalizeRawURL(rawURL string) (u *url.URL) {
-	u, _ = url.FromRawURL(rawURL)
-	if u != nil {
+func (p *parser) parseAndNormalizeRawURL(rawURL string) (u *url.URL) {
+	u, err := url.FromRawURL(rawURL)
+	if err == url.ErrURLNotAbsolute {
 		p.makeURLAbs(u)
 	}
 	return u

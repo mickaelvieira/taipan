@@ -8,7 +8,8 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:jsx-a11y/recommended"
   ],
   parserOptions: {
     ecmaVersion: 2018,
@@ -34,7 +35,8 @@ module.exports = {
     //   schemaJson: require("./schema.json"),
     // }],
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "jsx-a11y/no-autofocus": "off"
   },
   settings: {
     react: {
@@ -44,6 +46,7 @@ module.exports = {
   plugins: [
     "graphql",
     "react",
-    "react-hooks"
+    "react-hooks",
+    "jsx-a11y"
   ]
 };

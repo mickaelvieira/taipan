@@ -51,7 +51,9 @@ export default function Signup(_: RouteSignupProps): JSX.Element {
           <Label htmlFor="email">Email address</Label>
           <InputBase
             id="email"
+            type="email"
             value={email}
+            autoComplete="on"
             aria-describedby="email-helper-text"
             onChange={event => setEmail(event.target.value)}
           />

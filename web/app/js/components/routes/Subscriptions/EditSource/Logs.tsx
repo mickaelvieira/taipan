@@ -28,7 +28,7 @@ const useStyles = makeStyles(({ typography }) => ({
 }));
 
 interface Props {
-  url: string;
+  url: URL;
 }
 
 export default React.memo(function Logs({ url }: Props): JSX.Element | null {

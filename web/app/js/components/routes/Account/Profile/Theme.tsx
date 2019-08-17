@@ -57,6 +57,7 @@ export default function UserTheme({ user }: Props): JSX.Element {
 
         return (
           <ButtonBase
+            aria-label={`Select the theme ${name}`}
             className={`${classes[name as ThemeName]} ${classes.button}`}
             key={name}
             onClick={() =>

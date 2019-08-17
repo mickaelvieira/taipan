@@ -75,11 +75,15 @@ export default withRouter(function Search({
       className={`${classes.search} ${className ? className : ""}`}
       action={`/search`}
     >
-      <ButtonBase type="submit" className={classes.searchButton}>
+      <ButtonBase
+        type="submit"
+        className={classes.searchButton}
+        aria-label="Search"
+      >
         <SearchIcon />
       </ButtonBase>
+      <input type="hidden" name="type" value={type} />
       <label htmlFor="search-field" className={classes.searchLabel}>
-        <input type="hidden" name="type" value={type} />
         <InputBase
           autoFocus={terms.length > 0}
           id="search-field"
@@ -90,6 +94,7 @@ export default withRouter(function Search({
           autoComplete="off"
           value={value}
           inputRef={inputRef}
+          aria-label="Look up your bookmarks"
           onChange={event => {
             const value = event.target.value;
             setValue(value);
@@ -103,6 +108,7 @@ export default withRouter(function Search({
       </label>
       {md && (
         <ButtonBase
+          aria-label="Clear search"
           className={`${classes.clearButton} ${
             search.length > 0 ? "active" : ""
           }`}

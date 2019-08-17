@@ -37,7 +37,7 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
 export default function Signin(_: RouteSigninProps): JSX.Element {
   const classes = useStyles();
   const [error, setError] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
@@ -47,16 +47,17 @@ export default function Signin(_: RouteSigninProps): JSX.Element {
       </Typography>
       <form className={classes.form} onSubmit={event => event.preventDefault()}>
         <Group>
-          <Label>Email address</Label>
+          <Label htmlFor="email">Email address</Label>
           <InputBase
-            id="username"
-            value={username}
+            id="email"
+            type="email"
+            value={email}
             autoComplete="on"
-            onChange={event => setUsername(event.target.value)}
+            onChange={event => setEmail(event.target.value)}
           />
         </Group>
         <Group>
-          <Label>Password</Label>
+          <Label htmlFor="password">Password</Label>
           <InputPassword
             id="password"
             value={password}
@@ -71,7 +72,7 @@ export default function Signin(_: RouteSigninProps): JSX.Element {
           color="primary"
           className={classes.button}
           onClick={() => {
-            login(username, password)
+            login(email, password)
               .then(({ error, result }) => {
                 if (error) {
                   setError(error.error);

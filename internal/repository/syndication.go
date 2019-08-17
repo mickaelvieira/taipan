@@ -156,7 +156,7 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 		INSERT INTO syndication
 		(url, domain, title, type, created_at, updated_at, deleted, paused, frequency)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	res, err := r.db.ExecContext(
 		ctx,

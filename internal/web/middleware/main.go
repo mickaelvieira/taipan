@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github/mickaelvieira/taipan/internal/auth"
-	"github/mickaelvieira/taipan/internal/clientid"
+	"github/mickaelvieira/taipan/internal/web/auth"
+	"github/mickaelvieira/taipan/internal/web/clientid"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/web"
 

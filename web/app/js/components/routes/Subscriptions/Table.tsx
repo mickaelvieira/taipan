@@ -43,7 +43,7 @@ interface Props {
   showDeleted: boolean;
   pausedOnly: boolean;
   canEdit?: boolean;
-  editSource?: (url: string) => void;
+  editSource?: (url: URL) => void;
 }
 
 export default React.memo(function SubscriptionsTable({
@@ -89,11 +89,7 @@ export default React.memo(function SubscriptionsTable({
 
   return (
     <>
-      <Table
-        className={classes.table}
-        aria-labelledby="tableTitle"
-        size="small"
-      >
+      <Table className={classes.table} size="small">
         <TableHead>
           <TableRow>
             <TableCell>Title</TableCell>

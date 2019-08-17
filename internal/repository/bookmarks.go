@@ -44,7 +44,9 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
+		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE d.deleted = 0 AND b.linked = 1 AND b.user_id = ? %s
@@ -116,7 +118,9 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
+		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
@@ -194,7 +198,9 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
+		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE %s
@@ -306,7 +312,9 @@ func (r *BookmarkRepository) CountReadingList(ctx context.Context, user *user.Us
 // GetByURL find a single entry
 func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *url.URL) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description, d.image_url, d.image_name, d.image_width, d.image_height, d.image_format, b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
+		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
+		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
 		INNER JOIN bookmarks AS b ON b.document_id = d.id
 		WHERE b.user_id = ? AND d.url = ?

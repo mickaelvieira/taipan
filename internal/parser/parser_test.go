@@ -35,7 +35,7 @@ func getDocument(html string) *goquery.Document {
 }
 
 func TestGetWordpressFeed(t *testing.T) {
-	var p = Parser{origURL: origURL}
+	var p = parser{origURL: origURL}
 	var s = p.getWordpressFeed()
 	var e = origURL.String() + "/feed/"
 
@@ -67,8 +67,8 @@ func TestDocumentURL(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Document URL [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var p = Parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
-			var d = p.Parse()
+			var p = parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
+			var d = p.parse()
 			var e = tc.o
 			if d.URL.String() != e {
 				t.Errorf("Incorrect document URL: Wanted %s; got %s", e, d.Title)
@@ -94,8 +94,8 @@ func TestDocumentTitle(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Document title [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var p = Parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
-			var d = p.Parse()
+			var p = parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
+			var d = p.parse()
 			var e = tc.o
 			if d.Title != e {
 				t.Errorf("Incorrect document Title: Wanted %s; got %s", e, d.Title)
@@ -121,8 +121,8 @@ func TestDocumentDescription(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Document description [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var p = Parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
-			var d = p.Parse()
+			var p = parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
+			var d = p.parse()
 			var e = tc.o
 			if d.Description != e {
 				t.Errorf("Incorrect document Description: Wanted %s; got %s", e, d.Description)
@@ -146,8 +146,8 @@ func TestDocumentCharset(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Document charset [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var p = Parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
-			var d = p.Parse()
+			var p = parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
+			var d = p.parse()
 			var e = tc.o
 			if d.Charset != e {
 				t.Errorf("Incorrect document Charset: Wanted %s; got %s", e, d.Charset)
@@ -171,8 +171,8 @@ func TestDocumentLang(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Document charset [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var p = Parser{origURL: origURL, document: getDocument(tc.i)}
-			var d = p.Parse()
+			var p = parser{origURL: origURL, document: getDocument(tc.i)}
+			var d = p.parse()
 			var e = tc.o
 			if d.Lang != e {
 				t.Errorf("Incorrect document Lang: Wanted %s; got %s", e, d.Lang)
@@ -197,8 +197,8 @@ func TestDocumentImage(t *testing.T) {
 	for idx, tc := range testcase {
 		name := fmt.Sprintf("Document description [%d]", idx)
 		t.Run(name, func(t *testing.T) {
-			var p = Parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
-			var d = p.Parse()
+			var p = parser{origURL: origURL, document: getDocumentWithHead(tc.i)}
+			var d = p.parse()
 			var e = tc.o
 			if e == "" {
 				if d.Image != nil {
@@ -223,9 +223,9 @@ func TestDocumentFeeds(t *testing.T) {
 		"<link href=\"https://bar.foo/atom\" type=\"application/atom+xml\" >" +
 		"</head>" +
 		"<body></body>"
-	var p = Parser{origURL: origURL, document: getDocument(html)}
-	p.ShouldFindSyndicationSource()
-	var d = p.Parse()
+	var p = parser{origURL: origURL, document: getDocument(html)}
+	p.shouldFindSyndicationSource()
+	var d = p.parse()
 
 	var testcase = []struct {
 		h  string
@@ -269,9 +269,9 @@ func TestDocumentWPFeeds(t *testing.T) {
 		"<link href=\"https://bar.foo/atom\" type=\"application/atom+xml\" >" +
 		"</head>" +
 		"<body></body>"
-	var p = Parser{origURL: origURL, document: getDocument(html)}
-	p.ShouldFindSyndicationSource()
-	var d = p.Parse()
+	var p = parser{origURL: origURL, document: getDocument(html)}
+	p.shouldFindSyndicationSource()
+	var d = p.parse()
 
 	if len(d.Feeds) != 1 {
 		t.Errorf("Incorrect number of feeds: Wanted %d; got %d", 4, len(d.Feeds))

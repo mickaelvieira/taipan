@@ -44,7 +44,7 @@ export default function Search(): JSX.Element {
   const canEdit = isAdmin(user);
   const [state, dispatch] = useSearchReducer();
   const [value, setValue] = useState("");
-  const [editUrl, setEditURL] = useState("");
+  const [editUrl, setEditURL] = useState<URL>(null);
   const debouncedDispatch = useCallback(debounce(dispatch, 400), []);
   const onChange = useCallback(
     (terms: string[], debounced = true) => {
@@ -65,16 +65,20 @@ export default function Search(): JSX.Element {
       <form onSubmit={event => event.preventDefault()}>
         <div className={classes.search}>
           <InputBase
+            aria-label="Look up RSS feeds available"
             placeholder="Search..."
             fullWidth
             value={value}
             onChange={event => onChange(event.target.value.split(/\s/))}
             inputProps={{ "aria-label": "Search" }}
           />
-          <IconButton type="submit">
+          <IconButton type="submit" aria-label="Search">
             <SearchIcon />
           </IconButton>
-          <IconButton onClick={() => onChange([], false)}>
+          <IconButton
+            aria-label="Clear search"
+            onClick={() => onChange([], false)}
+          >
             <CloseIcon />
           </IconButton>
         </div>
@@ -120,8 +124,8 @@ export default function Search(): JSX.Element {
       {canEdit && (
         <EditSource
           url={editUrl}
-          isOpen={editUrl !== ""}
-          close={() => setEditURL("")}
+          isOpen={editUrl !== null}
+          close={() => setEditURL(null)}
         />
       )}
     </>

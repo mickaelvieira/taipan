@@ -33,9 +33,7 @@ export default React.memo(function StatusCheckbox({
         });
       }}
       checked={isChecked}
-      inputProps={{
-        "aria-labelledby": "switch-list-label-subscription"
-      }}
+      inputProps={{ "aria-label": "Subscribe or unsubscribe" }}
     />
   );
 });

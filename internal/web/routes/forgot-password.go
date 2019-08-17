@@ -3,10 +3,10 @@ package routes
 import (
 	"net/http"
 
-	"github/mickaelvieira/taipan/internal/auth"
 	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
+	"github/mickaelvieira/taipan/internal/web/auth"
 
 	"github.com/labstack/echo/v4"
 )

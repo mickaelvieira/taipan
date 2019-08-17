@@ -49,7 +49,9 @@ func (r *BotlogRepository) FindAll(ctx context.Context, URL *url.URL, cursor int
 	var logs []*http.Result
 
 	query := `
-		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type,
+		l.response_status_code, l.response_reason_phrase, l.response_headers,
+		l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ?
 		ORDER BY created_at DESC
@@ -109,7 +111,9 @@ func (r *BotlogRepository) CountAll(ctx context.Context, URL *url.URL) (int32, e
 // FindLatestByURL find the latest log entry for a given URL
 func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*http.Result, error) {
 	query := `
-		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type,
+		l.response_status_code, l.response_reason_phrase, l.response_headers,
+		l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ?
 		ORDER BY l.created_at DESC
@@ -127,7 +131,9 @@ func (r *BotlogRepository) FindLatestByURL(ctx context.Context, URL *url.URL) (*
 // FindPreviousByURL find the previous log entry for a given URL
 func (r *BotlogRepository) FindPreviousByURL(ctx context.Context, URL *url.URL, c *http.Result) (*http.Result, error) {
 	query := `
-		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type,
+		l.response_status_code, l.response_reason_phrase, l.response_headers,
+		l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ? AND l.id != ?
 		ORDER BY l.created_at DESC
@@ -147,7 +153,9 @@ func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*http
 	var logs []*http.Result
 
 	query := `
-		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type,
+		l.response_status_code, l.response_reason_phrase, l.response_headers,
+		l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ?
 		ORDER BY created_at DESC
@@ -178,7 +186,9 @@ func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL,
 	var logs []*http.Result
 
 	query := `
-		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type,
+		l.response_status_code, l.response_reason_phrase, l.response_headers,
+		l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ? AND l.response_status_code = ?
 		ORDER BY created_at DESC
@@ -209,7 +219,9 @@ func (r *BotlogRepository) FindFailureByURL(ctx context.Context, URL *url.URL) (
 	var logs []*http.Result
 
 	query := `
-		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type, l.response_status_code, l.response_reason_phrase, l.response_headers, l.request_uri, l.request_method, l.request_headers, l.created_at
+		SELECT l.id, l.failed, l.failure_reason, HEX(l.checksum), content_type,
+		l.response_status_code, l.response_reason_phrase, l.response_headers,
+		l.request_uri, l.request_method, l.request_headers, l.created_at
 		FROM bot_logs AS l
 		WHERE l.request_uri = ? AND l.failed = 1
 		ORDER BY created_at DESC

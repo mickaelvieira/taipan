@@ -30,11 +30,6 @@ export function calculateHeightFromIndex(
   return h;
 }
 
-export interface Padding {
-  top: number;
-  bottom: number;
-}
-
 export function calculateCursor(gap: number, heights: number[]): number {
   const total = heights.length;
   let height = 0;
