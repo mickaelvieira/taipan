@@ -242,17 +242,16 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 		urls[l], urls[r] = urls[r], urls[l]
 	}
 
-	// @TODO Calculate the source update frequency
-	// var results []*http.Result
-	// results, err = repos.Botlogs.FindByURL(ctx, s.URL)
-	// if err != nil {
-	// 	return urls, err
-	// }
+	var results []*http.Result
+	results, err = repos.Botlogs.FindByURL(ctx, s.URL)
+	if err != nil {
+		return urls, err
+	}
 
-	// f := http.CalculateFrequency(results)
-	// logger.Info(fmt.Sprintf("Source frequency: [%s], previous: [%s]", f, s.Frequency))
+	f := http.CalculateFrequency(results)
+	logger.Info(fmt.Sprintf("Source frequency: [%s], previous: [%s]", f, s.Frequency))
 
-	// s.Frequency = f
+	s.Frequency = f
 	s.ParsedAt = time.Now()
 	err = repos.Syndication.Update(ctx, s)
 
