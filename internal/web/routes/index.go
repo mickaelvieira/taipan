@@ -3,12 +3,22 @@ package routes
 import (
 	"net/http"
 
-	"github/mickaelvieira/taipan/internal/web/assets"
 	"github/mickaelvieira/taipan/internal/web"
+	"github/mickaelvieira/taipan/internal/web/assets"
 	"github/mickaelvieira/taipan/internal/web/paths"
 
 	"github.com/labstack/echo/v4"
 )
+
+type apiError struct {
+	Error string `json:"error"`
+}
+
+func jsonError(e error) *apiError {
+	return &apiError{
+		Error: e.Error(),
+	}
+}
 
 func index(c echo.Context, a assets.Assets) error {
 	data := struct {

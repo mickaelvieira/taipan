@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/newsfeed"
+
+	"github.com/pkg/errors"
 )
 
 // NewsFeedRepository the NewsFeed repository
@@ -36,6 +38,9 @@ func (r *NewsFeedRepository) AddEntries(ctx context.Context, entries []*newsfeed
 	a := getFeedEntriesParameters(entries)
 
 	_, err := r.db.ExecContext(ctx, formatQuery(fmt.Sprintf(query, p)), a...)
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
 
-	return err
+	return nil
 }

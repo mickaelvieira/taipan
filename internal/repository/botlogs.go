@@ -6,6 +6,8 @@ import (
 	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
+
+	"github.com/pkg/errors"
 )
 
 // BotlogRepository the Bot logs repository
@@ -41,7 +43,11 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *http.Result) error {
 		l.ID = db.GetLastInsertID(res)
 	}
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // FindAll finds the log entries for a given URL
@@ -65,7 +71,7 @@ func (r *BotlogRepository) FindAll(ctx context.Context, URL *url.URL, cursor int
 
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -78,7 +84,7 @@ func (r *BotlogRepository) FindAll(ctx context.Context, URL *url.URL, cursor int
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return logs, nil
@@ -102,7 +108,7 @@ func (r *BotlogRepository) CountAll(ctx context.Context, URL *url.URL) (int32, e
 
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan rows")
 	}
 
 	return total, nil
@@ -162,7 +168,7 @@ func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*http
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), URL.String())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -175,7 +181,7 @@ func (r *BotlogRepository) FindByURL(ctx context.Context, URL *url.URL) ([]*http
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return logs, nil
@@ -195,7 +201,7 @@ func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL,
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), URL.String(), status)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -208,7 +214,7 @@ func (r *BotlogRepository) FindByURLAndStatus(ctx context.Context, URL *url.URL,
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return logs, nil
@@ -228,7 +234,7 @@ func (r *BotlogRepository) FindFailureByURL(ctx context.Context, URL *url.URL) (
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), URL.String())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -241,7 +247,7 @@ func (r *BotlogRepository) FindFailureByURL(ctx context.Context, URL *url.URL) (
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return logs, nil
@@ -266,7 +272,10 @@ func (r *BotlogRepository) scan(rows Scanable) (*http.Result, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
 	}
 
 	return &l, nil

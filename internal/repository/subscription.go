@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 // SubscriptionRepository the Feed repository
@@ -65,7 +66,7 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), sourceID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	var subscribers []string
@@ -73,13 +74,13 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 		var userID string
 		err := rows.Scan(&userID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "scan")
 		}
 		subscribers = append(subscribers, userID)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return subscribers, nil
@@ -111,7 +112,7 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	var results []*subscription.Subscription
@@ -124,7 +125,7 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -152,7 +153,7 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan")
 	}
 
 	return total, nil
@@ -206,7 +207,11 @@ func (r *SubscriptionRepository) Subscribe(ctx context.Context, u *user.User, s 
 		time.Now(),
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // Unsubscribe unsubscribes user from a web syndication source
@@ -224,7 +229,11 @@ func (r *SubscriptionRepository) Unsubscribe(ctx context.Context, u *user.User, 
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription, error) {
@@ -260,7 +269,10 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 	}
 
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
 	}
 
 	return &s, nil

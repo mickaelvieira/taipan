@@ -18,6 +18,7 @@ import (
 /* https://godoc.org/golang.org/x/xerrors */
 
 // Bookmarks use cases errors
+// @TODO move this into the domain
 var (
 	ErrInvalidURI           = errors.New("Invalid URL")
 	ErrContentHasNotChanged = errors.New("Content has not changed")
