@@ -39,15 +39,26 @@ func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndic
 // GetOutdatedSources returns the sources which have been last updated more than 24 hrs
 func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.Frequency) ([]*syndication.Source, error) {
 	var results []*syndication.Source
+	// query := `
+	// 	SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+	// 	FROM syndication AS s
+	// 	WHERE s.deleted = 0 AND s.paused = 0 AND s.frequency = ? AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL %s))
+	// 	ORDER BY s.parsed_at ASC
+	// 	LIMIT ?;
+	// 	`
+	// query = fmt.Sprintf(query, f.SQLInterval())
+	// rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 50)
+
+	// @TODO we ignore the frequency for now to how whether the calculation is actually working but
+	// we will use the query abose later on
 	query := `
 		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
-		WHERE s.deleted = 0 AND s.paused = 0 AND s.frequency = ? AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL %s))
+		WHERE s.deleted = 0 AND s.paused = 0 AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL 1 HOUR))
 		ORDER BY s.parsed_at ASC
 		LIMIT ?;
-		`
-	query = fmt.Sprintf(query, f.SQLInterval())
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 50)
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), 50)
 	if err != nil {
 		return nil, err
 	}
