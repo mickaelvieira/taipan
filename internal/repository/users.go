@@ -68,6 +68,7 @@ func (r *UserRepository) GetByPrimaryEmail(ctx context.Context, email string) (*
 	`
 	row := r.db.QueryRowContext(ctx, formatQuery(query), email)
 	u, err := r.scan(row)
+
 	if err != nil {
 		return nil, err
 	}

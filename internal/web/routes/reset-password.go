@@ -19,6 +19,7 @@ func resetPassword(c echo.Context, r *repository.Repositories) error {
 
 	args := new(auth.ResetPassword)
 	if err := c.Bind(args); err != nil {
+		logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, jsonError(web.ErrServer))
 	}
 

@@ -102,13 +102,19 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 // ForgotPassword --
 func ForgotPassword(ctx context.Context, repos *repository.Repositories, e string) error {
 	if !user.IsEmailValid(e) {
-		return user.ErrEmailIsNotValid
+		return errors.New(user.ErrEmailIsNotValid, nil)
 	}
 
 	// can we find the user?
 	u, err := repos.Users.GetByPrimaryEmail(ctx, e)
 	if err != nil {
-		return errors.New(user.ErrCredentialsAreNotValid, err)
+		if err == sql.ErrNoRows {
+			// For security reason, we just ignore the request
+			// if we can't find an account linked to the email address.
+			// Hackers don't need to know whether or not the account exists
+			return nil
+		}
+		return err
 	}
 
 	// is there an active token?
@@ -151,17 +157,15 @@ func ResetPassword(ctx context.Context, repos *repository.Repositories, t string
 		return errors.New(user.ErrResetTokenIsNotValid, err)
 	}
 
-	err = repos.Users.UpdatePassword(ctx, u, h)
-	if err != nil {
-		return liberr.Wrap(err, "update password")
+	if err = repos.Users.UpdatePassword(ctx, u, h); err != nil {
+		return err
 	}
 
 	e.IsUsed = true
 	e.UsedAt = time.Now()
 
-	err = repos.ResetToken.UpdateUsage(ctx, e)
-	if err != nil {
-		return liberr.Wrap(err, "update reset token")
+	if err := repos.ResetToken.UpdateUsage(ctx, e); err != nil {
+		return err
 	}
 
 	return nil
@@ -173,15 +177,13 @@ func UpdateUser(ctx context.Context, repos *repository.Repositories, usr *user.U
 	usr.Lastname = l
 	usr.UpdatedAt = time.Now()
 
-	err := repos.Users.Update(ctx, usr)
-	if err != nil {
-		return liberr.Wrap(err, "update user")
+	if err := repos.Users.Update(ctx, usr); err != nil {
+		return err
 	}
 
 	if i != "" {
-		err = HandleAvatar(ctx, repos, usr, i)
-		if err != nil {
-			return liberr.Wrap(err, "update user avatar")
+		if err := HandleAvatar(ctx, repos, usr, i); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -212,8 +214,7 @@ func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *us
 		return err
 	}
 
-	err = repos.Users.UpdatePassword(ctx, usr, h)
-	if err != nil {
+	if err = repos.Users.UpdatePassword(ctx, usr, h); err != nil {
 		return err
 	}
 
@@ -225,10 +226,10 @@ func UpdateTheme(ctx context.Context, repos *repository.Repositories, usr *user.
 	usr.Theme = t
 	usr.UpdatedAt = time.Now()
 
-	err := repos.Users.UpdateTheme(ctx, usr)
-	if err != nil {
+	if err := repos.Users.UpdateTheme(ctx, usr); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -236,7 +237,7 @@ func UpdateTheme(ctx context.Context, repos *repository.Repositories, usr *user.
 func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
 	_, err := repos.Emails.GetEmail(ctx, v)
 	if err == nil {
-		return user.ErrEmailIsAlreadyUsed
+		return errors.New(user.ErrEmailIsAlreadyUsed, nil)
 	}
 
 	emails, err := repos.Emails.GetUserEmails(ctx, usr)
@@ -245,11 +246,10 @@ func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *u
 	}
 
 	if len(emails) == 1 && !emails[0].IsConfirmed {
-		return user.ErrPrimaryEmailIsNotConfirmed
+		return errors.New(user.ErrPrimaryEmailIsNotConfirmed, nil)
 	}
 
-	err = repos.Emails.CreateUserEmail(ctx, usr, user.NewEmail(v))
-	if err != nil {
+	if err := repos.Emails.CreateUserEmail(ctx, usr, user.NewEmail(v)); err != nil {
 		return err
 	}
 
@@ -261,17 +261,16 @@ func DeleteUserEmail(ctx context.Context, repos *repository.Repositories, usr *u
 	e, err := repos.Emails.GetUserEmail(ctx, usr, v)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return user.ErrEmailDoesNotExist
+			return errors.New(user.ErrEmailDoesNotExist, nil)
 		}
 		return err
 	}
 
 	if e.IsPrimary {
-		return user.ErrPrimaryEmailDeletion
+		return errors.New(user.ErrPrimaryEmailDeletion, nil)
 	}
 
-	err = repos.Emails.DeleteUserEmail(ctx, usr, e)
-	if err != nil {
+	if err := repos.Emails.DeleteUserEmail(ctx, usr, e); err != nil {
 		return err
 	}
 
@@ -289,7 +288,7 @@ func PrimaryUserEmail(ctx context.Context, repos *repository.Repositories, usr *
 	for _, e := range emails {
 		if e.Value == v {
 			if !e.IsConfirmed {
-				return user.ErrEmailIsNotConfirmed
+				return errors.New(user.ErrEmailIsNotConfirmed, nil)
 			}
 			found = true
 			e.IsPrimary = true
@@ -301,12 +300,11 @@ func PrimaryUserEmail(ctx context.Context, repos *repository.Repositories, usr *
 	}
 
 	if !found {
-		return user.ErrEmailDoesNotExist
+		return errors.New(user.ErrEmailDoesNotExist, nil)
 	}
 
 	for _, e := range emails {
-		err := repos.Emails.PrimaryUserEmail(ctx, usr, e)
-		if err != nil {
+		if err := repos.Emails.PrimaryUserEmail(ctx, usr, e); err != nil {
 			return err
 		}
 	}

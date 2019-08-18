@@ -25,8 +25,7 @@ func AddDocumentToNewsFeeds(ctx context.Context, repos *repository.Repositories,
 		entries[i] = newsfeed.NewEntry(s, documentID)
 	}
 
-	err = repos.NewsFeed.AddEntries(ctx, entries)
-	if err != nil {
+	if err := repos.NewsFeed.AddEntries(ctx, entries); err != nil {
 		return err
 	}
 

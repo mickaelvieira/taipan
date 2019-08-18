@@ -20,6 +20,7 @@ func signup(c echo.Context, r *repository.Repositories) error {
 
 	creds := new(auth.Credentials)
 	if err := c.Bind(creds); err != nil {
+		logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, jsonError(web.ErrServer))
 	}
 

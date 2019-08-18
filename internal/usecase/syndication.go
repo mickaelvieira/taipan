@@ -15,42 +15,67 @@ import (
 )
 
 // DisableSyndicationSource soft deletes a source
-func DisableSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
+func DisableSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) error {
 	logger.Warn(fmt.Sprintf("Disabling source '%s'", s.URL))
 	s.IsDeleted = true
 	s.UpdatedAt = time.Now()
-	return repos.Syndication.UpdateVisibility(ctx, s)
+
+	if err := repos.Syndication.UpdateVisibility(ctx, s); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // EnableSyndicationSource soft deletes a source
-func EnableSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
+func EnableSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) error {
 	logger.Warn(fmt.Sprintf("Enabling source '%s'", s.URL))
 	s.IsDeleted = false
 	s.UpdatedAt = time.Now()
-	return repos.Syndication.UpdateVisibility(ctx, s)
+
+	if err := repos.Syndication.UpdateVisibility(ctx, s); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // PauseSyndicationSource soft deletes a source
-func PauseSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
+func PauseSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) error {
 	logger.Warn(fmt.Sprintf("Pausing source '%s'", s.URL))
 	s.IsPaused = true
 	s.UpdatedAt = time.Now()
-	return repos.Syndication.UpdateStatus(ctx, s)
+
+	if err := repos.Syndication.UpdateStatus(ctx, s); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ResumeSyndicationSource soft deletes a source
-func ResumeSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) (err error) {
+func ResumeSyndicationSource(ctx context.Context, repos *repository.Repositories, s *syndication.Source) error {
 	logger.Warn(fmt.Sprintf("Resuming source '%s'", s.URL))
 	s.IsPaused = false
 	s.UpdatedAt = time.Now()
-	return repos.Syndication.UpdateStatus(ctx, s)
+
+	if err := repos.Syndication.UpdateStatus(ctx, s); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // UpdateSourceTitle soft deletes a source
-func UpdateSourceTitle(ctx context.Context, repos *repository.Repositories, s *syndication.Source, t string) (err error) {
+func UpdateSourceTitle(ctx context.Context, repos *repository.Repositories, s *syndication.Source, t string) error {
 	s.Title = t
 	s.UpdatedAt = time.Now()
-	return repos.Syndication.UpdateTitle(ctx, s)
+
+	if err := repos.Syndication.UpdateTitle(ctx, s); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r *http.Result, s *syndication.Source) error {
@@ -99,9 +124,7 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 }
 
 func handleDuplicateFeed(ctx context.Context, repos *repository.Repositories, FinalURI *url.URL, s *syndication.Source) (*syndication.Source, error) {
-	var b bool
-	var err error
-	b, err = repos.Syndication.ExistWithURL(ctx, FinalURI)
+	b, err := repos.Syndication.ExistWithURL(ctx, FinalURI)
 	if err != nil {
 		return s, err
 	}
@@ -110,14 +133,17 @@ func handleDuplicateFeed(ctx context.Context, repos *repository.Repositories, Fi
 		logger.Warn(fmt.Sprintf("Source's URL needs to be updated %s => %s", s.URL, FinalURI))
 		s.URL = FinalURI
 		s.UpdatedAt = time.Now()
-		err = repos.Syndication.UpdateURL(ctx, s)
-	} else {
-		err = PauseSyndicationSource(ctx, repos, s)
-		if err == nil {
-			err = fmt.Errorf("Source '%s' was a duplicate. It's been deleted", s.URL)
+		if err := repos.Syndication.UpdateURL(ctx, s); err != nil {
+			return s, err
 		}
+	} else {
+		if err := PauseSyndicationSource(ctx, repos, s); err != nil {
+			return s, err
+		}
+		logger.Warn(fmt.Sprintf("Source '%s' was a duplicate. It's been deleted", s.URL))
 	}
-	return s, err
+
+	return s, nil
 }
 
 // CreateSyndicationSource in this use case given a url, we will:
@@ -206,24 +232,25 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 		}
 
 		if s.Type == "" {
-			feedType, e := syndication.FromGoFeedType(c.FeedType)
-			if e == nil {
+			feedType, err := syndication.FromGoFeedType(c.FeedType)
+			if err == nil {
 				s.Type = feedType
 			} else {
-				logger.Error(e)
+				logger.Error(err)
 			}
 		}
 
 		for _, item := range c.Items {
-			u, e := url.FromRawURL(item.Link)
-			if e != nil {
+			u, err := url.FromRawURL(item.Link)
+			if err != nil {
+				logger.Error(err)
 				continue // Just skip invalid URLs
 			}
 
 			// @TODO Add a list of Source proxy and resolve source's URLs before pushing to the queue
-			b, e := repos.Documents.ExistWithURL(ctx, u)
-			if e != nil {
-				logger.Error(e)
+			b, err := repos.Documents.ExistWithURL(ctx, u)
+			if err != nil {
+				logger.Error(err)
 				continue
 			}
 			if !b {
@@ -253,7 +280,10 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 
 	s.Frequency = f
 	s.ParsedAt = time.Now()
-	err = repos.Syndication.Update(ctx, s)
 
-	return urls, err
+	if err := repos.Syndication.Update(ctx, s); err != nil {
+		return urls, err
+	}
+
+	return urls, nil
 }
