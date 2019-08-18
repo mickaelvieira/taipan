@@ -3,11 +3,11 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/domain/checksum"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/image"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"io"
 	"os"
@@ -50,53 +50,51 @@ func UpdateToS3(name string, contentType string, r io.Reader) error {
 // - fetches the document image
 // - uploads it to AWS S3
 // - Updates the DB
-func HandleImage(ctx context.Context, repos *repository.Repositories, d *document.Document) (err error) {
+func HandleImage(ctx context.Context, repos *repository.Repositories, d *document.Document) error {
 	if d.Image == nil {
 		logger.Info("Document does not have an image associated")
-		return
+		return nil
 	}
 
 	if d.Image.Name != "" {
 		logger.Info(fmt.Sprintf("Image has already been fetched with name %s", d.Image.Name))
-		return
+		return nil
 	}
 
 	result, err := FetchResource(ctx, repos, d.Image.URL)
 	if err != nil {
-		return
+		return err
 	}
 
 	if result.RequestHasFailed() {
-		err = fmt.Errorf("%s", result.GetFailureReason())
-		return
+		return fmt.Errorf(result.GetFailureReason())
 	}
 
 	d.Image.Name = image.GetName(result.Checksum, result.ContentType)
 	d.Image.Format = image.GetExtension(result.ContentType)
 
 	dm, r := image.GetDimensions(result.Content)
-	if err != nil {
-		return
-	}
-
 	d.Image.SetDimensions(dm.Width, dm.Height)
 
-	if err = UpdateToS3(d.Image.Name, result.ContentType, r); err != nil {
-		return
+	if err := UpdateToS3(d.Image.Name, result.ContentType, r); err != nil {
+		return err
 	}
 
 	// Image was uploaded at the point so we can update the document
 	d.UpdatedAt = time.Now()
 
-	err = repos.Documents.UpdateImage(ctx, d)
-	return
+	if err := repos.Documents.UpdateImage(ctx, d); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // HandleAvatar this usecase:
 // - retrieves image's information from base 64 data
 // - uploads it to AWS S3
 // - Updates the DB
-func HandleAvatar(ctx context.Context, repos *repository.Repositories, usr *user.User, s string) (err error) {
+func HandleAvatar(ctx context.Context, repos *repository.Repositories, usr *user.User, s string) error {
 	c := image.GetContentType(s)
 	d := image.GetBase64Data(s)
 	r := image.GetBase64Reader(d)
@@ -114,25 +112,22 @@ func HandleAvatar(ctx context.Context, repos *repository.Repositories, usr *user
 	}
 
 	if usr.Image != nil && usr.Image.Name == i.Name {
-		return
+		return nil
 	}
 
-	var dm *image.Dimensions
-	dm, r = image.GetDimensions(r)
-	if err != nil {
-		return
-	}
-
+	dm, r := image.GetDimensions(r)
 	i.SetDimensions(dm.Width, dm.Height)
 
-	if err = UpdateToS3(i.Name, c, r); err != nil {
-		return
+	if err := UpdateToS3(i.Name, c, r); err != nil {
+		return err
 	}
 
 	usr.Image = i
 	usr.UpdatedAt = time.Now()
 
-	err = repos.Users.UpdateImage(ctx, usr)
+	if err := repos.Users.UpdateImage(ctx, usr); err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }

@@ -50,7 +50,7 @@ func (r *PasswordResetRepository) FindUserActiveToken(ctx context.Context, usr *
 	row := r.db.QueryRowContext(ctx, formatQuery(query), usr.ID)
 	pr, err := r.scan(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "scan rows")
+		return nil, err
 	}
 
 	return pr, nil
@@ -66,7 +66,7 @@ func (r *PasswordResetRepository) GetToken(ctx context.Context, v string) (*pass
 	row := r.db.QueryRowContext(ctx, formatQuery(query), v)
 	pr, err := r.scan(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "scan rows")
+		return nil, err
 	}
 
 	return pr, nil
@@ -109,6 +109,9 @@ func (r *PasswordResetRepository) scan(rows Scanable) (*password.ResetToken, err
 	}
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
 		return nil, errors.Wrap(err, "scan")
 	}
 
