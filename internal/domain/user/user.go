@@ -1,11 +1,28 @@
 package user
 
 import (
+	"errors"
 	"strings"
 	"time"
 )
 
-// User represents a single user wihthin the application
+// User domain errors
+var (
+	ErrDoesNotExist               = errors.New("User does not exist")
+	ErrWeakPassword               = errors.New("Your password must be at least 10 characters long")
+	ErrEmailIsNotValid            = errors.New("Your email does not seem to be valid")
+	ErrEmailDoesNotExist          = errors.New("Email does not exist")
+	ErrEmailIsAlreadyUsed         = errors.New("There is already an account associated to this email address")
+	ErrCredentialsAreNotValid     = errors.New("Email or password does not match any records in our database")
+	ErrPasswordIsNotValid         = errors.New("Your password is not correct") // only for password change
+	ErrPrimaryEmailDeletion       = errors.New("You cannot delete your primary email address")
+	ErrPrimaryEmailIsNotConfirmed = errors.New("You cannot add new email address before confirming your primary email")
+	ErrEmailIsNotConfirmed        = errors.New("You cannot use this address as your primary email since it hasn't been unconfirmed yet")
+	ErrResetTokenIsNotValid       = errors.New("Your reset token does seem to be valid")
+)
+
+
+// User represents a single user within the application
 type User struct {
 	ID        string
 	Emails    []*Email

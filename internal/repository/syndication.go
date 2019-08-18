@@ -8,10 +8,10 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"log"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 // SyndicationRepository the Feed repository
@@ -60,7 +60,7 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), 50)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -72,7 +72,7 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -100,7 +100,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -112,7 +112,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -127,7 +127,7 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan")
 	}
 
 	return total, nil
@@ -187,7 +187,11 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 		s.ID = db.GetLastInsertID(res)
 	}
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // Update updates a source in the DB
@@ -211,7 +215,11 @@ func (r *SyndicationRepository) Update(ctx context.Context, s *syndication.Sourc
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateURL updates the source's URL and UpdatedAt fields
@@ -229,7 +237,11 @@ func (r *SyndicationRepository) UpdateURL(ctx context.Context, s *syndication.So
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateVisibility soft deletes the source
@@ -247,7 +259,11 @@ func (r *SyndicationRepository) UpdateVisibility(ctx context.Context, s *syndica
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateStatus changes whether the source should be parsed or it is paused
@@ -265,7 +281,11 @@ func (r *SyndicationRepository) UpdateStatus(ctx context.Context, s *syndication
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateTitle changes the source title
@@ -283,7 +303,11 @@ func (r *SyndicationRepository) UpdateTitle(ctx context.Context, s *syndication.
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // InsertIfNotExists stores the source in the database if there is none with the same URL
@@ -334,7 +358,10 @@ func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error)
 	}
 
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
 	}
 
 	return &s, nil

@@ -6,6 +6,8 @@ import (
 	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // UserRepository the Bookmark repository
@@ -83,7 +85,10 @@ func (r *UserRepository) GetPassword(ctx context.Context, id string) (string, er
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), id).Scan(&password)
 	if err != nil {
-		return password, err
+		if err == sql.ErrNoRows {
+			return password, err
+		}
+		return password, errors.Wrap(err, "scan")
 	}
 
 	return password, nil
@@ -105,7 +110,11 @@ func (r *UserRepository) Update(ctx context.Context, u *user.User) error {
 		u.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdatePassword update a user's password
@@ -123,7 +132,11 @@ func (r *UserRepository) UpdatePassword(ctx context.Context, u *user.User, h str
 		u.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateTheme update a user's theme
@@ -141,7 +154,11 @@ func (r *UserRepository) UpdateTheme(ctx context.Context, u *user.User) error {
 		u.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateImage updates the user's image
@@ -162,7 +179,11 @@ func (r *UserRepository) UpdateImage(ctx context.Context, u *user.User) error {
 		u.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 func (r *UserRepository) scan(rows Scanable) (*user.User, error) {
@@ -184,7 +205,10 @@ func (r *UserRepository) scan(rows Scanable) (*user.User, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
 	}
 
 	if imageName != "" {

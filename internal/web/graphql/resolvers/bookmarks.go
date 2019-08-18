@@ -2,8 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -174,9 +172,6 @@ func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
 
 	b, err := r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("Not found")
-		}
 		return nil, err
 	}
 

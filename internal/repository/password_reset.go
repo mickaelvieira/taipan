@@ -7,6 +7,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 // PasswordResetRepository the NewsFeed repository
@@ -33,7 +34,7 @@ func (r *PasswordResetRepository) Create(ctx context.Context, pr *password.Reset
 	)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "execute")
 	}
 
 	return nil
@@ -49,7 +50,7 @@ func (r *PasswordResetRepository) FindUserActiveToken(ctx context.Context, usr *
 	row := r.db.QueryRowContext(ctx, formatQuery(query), usr.ID)
 	pr, err := r.scan(row)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return pr, nil
@@ -65,7 +66,7 @@ func (r *PasswordResetRepository) GetToken(ctx context.Context, v string) (*pass
 	row := r.db.QueryRowContext(ctx, formatQuery(query), v)
 	pr, err := r.scan(row)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return pr, nil
@@ -87,7 +88,7 @@ func (r *PasswordResetRepository) UpdateUsage(ctx context.Context, t *password.R
 		t.UserID,
 	)
 
-	return err
+	return errors.Wrap(err, "execute")
 }
 
 func (r *PasswordResetRepository) scan(rows Scanable) (*password.ResetToken, error) {
@@ -108,7 +109,7 @@ func (r *PasswordResetRepository) scan(rows Scanable) (*password.ResetToken, err
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan")
 	}
 
 	return &pr, nil

@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// URL domain errors
 var (
 	ErrURLNotValid    = errors.New("URL is invalid")
 	ErrURLNotAbsolute = errors.New("URL is not absolute")

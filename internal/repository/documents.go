@@ -10,6 +10,8 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // DocumentRepository the User Bookmark repository
@@ -102,7 +104,7 @@ func (r *DocumentRepository) GetByIDs(ctx context.Context, ids []string) ([]*doc
 	query = fmt.Sprintf(query, strings.Repeat(",?", len(ids)-1))
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -114,7 +116,7 @@ func (r *DocumentRepository) GetByIDs(ctx context.Context, ids []string) ([]*doc
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -216,7 +218,7 @@ func (r *DocumentRepository) FindAll(ctx context.Context, user *user.User, terms
 	query = fmt.Sprintf(formatQuery(query), search)
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -227,12 +229,12 @@ func (r *DocumentRepository) FindAll(ctx context.Context, user *user.User, terms
 		results = append(results, b)
 	}
 
-	if err != nil {
-		return nil, err
-	}
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -264,7 +266,7 @@ func (r *DocumentRepository) CountAll(ctx context.Context, user *user.User, term
 	query = fmt.Sprintf(formatQuery(query), search)
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan rows")
 	}
 	return total, nil
 }
@@ -303,7 +305,7 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -315,7 +317,7 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -349,7 +351,7 @@ func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.Use
 
 	err := r.db.QueryRowContext(ctx, formatQuery(query), args...).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan rows")
 	}
 
 	return total, nil
@@ -370,7 +372,7 @@ func (r *DocumentRepository) GetTotalNews(ctx context.Context, u *user.User) (in
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), u.ID, u.ID).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan rows")
 	}
 
 	return total, nil
@@ -395,7 +397,7 @@ func (r *DocumentRepository) GetDocuments(ctx context.Context, fromID string, to
 	args = append(args, limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -407,7 +409,7 @@ func (r *DocumentRepository) GetDocuments(ctx context.Context, fromID string, to
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -422,7 +424,7 @@ func (r *DocumentRepository) GetTotal(ctx context.Context) (int32, error) {
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "execute")
 	}
 
 	return total, nil
@@ -454,7 +456,11 @@ func (r *DocumentRepository) Insert(ctx context.Context, d *document.Document) e
 		d.ID = db.GetLastInsertID(res)
 	}
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // Update updates a document in the DB
@@ -477,7 +483,11 @@ func (r *DocumentRepository) Update(ctx context.Context, d *document.Document) e
 		d.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateURL updates the document's URL and UpdatedAt fields
@@ -495,7 +505,11 @@ func (r *DocumentRepository) UpdateURL(ctx context.Context, d *document.Document
 		d.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateImage updates a document's image in the DB
@@ -517,7 +531,11 @@ func (r *DocumentRepository) UpdateImage(ctx context.Context, d *document.Docume
 		d.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // Upsert insert the document or update if there is already one with the same URL
@@ -555,7 +573,11 @@ func (r *DocumentRepository) Delete(ctx context.Context, d *document.Document) e
 		d.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 func (r *DocumentRepository) scan(rows Scanable) (*document.Document, error) {
@@ -582,13 +604,16 @@ func (r *DocumentRepository) scan(rows Scanable) (*document.Document, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
 	}
 
 	if imageURL != "" {
 		i, err := document.NewImage(imageURL, imageName, imageWidth, imageHeight, imageFormat)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "cannot create image")
 		}
 		d.Image = i
 	}
