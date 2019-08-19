@@ -69,6 +69,9 @@ func runWeb(c *cli.Context) {
 	e.POST("/reset-password", routes.ResetPassword(r))
 	e.GET("/reset-password", index)
 
+	e.POST("/confirm-email", routes.ConfirmEmail(r))
+	e.GET("/confirm-email", index)
+
 	e.GET("/graphql", api)
 	e.POST("/graphql", api)
 

@@ -42,8 +42,8 @@ func TestGetWordpressFeed(t *testing.T) {
 	if s[0].URL.String() != e {
 		t.Errorf("Incorrect URL: Wanted %s; got %s", e, s[0].URL.String())
 	}
-	if s[0].Title != syndication.DefaultWPFeedTitle {
-		t.Errorf("Incorrect Title: Wanted %s; got %s", syndication.DefaultWPFeedTitle, s[0].Title)
+	if s[0].Title != "" {
+		t.Errorf("Incorrect Title: Wanted %s; got %s", "", s[0].Title)
 	}
 	if s[0].Type != syndication.RSS {
 		t.Errorf("Incorrect Type: Wanted %s; got %s", syndication.RSS, s[0].Title)
@@ -283,7 +283,7 @@ func TestDocumentWPFeeds(t *testing.T) {
 	if f.Type != syndication.RSS {
 		t.Errorf("Incorrect document Lang: Wanted %s; got %s", syndication.RSS, f.Type)
 	}
-	if f.Title != syndication.DefaultWPFeedTitle {
-		t.Errorf("Incorrect document Lang: Wanted %s; got %s", syndication.DefaultWPFeedTitle, f.Title)
+	if f.Title != "" {
+		t.Errorf("Incorrect document Lang: Wanted %s; got %s", "", f.Title)
 	}
 }

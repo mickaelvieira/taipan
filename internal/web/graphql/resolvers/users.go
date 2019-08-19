@@ -117,6 +117,12 @@ func (r *EmailResolver) UpdatedAt() scalars.Datetime {
 	return scalars.NewDatetime(r.Email.UpdatedAt)
 }
 
+// ConfirmedAt resolves the UpdatedAt field
+func (r *EmailResolver) ConfirmedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.Email.ConfirmedAt)
+	return &t
+}
+
 // UserEventResolver resolves an bookmark event
 type UserEventResolver struct {
 	event *publisher.Event

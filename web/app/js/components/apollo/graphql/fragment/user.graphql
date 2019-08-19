@@ -11,6 +11,7 @@ fragment userFields on User {
     isConfirmed
     createdAt
     updatedAt
+    confirmedAt
   }
   theme
   image {

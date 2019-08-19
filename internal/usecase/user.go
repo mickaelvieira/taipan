@@ -84,10 +84,16 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 	email := user.NewEmail(e)
 	email.IsPrimary = true // first email is always the primary
 
-	err = repos.Emails.CreateUserEmail(ctx, u, email)
-	if err != nil {
+	if err := repos.Emails.CreateUserEmail(ctx, u, email); err != nil {
 		return nil, err
 	}
+
+	t := user.NewEmailConfirmToken(u, email)
+	if err := repos.EmailsConfirm.Create(ctx, t); err != nil {
+		return nil, err
+	}
+
+	// @TODO send confirmation email
 
 	emails, err := repos.Emails.GetUserEmails(ctx, u)
 	if err != nil {
@@ -118,12 +124,12 @@ func ForgotPassword(ctx context.Context, repos *repository.Repositories, e strin
 	}
 
 	// is there an active token?
-	_, err = repos.ResetToken.FindUserActiveToken(ctx, u)
+	_, err = repos.PasswordReset.FindUserActiveToken(ctx, u)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
-		err = repos.ResetToken.Create(ctx, password.NewResetPasswordToken(u))
+		err = repos.PasswordReset.Create(ctx, password.NewResetPasswordToken(u))
 		if err != nil {
 			return err
 		}
@@ -143,18 +149,18 @@ func ResetPassword(ctx context.Context, repos *repository.Repositories, t string
 		return err
 	}
 
-	e, err := repos.ResetToken.GetToken(ctx, t)
+	e, err := repos.PasswordReset.GetToken(ctx, t)
 	if err != nil {
-		return errors.New(user.ErrResetTokenIsNotValid, err)
+		return errors.New(user.ErrPasswordResetTokenIsNotValid, err)
 	}
 
 	if e.IsExpired() || e.IsUsed {
-		return errors.New(user.ErrResetTokenIsNotValid, nil)
+		return errors.New(user.ErrPasswordResetTokenIsNotValid, nil)
 	}
 
 	u, err := repos.Users.GetByID(ctx, e.UserID)
 	if err != nil {
-		return errors.New(user.ErrResetTokenIsNotValid, err)
+		return errors.New(user.ErrPasswordResetTokenIsNotValid, err)
 	}
 
 	if err = repos.Users.UpdatePassword(ctx, u, h); err != nil {
@@ -164,7 +170,49 @@ func ResetPassword(ctx context.Context, repos *repository.Repositories, t string
 	e.IsUsed = true
 	e.UsedAt = time.Now()
 
-	if err := repos.ResetToken.UpdateUsage(ctx, e); err != nil {
+	if err := repos.PasswordReset.UpdateUsage(ctx, e); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ConfirmEmail --
+func ConfirmEmail(ctx context.Context, repos *repository.Repositories, v string, loggedInUserID string) error {
+	t, err := repos.EmailsConfirm.GetToken(ctx, v)
+	if err != nil {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, err)
+	}
+
+	if t.IsExpired() || t.IsUsed || (loggedInUserID != "" && t.UserID != loggedInUserID) {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, nil)
+	}
+
+	u, err := repos.Users.GetByID(ctx, t.UserID)
+	if err != nil {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, err)
+	}
+
+	e, err := repos.Emails.GetUserEmailByID(ctx, u, t.EmailID)
+	if err != nil {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, err)
+	}
+
+	if e.IsConfirmed {
+		return nil
+	}
+
+	e.IsConfirmed = true
+	e.ConfirmedAt = time.Now()
+
+	if err := repos.Emails.ConfirmUserEmail(ctx, u, e); err != nil {
+		return err
+	}
+
+	t.IsUsed = true
+	t.UsedAt = time.Now()
+
+	if err := repos.EmailsConfirm.UpdateUsage(ctx, t); err != nil {
 		return err
 	}
 
@@ -258,7 +306,7 @@ func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *u
 
 // DeleteUserEmail --
 func DeleteUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
-	e, err := repos.Emails.GetUserEmail(ctx, usr, v)
+	e, err := repos.Emails.GetUserEmailByValue(ctx, usr, v)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errors.New(user.ErrEmailDoesNotExist, nil)

@@ -41,9 +41,12 @@ export default function FormDocument({
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
-  const [createDocument, { loading, error }] = useMutation<Data, Variables>(mutation, {
-    onCompleted: ({ documents: { create } }) => onDocumentFetched(create)
-  });
+  const [createDocument, { loading, error }] = useMutation<Data, Variables>(
+    mutation,
+    {
+      onCompleted: ({ documents: { create } }) => onDocumentFetched(create)
+    }
+  );
 
   return (
     <form className={classes.form}>

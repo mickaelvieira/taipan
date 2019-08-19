@@ -17,6 +17,9 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     height: "100vh"
   },
+  container: {
+    justifyContent: "center"
+  },
   contained: {
     overflow: "hidden"
   }
@@ -51,7 +54,7 @@ export default function AppLayout({
         <div className={classes.root}>
           <Sidebar isOpen={isSideOpen} toggleDrawer={setIsSidebarOpen} />
           <Header toggleDrawer={setIsSidebarOpen} />
-          <Grid container>
+          <Grid container className={classes.container}>
             <SnackbarWarning
               open={!!(email && !email.isConfirmed)}
               message="Your primary has not been confirm yet. Please confirm it."

@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/user"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 // UserEmailRepository the User Email repository
@@ -15,7 +18,7 @@ type UserEmailRepository struct {
 // GetEmail retrieves an address email
 func (r *UserEmailRepository) GetEmail(ctx context.Context, email string) (*user.Email, error) {
 	query := `
-		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at
+		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at, e.confirmed_at
 		FROM users_emails as e
 		WHERE e.value = ?
 	`
@@ -28,14 +31,30 @@ func (r *UserEmailRepository) GetEmail(ctx context.Context, email string) (*user
 	return u, nil
 }
 
-// GetUserEmail retrieves an address email
-func (r *UserEmailRepository) GetUserEmail(ctx context.Context, u *user.User, email string) (*user.Email, error) {
+// GetUserEmailByValue retrieves an address email
+func (r *UserEmailRepository) GetUserEmailByValue(ctx context.Context, u *user.User, email string) (*user.Email, error) {
 	query := `
-		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at
+		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at, e.confirmed_at
 		FROM users_emails as e
 		WHERE e.value = ? AND e.user_id = ?
 	`
 	row := r.db.QueryRowContext(ctx, formatQuery(query), email, u.ID)
+	e, err := r.scan(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return e, nil
+}
+
+// GetUserEmailByID retrieves an address email
+func (r *UserEmailRepository) GetUserEmailByID(ctx context.Context, u *user.User, id string) (*user.Email, error) {
+	query := `
+		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at, e.confirmed_at
+		FROM users_emails as e
+		WHERE e.id = ? AND e.user_id = ?
+	`
+	row := r.db.QueryRowContext(ctx, formatQuery(query), id, u.ID)
 	e, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -104,10 +123,30 @@ func (r *UserEmailRepository) PrimaryUserEmail(ctx context.Context, u *user.User
 	return err
 }
 
+// ConfirmUserEmail --
+func (r *UserEmailRepository) ConfirmUserEmail(ctx context.Context, u *user.User, e *user.Email) error {
+	query := `
+		UPDATE users_emails
+		SET confirmed = ?, confirmed_at = ?, updated_at = ?
+		WHERE user_id = ? AND id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		e.IsConfirmed,
+		e.ConfirmedAt,
+		e.UpdatedAt,
+		u.ID,
+		e.ID,
+	)
+
+	return err
+}
+
 // GetUserEmails returns user's emails
 func (r *UserEmailRepository) GetUserEmails(ctx context.Context, u *user.User) ([]*user.Email, error) {
 	query := `
-		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at
+		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at, e.confirmed_at
 		FROM users_emails as e
 		WHERE e.user_id = ? ORDER BY e.primary DESC
 		`
@@ -138,6 +177,7 @@ func (r *UserEmailRepository) GetUserEmails(ctx context.Context, u *user.User) (
 
 func (r *UserEmailRepository) scan(rows Scanable) (*user.Email, error) {
 	var e user.Email
+	var confirmedAt mysql.NullTime
 
 	err := rows.Scan(
 		&e.ID,
@@ -146,10 +186,18 @@ func (r *UserEmailRepository) scan(rows Scanable) (*user.Email, error) {
 		&e.IsConfirmed,
 		&e.CreatedAt,
 		&e.UpdatedAt,
+		&confirmedAt,
 	)
 
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
+	}
+
+	if confirmedAt.Valid {
+		e.ConfirmedAt = confirmedAt.Time
 	}
 
 	return &e, nil

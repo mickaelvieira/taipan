@@ -1,12 +1,10 @@
 package password
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"math/rand"
 	"time"
 
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/nonce"
 )
 
 // ResetToken reset password entry
@@ -28,35 +26,6 @@ func (r *ResetToken) IsExpired() bool {
 const tokenNonceLen = 30
 const tokenValidityInMinutes = 20
 
-// returns a random integer between 2 values
-func randomInt(min, max int) int {
-	return min + rand.Intn(max-min)
-}
-
-// returns the byte representation of a random minuscule, majuscule, number or special character
-func randomSymbol() byte {
-	return byte(randomInt(33, 126))
-}
-
-// generate a random of the length provided
-func generateNonce(len int) string {
-	// https://golang.org/pkg/math/rand/#Rand.Seed
-	rand.Seed(time.Now().UnixNano())
-	bytes := make([]byte, len)
-	for i := 0; i < len; i++ {
-		bytes[i] = randomSymbol()
-	}
-
-	// we use sha256 algorithm here to get:
-	// - a fix length string
-	// - a URL safe string
-	buf := sha256.New()
-	buf.Write(bytes)
-	b := buf.Sum(nil)
-
-	return hex.EncodeToString(b)
-}
-
 // getExpireAt calculates the date when the token will be expired
 func getExpireAt() time.Time {
 	start := time.Now().UTC()
@@ -66,7 +35,7 @@ func getExpireAt() time.Time {
 // NewResetPasswordToken create a new password reset entry
 func NewResetPasswordToken(u *user.User) *ResetToken {
 	return &ResetToken{
-		Token:     generateNonce(tokenNonceLen),
+		Token:     nonce.Generate(tokenNonceLen),
 		UserID:    u.ID,
 		CreatedAt: time.Now(),
 		ExpiredAt: getExpireAt(),

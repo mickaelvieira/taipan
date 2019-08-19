@@ -71,13 +71,25 @@ export async function askForResetEmail(
 }
 
 export async function resetPassword(
-  token: string,
+  token: string | null,
   password: string
 ): Promise<APIResponse<{}>> {
   const response = await fetch(
     getJSONRequest("/reset-password", {
       token,
       password
+    })
+  );
+  const json = await response.json();
+  return processResponse<{}>(json);
+}
+
+export async function confirmEmail(
+  token: string | null
+): Promise<APIResponse<{}>> {
+  const response = await fetch(
+    getJSONRequest("/confirm-email", {
+      token
     })
   );
   const json = await response.json();
