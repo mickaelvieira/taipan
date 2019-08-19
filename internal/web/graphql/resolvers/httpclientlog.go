@@ -16,8 +16,8 @@ type LogRootResolver struct {
 
 // Log resolves the bookmark's image entity
 type Log struct {
-	l *http.Result
-	r *repository.Repositories
+	log          *http.Result
+	repositories *repository.Repositories
 }
 
 // LogCollection resolver
@@ -30,43 +30,43 @@ type LogCollection struct {
 
 // ID resolves the ID
 func (r *Log) ID() gql.ID {
-	return gql.ID(r.l.ID)
+	return gql.ID(r.log.ID)
 }
 
 // Checksum resolves the Checksum
 func (r *Log) Checksum() string {
-	return r.l.Checksum.String()
+	return r.log.Checksum.String()
 }
 
 // ContentType resolves the ContentType field
 func (r *Log) ContentType() string {
-	return r.l.ContentType
+	return r.log.ContentType
 }
 
 // StatusCode resolves the StatusCode field
 func (r *Log) StatusCode() int32 {
-	return int32(r.l.RespStatusCode)
+	return int32(r.log.RespStatusCode)
 }
 
 // RequestURI resolves the RequestURI field
 func (r *Log) RequestURI() scalars.URL {
-	return scalars.NewURL(r.l.ReqURI)
+	return scalars.NewURL(r.log.ReqURI)
 }
 
 // RequestMethod resolves the RequestMethod field
 func (r *Log) RequestMethod() string {
-	return r.l.ReqMethod
+	return r.log.ReqMethod
 }
 
 // HasFailed resolves the HasFailed field
 func (r *Log) HasFailed() bool {
-	return r.l.RequestHasFailed()
+	return r.log.RequestHasFailed()
 }
 
 // FailureReason resolves the FailureReason field
 func (r *Log) FailureReason() string {
-	if r.l.RequestHasFailed() {
-		return r.l.GetFailureReason()
+	if r.log.RequestHasFailed() {
+		return r.log.GetFailureReason()
 	}
 	return ""
 }
@@ -78,7 +78,7 @@ func (r *Log) FailureReason() string {
 
 // CreatedAt resolves the CreatedAt field
 func (r *Log) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.l.CreatedAt)
+	return scalars.NewDatetime(r.log.CreatedAt)
 }
 
 // Logs --
