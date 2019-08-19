@@ -8,6 +8,7 @@ import (
 	"github/mickaelvieira/taipan/internal/web/auth"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 
+	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
 )
 
@@ -26,54 +27,56 @@ type SubscriptionCollectionResolver struct {
 
 // SubscriptionResolver resolves the bookmark entity
 type SubscriptionResolver struct {
-	*subscription.Subscription
+	s  *subscription.Subscription
+	r  *repository.Repositories
+	ll *dataloader.Loader
 }
 
 // ID resolves the ID field
 func (r *SubscriptionResolver) ID() gql.ID {
-	return gql.ID(r.Subscription.ID)
+	return gql.ID(r.s.ID)
 }
 
 // URL resolves the URL field
 func (r *SubscriptionResolver) URL() scalars.URL {
-	return scalars.NewURL(r.Subscription.URL)
+	return scalars.NewURL(r.s.URL)
 }
 
 // Domain resolves the Domain field
 func (r *SubscriptionResolver) Domain() *scalars.URL {
-	d := scalars.NewURL(r.Subscription.Domain)
+	d := scalars.NewURL(r.s.Domain)
 	return &d
 }
 
 // Title resolves the Title field
 func (r *SubscriptionResolver) Title() string {
-	return r.Subscription.Title
+	return r.s.Title
 }
 
 // Type resolves the Type field
 func (r *SubscriptionResolver) Type() string {
-	return string(r.Subscription.Type)
+	return string(r.s.Type)
 }
 
 // IsSubscribed resolves the IsPaused field
 func (r *SubscriptionResolver) IsSubscribed() bool {
-	return r.Subscription.Subscribed
+	return r.s.Subscribed
 }
 
 // Frequency resolves the Frequency field
 func (r *SubscriptionResolver) Frequency() string {
-	return string(r.Subscription.Frequency)
+	return string(r.s.Frequency)
 }
 
 // CreatedAt resolves the CreatedAt field
 func (r *SubscriptionResolver) CreatedAt() *scalars.Datetime {
-	t := scalars.NewDatetime(r.Subscription.CreatedAt)
+	t := scalars.NewDatetime(r.s.CreatedAt)
 	return &t
 }
 
 // UpdatedAt resolves the UpdatedAt field
 func (r *SubscriptionResolver) UpdatedAt() *scalars.Datetime {
-	t := scalars.NewDatetime(r.Subscription.UpdatedAt)
+	t := scalars.NewDatetime(r.s.UpdatedAt)
 	return &t
 }
 
@@ -94,9 +97,7 @@ func (r *SubscriptionsResolver) Subscription(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SubscriptionResolver{Subscription: s}
-
-	return res, nil
+	return resolve(r.repositories).subscription(s), nil
 }
 
 // Subscribe --
@@ -110,9 +111,7 @@ func (r *SubscriptionsResolver) Subscribe(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SubscriptionResolver{Subscription: s}
-
-	return res, nil
+	return resolve(r.repositories).subscription(s), nil
 }
 
 // Unsubscribe --
@@ -126,9 +125,7 @@ func (r *SubscriptionsResolver) Unsubscribe(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SubscriptionResolver{Subscription: s}
-
-	return res, nil
+	return resolve(r.repositories).subscription(s), nil
 }
 
 // Subscriptions --
@@ -157,21 +154,13 @@ func (r *SubscriptionsResolver) Subscriptions(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var total int32
-	total, err = r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
+	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
 	if err != nil {
 		return nil, err
 	}
 
-	var sources []*SubscriptionResolver
-	for _, result := range results {
-		sources = append(sources, &SubscriptionResolver{
-			Subscription: result,
-		})
-	}
-
 	res := SubscriptionCollectionResolver{
-		Results: sources,
+		Results: resolve(r.repositories).subscriptions(results),
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,

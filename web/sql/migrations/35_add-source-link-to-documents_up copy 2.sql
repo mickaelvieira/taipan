@@ -1,0 +1,1 @@
+ALTER TABLE `documents` ADD COLUMN `source_id` int(11) NULL AFTER `id`;

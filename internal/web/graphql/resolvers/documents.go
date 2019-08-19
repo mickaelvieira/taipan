@@ -10,12 +10,12 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/auth"
-	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 	"log"
 
 	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
+	"github.com/pkg/errors"
 )
 
 // DocumentsResolver documents' root resolver
@@ -42,100 +42,112 @@ type DocumentSearchResultsResolver struct {
 
 // DocumentResolver resolves the bookmark entity
 type DocumentResolver struct {
-	*document.Document
-	repositories *repository.Repositories
+	d  *document.Document
+	r  *repository.Repositories
+	sl *dataloader.Loader
+	ll *dataloader.Loader
 }
 
 // ID resolves the ID field
 func (r *DocumentResolver) ID() gql.ID {
-	return gql.ID(r.Document.ID)
+	return gql.ID(r.d.ID)
 }
 
 // URL resolves the URL
 func (r *DocumentResolver) URL() scalars.URL {
-	return scalars.NewURL(r.Document.URL)
+	return scalars.NewURL(r.d.URL)
 }
 
 // Image resolves the Image field
 func (r *DocumentResolver) Image() *BookmarkImageResolver {
-	if !r.Document.HasImage() {
+	if !r.d.HasImage() {
 		return nil
 	}
-	return &BookmarkImageResolver{Image: r.Document.Image}
+	return &BookmarkImageResolver{Image: r.d.Image}
 }
 
 // Lang resolves the Lang field
 func (r *DocumentResolver) Lang() string {
-	return r.Document.Lang
+	return r.d.Lang
 }
 
 // Charset resolves the Charset field
 func (r *DocumentResolver) Charset() string {
-	return r.Document.Charset
+	return r.d.Charset
 }
 
 // Title resolves the Title field
 func (r *DocumentResolver) Title() string {
-	return r.Document.Title
+	return r.d.Title
 }
 
 // Description resolves the Description field
 func (r *DocumentResolver) Description() string {
-	return r.Document.Description
+	return r.d.Description
 }
 
 // CreatedAt resolves the CreatedAt field
 func (r *DocumentResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Document.CreatedAt)
+	return scalars.NewDatetime(r.d.CreatedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
 func (r *DocumentResolver) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Document.UpdatedAt)
+	return scalars.NewDatetime(r.d.UpdatedAt)
+}
+
+// Source resolves the Source field
+func (r *DocumentResolver) Source(ctx context.Context) (*SourceResolver, error) {
+	data, err := r.sl.Load(ctx, dataloader.StringKey(r.d.SourceID))()
+	if err != nil {
+		return nil, err
+	}
+
+	result, ok := data.(*syndication.Source)
+	if !ok {
+		return nil, errors.New("Loader returns incorrect type")
+	}
+
+	return resolve(r.r).source(result), nil
 }
 
 // Syndication resolves the Syndication field
 func (r *DocumentResolver) Syndication() *[]*SourceResolver {
-	res := make([]*SourceResolver, len(r.Document.Feeds))
-	for i, s := range r.Document.Feeds {
-		res[i] = &SourceResolver{Source: s}
-	}
+	res := resolve(r.r).sources(r.d.Feeds)
 	return &res
 }
 
 // LogEntries returns the document's parser log
 func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*LogResolver, error) {
-	data, err := r.getLogsLoader().Load(ctx, dataloader.StringKey(r.Document.URL.String()))()
+	data, err := r.ll.Load(ctx, dataloader.StringKey(r.d.URL.String()))()
 	if err != nil {
 		return nil, err
 	}
+
 	results, ok := data.([]*http.Result)
 	if !ok {
 		return nil, fmt.Errorf("Invalid data")
 	}
-	var resolvers []*LogResolver
-	for _, result := range results {
-		resolvers = append(resolvers, &LogResolver{Result: result})
-	}
-	return &resolvers, nil
-}
 
-func (r *DocumentResolver) getLogsLoader() *dataloader.Loader {
-	return loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
+	res := resolve(r.r).logs(results)
+
+	return &res, nil
 }
 
 // DocumentEventResolver is a document event
 type DocumentEventResolver struct {
-	event *publisher.Event
+	event        *publisher.Event
+	repositories *repository.Repositories
 }
 
 // Item returns the event's message
 func (r *DocumentEventResolver) Item() *DocumentResolver {
 	d, ok := r.event.Payload.(*document.Document)
 	if !ok {
-		log.Fatal("Cannot resolve item, payload is not a document")
+		log.Fatalln("Cannot resolve item, payload is not a document")
 	}
-	return &DocumentResolver{Document: d}
+
+	return resolve(r.repositories).document(d)
 }
 
 // Emitter returns the event's emitter ID
@@ -186,9 +198,7 @@ func (r *DocumentsResolver) Create(ctx context.Context, args struct {
 
 	d.Feeds = subscriptions
 
-	res := &DocumentResolver{Document: d}
-
-	return res, nil
+	return resolve(r.repositories).document(d), nil
 }
 
 // Documents resolves the query
@@ -203,24 +213,15 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := getDocumentsBoundaryIDs(results)
-
-	var total int32
-	total, err = r.repositories.Documents.GetTotal(ctx)
+	total, err := r.repositories.Documents.GetTotal(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var documents = make([]*DocumentResolver, len(results))
-	for i, result := range results {
-		documents[i] = &DocumentResolver{
-			Document:     result,
-			repositories: r.repositories,
-		}
-	}
+	first, last := getDocumentsBoundaryIDs(results)
 
 	res := DocumentCollectionResolver{
-		Results: documents,
+		Results: resolve(r.repositories).documents(results),
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -254,12 +255,7 @@ func (r *DocumentsResolver) Search(ctx context.Context, args struct {
 			return nil, err
 		}
 
-		documents = make([]*DocumentResolver, len(results))
-		for i, result := range results {
-			documents[i] = &DocumentResolver{
-				Document: result,
-			}
-		}
+		documents = resolve(r.repositories).documents(results)
 	}
 
 	res := DocumentSearchResultsResolver{

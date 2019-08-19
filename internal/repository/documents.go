@@ -22,7 +22,7 @@ type DocumentRepository struct {
 // GetByID find a single entry
 func (r *DocumentRepository) GetByID(ctx context.Context, id string) (*document.Document, error) {
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
@@ -40,7 +40,7 @@ func (r *DocumentRepository) GetByID(ctx context.Context, id string) (*document.
 // GetByURL find a single entry
 func (r *DocumentRepository) GetByURL(ctx context.Context, u *url.URL) (*document.Document, error) {
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
@@ -70,7 +70,7 @@ func (r *DocumentRepository) ExistWithURL(ctx context.Context, u *url.URL) (bool
 // GetByChecksum find a single entry
 func (r *DocumentRepository) GetByChecksum(ctx context.Context, c checksum.Checksum) (*document.Document, error) {
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
@@ -95,7 +95,7 @@ func (r *DocumentRepository) GetByIDs(ctx context.Context, ids []string) ([]*doc
 	}
 
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
@@ -192,7 +192,7 @@ func (r *DocumentRepository) FindAll(ctx context.Context, user *user.User, terms
 
 	query := `
 		SELECT
-		d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		d.id, d.source_id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		d.created_at, d.updated_at, d.deleted
 		FROM newsfeed AS nf
@@ -277,7 +277,7 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 
 	query := `
 		SELECT
-		d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		d.id, d.source_id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		d.created_at, d.updated_at, d.deleted
 		FROM newsfeed AS nf
@@ -383,7 +383,7 @@ func (r *DocumentRepository) GetDocuments(ctx context.Context, fromID string, to
 	var results []*document.Document
 
 	query := `
-		SELECT d.id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, HEX(d.checksum), d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		d.created_at, d.updated_at, d.deleted
 		FROM documents AS d
@@ -582,11 +582,13 @@ func (r *DocumentRepository) Delete(ctx context.Context, d *document.Document) e
 
 func (r *DocumentRepository) scan(rows Scanable) (*document.Document, error) {
 	var d document.Document
+	var sourceID sql.NullString
 	var imageURL, imageName, imageFormat string
 	var imageWidth, imageHeight int32
 
 	err := rows.Scan(
 		&d.ID,
+		&sourceID,
 		&d.URL,
 		&d.Checksum,
 		&d.Charset,
@@ -608,6 +610,10 @@ func (r *DocumentRepository) scan(rows Scanable) (*document.Document, error) {
 			return nil, err
 		}
 		return nil, errors.Wrap(err, "scan")
+	}
+
+	if sourceID.Valid {
+		d.SourceID = sourceID.String
 	}
 
 	if imageURL != "" {

@@ -24,23 +24,15 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := getBookmarksBoundaryIDs(results)
-
-	var total int32
-	total, err = r.repositories.Bookmarks.CountFavorites(ctx, user)
+	total, err := r.repositories.Bookmarks.CountFavorites(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
-	var bookmarks = make([]*BookmarkResolver, len(results))
-	for i, result := range results {
-		bookmarks[i] = &BookmarkResolver{
-			Bookmark: result,
-		}
-	}
+	first, last := getBookmarksBoundaryIDs(results)
 
 	res := BookmarkCollectionResolver{
-		Results: bookmarks,
+		Results: resolve(r.repositories).bookmarks(results),
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -63,23 +55,15 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := getBookmarksBoundaryIDs(results)
-
-	var total int32
-	total, err = r.repositories.Bookmarks.CountReadingList(ctx, user)
+	total, err := r.repositories.Bookmarks.CountReadingList(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
-	var bookmarks = make([]*BookmarkResolver, len(results))
-	for i, result := range results {
-		bookmarks[i] = &BookmarkResolver{
-			Bookmark: result,
-		}
-	}
+	first, last := getBookmarksBoundaryIDs(results)
 
 	res := BookmarkCollectionResolver{
-		Results: bookmarks,
+		Results: resolve(r.repositories).bookmarks(results),
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -102,24 +86,15 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := getDocumentsBoundaryIDs(results)
-
-	var total int32
-	total, err = r.repositories.Documents.GetTotalNews(ctx, user)
+	total, err := r.repositories.Documents.GetTotalNews(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
-	var documents = make([]*DocumentResolver, len(results))
-	for i, result := range results {
-		documents[i] = &DocumentResolver{
-			Document:     result,
-			repositories: r.repositories,
-		}
-	}
+	first, last := getDocumentsBoundaryIDs(results)
 
 	res := DocumentCollectionResolver{
-		Results: documents,
+		Results: resolve(r.repositories).documents(results),
 		Total:   total,
 		First:   first,
 		Last:    last,
@@ -142,24 +117,15 @@ func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	first, last := getDocumentsBoundaryIDs(results)
-
-	var total int32
-	total, err = r.repositories.Documents.GetTotalLatestNews(ctx, user, from, to, false)
+	total, err := r.repositories.Documents.GetTotalLatestNews(ctx, user, from, to, false)
 	if err != nil {
 		return nil, err
 	}
 
-	var documents = make([]*DocumentResolver, len(results))
-	for i, result := range results {
-		documents[i] = &DocumentResolver{
-			Document:     result,
-			repositories: r.repositories,
-		}
-	}
+	first, last := getDocumentsBoundaryIDs(results)
 
 	res := DocumentCollectionResolver{
-		Results: documents,
+		Results: resolve(r.repositories).documents(results),
 		Total:   total,
 		First:   first,
 		Last:    last,

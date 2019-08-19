@@ -16,7 +16,8 @@ type BotResolver struct {
 
 // LogResolver resolves the bookmark's image entity
 type LogResolver struct {
-	*http.Result
+	l *http.Result
+	r *repository.Repositories
 }
 
 // LogCollectionResolver resolver
@@ -29,55 +30,55 @@ type LogCollectionResolver struct {
 
 // ID resolves the ID
 func (r *LogResolver) ID() gql.ID {
-	return gql.ID(r.Result.ID)
+	return gql.ID(r.l.ID)
 }
 
 // Checksum resolves the Checksum
 func (r *LogResolver) Checksum() string {
-	return r.Result.Checksum.String()
+	return r.l.Checksum.String()
 }
 
 // ContentType resolves the ContentType field
 func (r *LogResolver) ContentType() string {
-	return r.Result.ContentType
+	return r.l.ContentType
 }
 
 // StatusCode resolves the StatusCode field
 func (r *LogResolver) StatusCode() int32 {
-	return int32(r.Result.RespStatusCode)
+	return int32(r.l.RespStatusCode)
 }
 
 // RequestURI resolves the RequestURI field
 func (r *LogResolver) RequestURI() scalars.URL {
-	return scalars.NewURL(r.Result.ReqURI)
+	return scalars.NewURL(r.l.ReqURI)
 }
 
 // RequestMethod resolves the RequestMethod field
 func (r *LogResolver) RequestMethod() string {
-	return r.Result.ReqMethod
+	return r.l.ReqMethod
 }
 
 // HasFailed resolves the HasFailed field
 func (r *LogResolver) HasFailed() bool {
-	return r.Result.RequestHasFailed()
+	return r.l.RequestHasFailed()
 }
 
 // FailureReason resolves the FailureReason field
 func (r *LogResolver) FailureReason() string {
-	if r.Result.RequestHasFailed() {
-		return r.Result.GetFailureReason()
+	if r.l.RequestHasFailed() {
+		return r.l.GetFailureReason()
 	}
 	return ""
 }
 
 // FinalURI resolves the FinalURI field
 // func (r *LogResolver) FinalURI() scalars.URL {
-// 	return scalars.NewURL(r.Result.FinalURI)
+// 	return scalars.NewURL(r.l.FinalURI)
 // }
 
 // CreatedAt resolves the CreatedAt field
 func (r *LogResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Result.CreatedAt)
+	return scalars.NewDatetime(r.l.CreatedAt)
 }
 
 // Logs --
@@ -100,13 +101,8 @@ func (r *BotResolver) Logs(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	logs := make([]*LogResolver, len(results))
-	for i, result := range results {
-		logs[i] = &LogResolver{Result: result}
-	}
-
 	res := LogCollectionResolver{
-		Results: logs,
+		Results: resolve(r.repositories).logs(results),
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,

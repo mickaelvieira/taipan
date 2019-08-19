@@ -271,6 +271,7 @@ type Document implements Node {
   title: String!
   description: String!
   image: Image
+  source: Source
   createdAt: DateTime!
   updatedAt: DateTime!
   logEntries: [HTTPClientLog]
@@ -289,6 +290,7 @@ type Bookmark implements Node {
   title: String!
   description: String!
   image: Image
+  source: Source
   updatedAt: DateTime!
   addedAt: DateTime!
   favoritedAt: DateTime

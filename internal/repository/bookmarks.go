@@ -45,7 +45,7 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -119,7 +119,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -172,7 +172,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	args = append(args, limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -183,12 +183,8 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 		results = append(results, b)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -199,7 +195,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -263,10 +259,6 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 		results = append(results, b)
 	}
 
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	if err = rows.Err(); err != nil {
 		return nil, errors.Wrap(err, "scan rows")
 	}
@@ -313,7 +305,7 @@ func (r *BookmarkRepository) CountReadingList(ctx context.Context, user *user.Us
 // GetByURL find a single entry
 func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *url.URL) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -435,10 +427,12 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 	var b bookmark.Bookmark
 	var imageURL, imageName, imageFormat string
 	var imageWidth, imageHeight int32
+	var sourceID sql.NullString
 	var favoritedAt mysql.NullTime
 
 	err := rows.Scan(
 		&b.ID,
+		&sourceID,
 		&b.URL,
 		&b.Charset,
 		&b.Lang,
@@ -456,15 +450,19 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 		&b.IsFavorite,
 	)
 
-	if favoritedAt.Valid {
-		b.FavoritedAt = favoritedAt.Time
-	}
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
 		}
 		return nil, errors.Wrap(err, "scan")
+	}
+
+	if favoritedAt.Valid {
+		b.FavoritedAt = favoritedAt.Time
+	}
+
+	if sourceID.Valid {
+		b.SourceID = sourceID.String
 	}
 
 	if imageURL != "" {

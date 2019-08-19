@@ -10,6 +10,7 @@ import (
 // Document struct represents a web document
 type Document struct {
 	ID          string
+	SourceID    string
 	Checksum    checksum.Checksum
 	URL         *url.URL
 	Lang        string
