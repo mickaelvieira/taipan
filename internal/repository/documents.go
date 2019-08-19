@@ -538,6 +538,28 @@ func (r *DocumentRepository) UpdateImage(ctx context.Context, d *document.Docume
 	return nil
 }
 
+// UpdateSource --
+func (r *DocumentRepository) UpdateSource(ctx context.Context, d *document.Document) error {
+	query := `
+		UPDATE documents
+		SET source_id = ?, updated_at = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		d.SourceID,
+		d.UpdatedAt,
+		d.ID,
+	)
+
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
+}
+
 // Upsert insert the document or update if there is already one with the same URL
 func (r *DocumentRepository) Upsert(ctx context.Context, d *document.Document) error {
 	e, err := r.GetByURL(ctx, d.URL)

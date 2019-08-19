@@ -102,7 +102,7 @@ type BookmarksMutation {
   # This mutation will fetch the document and create a bookmark
   # Which will be present in user's reading list
   # """
-  create(url: URL!, isFavorite: Boolean!, withFeeds: Boolean!): Bookmark
+  create(url: URL!, isFavorite: Boolean!): Bookmark
 
   # """
   # This mutation will add the document and create a bookmark

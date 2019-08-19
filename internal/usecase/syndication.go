@@ -150,7 +150,7 @@ func handleDuplicateFeed(ctx context.Context, repos *repository.Repositories, Fi
 // - fetch the related feed
 // - parse the feed
 // - And finally return a web syndication source
-func CreateSyndicationSource(ctx context.Context, repos *repository.Repositories, u *url.URL) (*syndication.Source, error) {
+func CreateSyndicationSource(ctx context.Context, repos *repository.Repositories, u *url.URL, isPaused bool) (*syndication.Source, error) {
 	if syndication.IsBlacklisted(u.String()) {
 		return nil, fmt.Errorf("URL %s is blacklisted", u.String())
 	}
@@ -159,6 +159,7 @@ func CreateSyndicationSource(ctx context.Context, repos *repository.Repositories
 	if err != nil {
 		if err == sql.ErrNoRows {
 			s = syndication.NewSource(u, "", "")
+			s.IsPaused = isPaused
 			err = repos.Syndication.Insert(ctx, s)
 			if err != nil {
 				return nil, err

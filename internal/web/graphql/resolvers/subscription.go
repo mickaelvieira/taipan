@@ -87,7 +87,7 @@ func (r *SubscriptionRootResolver) Subscription(ctx context.Context, args struct
 	u := args.URL.ToDomain()
 	user := auth.FromContext(ctx)
 
-	_, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
+	_, err := usecase.CreateSyndicationSource(ctx, r.repositories, u, false)
 	if err != nil {
 		return nil, err
 	}

@@ -224,7 +224,6 @@ func TestDocumentFeeds(t *testing.T) {
 		"</head>" +
 		"<body></body>"
 	var p = parser{origURL: origURL, document: getDocument(html)}
-	p.shouldFindSyndicationSource()
 	var d = p.parse()
 
 	var testcase = []struct {
@@ -270,7 +269,6 @@ func TestDocumentWPFeeds(t *testing.T) {
 		"</head>" +
 		"<body></body>"
 	var p = parser{origURL: origURL, document: getDocument(html)}
-	p.shouldFindSyndicationSource()
 	var d = p.parse()
 
 	if len(d.Feeds) != 1 {

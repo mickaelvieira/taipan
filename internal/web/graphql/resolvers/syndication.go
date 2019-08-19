@@ -127,7 +127,7 @@ func (r *SyndicationRootResolver) Create(ctx context.Context, args struct {
 }) (*Source, error) {
 	u := args.URL.ToDomain()
 
-	s, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
+	s, err := usecase.CreateSyndicationSource(ctx, r.repositories, u, true)
 	if err != nil {
 		return nil, err
 	}

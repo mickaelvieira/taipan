@@ -179,7 +179,8 @@ func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Document, error) {
 	user := auth.FromContext(ctx)
-	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), true)
+
+	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), "")
 	if err != nil {
 		return nil, err
 	}
