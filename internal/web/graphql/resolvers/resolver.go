@@ -94,8 +94,8 @@ func (r *resolver) logs(results []*http.Result) []*Log {
 
 func (r *resolver) log(l *http.Result) *Log {
 	return &Log{
-		l: l,
-		r: r.repositories,
+		log:          l,
+		repositories: r.repositories,
 	}
 }
 
