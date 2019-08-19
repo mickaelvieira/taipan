@@ -13,96 +13,96 @@ import (
 )
 
 type resolver struct {
-	r  *repository.Repositories
-	sl *dataloader.Loader
-	ll *dataloader.Loader
+	repositories *repository.Repositories
+	sourceLoader *dataloader.Loader
+	logLoader    *dataloader.Loader
 }
 
-func (f *resolver) bookmarks(results []*bookmark.Bookmark) []*BookmarkResolver {
-	bookmarks := make([]*BookmarkResolver, len(results))
+func (r *resolver) bookmarks(results []*bookmark.Bookmark) []*Bookmark {
+	bookmarks := make([]*Bookmark, len(results))
 	for i, d := range results {
-		bookmarks[i] = f.bookmark(d)
+		bookmarks[i] = r.bookmark(d)
 	}
 	return bookmarks
 }
 
-func (f *resolver) bookmark(b *bookmark.Bookmark) *BookmarkResolver {
-	return &BookmarkResolver{
-		b:  b,
-		r:  f.r,
-		sl: f.sl,
-		ll: f.ll,
+func (r *resolver) bookmark(b *bookmark.Bookmark) *Bookmark {
+	return &Bookmark{
+		bookmark:     b,
+		repositories: r.repositories,
+		sourceLoader: r.sourceLoader,
+		logLoader:    r.logLoader,
 	}
 }
 
-func (f *resolver) documents(results []*document.Document) []*DocumentResolver {
-	documents := make([]*DocumentResolver, len(results))
+func (r *resolver) documents(results []*document.Document) []*Document {
+	documents := make([]*Document, len(results))
 	for i, d := range results {
-		documents[i] = f.document(d)
+		documents[i] = r.document(d)
 	}
 	return documents
 }
 
-func (f *resolver) document(d *document.Document) *DocumentResolver {
-	return &DocumentResolver{
-		d:  d,
-		r:  f.r,
-		sl: f.sl,
-		ll: f.ll,
+func (r *resolver) document(d *document.Document) *Document {
+	return &Document{
+		document:     d,
+		repositories: r.repositories,
+		sourceLoader: r.sourceLoader,
+		logLoader:    r.logLoader,
 	}
 }
 
-func (f *resolver) sources(results []*syndication.Source) []*SourceResolver {
-	sources := make([]*SourceResolver, len(results))
+func (r *resolver) sources(results []*syndication.Source) []*Source {
+	sources := make([]*Source, len(results))
 	for i, d := range results {
-		sources[i] = f.source(d)
+		sources[i] = r.source(d)
 	}
 	return sources
 }
 
-func (f *resolver) source(s *syndication.Source) *SourceResolver {
-	return &SourceResolver{
-		s:  s,
-		r:  f.r,
-		ll: f.ll,
+func (r *resolver) source(s *syndication.Source) *Source {
+	return &Source{
+		source:     s,
+		repository: r.repositories,
+		logLoader:  r.logLoader,
 	}
 }
 
-func (f *resolver) subscriptions(results []*subscription.Subscription) []*SubscriptionResolver {
-	subscription := make([]*SubscriptionResolver, len(results))
+func (r *resolver) subscriptions(results []*subscription.Subscription) []*Subscription {
+	subscription := make([]*Subscription, len(results))
 	for i, d := range results {
-		subscription[i] = f.subscription(d)
+		subscription[i] = r.subscription(d)
 	}
 	return subscription
 }
 
-func (f *resolver) subscription(s *subscription.Subscription) *SubscriptionResolver {
-	return &SubscriptionResolver{
-		s:  s,
-		r:  f.r,
-		ll: f.ll,
+func (r *resolver) subscription(s *subscription.Subscription) *Subscription {
+	return &Subscription{
+		subscription: s,
+		repositories: r.repositories,
+		logLoader:    r.logLoader,
 	}
 }
 
-func (f *resolver) logs(results []*http.Result) []*LogResolver {
-	logs := make([]*LogResolver, len(results))
+func (r *resolver) logs(results []*http.Result) []*Log {
+	logs := make([]*Log, len(results))
 	for i, d := range results {
-		logs[i] = f.log(d)
+		logs[i] = r.log(d)
 	}
 	return logs
 }
 
-func (f *resolver) log(l *http.Result) *LogResolver {
-	return &LogResolver{
+func (r *resolver) log(l *http.Result) *Log {
+	return &Log{
 		l: l,
-		r: f.r,
+		r: r.repositories,
 	}
 }
 
 func resolve(r *repository.Repositories) *resolver {
 	return &resolver{
-		r:  r,
-		sl: loaders.GetSource(r.Syndication),
-		ll: loaders.GetLogs(r.Botlogs),
+		repositories: r,
+		sourceLoader: loaders.GetSource(r.Syndication),
+		logLoader:    loaders.GetLogs(r.Botlogs),
 	}
 }

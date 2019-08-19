@@ -6,15 +6,15 @@ import (
 	"github/mickaelvieira/taipan/internal/web/auth"
 )
 
-// FeedsResolver feeds' root resolver
-type FeedsResolver struct {
+// FeedsRootResolver feeds' root resolver
+type FeedsRootResolver struct {
 	repositories *repository.Repositories
 }
 
 // Favorites resolves the query
-func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
+func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
-}) (*BookmarkCollectionResolver, error) {
+}) (*BookmarkCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
@@ -31,7 +31,7 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 
 	first, last := getBookmarksBoundaryIDs(results)
 
-	res := BookmarkCollectionResolver{
+	res := BookmarkCollection{
 		Results: resolve(r.repositories).bookmarks(results),
 		Total:   total,
 		First:   first,
@@ -43,9 +43,9 @@ func (r *FeedsResolver) Favorites(ctx context.Context, args struct {
 }
 
 // ReadingList resolves the query
-func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
+func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
-}) (*BookmarkCollectionResolver, error) {
+}) (*BookmarkCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
@@ -62,7 +62,7 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 
 	first, last := getBookmarksBoundaryIDs(results)
 
-	res := BookmarkCollectionResolver{
+	res := BookmarkCollection{
 		Results: resolve(r.repositories).bookmarks(results),
 		Total:   total,
 		First:   first,
@@ -74,9 +74,9 @@ func (r *FeedsResolver) ReadingList(ctx context.Context, args struct {
 }
 
 // News resolves the query
-func (r *FeedsResolver) News(ctx context.Context, args struct {
+func (r *FeedsRootResolver) News(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
-}) (*DocumentCollectionResolver, error) {
+}) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
@@ -93,7 +93,7 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 
 	first, last := getDocumentsBoundaryIDs(results)
 
-	res := DocumentCollectionResolver{
+	res := DocumentCollection{
 		Results: resolve(r.repositories).documents(results),
 		Total:   total,
 		First:   first,
@@ -105,9 +105,9 @@ func (r *FeedsResolver) News(ctx context.Context, args struct {
 }
 
 // LatestNews resolves the query
-func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
+func (r *FeedsRootResolver) LatestNews(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
-}) (*DocumentCollectionResolver, error) {
+}) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 	user := auth.FromContext(ctx)
@@ -124,7 +124,7 @@ func (r *FeedsResolver) LatestNews(ctx context.Context, args struct {
 
 	first, last := getDocumentsBoundaryIDs(results)
 
-	res := DocumentCollectionResolver{
+	res := DocumentCollection{
 		Results: resolve(r.repositories).documents(results),
 		Total:   total,
 		First:   first,

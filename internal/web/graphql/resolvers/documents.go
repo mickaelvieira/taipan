@@ -18,87 +18,87 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DocumentsResolver documents' root resolver
-type DocumentsResolver struct {
+// DocumentRootResolver documents' root resolver
+type DocumentRootResolver struct {
 	repositories *repository.Repositories
 }
 
-// DocumentCollectionResolver resolver
-type DocumentCollectionResolver struct {
-	Results []*DocumentResolver
+// DocumentCollection resolver
+type DocumentCollection struct {
+	Results []*Document
 	Total   int32
 	First   string
 	Last    string
 	Limit   int32
 }
 
-// DocumentSearchResultsResolver resolver
-type DocumentSearchResultsResolver struct {
-	Results []*DocumentResolver
+// DocumentSearchResults resolver
+type DocumentSearchResults struct {
+	Results []*Document
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
-// DocumentResolver resolves the bookmark entity
-type DocumentResolver struct {
-	d  *document.Document
-	r  *repository.Repositories
-	sl *dataloader.Loader
-	ll *dataloader.Loader
+// Document resolves the bookmark entity
+type Document struct {
+	document     *document.Document
+	repositories *repository.Repositories
+	sourceLoader *dataloader.Loader
+	logLoader    *dataloader.Loader
 }
 
 // ID resolves the ID field
-func (r *DocumentResolver) ID() gql.ID {
-	return gql.ID(r.d.ID)
+func (r *Document) ID() gql.ID {
+	return gql.ID(r.document.ID)
 }
 
 // URL resolves the URL
-func (r *DocumentResolver) URL() scalars.URL {
-	return scalars.NewURL(r.d.URL)
+func (r *Document) URL() scalars.URL {
+	return scalars.NewURL(r.document.URL)
 }
 
 // Image resolves the Image field
-func (r *DocumentResolver) Image() *BookmarkImageResolver {
-	if !r.d.HasImage() {
+func (r *Document) Image() *BookmarkImage {
+	if !r.document.HasImage() {
 		return nil
 	}
-	return &BookmarkImageResolver{Image: r.d.Image}
+	return &BookmarkImage{Image: r.document.Image}
 }
 
 // Lang resolves the Lang field
-func (r *DocumentResolver) Lang() string {
-	return r.d.Lang
+func (r *Document) Lang() string {
+	return r.document.Lang
 }
 
 // Charset resolves the Charset field
-func (r *DocumentResolver) Charset() string {
-	return r.d.Charset
+func (r *Document) Charset() string {
+	return r.document.Charset
 }
 
 // Title resolves the Title field
-func (r *DocumentResolver) Title() string {
-	return r.d.Title
+func (r *Document) Title() string {
+	return r.document.Title
 }
 
 // Description resolves the Description field
-func (r *DocumentResolver) Description() string {
-	return r.d.Description
+func (r *Document) Description() string {
+	return r.document.Description
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *DocumentResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.d.CreatedAt)
+func (r *Document) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.document.CreatedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *DocumentResolver) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.d.UpdatedAt)
+func (r *Document) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.document.UpdatedAt)
 }
 
 // Source resolves the Source field
-func (r *DocumentResolver) Source(ctx context.Context) (*SourceResolver, error) {
-	data, err := r.sl.Load(ctx, dataloader.StringKey(r.d.SourceID))()
+func (r *Document) Source(ctx context.Context) (*Source, error) {
+	data, err := r.sourceLoader.Load(ctx, dataloader.StringKey(r.document.SourceID))()
 	if err != nil {
 		return nil, err
 	}
@@ -108,18 +108,18 @@ func (r *DocumentResolver) Source(ctx context.Context) (*SourceResolver, error) 
 		return nil, errors.New("Loader returns incorrect type")
 	}
 
-	return resolve(r.r).source(result), nil
+	return resolve(r.repositories).source(result), nil
 }
 
 // Syndication resolves the Syndication field
-func (r *DocumentResolver) Syndication() *[]*SourceResolver {
-	res := resolve(r.r).sources(r.d.Feeds)
+func (r *Document) Syndication() *[]*Source {
+	res := resolve(r.repositories).sources(r.document.Feeds)
 	return &res
 }
 
 // LogEntries returns the document's parser log
-func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*LogResolver, error) {
-	data, err := r.ll.Load(ctx, dataloader.StringKey(r.d.URL.String()))()
+func (r *Document) LogEntries(ctx context.Context) (*[]*Log, error) {
+	data, err := r.logLoader.Load(ctx, dataloader.StringKey(r.document.URL.String()))()
 	if err != nil {
 		return nil, err
 	}
@@ -129,19 +129,19 @@ func (r *DocumentResolver) LogEntries(ctx context.Context) (*[]*LogResolver, err
 		return nil, fmt.Errorf("Invalid data")
 	}
 
-	res := resolve(r.r).logs(results)
+	res := resolve(r.repositories).logs(results)
 
 	return &res, nil
 }
 
-// DocumentEventResolver is a document event
-type DocumentEventResolver struct {
+// DocumentEvent is a document event
+type DocumentEvent struct {
 	event        *publisher.Event
 	repositories *repository.Repositories
 }
 
 // Item returns the event's message
-func (r *DocumentEventResolver) Item() *DocumentResolver {
+func (r *DocumentEvent) Item() *Document {
 	d, ok := r.event.Payload.(*document.Document)
 	if !ok {
 		log.Fatalln("Cannot resolve item, payload is not a document")
@@ -151,33 +151,33 @@ func (r *DocumentEventResolver) Item() *DocumentResolver {
 }
 
 // Emitter returns the event's emitter ID
-func (r *DocumentEventResolver) Emitter() string {
+func (r *DocumentEvent) Emitter() string {
 	return r.event.Emitter
 }
 
 // Topic returns the event's topic
-func (r *DocumentEventResolver) Topic() string {
+func (r *DocumentEvent) Topic() string {
 	return string(r.event.Topic)
 }
 
 // Action returns the event's action
-func (r *DocumentEventResolver) Action() string {
+func (r *DocumentEvent) Action() string {
 	return string(r.event.Action)
 }
 
 // DocumentChanged --
-func (r *RootResolver) DocumentChanged(ctx context.Context) <-chan *DocumentEventResolver {
+func (r *RootResolver) DocumentChanged(ctx context.Context) <-chan *DocumentEvent {
 	// @TODO better handle authentication
-	c := make(chan *DocumentEventResolver)
+	c := make(chan *DocumentEvent)
 	s := &documentSubscriber{events: c}
 	r.publisher.Subscribe(publisher.TopicDocument, s, ctx.Done())
 	return c
 }
 
 // Create creates a new document
-func (r *DocumentsResolver) Create(ctx context.Context, args struct {
+func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*DocumentResolver, error) {
+}) (*Document, error) {
 	user := auth.FromContext(ctx)
 	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), true)
 	if err != nil {
@@ -202,9 +202,9 @@ func (r *DocumentsResolver) Create(ctx context.Context, args struct {
 }
 
 // Documents resolves the query
-func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
+func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
-}) (*DocumentCollectionResolver, error) {
+}) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
 
@@ -220,7 +220,7 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 
 	first, last := getDocumentsBoundaryIDs(results)
 
-	res := DocumentCollectionResolver{
+	res := DocumentCollection{
 		Results: resolve(r.repositories).documents(results),
 		Total:   total,
 		First:   first,
@@ -232,16 +232,16 @@ func (r *DocumentsResolver) Documents(ctx context.Context, args struct {
 }
 
 // Search --
-func (r *DocumentsResolver) Search(ctx context.Context, args struct {
+func (r *DocumentRootResolver) Search(ctx context.Context, args struct {
 	Pagination offsetPaginationInput
 	Search     bookmarkSearchInput
-}) (*DocumentSearchResultsResolver, error) {
+}) (*DocumentSearchResults, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 	terms := args.Search.Terms
 
-	var documents []*DocumentResolver
+	var documents []*Document
 	var total int32
 
 	if len(terms) > 0 {
@@ -258,7 +258,7 @@ func (r *DocumentsResolver) Search(ctx context.Context, args struct {
 		documents = resolve(r.repositories).documents(results)
 	}
 
-	res := DocumentSearchResultsResolver{
+	res := DocumentSearchResults{
 		Results: documents,
 		Total:   total,
 		Offset:  offset,
