@@ -41,7 +41,7 @@ export default function FormDocument({
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
-  const [mutate, { loading, error }] = useMutation<Data, Variables>(mutation, {
+  const [createDocument, { loading, error }] = useMutation<Data, Variables>(mutation, {
     onCompleted: ({ documents: { create } }) => onDocumentFetched(create)
   });
 
@@ -69,7 +69,7 @@ export default function FormDocument({
       </Group>
       <Button
         onClick={() =>
-          mutate({
+          createDocument({
             variables: { url }
           })
         }

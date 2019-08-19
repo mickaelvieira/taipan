@@ -93,6 +93,7 @@ func NewSource(url *url.URL, title string, feedType Type) *Source {
 		URL:       url,
 		Title:     title,
 		Type:      feedType,
+		IsPaused:  true,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Frequency: http.Hourly,

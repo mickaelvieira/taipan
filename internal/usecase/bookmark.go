@@ -84,7 +84,7 @@ func handleDuplicateDocument(ctx context.Context, repos *repository.Repositories
 // - Insert/Update the bookmark in the DB
 // - Insert new feeds URL in the DB
 // - And finally returns the bookmark entity
-func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, findFeeds bool) (*document.Document, error) {
+func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, sourceID string) (*document.Document, error) {
 	logger.Info(fmt.Sprintf("Fetching %s", u.String()))
 
 	result, err := FetchResource(ctx, repos, u)
@@ -103,7 +103,7 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 	// - What are we going to do when the content changes?
 	//
 	d, err := repos.Documents.GetByChecksum(ctx, result.Checksum)
-	if !findFeeds && d != nil {
+	if d != nil {
 		logger.Info(fmt.Sprintln("Document's content has not changed"))
 		return d, nil
 	}
@@ -111,7 +111,7 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 		return nil, err
 	}
 
-	d, err = parser.Parse(result.FinalURI, result.Content, findFeeds)
+	d, err = parser.Parse(result.FinalURI, result.Content)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +128,13 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, f
 
 	if err := repos.Documents.Upsert(ctx, d); err != nil {
 		return nil, err
+	}
+
+	if sourceID != "" {
+		d.SourceID = sourceID
+		if err := repos.Documents.UpdateSource(ctx, d); err != nil {
+			return nil, err
+		}
 	}
 
 	if err := HandleImage(ctx, repos, d); err != nil {

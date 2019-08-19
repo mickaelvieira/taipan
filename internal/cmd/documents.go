@@ -75,7 +75,9 @@ func runDocumentsWorker(c *cli.Context) {
 				continue
 			}
 
-			d, err := usecase.Document(ctx, repositories, u, false)
+			// @TODO When I'll stop parsing the same documents over and over again
+			// it would be better to update the document with source ID instead of adding during the creation
+			d, err := usecase.Document(ctx, repositories, u, dm.SourceId)
 			if err != nil {
 				logger.Error(err)
 				continue

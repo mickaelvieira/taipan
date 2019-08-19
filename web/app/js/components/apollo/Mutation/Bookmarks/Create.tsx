@@ -10,12 +10,10 @@ export interface Data {
 export interface Variables {
   url: URL;
   isFavorite: boolean;
-  withFeeds: boolean;
 }
 
 const variables = {
-  isFavorite: false,
-  withFeeds: true
+  isFavorite: false
 };
 
 export { mutation, variables };

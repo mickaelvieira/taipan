@@ -217,12 +217,11 @@ func (r *BookmarkRootResolver) Bookmark(ctx context.Context, args struct {
 func (r *BookmarkRootResolver) Create(ctx context.Context, args struct {
 	URL        scalars.URL
 	IsFavorite bool
-	WithFeeds  bool
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), args.WithFeeds)
+	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), "")
 	if err != nil {
 		return nil, err
 	}
