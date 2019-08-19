@@ -9,62 +9,62 @@ import (
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// BotResolver documents' root resolver
-type BotResolver struct {
+// LogRootResolver documents' root resolver
+type LogRootResolver struct {
 	repositories *repository.Repositories
 }
 
-// LogResolver resolves the bookmark's image entity
-type LogResolver struct {
+// Log resolves the bookmark's image entity
+type Log struct {
 	l *http.Result
 	r *repository.Repositories
 }
 
-// LogCollectionResolver resolver
-type LogCollectionResolver struct {
-	Results []*LogResolver
+// LogCollection resolver
+type LogCollection struct {
+	Results []*Log
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
 // ID resolves the ID
-func (r *LogResolver) ID() gql.ID {
+func (r *Log) ID() gql.ID {
 	return gql.ID(r.l.ID)
 }
 
 // Checksum resolves the Checksum
-func (r *LogResolver) Checksum() string {
+func (r *Log) Checksum() string {
 	return r.l.Checksum.String()
 }
 
 // ContentType resolves the ContentType field
-func (r *LogResolver) ContentType() string {
+func (r *Log) ContentType() string {
 	return r.l.ContentType
 }
 
 // StatusCode resolves the StatusCode field
-func (r *LogResolver) StatusCode() int32 {
+func (r *Log) StatusCode() int32 {
 	return int32(r.l.RespStatusCode)
 }
 
 // RequestURI resolves the RequestURI field
-func (r *LogResolver) RequestURI() scalars.URL {
+func (r *Log) RequestURI() scalars.URL {
 	return scalars.NewURL(r.l.ReqURI)
 }
 
 // RequestMethod resolves the RequestMethod field
-func (r *LogResolver) RequestMethod() string {
+func (r *Log) RequestMethod() string {
 	return r.l.ReqMethod
 }
 
 // HasFailed resolves the HasFailed field
-func (r *LogResolver) HasFailed() bool {
+func (r *Log) HasFailed() bool {
 	return r.l.RequestHasFailed()
 }
 
 // FailureReason resolves the FailureReason field
-func (r *LogResolver) FailureReason() string {
+func (r *Log) FailureReason() string {
 	if r.l.RequestHasFailed() {
 		return r.l.GetFailureReason()
 	}
@@ -77,15 +77,15 @@ func (r *LogResolver) FailureReason() string {
 // }
 
 // CreatedAt resolves the CreatedAt field
-func (r *LogResolver) CreatedAt() scalars.Datetime {
+func (r *Log) CreatedAt() scalars.Datetime {
 	return scalars.NewDatetime(r.l.CreatedAt)
 }
 
 // Logs --
-func (r *BotResolver) Logs(ctx context.Context, args struct {
+func (r *LogRootResolver) Logs(ctx context.Context, args struct {
 	URL        scalars.URL
 	Pagination offsetPaginationInput
-}) (*LogCollectionResolver, error) {
+}) (*LogCollection, error) {
 	u := args.URL.ToDomain()
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
@@ -101,7 +101,7 @@ func (r *BotResolver) Logs(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := LogCollectionResolver{
+	res := LogCollection{
 		Results: resolve(r.repositories).logs(results),
 		Total:   total,
 		Offset:  offset,

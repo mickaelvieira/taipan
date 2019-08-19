@@ -10,8 +10,8 @@ import (
 	"github.com/graph-gophers/dataloader"
 )
 
-// GetDocumentLoader get the loader
-func GetDocumentLoader(repository *repository.DocumentRepository) *dataloader.Loader {
+// GetDocument get the loader
+func GetDocument(repository *repository.DocumentRepository) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		documents, err := repository.GetByIDs(ctx, keys.Keys())
 		if err != nil {
