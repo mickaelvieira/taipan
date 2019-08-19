@@ -1,4 +1,5 @@
 #import "./image.graphql"
+#import "./source.graphql"
 
 fragment bookmarkFields on Bookmark {
   id
@@ -7,6 +8,9 @@ fragment bookmarkFields on Bookmark {
   description
   image {
     ...imageFields
+  }
+  source {
+    ...sourceFields
   }
   addedAt
   favoritedAt
