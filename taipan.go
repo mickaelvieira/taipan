@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github/mickaelvieira/taipan/cmd"
+	"github/mickaelvieira/taipan/internal/cmd"
 	"github/mickaelvieira/taipan/internal/config"
 
 	"github.com/urfave/cli"
