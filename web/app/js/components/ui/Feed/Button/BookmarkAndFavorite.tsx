@@ -64,7 +64,11 @@ export default React.memo(function BookmarkAndFavorite({
       className={classes.button}
       onClick={() =>
         mutate({
-          variables: { url: document.url, isFavorite: true, subscriptions: subscriptions ? subscriptions : [] }
+          variables: {
+            url: document.url,
+            isFavorite: true,
+            subscriptions: subscriptions ? subscriptions : []
+          }
         })
       }
       {...rest}

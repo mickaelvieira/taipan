@@ -2,6 +2,7 @@ import { RouteComponentProps } from "react-router";
 
 export type RouteForgotPasswordProps = RouteComponentProps<{}>;
 export type RouteResetPasswordProps = RouteComponentProps<{}>;
+export type RouteConfirmEmailProps = RouteComponentProps<{}>;
 export type RouteSigninProps = RouteComponentProps<{}>;
 export type RouteSignupProps = RouteComponentProps<{}>;
 export type RouteSearchProps = RouteComponentProps<{ type?: string }>;
@@ -15,5 +16,6 @@ export type RoutesProps = RouteSigninProps &
   RouteSearchProps &
   RouteSubscriptionProps &
   RouteAccountProps &
+  RouteConfirmEmailProps &
   RouteResetPasswordProps &
   RouteForgotPasswordProps;

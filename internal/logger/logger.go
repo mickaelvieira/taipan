@@ -58,7 +58,7 @@ func Warn(i interface{}) {
 // Error prints error messages
 func Error(i interface{}) {
 	if err, ok := i.(Causer); ok {
-		l.Error(fmt.Sprintf("%+v", err.Cause()))
+		l.Error(fmt.Sprintf("%+v", err))
 	} else {
 		l.Error(i)
 	}

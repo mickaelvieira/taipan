@@ -254,6 +254,13 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 		&updatedAt,
 	)
 
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
+	}
+
 	if createdAt.Valid {
 		s.CreatedAt = createdAt.Time
 	}
@@ -266,13 +273,6 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 		s.Subscribed = subscribed.Bool
 	} else {
 		s.Subscribed = false
-	}
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, err
-		}
-		return nil, errors.Wrap(err, "scan")
 	}
 
 	return &s, nil

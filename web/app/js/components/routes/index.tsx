@@ -8,6 +8,9 @@ const ForgotPasswordPage = lazy(() =>
 const ResetPasswordPage = lazy(() =>
   import(/* webpackChunkName: "ResetPassword" */ "./ResetPassword")
 );
+const ConfirmEmailPage = lazy(() =>
+  import(/* webpackChunkName: "ConfirmEmail" */ "./ConfirmEmail")
+);
 const SignupPage = lazy(() =>
   import(/* webpackChunkName: "Signup" */ "./Signup")
 );
@@ -77,6 +80,11 @@ export default function Routes(): JSX.Element {
           exact
           path="/reset-password"
           render={routeProps => <ResetPasswordPage {...routeProps} />}
+        />
+        <Route
+          exact
+          path="/confirm-email"
+          render={routeProps => <ConfirmEmailPage {...routeProps} />}
         />
         <Route
           exact

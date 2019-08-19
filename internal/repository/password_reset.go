@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// PasswordResetRepository the NewsFeed repository
+// PasswordResetRepository --
 type PasswordResetRepository struct {
 	db *sql.DB
 }

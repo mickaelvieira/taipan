@@ -245,6 +245,7 @@ type Email implements Node {
   isConfirmed: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
+  confirmedAt: DateTime
 }
 
 # """

@@ -408,15 +408,15 @@ func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error)
 		&s.Frequency,
 	)
 
-	if parsedAt.Valid {
-		s.ParsedAt = parsedAt.Time
-	}
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
 		}
 		return nil, errors.Wrap(err, "scan")
+	}
+
+	if parsedAt.Valid {
+		s.ParsedAt = parsedAt.Time
 	}
 
 	return &s, nil
