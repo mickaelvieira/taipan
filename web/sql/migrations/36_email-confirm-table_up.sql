@@ -8,7 +8,9 @@ CREATE TABLE `users_emails_confirm` (
   `created_at` datetime NOT NULL,
   `used_at` datetime NULL,
   PRIMARY KEY (`token`, `user_id`, `email_id`),
-  UNIQUE KEY `token_idx` (`token`)
+  UNIQUE KEY `token_idx` (`token`),
+  CONSTRAINT `users_emails_confirm_fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `users_emails_confirm_fk_email_id` FOREIGN KEY (`email_id`) REFERENCES `users_emails` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 ALTER TABLE `users_emails` ADD COLUMN `confirmed_at` datetime NULL;
