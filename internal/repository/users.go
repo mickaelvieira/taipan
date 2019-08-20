@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github/mickaelvieira/taipan/internal/db"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"time"
@@ -54,6 +55,46 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, er
 	}
 
 	return u, nil
+}
+
+// GetByIDs find a multiple entries by their ID
+func (r *UserRepository) GetByIDs(ctx context.Context, ids []string) ([]*user.User, error) {
+	query := `
+		SELECT u.id, u.firstname, u.lastname, u.theme,
+		u.image_name, u.image_width, u.image_height, u.image_format,
+		u.created_at, u.updated_at
+		FROM users as u
+		WHERE u.id IN %s
+	`
+	args := make([]interface{}, len(ids))
+	for i, a := range ids {
+		args[i] = a
+	}
+
+	p := getMultiInsertPlacements(1, len(ids))
+	rows, err := r.db.QueryContext(ctx, formatQuery(fmt.Sprintf(query, p)), args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "execute")
+	}
+
+	var results []*user.User
+	for rows.Next() {
+		s, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, s)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "scan rows")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }
 
 // GetByPrimaryEmail find a single entry

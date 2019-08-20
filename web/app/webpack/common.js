@@ -1,5 +1,6 @@
 const path = require("path");
 const DotenvFlow = require("dotenv-flow-webpack");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   target: "web",
@@ -16,6 +17,15 @@ module.exports = {
   ],
   module: {
     rules: [
+      {
+        test: /\.(css)$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+          },
+          "css-loader"
+        ]
+      },
       {
         test: /\.graphql?$/,
         use: [

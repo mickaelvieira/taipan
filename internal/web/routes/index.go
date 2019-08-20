@@ -20,9 +20,9 @@ func jsonError(e error) *apiError {
 	}
 }
 
-func index(c echo.Context, a assets.Assets) error {
+func index(c echo.Context, a *assets.Assets) error {
 	data := struct {
-		Assets   assets.Assets
+		Assets   *assets.Assets
 		BasePath string
 		CDN      string
 	}{
@@ -37,7 +37,7 @@ func index(c echo.Context, a assets.Assets) error {
 // we want to load assets files when we start the application
 // not at every request. So we pass the list of assets files
 // to the index route
-func Index(a assets.Assets) func(echo.Context) error {
+func Index(a *assets.Assets) func(echo.Context) error {
 	return func(c echo.Context) error {
 		return index(c, a)
 	}

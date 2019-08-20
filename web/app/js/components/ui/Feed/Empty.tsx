@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -9,10 +9,17 @@ const useStyle = makeStyles({
 });
 
 interface Props {
-  message: string;
+  className?: string;
 }
 
-export default function EmptyFeed({ message }: Props): JSX.Element {
+export default function EmptyFeed({
+  className,
+  children
+}: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyle();
-  return <Paper className={classes.message}>{message}</Paper>;
+  return (
+    <Paper className={`${classes.message} ${className ? className : ""}`}>
+      {children}
+    </Paper>
+  );
 }

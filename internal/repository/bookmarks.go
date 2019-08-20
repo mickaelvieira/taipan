@@ -45,7 +45,7 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -119,7 +119,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -195,7 +195,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -305,7 +305,7 @@ func (r *BookmarkRepository) CountReadingList(ctx context.Context, user *user.Us
 // GetByURL find a single entry
 func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *url.URL) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT d.id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -432,6 +432,7 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 
 	err := rows.Scan(
 		&b.ID,
+		&b.UserID,
 		&sourceID,
 		&b.URL,
 		&b.Charset,

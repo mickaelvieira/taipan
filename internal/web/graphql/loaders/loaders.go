@@ -14,6 +14,7 @@ import (
 
 // Loaders --
 type Loaders struct {
+	Users      *dataloader.Loader
 	UsersStats *dataloader.Loader
 	Emails     *dataloader.Loader
 	Sources    *dataloader.Loader
@@ -23,6 +24,7 @@ type Loaders struct {
 // NewDataloaders --
 func NewDataloaders(r *repository.Repositories) *Loaders {
 	return &Loaders{
+		Users:      getUserLoaders(r.Users),
 		UsersStats: getUserStatsLoaders(r),
 		Emails:     getEmailsLoaders(r.Emails),
 		Sources:    getSourcesLoaders(r.Syndication),
@@ -85,22 +87,39 @@ func getEmailsLoaders(repository *repository.UserEmailRepository) *dataloader.Lo
 	})
 }
 
+// getUserLoaders loads users
+func getUserLoaders(repository *repository.UserRepository) *dataloader.Loader {
+	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+		users, err := repository.GetByIDs(ctx, keys.Keys())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		results := make([]*dataloader.Result, len(users))
+		for i, u := range users {
+			results[i] = &dataloader.Result{Data: u}
+		}
+
+		return results
+	})
+}
+
 // getEmailsLoaders loads user's emails
 func getUserStatsLoaders(repositories *repository.Repositories) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		results := make([]*dataloader.Result, len(keys))
 		for i, key := range keys {
-			u, ok := key.(*user.User)
+			k, ok := key.(*aggregator.LoaderKey)
 			if !ok {
-				log.Fatalln("Key must a user")
+				log.Fatalln("Key must an aggregator key")
 			}
 
-			s, err := aggregator.CalculateUserStatistics(ctx, repositories, u)
+			t, err := aggregator.Aggregate(ctx, repositories, k.User, k.Type)
 			if err != nil {
-				log.Fatalln(err)
+				return nil
 			}
 
-			results[i] = &dataloader.Result{Data: s}
+			results[i] = &dataloader.Result{Data: t}
 		}
 		return results
 	})

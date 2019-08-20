@@ -10,6 +10,7 @@ import (
 // Subscription represents a user'subscription to a syndication source
 type Subscription struct {
 	ID         string
+	UserID     string
 	URL        *url.URL
 	Domain     *url.URL
 	Type       syndication.Type

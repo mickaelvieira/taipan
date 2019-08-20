@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"github/mickaelvieira/taipan/internal/aggregator"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -44,10 +45,54 @@ func (r *User) Lastname() string {
 
 // UserStats resolves the user entity
 type UserStats struct {
-	Bookmarks     int32
-	Favorites     int32
-	ReadingList   int32
-	Subscriptions int32
+	user *user.User
+}
+
+func (r *UserStats) getTotal(ctx context.Context, ty aggregator.AggType) (int32, error) {
+	var t int32
+
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return t, ErrLoadersNotFound
+	}
+
+	d, err := l.UsersStats.Load(ctx, aggregator.NewLoaderKey(r.user, ty))()
+	if err != nil {
+		return t, err
+	}
+
+	var ok bool
+	t, ok = d.(int32)
+	if !ok {
+		return t, ErrDataTypeIsNotValid
+	}
+
+	return t, nil
+}
+
+// Bookmarks count the number of bookmarks
+func (r *UserStats) Bookmarks(ctx context.Context) (int32, error) {
+	return r.getTotal(ctx, aggregator.Bookmarks)
+}
+
+// Favorites count the number of favorites
+func (r *UserStats) Favorites(ctx context.Context) (int32, error) {
+	return r.getTotal(ctx, aggregator.Favorites)
+}
+
+// ReadingList count the number of bookmarks in the reading list
+func (r *UserStats) ReadingList(ctx context.Context) (int32, error) {
+	return r.getTotal(ctx, aggregator.ReadingList)
+}
+
+// Subscriptions count the number of subscriptions
+func (r *UserStats) Subscriptions(ctx context.Context) (int32, error) {
+	return r.getTotal(ctx, aggregator.Subscriptions)
+}
+
+// ID resolves the ID field
+func (r *UserStats) ID() gql.ID {
+	return gql.ID(r.user.ID)
 }
 
 // Emails resolves the Emails field
@@ -71,30 +116,8 @@ func (r *User) Emails(ctx context.Context) ([]*Email, error) {
 }
 
 // Stats resolves the Stats field
-func (r *User) Stats(ctx context.Context) (*UserStats, error) {
-	l := loaders.FromContext(ctx)
-	if l == nil {
-		return nil, ErrLoadersNotFound
-	}
-
-	d, err := l.UsersStats.Load(ctx, r.user)()
-	if err != nil {
-		return nil, err
-	}
-
-	stats, ok := d.(*user.Stats)
-	if !ok {
-		return nil, ErrDataTypeIsNotValid
-	}
-
-	res := UserStats{
-		Bookmarks:     stats.Bookmarks,
-		Favorites:     stats.Favorites,
-		ReadingList:   stats.ReadingList,
-		Subscriptions: stats.Subscriptions,
-	}
-
-	return &res, nil
+func (r *User) Stats(ctx context.Context) *UserStats {
+	return &UserStats{user: r.user}
 }
 
 // Theme resolves the Theme field

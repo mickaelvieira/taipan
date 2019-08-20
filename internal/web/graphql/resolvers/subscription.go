@@ -3,11 +3,14 @@ package resolvers
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
+	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/auth"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 
+	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
 )
 
@@ -33,6 +36,33 @@ type Subscription struct {
 // ID resolves the ID field
 func (r *Subscription) ID() gql.ID {
 	return gql.ID(r.subscription.ID)
+}
+
+// User resolves the User field
+func (r *Subscription) User(ctx context.Context) (*User, error) {
+	// NOTE: When users look up the list of sources, we do return a list
+	// of subscription but the logged in user might not have subscribed to it
+	// so the UserID is empty in this case
+	if r.subscription.UserID == "" {
+		return nil, nil
+	}
+
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Users.Load(ctx, dataloader.StringKey(r.subscription.UserID))()
+	if err != nil {
+		return nil, err
+	}
+
+	u, ok := d.(*user.User)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
+	}
+
+	return resolve(r.repositories).user(u), nil
 }
 
 // URL resolves the URL field

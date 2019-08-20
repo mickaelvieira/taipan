@@ -15,6 +15,7 @@ var (
 // Bookmark struct represents what is a bookmark from a user's perspective
 type Bookmark struct {
 	ID          string
+	UserID      string
 	SourceID    string
 	URL         *url.URL
 	Lang        string
