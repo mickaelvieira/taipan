@@ -159,6 +159,23 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 	return total, nil
 }
 
+// CountUserSubscription --
+func (r *SubscriptionRepository) CountUserSubscription(ctx context.Context, u *user.User) (int32, error) {
+	query := `
+		SELECT COUNT(sy.id) as total
+		FROM syndication AS sy
+		INNER JOIN subscriptions AS su ON sy.id = su.source_id
+		WHERE su.user_id = ? AND su.subscribed = 1
+	`
+	var total int32
+	err := r.db.QueryRowContext(ctx, formatQuery(query), u.ID).Scan(&total)
+	if err != nil {
+		return total, errors.Wrap(err, "scan")
+	}
+
+	return total, nil
+}
+
 // GetByURL find a single entry by URL
 func (r *SubscriptionRepository) GetByURL(ctx context.Context, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
 	query := `

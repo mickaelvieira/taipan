@@ -35,6 +35,16 @@ type User struct {
 	UpdatedAt time.Time
 }
 
+// String implementation of the dataloader.Key interface
+func (u *User) String() string {
+	return u.ID
+}
+
+// Raw implementation of the dataloader.Key interface
+func (u *User) Raw() interface{} {
+	return u
+}
+
 // HasImage determine whether the user has an image associated to it
 func (u *User) HasImage() bool {
 	return u.Image != nil
@@ -73,6 +83,13 @@ type Email struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	ConfirmedAt time.Time
+}
+
+type Stats struct {
+	Bookmarks     int32
+	ReadingList   int32
+	Favorites     int32
+	Subscriptions int32
 }
 
 // IsEmailValid is the email valid?

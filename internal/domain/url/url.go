@@ -19,6 +19,11 @@ type URL struct {
 	*neturl.URL
 }
 
+// Raw implementation of the dataloader.Key interface
+func (u *URL) Raw() interface{} {
+	return u
+}
+
 // UnescapeString returns the URL as string but without being escaped
 func (u *URL) UnescapeString() string {
 	value, err := neturl.QueryUnescape(u.String())

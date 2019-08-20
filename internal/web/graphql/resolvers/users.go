@@ -8,6 +8,7 @@ import (
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/auth"
 	"github/mickaelvieira/taipan/internal/web/clientid"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 	"log"
 
@@ -22,153 +23,205 @@ type UserRootResolver struct {
 
 // User resolves the user entity
 type User struct {
-	*user.User
+	user         *user.User
 	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
 func (r *User) ID() gql.ID {
-	return gql.ID(r.User.ID)
+	return gql.ID(r.user.ID)
 }
 
 // Firstname resolves the Firstname field
 func (r *User) Firstname() string {
-	return r.User.Firstname
+	return r.user.Firstname
 }
 
 // Lastname resolves the Lastname field
 func (r *User) Lastname() string {
-	return r.User.Lastname
+	return r.user.Lastname
+}
+
+// UserStats resolves the user entity
+type UserStats struct {
+	Bookmarks     int32
+	Favorites     int32
+	ReadingList   int32
+	Subscriptions int32
 }
 
 // Emails resolves the Emails field
-func (r *User) Emails(ctx context.Context) ([]*EmailResolver, error) {
-	results, err := r.repositories.Emails.GetUserEmails(ctx, r.User)
+func (r *User) Emails(ctx context.Context) ([]*Email, error) {
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Emails.Load(ctx, r.user)()
 	if err != nil {
 		return nil, err
 	}
 
-	emails := make([]*EmailResolver, len(results))
-	for i, e := range results {
-		emails[i] = &EmailResolver{Email: e}
+	emails, ok := d.([]*user.Email)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
 	}
 
-	return emails, nil
+	return resolve(r.repositories).emails(emails), nil
+}
+
+// Stats resolves the Stats field
+func (r *User) Stats(ctx context.Context) (*UserStats, error) {
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.UsersStats.Load(ctx, r.user)()
+	if err != nil {
+		return nil, err
+	}
+
+	stats, ok := d.(*user.Stats)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
+	}
+
+	res := UserStats{
+		Bookmarks:     stats.Bookmarks,
+		Favorites:     stats.Favorites,
+		ReadingList:   stats.ReadingList,
+		Subscriptions: stats.Subscriptions,
+	}
+
+	return &res, nil
 }
 
 // Theme resolves the Theme field
 func (r *User) Theme() string {
-	return r.User.Theme
+	return r.user.Theme
 }
 
 // Image resolves the Image field
 func (r *User) Image() *UserImage {
-	if !r.User.HasImage() {
+	if !r.user.HasImage() {
 		return nil
 	}
 
 	return &UserImage{
-		Image: r.User.Image,
+		Image: r.user.Image,
 	}
 }
 
 // CreatedAt resolves the CreatedAt field
 func (r *User) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.User.CreatedAt)
+	return scalars.NewDatetime(r.user.CreatedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
 func (r *User) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.User.UpdatedAt)
+	return scalars.NewDatetime(r.user.UpdatedAt)
 }
 
-// EmailResolver --
-type EmailResolver struct {
-	*user.Email
+// Email --
+type Email struct {
+	email        *user.Email
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
-func (r *EmailResolver) ID() gql.ID {
-	return gql.ID(r.Email.ID)
+func (r *Email) ID() gql.ID {
+	return gql.ID(r.email.ID)
 }
 
 // Value resolves the Value field
-func (r *EmailResolver) Value() string {
-	return r.Email.Value
+func (r *Email) Value() string {
+	return r.email.Value
 }
 
 // IsPrimary resolves the IsPrimary field
-func (r *EmailResolver) IsPrimary() bool {
-	return r.Email.IsPrimary
+func (r *Email) IsPrimary() bool {
+	return r.email.IsPrimary
 }
 
 // IsConfirmed resolves the IsConfirmed field
-func (r *EmailResolver) IsConfirmed() bool {
-	return r.Email.IsConfirmed
+func (r *Email) IsConfirmed() bool {
+	return r.email.IsConfirmed
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *EmailResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Email.CreatedAt)
+func (r *Email) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.email.CreatedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *EmailResolver) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Email.UpdatedAt)
+func (r *Email) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.email.UpdatedAt)
 }
 
 // ConfirmedAt resolves the UpdatedAt field
-func (r *EmailResolver) ConfirmedAt() *scalars.Datetime {
-	t := scalars.NewDatetime(r.Email.ConfirmedAt)
+func (r *Email) ConfirmedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.email.ConfirmedAt)
 	return &t
 }
 
-// UserEventResolver resolves an bookmark event
-type UserEventResolver struct {
-	event *publisher.Event
+// UserEvent resolves an bookmark event
+type UserEvent struct {
+	event        *publisher.Event
+	repositories *repository.Repositories
 }
 
 // Item returns the event's message
-func (r *UserEventResolver) Item() *User {
+func (r *UserEvent) Item() *User {
 	u, ok := r.event.Payload.(*user.User)
 	if !ok {
 		log.Fatal("Cannot resolve item, payload is not a user")
 	}
-	return &User{User: u}
+	return resolve(r.repositories).user(u)
 }
 
 // Emitter returns the event's emitter ID
-func (r *UserEventResolver) Emitter() string {
+func (r *UserEvent) Emitter() string {
 	return r.event.Emitter
 }
 
 // Topic returns the event's topic
-func (r *UserEventResolver) Topic() string {
+func (r *UserEvent) Topic() string {
 	return string(r.event.Topic)
 }
 
 // Action returns the event's action
-func (r *UserEventResolver) Action() string {
+func (r *UserEvent) Action() string {
 	return string(r.event.Action)
+}
+
+type userSubscriber struct {
+	repositories *repository.Repositories
+	events       chan<- *UserEvent
+}
+
+func (s *userSubscriber) Publish(e *publisher.Event) {
+	s.events <- &UserEvent{
+		event:        e,
+		repositories: s.repositories,
+	}
 }
 
 // LoggedIn resolves the query
 func (r *UserRootResolver) LoggedIn(ctx context.Context) (*User, error) {
 	user := auth.FromContext(ctx)
 
-	res := User{
-		User:         user,
-		repositories: r.repositories,
-	}
-
-	return &res, nil
+	return resolve(r.repositories).user(user), nil
 }
 
 // UserChanged subscribes to user event
-func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEventResolver {
+func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEvent {
 	// @TODO better handle authentication
-	c := make(chan *UserEventResolver)
-	s := &userSubscriber{events: c}
+	c := make(chan *UserEvent)
+	s := &userSubscriber{
+		events:       c,
+		repositories: r.repositories,
+	}
 	r.publisher.Subscribe(publisher.TopicUser, s, ctx.Done())
 	return c
 }
@@ -196,12 +249,7 @@ func (r *UserRootResolver) Update(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := User{
-		User:         user,
-		repositories: r.repositories,
-	}
-
-	return &res, nil
+	return resolve(r.repositories).user(user), nil
 }
 
 // Password resolves the mutation
@@ -251,12 +299,7 @@ func (r *UserRootResolver) Theme(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := User{
-		User:         user,
-		repositories: r.repositories,
-	}
-
-	return &res, nil
+	return resolve(r.repositories).user(user), nil
 }
 
 // CreateEmail --
@@ -275,12 +318,7 @@ func (r *UserRootResolver) CreateEmail(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := User{
-		User:         user,
-		repositories: r.repositories,
-	}
-
-	return &res, nil
+	return resolve(r.repositories).user(user), nil
 }
 
 // DeleteEmail --
@@ -299,12 +337,7 @@ func (r *UserRootResolver) DeleteEmail(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := User{
-		User:         user,
-		repositories: r.repositories,
-	}
-
-	return &res, nil
+	return resolve(r.repositories).user(user), nil
 }
 
 // PrimaryEmail --
@@ -323,10 +356,5 @@ func (r *UserRootResolver) PrimaryEmail(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
 	)
 
-	res := User{
-		User:         user,
-		repositories: r.repositories,
-	}
-
-	return &res, nil
+	return resolve(r.repositories).user(user), nil
 }

@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
@@ -10,12 +9,12 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/auth"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 	"log"
 
 	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
-	"github.com/pkg/errors"
 )
 
 // DocumentRootResolver documents' root resolver
@@ -44,8 +43,6 @@ type DocumentSearchResults struct {
 type Document struct {
 	document     *document.Document
 	repositories *repository.Repositories
-	sourceLoader *dataloader.Loader
-	logLoader    *dataloader.Loader
 }
 
 // ID resolves the ID field
@@ -98,14 +95,23 @@ func (r *Document) UpdatedAt() scalars.Datetime {
 
 // Source resolves the Source field
 func (r *Document) Source(ctx context.Context) (*Source, error) {
-	data, err := r.sourceLoader.Load(ctx, dataloader.StringKey(r.document.SourceID))()
+	if r.document.SourceID == "" {
+		return nil, nil
+	}
+
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Sources.Load(ctx, dataloader.StringKey(r.document.SourceID))()
 	if err != nil {
 		return nil, err
 	}
 
-	result, ok := data.(*syndication.Source)
+	result, ok := d.(*syndication.Source)
 	if !ok {
-		return nil, errors.New("Loader returns incorrect type")
+		return nil, ErrDataTypeIsNotValid
 	}
 
 	return resolve(r.repositories).source(result), nil
@@ -119,14 +125,19 @@ func (r *Document) Syndication() *[]*Source {
 
 // LogEntries returns the document's parser log
 func (r *Document) LogEntries(ctx context.Context) (*[]*Log, error) {
-	data, err := r.logLoader.Load(ctx, dataloader.StringKey(r.document.URL.String()))()
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Logs.Load(ctx, r.document.URL)()
 	if err != nil {
 		return nil, err
 	}
 
-	results, ok := data.([]*http.Result)
+	results, ok := d.([]*http.Result)
 	if !ok {
-		return nil, fmt.Errorf("Invalid data")
+		return nil, ErrDataTypeIsNotValid
 	}
 
 	res := resolve(r.repositories).logs(results)
@@ -165,11 +176,26 @@ func (r *DocumentEvent) Action() string {
 	return string(r.event.Action)
 }
 
+type documentSubscriber struct {
+	repositories *repository.Repositories
+	events       chan<- *DocumentEvent
+}
+
+func (s *documentSubscriber) Publish(e *publisher.Event) {
+	s.events <- &DocumentEvent{
+		event:        e,
+		repositories: s.repositories,
+	}
+}
+
 // DocumentChanged --
 func (r *RootResolver) DocumentChanged(ctx context.Context) <-chan *DocumentEvent {
 	// @TODO better handle authentication
 	c := make(chan *DocumentEvent)
-	s := &documentSubscriber{events: c}
+	s := &documentSubscriber{
+		events:       c,
+		repositories: r.repositories,
+	}
 	r.publisher.Subscribe(publisher.TopicDocument, s, ctx.Done())
 	return c
 }

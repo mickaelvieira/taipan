@@ -6,16 +6,34 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
+	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
-
-	"github.com/graph-gophers/dataloader"
 )
 
 type resolver struct {
 	repositories *repository.Repositories
-	sourceLoader *dataloader.Loader
-	logLoader    *dataloader.Loader
+}
+
+func (r *resolver) user(u *user.User) *User {
+	return &User{
+		user:         u,
+		repositories: r.repositories,
+	}
+}
+
+func (r *resolver) emails(results []*user.Email) []*Email {
+	emails := make([]*Email, len(results))
+	for i, e := range results {
+		emails[i] = r.email(e)
+	}
+	return emails
+}
+
+func (r *resolver) email(e *user.Email) *Email {
+	return &Email{
+		email:        e,
+		repositories: r.repositories,
+	}
 }
 
 func (r *resolver) bookmarks(results []*bookmark.Bookmark) []*Bookmark {
@@ -30,8 +48,6 @@ func (r *resolver) bookmark(b *bookmark.Bookmark) *Bookmark {
 	return &Bookmark{
 		bookmark:     b,
 		repositories: r.repositories,
-		sourceLoader: r.sourceLoader,
-		logLoader:    r.logLoader,
 	}
 }
 
@@ -47,8 +63,6 @@ func (r *resolver) document(d *document.Document) *Document {
 	return &Document{
 		document:     d,
 		repositories: r.repositories,
-		sourceLoader: r.sourceLoader,
-		logLoader:    r.logLoader,
 	}
 }
 
@@ -64,7 +78,6 @@ func (r *resolver) source(s *syndication.Source) *Source {
 	return &Source{
 		source:     s,
 		repository: r.repositories,
-		logLoader:  r.logLoader,
 	}
 }
 
@@ -80,7 +93,6 @@ func (r *resolver) subscription(s *subscription.Subscription) *Subscription {
 	return &Subscription{
 		subscription: s,
 		repositories: r.repositories,
-		logLoader:    r.logLoader,
 	}
 }
 
@@ -102,7 +114,5 @@ func (r *resolver) log(l *http.Result) *Log {
 func resolve(r *repository.Repositories) *resolver {
 	return &resolver{
 		repositories: r,
-		sourceLoader: loaders.GetSource(r.Syndication),
-		logLoader:    loaders.GetLogs(r.Botlogs),
 	}
 }
