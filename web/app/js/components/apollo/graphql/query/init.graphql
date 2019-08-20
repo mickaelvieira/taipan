@@ -4,6 +4,12 @@ query init {
   users {
     loggedIn {
       ...userFields
+      stats {
+        bookmarks
+        favorites
+        readingList
+        subscriptions
+      }
     }
   }
   app {

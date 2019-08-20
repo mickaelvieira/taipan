@@ -234,8 +234,16 @@ type User implements Node {
   emails: [Email!]!
   theme: String!
   image: Image
+  stats: UserStats!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type UserStats {
+  bookmarks: Int!
+  favorites: Int!
+  readingList: Int!
+  subscriptions: Int!
 }
 
 type Email implements Node {

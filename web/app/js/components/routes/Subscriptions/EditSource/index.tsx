@@ -8,15 +8,19 @@ import Info from "./Info";
 import Logs from "./Logs";
 
 interface Props {
-  url: URL;
+  url: URL | null;
   isOpen: boolean;
   close: () => void;
 }
 
-export default function EditSource({ url, isOpen, close }: Props): JSX.Element {
+export default function EditSource({
+  url,
+  isOpen,
+  close
+}: Props): JSX.Element | null {
   const [tab, setTab] = useState(0);
 
-  return (
+  return !url ? null : (
     <Panel
       BackButton={CloseIcon}
       title="Edit web syndication source"

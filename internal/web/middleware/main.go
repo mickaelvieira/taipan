@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"github/mickaelvieira/taipan/internal/web/auth"
-	"github/mickaelvieira/taipan/internal/web/clientid"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/web"
+	"github/mickaelvieira/taipan/internal/web/auth"
+	"github/mickaelvieira/taipan/internal/web/clientid"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 
 	"net/http"
 	"os"
@@ -14,6 +15,10 @@ import (
 	"github.com/labstack/echo/v4"
 	mw "github.com/labstack/echo/v4/middleware"
 )
+
+func isGraphQL(path string) bool {
+	return path == "/graphql"
+}
 
 func isSecuredArea(path string) bool {
 	return path == "/graphql"
@@ -49,6 +54,22 @@ func Firewall(r *repository.Repositories) echo.MiddlewareFunc {
 
 			if !authorized && !isWebSocket(c.Request()) {
 				return c.JSON(http.StatusUnauthorized, struct{}{})
+			}
+			return next(c)
+		}
+	}
+}
+
+// Dataloaders middleware
+func Dataloaders(r *repository.Repositories) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			req := c.Request()
+			if isGraphQL(c.Request().RequestURI) {
+				ctx := req.Context()
+				l := loaders.NewDataloaders(r)
+				req = req.WithContext(loaders.NewContext(ctx, l))
+				c.SetRequest(req)
 			}
 			return next(c)
 		}

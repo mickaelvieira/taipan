@@ -8,7 +8,6 @@ import (
 	"github/mickaelvieira/taipan/internal/web/auth"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 
-	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
 )
 
@@ -29,7 +28,6 @@ type SubscriptionCollection struct {
 type Subscription struct {
 	subscription *subscription.Subscription
 	repositories *repository.Repositories
-	logLoader    *dataloader.Loader
 }
 
 // ID resolves the ID field

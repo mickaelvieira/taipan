@@ -43,6 +43,7 @@ func runWeb(c *cli.Context) {
 	e.Use(middleware.ClientID())
 	e.Use(middleware.Session())
 	e.Use(middleware.Firewall(r))
+	e.Use(middleware.Dataloaders(r))
 
 	if web.IsDev() {
 		e.Debug = true

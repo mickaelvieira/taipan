@@ -3,6 +3,14 @@ package resolvers
 import (
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
+
+	"github.com/pkg/errors"
+)
+
+// GraphQL general errors
+var (
+	ErrLoadersNotFound    = errors.New("Dataloaders cannot be retrieved from the context")
+	ErrDataTypeIsNotValid = errors.New("The dataloader returns an incorrect data type")
 )
 
 // RootResolver resolvers
@@ -16,6 +24,7 @@ type RootResolver struct {
 	Feeds         *FeedsRootResolver
 	Bot           *LogRootResolver
 	publisher     *publisher.Subscription
+	repositories  *repository.Repositories
 }
 
 // GetRootResolver returns the root resolver.
@@ -33,5 +42,6 @@ func GetRootResolver(repositories *repository.Repositories) *RootResolver {
 		Feeds:         &FeedsRootResolver{repositories: repositories},
 		Bot:           &LogRootResolver{repositories: repositories},
 		publisher:     publisher,
+		repositories:  repositories,
 	}
 }

@@ -9,12 +9,12 @@ import (
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/auth"
 	"github/mickaelvieira/taipan/internal/web/clientid"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 	"log"
 
 	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
-	"github.com/pkg/errors"
 )
 
 // BookmarkRootResolver bookmarks' root resolver
@@ -44,8 +44,6 @@ type BookmarkSearchResults struct {
 type Bookmark struct {
 	bookmark     *bookmark.Bookmark
 	repositories *repository.Repositories
-	sourceLoader *dataloader.Loader
-	logLoader    *dataloader.Loader
 }
 
 // ID resolves the ID field
@@ -113,14 +111,19 @@ func (r *Bookmark) Source(ctx context.Context) (*Source, error) {
 		return nil, nil
 	}
 
-	data, err := r.sourceLoader.Load(ctx, dataloader.StringKey(r.bookmark.SourceID))()
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Sources.Load(ctx, dataloader.StringKey(r.bookmark.SourceID))()
 	if err != nil {
 		return nil, err
 	}
 
-	result, ok := data.(*syndication.Source)
+	result, ok := d.(*syndication.Source)
 	if !ok {
-		return nil, errors.New("Loader returns incorrect type")
+		return nil, ErrDataTypeIsNotValid
 	}
 
 	return resolve(r.repositories).source(result), nil
@@ -157,14 +160,6 @@ func (r *BookmarkEvent) Action() string {
 	return string(r.event.Action)
 }
 
-type userSubscriber struct {
-	events chan<- *UserEventResolver
-}
-
-func (s *userSubscriber) Publish(e *publisher.Event) {
-	s.events <- &UserEventResolver{event: e}
-}
-
 type bookmarkSubscriber struct {
 	repositories *repository.Repositories
 	events       chan<- *BookmarkEvent
@@ -177,23 +172,14 @@ func (s *bookmarkSubscriber) Publish(e *publisher.Event) {
 	}
 }
 
-type documentSubscriber struct {
-	repositories *repository.Repositories
-	events       chan<- *DocumentEvent
-}
-
-func (s *documentSubscriber) Publish(e *publisher.Event) {
-	s.events <- &DocumentEvent{
-		event:        e,
-		repositories: s.repositories,
-	}
-}
-
 // BookmarkChanged --
 func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEvent {
 	// @TODO better handle authentication
 	c := make(chan *BookmarkEvent)
-	s := &bookmarkSubscriber{events: c}
+	s := &bookmarkSubscriber{
+		events:       c,
+		repositories: r.repositories,
+	}
 	r.publisher.Subscribe(publisher.TopicBookmark, s, ctx.Done())
 	return c
 }

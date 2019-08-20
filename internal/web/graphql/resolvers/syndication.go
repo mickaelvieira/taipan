@@ -2,14 +2,13 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 
-	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
 )
 
@@ -30,7 +29,6 @@ type SourceCollection struct {
 type Source struct {
 	source     *syndication.Source
 	repository *repository.Repositories
-	logLoader  *dataloader.Loader
 }
 
 // ID resolves the ID field
@@ -92,14 +90,19 @@ func (r *Source) ParsedAt() *scalars.Datetime {
 
 // LogEntries returns the document's parser log
 func (r *Source) LogEntries(ctx context.Context) (*[]*Log, error) {
-	data, err := r.logLoader.Load(ctx, dataloader.StringKey(r.source.URL.String()))()
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Logs.Load(ctx, r.source.URL)()
 	if err != nil {
 		return nil, err
 	}
 
-	results, ok := data.([]*http.Result)
+	results, ok := d.([]*http.Result)
 	if !ok {
-		return nil, fmt.Errorf("Invalid data")
+		return nil, ErrDataTypeIsNotValid
 	}
 
 	res := resolve(r.repository).logs(results)
