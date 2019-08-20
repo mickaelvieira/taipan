@@ -53,7 +53,6 @@ export default function Signup(_: RouteSignupProps): JSX.Element {
             id="email"
             type="email"
             value={email}
-            autoComplete="on"
             aria-describedby="email-helper-text"
             onChange={event => setEmail(event.target.value)}
           />
@@ -64,7 +63,6 @@ export default function Signup(_: RouteSignupProps): JSX.Element {
           <InputPassword
             id="password"
             value={password}
-            autoComplete="on"
             aria-describedby="password-helper-text"
             onChange={event => setPassword(event.target.value)}
           />

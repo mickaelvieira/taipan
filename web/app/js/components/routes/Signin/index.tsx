@@ -52,7 +52,6 @@ export default function Signin(_: RouteSigninProps): JSX.Element {
             id="email"
             type="email"
             value={email}
-            autoComplete="on"
             onChange={event => setEmail(event.target.value)}
           />
         </Group>
@@ -61,7 +60,6 @@ export default function Signin(_: RouteSigninProps): JSX.Element {
           <InputPassword
             id="password"
             value={password}
-            autoComplete="on"
             onChange={event => setPassword(event.target.value)}
           />
         </Group>
