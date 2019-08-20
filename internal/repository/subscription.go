@@ -91,8 +91,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	query := `
 		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM syndication AS sy
-		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE (su.user_id = ? OR su.user_id IS NULL) AND %s AND %s
+		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
+		WHERE %s AND %s
 		ORDER BY sy.title ASC
 		LIMIT ?, ?
 	`
@@ -138,8 +138,8 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 	query := `
 		SELECT COUNT(sy.id) as total
 		FROM syndication AS sy
-		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE (su.user_id = ? OR su.user_id IS NULL) AND %s AND %s
+		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
+		WHERE %s AND %s
 	`
 	var args []interface{}
 
