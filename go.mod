@@ -21,6 +21,6 @@ require (
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
 	github.com/streadway/amqp v0.0.0-20190815233558-eade30b20f1d
 	github.com/urfave/cli v1.21.0
-	golang.org/x/crypto v0.0.0-20190818085310-4def268fd1a4
+	golang.org/x/crypto v0.0.0-20190820174958-60c769a6c586
 	golang.org/x/image v0.0.0-20190802004718-cff245a6509b
 )
