@@ -8,7 +8,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/logger"
 	"strings"
 	"time"
 
@@ -89,7 +88,7 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 // FindAll --
 func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
+		SELECT sy.id, su.user_id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM syndication AS sy
 		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
 		WHERE %s AND %s
@@ -107,8 +106,6 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	args = append(args, limit)
 
 	query = formatQuery(fmt.Sprintf(query, where, search))
-
-	logger.Debug(query)
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -179,7 +176,7 @@ func (r *SubscriptionRepository) CountUserSubscription(ctx context.Context, u *u
 // GetByURL find a single entry by URL
 func (r *SubscriptionRepository) GetByURL(ctx context.Context, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
+		SELECT sy.id, su.user_id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM subscriptions AS su
 		INNER JOIN syndication AS sy ON sy.id = su.source_id
 		WHERE su.user_id = ? AND sy.url = ?
@@ -258,9 +255,11 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 	var subscribed sql.NullBool
 	var createdAt mysql.NullTime
 	var updatedAt mysql.NullTime
+	var userID sql.NullString
 
 	err := rows.Scan(
 		&s.ID,
+		&userID,
 		&s.URL,
 		&s.Domain,
 		&s.Title,
@@ -276,6 +275,10 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 			return nil, err
 		}
 		return nil, errors.Wrap(err, "scan")
+	}
+
+	if userID.Valid {
+		s.UserID = userID.String
 	}
 
 	if createdAt.Valid {

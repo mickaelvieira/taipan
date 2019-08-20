@@ -27,6 +27,11 @@ func GetScriptsDir() string {
 	return os.Getenv("APP_WEB_DIR") + "/static/js"
 }
 
+// GetStylesDir returns the path to the directory containing the CSS files
+func GetStylesDir() string {
+	return os.Getenv("APP_WEB_DIR") + "/static/css"
+}
+
 // GetCDNBaseURL returns the CDN base URL
 func GetCDNBaseURL() string {
 	return "https://" + os.Getenv("AWS_BUCKET")

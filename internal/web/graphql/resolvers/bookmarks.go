@@ -4,6 +4,7 @@ import (
 	"context"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
+	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -49,6 +50,26 @@ type Bookmark struct {
 // ID resolves the ID field
 func (r *Bookmark) ID() gql.ID {
 	return gql.ID(r.bookmark.ID)
+}
+
+// User resolves User field
+func (r *Bookmark) User(ctx context.Context) (*User, error) {
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Users.Load(ctx, dataloader.StringKey(r.bookmark.UserID))()
+	if err != nil {
+		return nil, err
+	}
+
+	u, ok := d.(*user.User)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
+	}
+
+	return resolve(r.repositories).user(u), nil
 }
 
 // URL resolves the URL

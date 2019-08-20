@@ -27,6 +27,9 @@
   <link rel="icon" type="image/png" sizes="16x16" href="{{ .BasePath }}/img/favicon-16x16.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  {{range $file := .Assets.Styles}}
+  <link rel="stylesheet" href="{{ $file }}">
+  {{end}}
   <style type="text/css">
     html,
     body,
@@ -48,7 +51,7 @@
       background-color: #eee
     }
   </style>
-  {{range $file := .Assets}}
+  {{range $file := .Assets.Scripts}}
   <script src="{{ $file }}" defer></script>
   {{end}}
 </head>

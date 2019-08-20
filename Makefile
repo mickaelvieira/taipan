@@ -3,6 +3,7 @@ SHELL := /bin/bash
 GOFMT := gofmt -s -w -l
 CDWEB := cd web/app
 RMSCRIPTS := rm -rf web/static/js/
+RMSTYLES := rm -rf web/static/css/
 
 build: build-app build-ui
 
@@ -24,13 +25,13 @@ test-app:
 	go test ./...
 
 build-ui:
-	$(RMSCRIPTS) && $(CDWEB) && yarn && yarn build
+	$(RMSCRIPTS) && $(RMSTYLES) && $(CDWEB) && yarn && yarn build
 
 test-ui:
 	$(CDWEB) && yarn test
 
 watch-ui:
-	$(RMSCRIPTS) && $(CDWEB) && yarn watch
+	$(RMSCRIPTS) && $(RMSTYLES) && $(CDWEB) && yarn watch
 
 watch-test-ui:
 	$(CDWEB) && yarn watch-test

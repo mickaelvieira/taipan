@@ -5,10 +5,7 @@ query init {
     loggedIn {
       ...userFields
       stats {
-        bookmarks
-        favorites
-        readingList
-        subscriptions
+        ...statsFields
       }
     }
   }

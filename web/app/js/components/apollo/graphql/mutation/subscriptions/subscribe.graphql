@@ -1,9 +1,16 @@
 #import "../../fragment/subscription.graphql"
+#import "../../fragment/user.graphql"
 
 mutation subscribe($url: URL!) {
   subscriptions {
     subscribe(url: $url) {
       ...subscriptionFields
+      user {
+        stats {
+          id
+          subscriptions
+        }
+      }
     }
   }
 }

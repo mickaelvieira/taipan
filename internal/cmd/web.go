@@ -27,7 +27,7 @@ var Web = cli.Command{
 }
 
 func runWeb(c *cli.Context) {
-	a := assets.LoadAssetsDefinition(paths.GetScriptsDir(), web.UseFileServer())
+	a := assets.LoadAssetsDefinition(paths.GetStaticDir(), web.UseFileServer())
 	t := templates.NewRenderer(paths.GetTemplatesDir())
 	r := repository.GetRepositories()
 	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
@@ -42,8 +42,8 @@ func runWeb(c *cli.Context) {
 	e.Renderer = t
 	e.Use(middleware.ClientID())
 	e.Use(middleware.Session())
-	e.Use(middleware.Firewall(r))
 	e.Use(middleware.Dataloaders(r))
+	e.Use(middleware.Firewall(r))
 
 	if web.IsDev() {
 		e.Debug = true

@@ -20,3 +20,11 @@ fragment userFields on User {
   createdAt
   updatedAt
 }
+
+fragment statsFields on UserStats {
+  id
+  bookmarks
+  favorites
+  readingList
+  subscriptions
+}
