@@ -23,7 +23,7 @@ export default function SnackbarEmailWarning({
   return (
     <SnackbarWarning
       open={!!(email && !email.isConfirmed)}
-      message="Your primary has not been confirm yet. Please confirm it."
+      message="Your primary email address has not been confirm. We have sent you an email to valid it."
       action={[
         <ConfirmEmailButton
           key={0}
