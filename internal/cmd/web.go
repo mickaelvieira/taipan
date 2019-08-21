@@ -27,7 +27,7 @@ var Web = cli.Command{
 }
 
 func runWeb(c *cli.Context) {
-	a := assets.LoadAssetsDefinition(paths.GetScriptsDir(), web.UseFileServer())
+	a := assets.LoadAssetsDefinition(paths.GetStaticDir(), web.UseFileServer())
 	t := templates.NewRenderer(paths.GetTemplatesDir())
 	r := repository.GetRepositories()
 	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
@@ -42,6 +42,7 @@ func runWeb(c *cli.Context) {
 	e.Renderer = t
 	e.Use(middleware.ClientID())
 	e.Use(middleware.Session())
+	e.Use(middleware.Dataloaders(r))
 	e.Use(middleware.Firewall(r))
 
 	if web.IsDev() {
@@ -68,6 +69,9 @@ func runWeb(c *cli.Context) {
 
 	e.POST("/reset-password", routes.ResetPassword(r))
 	e.GET("/reset-password", index)
+
+	e.POST("/confirm-email", routes.ConfirmEmail(r))
+	e.GET("/confirm-email", index)
 
 	e.GET("/graphql", api)
 	e.POST("/graphql", api)

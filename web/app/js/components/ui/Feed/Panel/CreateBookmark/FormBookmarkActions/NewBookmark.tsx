@@ -61,6 +61,7 @@ export default function NewBookmark({
           <BookmarkButton
             textOnly
             document={document}
+            subscriptions={subscriptions}
             className={classes.button}
             onSucceed={({ updateCache, item }) => {
               setMessageInfo({
@@ -75,6 +76,7 @@ export default function NewBookmark({
           <BookmarkAndFavoriteButton
             textOnly
             document={document}
+            subscriptions={subscriptions}
             className={classes.button}
             onSucceed={({ updateCache, item }) => {
               setMessageInfo({

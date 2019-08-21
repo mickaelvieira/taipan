@@ -3,88 +3,119 @@ package resolvers
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
+	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/auth"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 
+	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// SubscriptionsResolver syndication's root resolver
-type SubscriptionsResolver struct {
+// SubscriptionRootResolver syndication's root resolver
+type SubscriptionRootResolver struct {
 	repositories *repository.Repositories
 }
 
-// SubscriptionCollectionResolver resolver
-type SubscriptionCollectionResolver struct {
-	Results []*SubscriptionResolver
+// SubscriptionCollection resolver
+type SubscriptionCollection struct {
+	Results []*Subscription
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
-// SubscriptionResolver resolves the bookmark entity
-type SubscriptionResolver struct {
-	*subscription.Subscription
+// Subscription resolves the bookmark entity
+type Subscription struct {
+	subscription *subscription.Subscription
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
-func (r *SubscriptionResolver) ID() gql.ID {
-	return gql.ID(r.Subscription.ID)
+func (r *Subscription) ID() gql.ID {
+	return gql.ID(r.subscription.ID)
+}
+
+// User resolves the User field
+func (r *Subscription) User(ctx context.Context) (*User, error) {
+	// NOTE: When users look up the list of sources, we do return a list
+	// of subscription but the logged in user might not have subscribed to it
+	// so the UserID is empty in this case
+	if r.subscription.UserID == "" {
+		return nil, nil
+	}
+
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Users.Load(ctx, dataloader.StringKey(r.subscription.UserID))()
+	if err != nil {
+		return nil, err
+	}
+
+	u, ok := d.(*user.User)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
+	}
+
+	return resolve(r.repositories).user(u), nil
 }
 
 // URL resolves the URL field
-func (r *SubscriptionResolver) URL() scalars.URL {
-	return scalars.NewURL(r.Subscription.URL)
+func (r *Subscription) URL() scalars.URL {
+	return scalars.NewURL(r.subscription.URL)
 }
 
 // Domain resolves the Domain field
-func (r *SubscriptionResolver) Domain() *scalars.URL {
-	d := scalars.NewURL(r.Subscription.Domain)
+func (r *Subscription) Domain() *scalars.URL {
+	d := scalars.NewURL(r.subscription.Domain)
 	return &d
 }
 
 // Title resolves the Title field
-func (r *SubscriptionResolver) Title() string {
-	return r.Subscription.Title
+func (r *Subscription) Title() string {
+	return r.subscription.Title
 }
 
 // Type resolves the Type field
-func (r *SubscriptionResolver) Type() string {
-	return string(r.Subscription.Type)
+func (r *Subscription) Type() string {
+	return string(r.subscription.Type)
 }
 
 // IsSubscribed resolves the IsPaused field
-func (r *SubscriptionResolver) IsSubscribed() bool {
-	return r.Subscription.Subscribed
+func (r *Subscription) IsSubscribed() bool {
+	return r.subscription.Subscribed
 }
 
 // Frequency resolves the Frequency field
-func (r *SubscriptionResolver) Frequency() string {
-	return string(r.Subscription.Frequency)
+func (r *Subscription) Frequency() string {
+	return string(r.subscription.Frequency)
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *SubscriptionResolver) CreatedAt() *scalars.Datetime {
-	t := scalars.NewDatetime(r.Subscription.CreatedAt)
+func (r *Subscription) CreatedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.subscription.CreatedAt)
 	return &t
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *SubscriptionResolver) UpdatedAt() *scalars.Datetime {
-	t := scalars.NewDatetime(r.Subscription.UpdatedAt)
+func (r *Subscription) UpdatedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.subscription.UpdatedAt)
 	return &t
 }
 
 // Subscription adds a syndication source and subscribes to it
-func (r *SubscriptionsResolver) Subscription(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Subscription(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SubscriptionResolver, error) {
+}) (*Subscription, error) {
 	u := args.URL.ToDomain()
 	user := auth.FromContext(ctx)
 
-	_, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
+	_, err := usecase.CreateSyndicationSource(ctx, r.repositories, u, false)
 	if err != nil {
 		return nil, err
 	}
@@ -94,15 +125,13 @@ func (r *SubscriptionsResolver) Subscription(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SubscriptionResolver{Subscription: s}
-
-	return res, nil
+	return resolve(r.repositories).subscription(s), nil
 }
 
 // Subscribe --
-func (r *SubscriptionsResolver) Subscribe(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Subscribe(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SubscriptionResolver, error) {
+}) (*Subscription, error) {
 	user := auth.FromContext(ctx)
 
 	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, args.URL.ToDomain())
@@ -110,15 +139,13 @@ func (r *SubscriptionsResolver) Subscribe(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SubscriptionResolver{Subscription: s}
-
-	return res, nil
+	return resolve(r.repositories).subscription(s), nil
 }
 
 // Unsubscribe --
-func (r *SubscriptionsResolver) Unsubscribe(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SubscriptionResolver, error) {
+}) (*Subscription, error) {
 	user := auth.FromContext(ctx)
 
 	s, err := usecase.UnubscribeFromSource(ctx, r.repositories, user, args.URL.ToDomain())
@@ -126,16 +153,14 @@ func (r *SubscriptionsResolver) Unsubscribe(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SubscriptionResolver{Subscription: s}
-
-	return res, nil
+	return resolve(r.repositories).subscription(s), nil
 }
 
 // Subscriptions --
-func (r *SubscriptionsResolver) Subscriptions(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struct {
 	Pagination offsetPaginationInput
 	Search     *subscriptionSearchInput
-}) (*SubscriptionCollectionResolver, error) {
+}) (*SubscriptionCollection, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
@@ -157,21 +182,13 @@ func (r *SubscriptionsResolver) Subscriptions(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var total int32
-	total, err = r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
+	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
 	if err != nil {
 		return nil, err
 	}
 
-	var sources []*SubscriptionResolver
-	for _, result := range results {
-		sources = append(sources, &SubscriptionResolver{
-			Subscription: result,
-		})
-	}
-
-	res := SubscriptionCollectionResolver{
-		Results: sources,
+	res := SubscriptionCollection{
+		Results: resolve(r.repositories).subscriptions(results),
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,

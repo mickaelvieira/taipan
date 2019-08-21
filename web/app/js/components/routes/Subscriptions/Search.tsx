@@ -13,8 +13,9 @@ import InputBase from "@material-ui/core/InputBase";
 import SearchIcon from "@material-ui/icons/Search";
 import CloseIcon from "@material-ui/icons/Close";
 import { UserContext } from "../../context";
-import Table from "./Table";
+import Results from "./Results";
 import EditSource from "./EditSource";
+import Empty from "./Empty";
 import { isAdmin } from "../../../helpers/users";
 import useSearchReducer, { Action } from "./useSearchReducer";
 
@@ -36,7 +37,7 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }));
 
-export default function Search(): JSX.Element {
+export default function Search(): JSX.Element | null {
   const classes = useStyles();
   const user = useContext(UserContext);
   const theme = useTheme();
@@ -44,7 +45,7 @@ export default function Search(): JSX.Element {
   const canEdit = isAdmin(user);
   const [state, dispatch] = useSearchReducer();
   const [value, setValue] = useState("");
-  const [editUrl, setEditURL] = useState<URL>(null);
+  const [editUrl, setEditURL] = useState<URL | null>(null);
   const debouncedDispatch = useCallback(debounce(dispatch, 400), []);
   const onChange = useCallback(
     (terms: string[], debounced = true) => {
@@ -60,7 +61,7 @@ export default function Search(): JSX.Element {
 
   const { terms, showDeleted, pausedOnly } = state;
 
-  return (
+  return !user ? null : (
     <>
       <form onSubmit={event => event.preventDefault()}>
         <div className={classes.search}>
@@ -114,13 +115,22 @@ export default function Search(): JSX.Element {
           </FormGroup>
         )}
       </form>
-      <Table
-        terms={terms}
-        showDeleted={showDeleted}
-        pausedOnly={pausedOnly}
-        canEdit={canEdit}
-        editSource={setEditURL}
-      />
+
+      {terms.length === 0 && user.stats && user.stats.subscriptions === 0 && (
+        <Empty>
+          Use the search field above to find new sources of excitement.
+        </Empty>
+      )}
+
+      {(terms.length > 0 || (user.stats && user.stats.subscriptions > 0)) && (
+        <Results
+          terms={terms}
+          showDeleted={showDeleted}
+          pausedOnly={pausedOnly}
+          canEdit={canEdit}
+          editSource={setEditURL}
+        />
+      )}
       {canEdit && (
         <EditSource
           url={editUrl}

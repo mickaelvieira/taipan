@@ -8,10 +8,10 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"log"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 // SyndicationRepository the Feed repository
@@ -36,22 +36,25 @@ func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndic
 	return s, nil
 }
 
-// GetOutdatedSources returns the sources which have been last updated more than 24 hrs
-func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.Frequency) ([]*syndication.Source, error) {
-	var results []*syndication.Source
+// GetByIDs find a multiple entries by their ID
+func (r *SyndicationRepository) GetByIDs(ctx context.Context, ids []string) ([]*syndication.Source, error) {
 	query := `
 		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
-		WHERE s.deleted = 0 AND s.paused = 0 AND s.frequency = ? AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL %s))
-		ORDER BY s.parsed_at ASC
-		LIMIT ?;
-		`
-	query = fmt.Sprintf(query, f.SQLInterval())
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 50)
-	if err != nil {
-		return nil, err
+		WHERE s.id IN %s
+	`
+	args := make([]interface{}, len(ids))
+	for i, a := range ids {
+		args[i] = a
 	}
 
+	p := getMultiInsertPlacements(1, len(ids))
+	rows, err := r.db.QueryContext(ctx, formatQuery(fmt.Sprintf(query, p)), args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "execute")
+	}
+
+	var results []*syndication.Source
 	for rows.Next() {
 		s, err := r.scan(rows)
 		if err != nil {
@@ -61,7 +64,71 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, errors.Wrap(err, "scan rows")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+// GetDocumentSource retrieve the soource (if any) from which the document was created from
+func (r *SyndicationRepository) GetDocumentSource(ctx context.Context, id string) (*syndication.Source, error) {
+	query := `
+		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		FROM documents AS d
+		INNER JOIN syndication AS s ON d.source_id = s.id
+		WHERE d.id = ?
+	`
+	rows := r.db.QueryRowContext(ctx, formatQuery(query), id)
+	s, err := r.scan(rows)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+// GetOutdatedSources returns the sources which have been last updated more than 24 hrs
+func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.Frequency) ([]*syndication.Source, error) {
+	// query := `
+	// 	SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+	// 	FROM syndication AS s
+	// 	WHERE s.deleted = 0 AND s.paused = 0 AND s.frequency = ? AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL %s))
+	// 	ORDER BY s.parsed_at ASC
+	// 	LIMIT ?;
+	// 	`
+	// query = fmt.Sprintf(query, f.SQLInterval())
+	// rows, err := r.db.QueryContext(ctx, formatQuery(query), f, 50)
+
+	// @TODO we ignore the frequency for now to how whether the calculation is actually working but
+	// we will use the query abose later on
+	query := `
+		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		FROM syndication AS s
+		WHERE s.deleted = 0 AND s.paused = 0 AND (s.parsed_at IS NULL OR s.parsed_at < DATE_SUB(NOW(), INTERVAL 1 HOUR))
+		ORDER BY s.parsed_at ASC
+		LIMIT ?;
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), 50)
+	if err != nil {
+		return nil, errors.Wrap(err, "execute")
+	}
+
+	var results []*syndication.Source
+	for rows.Next() {
+		s, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, s)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -69,8 +136,6 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 
 // FindAll find newest entries
 func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, cursor int32, limit int32) ([]*syndication.Source, error) {
-	var results []*syndication.Source
-
 	query := `
 		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
@@ -89,9 +154,10 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
+	var results []*syndication.Source
 	for rows.Next() {
 		d, err := r.scan(rows)
 		if err != nil {
@@ -101,7 +167,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -116,7 +182,7 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan")
 	}
 
 	return total, nil
@@ -176,7 +242,11 @@ func (r *SyndicationRepository) Insert(ctx context.Context, s *syndication.Sourc
 		s.ID = db.GetLastInsertID(res)
 	}
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // Update updates a source in the DB
@@ -200,7 +270,11 @@ func (r *SyndicationRepository) Update(ctx context.Context, s *syndication.Sourc
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateURL updates the source's URL and UpdatedAt fields
@@ -218,7 +292,11 @@ func (r *SyndicationRepository) UpdateURL(ctx context.Context, s *syndication.So
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateVisibility soft deletes the source
@@ -236,7 +314,11 @@ func (r *SyndicationRepository) UpdateVisibility(ctx context.Context, s *syndica
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateStatus changes whether the source should be parsed or it is paused
@@ -254,7 +336,11 @@ func (r *SyndicationRepository) UpdateStatus(ctx context.Context, s *syndication
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // UpdateTitle changes the source title
@@ -272,7 +358,11 @@ func (r *SyndicationRepository) UpdateTitle(ctx context.Context, s *syndication.
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // InsertIfNotExists stores the source in the database if there is none with the same URL
@@ -318,12 +408,15 @@ func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error)
 		&s.Frequency,
 	)
 
-	if parsedAt.Valid {
-		s.ParsedAt = parsedAt.Time
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
 	}
 
-	if err != nil {
-		return nil, err
+	if parsedAt.Valid {
+		s.ParsedAt = parsedAt.Time
 	}
 
 	return &s, nil

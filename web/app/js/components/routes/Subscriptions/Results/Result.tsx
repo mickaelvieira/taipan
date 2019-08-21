@@ -5,10 +5,10 @@ import IconButton from "@material-ui/core/Button";
 import IconEdit from "@material-ui/icons/Edit";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
-import { Subscription } from "../../../types/subscription";
-import { StatusButton } from "../../ui/Subscriptions/Button";
-import Title from "./Title";
-import Domain from "./Domain";
+import { Subscription } from "../../../../types/subscription";
+import { StatusButton } from "../../../ui/Subscriptions/Button";
+import Title from "../Title";
+import Domain from "../Domain";
 
 interface Props {
   subscription: Subscription;

@@ -1,9 +1,19 @@
 #import "../fragment/user.graphql"
+#import "../fragment/image.graphql"
 
 query init {
   users {
     loggedIn {
       ...userFields
+      image {
+        ...imageFields
+      }
+      emails {
+        ...emailFields
+      }
+      stats {
+        ...statsFields
+      }
     }
   }
   app {

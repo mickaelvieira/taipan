@@ -54,7 +54,7 @@ export default function Syndication({
             <InputLabel htmlFor={`feed-${index}`} className={classes.label}>
               {source.title && source.title != "wordpress feed"
                 ? source.title
-                : source.url}
+                : `${source.url}`}
             </InputLabel>
           </ListItem>
         ))}

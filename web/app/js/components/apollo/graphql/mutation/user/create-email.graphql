@@ -3,7 +3,10 @@
 mutation createEmail($email: String!) {
   users {
     createEmail(email: $email) {
-      ...userFields
+      id
+      emails {
+        ...emailFields
+      }
     }
   }
 }

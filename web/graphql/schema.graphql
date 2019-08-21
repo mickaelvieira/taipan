@@ -72,6 +72,9 @@ type UsersMutation {
   # "Mark a existing user's email address as primary
   primaryEmail(email: String!): User
 
+  # "Send the user an email to confirm the provided email address
+  sendConfirmationEmail(email: String!): User
+
   # "Updates the user's theme
   theme(theme: String!): User
 }
@@ -102,7 +105,7 @@ type BookmarksMutation {
   # This mutation will fetch the document and create a bookmark
   # Which will be present in user's reading list
   # """
-  create(url: URL!, isFavorite: Boolean!, withFeeds: Boolean!): Bookmark
+  create(url: URL!, isFavorite: Boolean!): Bookmark
 
   # """
   # This mutation will add the document and create a bookmark
@@ -234,8 +237,17 @@ type User implements Node {
   emails: [Email!]!
   theme: String!
   image: Image
+  stats: UserStats!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type UserStats implements Node {
+  id: ID!
+  bookmarks: Int!
+  favorites: Int!
+  readingList: Int!
+  subscriptions: Int!
 }
 
 type Email implements Node {
@@ -245,6 +257,7 @@ type Email implements Node {
   isConfirmed: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
+  confirmedAt: DateTime
 }
 
 # """
@@ -271,6 +284,7 @@ type Document implements Node {
   title: String!
   description: String!
   image: Image
+  source: Source
   createdAt: DateTime!
   updatedAt: DateTime!
   logEntries: [HTTPClientLog]
@@ -283,12 +297,14 @@ type Document implements Node {
 # """
 type Bookmark implements Node {
   id: ID!
+  user: User!
   url: URL!
   lang: String!
   charset: String!
   title: String!
   description: String!
   image: Image
+  source: Source
   updatedAt: DateTime!
   addedAt: DateTime!
   favoritedAt: DateTime
@@ -328,6 +344,7 @@ type UserSubscription implements Node {
   frequency: String!
   createdAt: DateTime
   updatedAt: DateTime
+  user: User
 }
 
 # "The HTTPClientLog type describes an entry in the HTTP client history"

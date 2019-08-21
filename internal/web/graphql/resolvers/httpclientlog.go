@@ -9,82 +9,83 @@ import (
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// BotResolver documents' root resolver
-type BotResolver struct {
+// LogRootResolver documents' root resolver
+type LogRootResolver struct {
 	repositories *repository.Repositories
 }
 
-// LogResolver resolves the bookmark's image entity
-type LogResolver struct {
-	*http.Result
+// Log resolves the bookmark's image entity
+type Log struct {
+	log          *http.Result
+	repositories *repository.Repositories
 }
 
-// LogCollectionResolver resolver
-type LogCollectionResolver struct {
-	Results []*LogResolver
+// LogCollection resolver
+type LogCollection struct {
+	Results []*Log
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
 // ID resolves the ID
-func (r *LogResolver) ID() gql.ID {
-	return gql.ID(r.Result.ID)
+func (r *Log) ID() gql.ID {
+	return gql.ID(r.log.ID)
 }
 
 // Checksum resolves the Checksum
-func (r *LogResolver) Checksum() string {
-	return r.Result.Checksum.String()
+func (r *Log) Checksum() string {
+	return r.log.Checksum.String()
 }
 
 // ContentType resolves the ContentType field
-func (r *LogResolver) ContentType() string {
-	return r.Result.ContentType
+func (r *Log) ContentType() string {
+	return r.log.ContentType
 }
 
 // StatusCode resolves the StatusCode field
-func (r *LogResolver) StatusCode() int32 {
-	return int32(r.Result.RespStatusCode)
+func (r *Log) StatusCode() int32 {
+	return int32(r.log.RespStatusCode)
 }
 
 // RequestURI resolves the RequestURI field
-func (r *LogResolver) RequestURI() scalars.URL {
-	return scalars.NewURL(r.Result.ReqURI)
+func (r *Log) RequestURI() scalars.URL {
+	return scalars.NewURL(r.log.ReqURI)
 }
 
 // RequestMethod resolves the RequestMethod field
-func (r *LogResolver) RequestMethod() string {
-	return r.Result.ReqMethod
+func (r *Log) RequestMethod() string {
+	return r.log.ReqMethod
 }
 
 // HasFailed resolves the HasFailed field
-func (r *LogResolver) HasFailed() bool {
-	return r.Result.RequestHasFailed()
+func (r *Log) HasFailed() bool {
+	return r.log.RequestHasFailed()
 }
 
 // FailureReason resolves the FailureReason field
-func (r *LogResolver) FailureReason() string {
-	if r.Result.RequestHasFailed() {
-		return r.Result.GetFailureReason()
+func (r *Log) FailureReason() string {
+	if r.log.RequestHasFailed() {
+		return r.log.GetFailureReason()
 	}
 	return ""
 }
 
 // FinalURI resolves the FinalURI field
 // func (r *LogResolver) FinalURI() scalars.URL {
-// 	return scalars.NewURL(r.Result.FinalURI)
+// 	return scalars.NewURL(r.l.FinalURI)
 // }
 
 // CreatedAt resolves the CreatedAt field
-func (r *LogResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Result.CreatedAt)
+func (r *Log) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.log.CreatedAt)
 }
 
 // Logs --
-func (r *BotResolver) Logs(ctx context.Context, args struct {
+func (r *LogRootResolver) Logs(ctx context.Context, args struct {
 	URL        scalars.URL
 	Pagination offsetPaginationInput
-}) (*LogCollectionResolver, error) {
+}) (*LogCollection, error) {
 	u := args.URL.ToDomain()
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
@@ -100,13 +101,8 @@ func (r *BotResolver) Logs(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	logs := make([]*LogResolver, len(results))
-	for i, result := range results {
-		logs[i] = &LogResolver{Result: result}
-	}
-
-	res := LogCollectionResolver{
-		Results: logs,
+	res := LogCollection{
+		Results: resolve(r.repositories).logs(results),
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,

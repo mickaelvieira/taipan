@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// URL domain errors
 var (
 	ErrURLNotValid    = errors.New("URL is invalid")
 	ErrURLNotAbsolute = errors.New("URL is not absolute")
@@ -16,6 +17,11 @@ var (
 // URL represents a URL within the application
 type URL struct {
 	*neturl.URL
+}
+
+// Raw implementation of the dataloader.Key interface
+func (u *URL) Raw() interface{} {
+	return u
 }
 
 // UnescapeString returns the URL as string but without being escaped

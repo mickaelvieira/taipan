@@ -3,7 +3,9 @@
 mutation resume($url: URL!) {
   syndication {
     resume(url: $url) {
-      ...sourceFields
+      id
+      isPaused
+      updatedAt
     }
   }
 }

@@ -1,14 +1,22 @@
 package bookmark
 
 import (
+	"errors"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
 
+// Bookmark domain errors
+var (
+	ErrBookmarkDoesNotExist = errors.New("Bookmark does not exist")
+)
+
 // Bookmark struct represents what is a bookmark from a user's perspective
 type Bookmark struct {
 	ID          string
+	UserID      string
+	SourceID    string
 	URL         *url.URL
 	Lang        string
 	Charset     string

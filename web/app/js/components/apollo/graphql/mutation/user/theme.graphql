@@ -3,7 +3,9 @@
 mutation update($theme: String!) {
   users {
     theme(theme: $theme) {
-      ...userFields
+      id
+      updatedAt
+      theme
     }
   }
 }

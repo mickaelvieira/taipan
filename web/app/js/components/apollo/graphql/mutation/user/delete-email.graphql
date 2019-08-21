@@ -3,7 +3,10 @@
 mutation deleteEmail($email: String!) {
   users {
     deleteEmail(email: $email) {
-      ...userFields
+      id
+      emails {
+        ...emailFields
+      }
     }
   }
 }

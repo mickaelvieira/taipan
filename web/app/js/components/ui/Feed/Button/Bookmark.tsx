@@ -14,6 +14,7 @@ import { SuccessOptions } from ".";
 
 interface Props extends Partial<ButtonBaseProps> {
   document: Document;
+  subscriptions?: string[];
   onSucceed: (options: SuccessOptions) => void;
   onFail: (message: string) => void;
 }
@@ -26,6 +27,7 @@ const useStyles = makeStyles(({ palette }) => ({
 
 export default React.memo(function BookmarkButton({
   document,
+  subscriptions,
   onSucceed,
   onFail,
   ...rest
@@ -62,7 +64,11 @@ export default React.memo(function BookmarkButton({
       className={classes.button}
       onClick={() =>
         mutate({
-          variables: { url: document.url, isFavorite: false }
+          variables: {
+            url: document.url,
+            isFavorite: false,
+            subscriptions: subscriptions ? subscriptions : []
+          }
         })
       }
       {...rest}

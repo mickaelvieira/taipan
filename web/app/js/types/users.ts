@@ -8,9 +8,17 @@ export interface User {
   lastname: string;
   emails: Email[];
   image: Image | null;
+  stats?: Stats;
   theme?: ThemeName | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Stats {
+  bookmarks: number;
+  favorites: number;
+  readingList: number;
+  subscriptions: number;
 }
 
 export interface Email {

@@ -1,8 +1,8 @@
 package graphql
 
 import (
-	"github/mickaelvieira/taipan/internal/web/graphql/resolvers"
 	"github/mickaelvieira/taipan/internal/repository"
+	"github/mickaelvieira/taipan/internal/web/graphql/resolvers"
 	"io/ioutil"
 	"log"
 

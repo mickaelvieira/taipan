@@ -14,6 +14,9 @@ const (
 
 	// ClientIDContextKey client's context identifier
 	ClientIDContextKey
+
+	// LoadersContextKey Dataloaders identifier
+	LoadersContextKey
 )
 
 // LoadEnvironment load environment variables

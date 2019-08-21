@@ -1,11 +1,9 @@
 package parser
 
 import (
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/logger"
 	"html"
 	"io"
 	neturl "net/url"
@@ -17,17 +15,17 @@ import (
 )
 
 // Parse parses the html tree and creates our parsed document
-func Parse(URL *url.URL, r io.Reader, findFeeds bool) (*document.Document, error) {
+func Parse(URL *url.URL, r io.Reader) (*document.Document, error) {
 	document, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
 		return nil, err
 	}
-	logger.Info(fmt.Sprintf("Parsing RSS feeds too? [%t]", findFeeds))
 
-	var p = parser{origURL: URL, document: document}
-	if findFeeds {
-		p.shouldFindSyndicationSource()
+	var p = parser{
+		origURL:  URL,
+		document: document,
 	}
+
 	return p.parse(), nil
 }
 
@@ -49,14 +47,6 @@ type parser struct {
 	canonical *url.URL
 	twitter   *social
 	facebook  *social
-	findFeeds bool
-}
-
-// ShouldFindSyndicationSource when enabling this option,
-// the parser will find RSS and Atom feeds
-// present in the document's source
-func (p *parser) shouldFindSyndicationSource() {
-	p.findFeeds = true
 }
 
 // Parse parse the document
@@ -86,15 +76,13 @@ func (p *parser) parse() *document.Document {
 	var image = p.image()
 
 	var feeds []*syndication.Source
-	if p.findFeeds {
-		if isWP {
-			// WP is a bit silly in the way it handles RSS feeds
-			// Usually only the comments feed is available on the page
-			// So we construct the default feed URL ourselves
-			feeds = p.getWordpressFeed()
-		} else {
-			feeds = p.parseFeeds()
-		}
+	if isWP {
+		// WP is a bit silly in the way it handles RSS feeds
+		// Usually only the comments feed is available on the page
+		// So we construct the default feed URL ourselves
+		feeds = p.getWordpressFeed()
+	} else {
+		feeds = p.parseFeeds()
 	}
 
 	return document.New(
@@ -124,7 +112,7 @@ func (p *parser) getWordpressFeed() []*syndication.Source {
 	var feeds []*syndication.Source
 	u := &url.URL{URL: &neturl.URL{Path: "/feed/"}} // default WP feed
 	u = p.makeURLAbs(u)
-	feed := syndication.NewSource(u, syndication.DefaultWPFeedTitle, syndication.RSS)
+	feed := syndication.NewSource(u, "", syndication.RSS)
 	feeds = append(feeds, feed)
 	return feeds
 }

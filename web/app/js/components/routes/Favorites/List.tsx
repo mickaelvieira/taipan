@@ -4,6 +4,7 @@ import Item from "./Item";
 import { ListProps } from "../../ui/Feed/Feed";
 import FeedItem from "../../ui/Feed/Item/Item";
 import EmptyFeed from "../../ui/Feed/Empty";
+import Emoji from "../../ui/Emoji";
 
 export default React.memo(function BookmarkList({
   results
@@ -11,7 +12,12 @@ export default React.memo(function BookmarkList({
   return (
     <>
       {results.length === 0 && (
-        <EmptyFeed message="You have no favorites yet :(" />
+        <EmptyFeed>
+          <span>
+            You have no favorites yet
+            <Emoji emoji=":sweat_smile:" />
+          </span>
+        </EmptyFeed>
       )}
       {results.map(result => (
         <FeedItem key={result.id}>

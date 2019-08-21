@@ -63,33 +63,3 @@ func (a ByCreatedAt) Swap(i, j int) {
 func (a ByCreatedAt) Less(i, j int) bool {
 	return a[i].CreatedAt.Before(a[j].CreatedAt)
 }
-
-// // ResultPipe build a pipe
-// type ResultPipe []*Result
-
-// // Sort it
-// func (r *ResultPipe) Sort(T func(ResultPipe) sort.Interface) *ResultPipe {
-// 	p := *r
-// 	sort.Sort(T(p))
-// 	*r = p
-// 	return r
-// }
-
-// // Map it
-// func (r *ResultPipe) Map(T func(ResultPipe) ResultPipe) {
-// 	p := *r
-// 	T(p)
-// 	*r = p
-// }
-
-// // test
-// func bla() {
-// 	var r = make(ResultPipe, 0)
-// 	r.
-// 		Sort(func(r ResultPipe) sort.Interface {
-// 			return ByCreatedAt(r)
-// 		}).
-// 		Map(func(r ResultPipe) ResultPipe {
-// 			return r
-// 		})
-// }

@@ -4,13 +4,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Table from "@material-ui/core/Table";
-import Paper from "@material-ui/core/Paper";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Button from "@material-ui/core/Button";
-import Loader from "../../ui/Loader";
+import Loader from "../../../ui/Loader";
+import Empty from "../Empty";
 
 import {
   Data,
@@ -18,8 +18,8 @@ import {
   query,
   variables,
   getFetchMore
-} from "../../apollo/Query/Subscriptions";
-import Row from "./Row";
+} from "../../../apollo/Query/Subscriptions";
+import Row from "./Result";
 
 const useStyles = makeStyles(() => ({
   table: {
@@ -32,9 +32,6 @@ const useStyles = makeStyles(() => ({
   },
   button: {
     margin: "12px"
-  },
-  message: {
-    padding: 24
   }
 }));
 
@@ -66,7 +63,7 @@ export default React.memo(function SubscriptionsTable({
   }
 
   if (error) {
-    return <Paper className={classes.message}>{error.message}</Paper>;
+    return <Empty>{error.message}</Empty>;
   }
 
   if (!data) {
@@ -77,14 +74,7 @@ export default React.memo(function SubscriptionsTable({
   const showLoadMoreButton = results.length < total;
 
   if (results.length === 0) {
-    return (
-      <Paper className={classes.message}>
-        {terms.length === 0 &&
-          "You haven't subscribed to any feeds. Use the search field above to find new sources of excitement."}
-        {terms.length > 0 &&
-          "We could not find any sources matching your query."}
-      </Paper>
-    );
+    return <Empty>We could not find any sources matching your query.</Empty>;
   }
 
   return (

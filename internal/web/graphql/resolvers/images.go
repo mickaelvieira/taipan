@@ -32,13 +32,13 @@ type ImageResolver interface {
 	Height() int32
 }
 
-// BookmarkImageResolver resolves the bookmark's image entity
-type BookmarkImageResolver struct {
+// BookmarkImage resolves the bookmark's image entity
+type BookmarkImage struct {
 	*document.Image
 }
 
 // URL resolves the URL
-func (r *BookmarkImageResolver) URL() scalars.URL {
+func (r *BookmarkImage) URL() scalars.URL {
 	if r.Image.Name == "" {
 		return scalars.NewURL(r.Image.URL)
 	}
@@ -46,51 +46,51 @@ func (r *BookmarkImageResolver) URL() scalars.URL {
 }
 
 // Name resolves the Name field
-func (r *BookmarkImageResolver) Name() string {
+func (r *BookmarkImage) Name() string {
 	return r.Image.Name
 }
 
 // Width resolves the Width field
-func (r *BookmarkImageResolver) Width() int32 {
+func (r *BookmarkImage) Width() int32 {
 	return r.Image.Width
 }
 
 // Height resolves the Height field
-func (r *BookmarkImageResolver) Height() int32 {
+func (r *BookmarkImage) Height() int32 {
 	return r.Image.Height
 }
 
 // Format resolves the Format field
-func (r *BookmarkImageResolver) Format() string {
+func (r *BookmarkImage) Format() string {
 	return r.Image.Format
 }
 
-// UserImageResolver resolves the user's image entity
-type UserImageResolver struct {
+// UserImage resolves the user's image entity
+type UserImage struct {
 	*user.Image
 }
 
 // URL resolves the URL
-func (r *UserImageResolver) URL() scalars.URL {
+func (r *UserImage) URL() scalars.URL {
 	return scalars.NewURL(makeImageURL(r.Image.Name))
 }
 
 // Name resolves the Name field
-func (r *UserImageResolver) Name() string {
+func (r *UserImage) Name() string {
 	return r.Image.Name
 }
 
 // Width resolves the Width field
-func (r *UserImageResolver) Width() int32 {
+func (r *UserImage) Width() int32 {
 	return r.Image.Width
 }
 
 // Height resolves the Height field
-func (r *UserImageResolver) Height() int32 {
+func (r *UserImage) Height() int32 {
 	return r.Image.Height
 }
 
 // Format resolves the Format field
-func (r *UserImageResolver) Format() string {
+func (r *UserImage) Format() string {
 	return r.Image.Format
 }

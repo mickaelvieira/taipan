@@ -10,6 +10,7 @@ import (
 // Document struct represents a web document
 type Document struct {
 	ID          string
+	SourceID    string
 	Checksum    checksum.Checksum
 	URL         *url.URL
 	Lang        string
@@ -33,11 +34,12 @@ func (d *Document) WasImageFetched() bool {
 	return d.HasImage() && d.Image.Name != ""
 }
 
+// String implementation of the dataloader.Key interface
 func (d *Document) String() string {
 	return d.ID
 }
 
-// Raw returns the key raws data
+// Raw implementation of the dataloader.Key interface
 func (d *Document) Raw() interface{} {
 	return d
 }

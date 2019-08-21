@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/newsfeed"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 )
 
@@ -15,7 +16,8 @@ func AddDocumentToNewsFeeds(ctx context.Context, repos *repository.Repositories,
 	}
 
 	if len(subscribers) == 0 {
-		return fmt.Errorf("No subscribers to source [%s]", sourceID)
+		logger.Warn(fmt.Sprintf("Source [%s] does not have any subscribers", sourceID))
+		return nil
 	}
 
 	entries := make([]*newsfeed.Entry, len(subscribers))
@@ -23,8 +25,7 @@ func AddDocumentToNewsFeeds(ctx context.Context, repos *repository.Repositories,
 		entries[i] = newsfeed.NewEntry(s, documentID)
 	}
 
-	err = repos.NewsFeed.AddEntries(ctx, entries)
-	if err != nil {
+	if err := repos.NewsFeed.AddEntries(ctx, entries); err != nil {
 		return err
 	}
 

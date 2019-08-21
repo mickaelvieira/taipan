@@ -7,9 +7,10 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/user"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
-// PasswordResetRepository the NewsFeed repository
+// PasswordResetRepository --
 type PasswordResetRepository struct {
 	db *sql.DB
 }
@@ -33,7 +34,7 @@ func (r *PasswordResetRepository) Create(ctx context.Context, pr *password.Reset
 	)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "execute")
 	}
 
 	return nil
@@ -87,7 +88,7 @@ func (r *PasswordResetRepository) UpdateUsage(ctx context.Context, t *password.R
 		t.UserID,
 	)
 
-	return err
+	return errors.Wrap(err, "execute")
 }
 
 func (r *PasswordResetRepository) scan(rows Scanable) (*password.ResetToken, error) {
@@ -108,7 +109,10 @@ func (r *PasswordResetRepository) scan(rows Scanable) (*password.ResetToken, err
 	}
 
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
 	}
 
 	return &pr, nil

@@ -4,18 +4,25 @@ fragment userFields on User {
   id
   firstname
   lastname
-  emails {
-    id
-    value
-    isPrimary
-    isConfirmed
-    createdAt
-    updatedAt
-  }
   theme
-  image {
-    ...imageFields
-  }
   createdAt
   updatedAt
+}
+
+fragment statsFields on UserStats {
+  id
+  bookmarks
+  favorites
+  readingList
+  subscriptions
+}
+
+fragment emailFields on Email {
+  id
+  value
+  isPrimary
+  isConfirmed
+  createdAt
+  updatedAt
+  confirmedAt
 }

@@ -8,11 +8,11 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/logger"
 	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 // SubscriptionRepository the Feed repository
@@ -65,7 +65,7 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), sourceID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	var subscribers []string
@@ -73,13 +73,13 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 		var userID string
 		err := rows.Scan(&userID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "scan")
 		}
 		subscribers = append(subscribers, userID)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return subscribers, nil
@@ -88,10 +88,10 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 // FindAll --
 func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
+		SELECT sy.id, su.user_id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM syndication AS sy
-		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE (su.user_id = ? OR su.user_id IS NULL) AND %s AND %s
+		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
+		WHERE %s AND %s
 		ORDER BY sy.title ASC
 		LIMIT ?, ?
 	`
@@ -107,11 +107,9 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 
 	query = formatQuery(fmt.Sprintf(query, where, search))
 
-	logger.Debug(query)
-
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	var results []*subscription.Subscription
@@ -124,7 +122,7 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -137,8 +135,8 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 	query := `
 		SELECT COUNT(sy.id) as total
 		FROM syndication AS sy
-		LEFT JOIN subscriptions AS su ON sy.id = su.source_id
-		WHERE (su.user_id = ? OR su.user_id IS NULL) AND %s AND %s
+		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
+		WHERE %s AND %s
 	`
 	var args []interface{}
 
@@ -152,7 +150,24 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan")
+	}
+
+	return total, nil
+}
+
+// CountUserSubscription --
+func (r *SubscriptionRepository) CountUserSubscription(ctx context.Context, u *user.User) (int32, error) {
+	query := `
+		SELECT COUNT(sy.id) as total
+		FROM syndication AS sy
+		INNER JOIN subscriptions AS su ON sy.id = su.source_id
+		WHERE su.user_id = ? AND su.subscribed = 1
+	`
+	var total int32
+	err := r.db.QueryRowContext(ctx, formatQuery(query), u.ID).Scan(&total)
+	if err != nil {
+		return total, errors.Wrap(err, "scan")
 	}
 
 	return total, nil
@@ -161,7 +176,7 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 // GetByURL find a single entry by URL
 func (r *SubscriptionRepository) GetByURL(ctx context.Context, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
+		SELECT sy.id, su.user_id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM subscriptions AS su
 		INNER JOIN syndication AS sy ON sy.id = su.source_id
 		WHERE su.user_id = ? AND sy.url = ?
@@ -206,7 +221,11 @@ func (r *SubscriptionRepository) Subscribe(ctx context.Context, u *user.User, s 
 		time.Now(),
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // Unsubscribe unsubscribes user from a web syndication source
@@ -224,7 +243,11 @@ func (r *SubscriptionRepository) Unsubscribe(ctx context.Context, u *user.User, 
 		s.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription, error) {
@@ -232,9 +255,11 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 	var subscribed sql.NullBool
 	var createdAt mysql.NullTime
 	var updatedAt mysql.NullTime
+	var userID sql.NullString
 
 	err := rows.Scan(
 		&s.ID,
+		&userID,
 		&s.URL,
 		&s.Domain,
 		&s.Title,
@@ -244,6 +269,17 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 		&createdAt,
 		&updatedAt,
 	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
+	}
+
+	if userID.Valid {
+		s.UserID = userID.String
+	}
 
 	if createdAt.Valid {
 		s.CreatedAt = createdAt.Time
@@ -257,10 +293,6 @@ func (r *SubscriptionRepository) scan(rows Scanable) (*subscription.Subscription
 		s.Subscribed = subscribed.Bool
 	} else {
 		s.Subscribed = false
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	return &s, nil

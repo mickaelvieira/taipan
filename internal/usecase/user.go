@@ -3,49 +3,78 @@ package usecase
 import (
 	"context"
 	"database/sql"
-	"errors"
+	"github/mickaelvieira/taipan/internal/domain/errors"
 	"github/mickaelvieira/taipan/internal/domain/password"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
-	"log"
 	"time"
+
+	liberr "github.com/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Users use cases errors
-var (
-	ErrUserDoesNotExist         = errors.New("User does not exist")
-	ErrWeakPassword             = errors.New("Your password must be at least 10 characters long")
-	ErrInvalidEmail             = errors.New("Your email does not seem to be valid")
-	ErrEmailDoesNotExist        = errors.New("Email does not exist")
-	ErrEmailIsAlreadyUsed       = errors.New("There is already an account associated to this email address")
-	ErrInvalidCreds             = errors.New("Email or password does not match any records in our database")
-	ErrInvalidPassword          = errors.New("Your password is not correct") // only for password change
-	ErrPrimaryEmailDeletion     = errors.New("You cannot delete your primary email address")
-	ErrPrimaryEmailNotConfirmed = errors.New("You cannot add new email address before confirming your primary email")
-	ErrEmailNotConfirmed        = errors.New("You cannot use this address as your primary email since it hasn't been unconfirmed yet")
-	ErrInvalidResetToken        = errors.New("Your reset token does seem to be valid")
-)
+// CalculateUserStatistics --
+func CalculateUserStatistics(ctx context.Context, repos *repository.Repositories, u *user.User) (*user.Stats, error) {
+	var terms []string
+
+	totalBookmarks, err := repos.Bookmarks.CountAll(ctx, u, terms)
+	if err != nil {
+		return nil, err
+	}
+
+	totalFavorites, err := repos.Bookmarks.CountFavorites(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	totalReadingList, err := repos.Bookmarks.CountReadingList(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	totalSubscriptions, err := repos.Subscriptions.CountUserSubscription(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	s := user.Stats{
+		Bookmarks:     totalBookmarks,
+		Favorites:     totalFavorites,
+		ReadingList:   totalReadingList,
+		Subscriptions: totalSubscriptions,
+	}
+
+	return &s, nil
+}
 
 // Signin --
 func Signin(ctx context.Context, repos *repository.Repositories, e string, pwd string) (*user.User, error) {
 	// can we find the user?
 	u, err := repos.Users.GetByPrimaryEmail(ctx, e)
 	if err != nil {
-		return nil, ErrInvalidCreds
+		if err == sql.ErrNoRows {
+			return nil, errors.New(user.ErrCredentialsAreNotValid, err)
+		}
+		return nil, err
 	}
 
 	// can we find the user's password?
 	p, err := repos.Users.GetPassword(ctx, u.ID)
 	if err != nil {
-		return nil, ErrInvalidCreds
+		if err == sql.ErrNoRows {
+			return nil, errors.New(user.ErrCredentialsAreNotValid, err)
+		}
+		return nil, err
 	}
 
 	// do the password match?
 	if err := bcrypt.CompareHashAndPassword([]byte(p), []byte(pwd)); err != nil {
-		return nil, ErrInvalidCreds
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return nil, errors.New(user.ErrCredentialsAreNotValid, err)
+		}
+		return nil, liberr.Wrap(err, "compare password")
 	}
 
 	return u, nil
@@ -54,11 +83,11 @@ func Signin(ctx context.Context, repos *repository.Repositories, e string, pwd s
 // Signup --
 func Signup(ctx context.Context, repos *repository.Repositories, e string, p string) (*user.User, error) {
 	if !user.IsEmailValid(e) {
-		return nil, ErrInvalidEmail
+		return nil, errors.New(user.ErrEmailIsNotValid, nil)
 	}
 
 	if !password.IsValid(p) {
-		return nil, ErrWeakPassword
+		return nil, errors.New(user.ErrWeakPassword, nil)
 	}
 
 	h, err := password.Hash(p)
@@ -69,7 +98,7 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 	// can we find the user with the same email?
 	_, err = repos.Emails.GetEmail(ctx, e)
 	if err == nil {
-		return nil, ErrEmailIsAlreadyUsed
+		return nil, errors.New(user.ErrEmailIsAlreadyUsed, nil)
 	}
 
 	// Any other errors?
@@ -90,8 +119,11 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 	email := user.NewEmail(e)
 	email.IsPrimary = true // first email is always the primary
 
-	err = repos.Emails.CreateUserEmail(ctx, u, email)
-	if err != nil {
+	if err := repos.Emails.CreateUserEmail(ctx, u, email); err != nil {
+		return nil, err
+	}
+
+	if err := CreateTokenAndSendConfirmationEmail(ctx, repos, u, email); err != nil {
 		return nil, err
 	}
 
@@ -108,28 +140,31 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 // ForgotPassword --
 func ForgotPassword(ctx context.Context, repos *repository.Repositories, e string) error {
 	if !user.IsEmailValid(e) {
-		return ErrInvalidEmail
+		return errors.New(user.ErrEmailIsNotValid, nil)
 	}
 
 	// can we find the user?
 	u, err := repos.Users.GetByPrimaryEmail(ctx, e)
 	if err != nil {
-		return ErrInvalidCreds
+		if err == sql.ErrNoRows {
+			// For security reason, we just ignore the request
+			// if we can't find an account linked to the email address.
+			// Hackers don't need to know whether or not the account exists
+			return nil
+		}
+		return err
 	}
 
 	// is there an active token?
-	t, err := repos.ResetToken.FindUserActiveToken(ctx, u)
+	_, err = repos.PasswordReset.FindUserActiveToken(ctx, u)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
-		err = repos.ResetToken.Create(ctx, password.NewResetPasswordToken(u))
+		err = repos.PasswordReset.Create(ctx, password.NewResetPasswordToken(u))
 		if err != nil {
 			return err
 		}
-	} else {
-		logger.Warn("Re-using active token")
-		log.Println(t)
 	}
 
 	return nil
@@ -138,7 +173,7 @@ func ForgotPassword(ctx context.Context, repos *repository.Repositories, e strin
 // ResetPassword --
 func ResetPassword(ctx context.Context, repos *repository.Repositories, t string, p string) error {
 	if !password.IsValid(p) {
-		return ErrWeakPassword
+		return errors.New(user.ErrWeakPassword, nil)
 	}
 
 	h, err := password.Hash(p)
@@ -146,30 +181,92 @@ func ResetPassword(ctx context.Context, repos *repository.Repositories, t string
 		return err
 	}
 
-	e, err := repos.ResetToken.GetToken(ctx, t)
+	e, err := repos.PasswordReset.GetToken(ctx, t)
 	if err != nil {
-		return ErrInvalidResetToken
+		return errors.New(user.ErrPasswordResetTokenIsNotValid, err)
 	}
 
 	if e.IsExpired() || e.IsUsed {
-		return ErrInvalidResetToken
+		return errors.New(user.ErrPasswordResetTokenIsNotValid, nil)
 	}
 
 	u, err := repos.Users.GetByID(ctx, e.UserID)
 	if err != nil {
-		return ErrInvalidResetToken
+		return errors.New(user.ErrPasswordResetTokenIsNotValid, err)
 	}
 
-	err = repos.Users.UpdatePassword(ctx, u, h)
-	if err != nil {
+	if err = repos.Users.UpdatePassword(ctx, u, h); err != nil {
 		return err
 	}
 
 	e.IsUsed = true
 	e.UsedAt = time.Now()
 
-	err = repos.ResetToken.UpdateUsage(ctx, e)
+	if err := repos.PasswordReset.UpdateUsage(ctx, e); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// CreateTokenAndSendConfirmationEmail --
+func CreateTokenAndSendConfirmationEmail(ctx context.Context, repos *repository.Repositories, u *user.User, e *user.Email) error {
+	var t *user.EmailConfirmToken
+	// is there an active token?
+	t, err := repos.EmailsConfirm.FindUserActiveToken(ctx, u, e)
 	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		t = user.NewEmailConfirmToken(u, e)
+		if err := repos.EmailsConfirm.Create(ctx, user.NewEmailConfirmToken(u, e)); err != nil {
+			return err
+		}
+	}
+
+	logger.Debug(t)
+
+	// @TODO send confirmation email
+
+	return nil
+}
+
+// ConfirmEmail --
+func ConfirmEmail(ctx context.Context, repos *repository.Repositories, v string, loggedInUserID string) error {
+	t, err := repos.EmailsConfirm.GetToken(ctx, v)
+	if err != nil {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, err)
+	}
+
+	if t.IsExpired() || t.IsUsed || (loggedInUserID != "" && t.UserID != loggedInUserID) {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, nil)
+	}
+
+	u, err := repos.Users.GetByID(ctx, t.UserID)
+	if err != nil {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, err)
+	}
+
+	e, err := repos.Emails.GetUserEmailByID(ctx, u, t.EmailID)
+	if err != nil {
+		return errors.New(user.ErrEmailConfirmTokenIsNotValid, err)
+	}
+
+	if e.IsConfirmed {
+		return nil
+	}
+
+	e.IsConfirmed = true
+	e.ConfirmedAt = time.Now()
+
+	if err := repos.Emails.ConfirmUserEmail(ctx, u, e); err != nil {
+		return err
+	}
+
+	t.IsUsed = true
+	t.UsedAt = time.Now()
+
+	if err := repos.EmailsConfirm.UpdateUsage(ctx, t); err != nil {
 		return err
 	}
 
@@ -182,14 +279,12 @@ func UpdateUser(ctx context.Context, repos *repository.Repositories, usr *user.U
 	usr.Lastname = l
 	usr.UpdatedAt = time.Now()
 
-	err := repos.Users.Update(ctx, usr)
-	if err != nil {
+	if err := repos.Users.Update(ctx, usr); err != nil {
 		return err
 	}
 
 	if i != "" {
-		err = HandleAvatar(ctx, repos, usr, i)
-		if err != nil {
+		if err := HandleAvatar(ctx, repos, usr, i); err != nil {
 			return err
 		}
 	}
@@ -201,16 +296,19 @@ func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *us
 	// can we find the user's password?
 	p, err := repos.Users.GetPassword(ctx, usr.ID)
 	if err != nil {
-		return ErrInvalidPassword
+		return errors.New(user.ErrPasswordIsNotValid, nil)
 	}
 
 	// is the old password correct?
 	if err := bcrypt.CompareHashAndPassword([]byte(p), []byte(o)); err != nil {
-		return ErrInvalidPassword
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return errors.New(user.ErrPasswordIsNotValid, err)
+		}
+		return liberr.Wrap(err, "compare password")
 	}
 
 	if !password.IsValid(n) {
-		return ErrWeakPassword
+		return errors.New(user.ErrWeakPassword, nil)
 	}
 
 	h, err := password.Hash(n)
@@ -218,8 +316,7 @@ func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *us
 		return err
 	}
 
-	err = repos.Users.UpdatePassword(ctx, usr, h)
-	if err != nil {
+	if err = repos.Users.UpdatePassword(ctx, usr, h); err != nil {
 		return err
 	}
 
@@ -231,31 +328,39 @@ func UpdateTheme(ctx context.Context, repos *repository.Repositories, usr *user.
 	usr.Theme = t
 	usr.UpdatedAt = time.Now()
 
-	err := repos.Users.UpdateTheme(ctx, usr)
-	if err != nil {
+	if err := repos.Users.UpdateTheme(ctx, usr); err != nil {
 		return err
 	}
+
 	return nil
 }
 
 // CreateUserEmail --
-func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
-	_, err := repos.Emails.GetEmail(ctx, v)
-	if err == nil {
-		return ErrEmailIsAlreadyUsed
+func CreateUserEmail(ctx context.Context, repos *repository.Repositories, u *user.User, v string) error {
+	if !user.IsEmailValid(v) {
+		return errors.New(user.ErrEmailIsNotValid, nil)
 	}
 
-	emails, err := repos.Emails.GetUserEmails(ctx, usr)
+	_, err := repos.Emails.GetEmail(ctx, v)
+	if err == nil {
+		return errors.New(user.ErrEmailIsAlreadyUsed, nil)
+	}
+
+	emails, err := repos.Emails.GetUserEmails(ctx, u)
 	if err != nil {
 		return err
 	}
 
 	if len(emails) == 1 && !emails[0].IsConfirmed {
-		return ErrPrimaryEmailNotConfirmed
+		return errors.New(user.ErrPrimaryEmailIsNotConfirmed, nil)
 	}
 
-	err = repos.Emails.CreateUserEmail(ctx, usr, user.NewEmail(v))
-	if err != nil {
+	email := user.NewEmail(v)
+	if err := repos.Emails.CreateUserEmail(ctx, u, email); err != nil {
+		return err
+	}
+
+	if err := CreateTokenAndSendConfirmationEmail(ctx, repos, u, email); err != nil {
 		return err
 	}
 
@@ -264,20 +369,19 @@ func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *u
 
 // DeleteUserEmail --
 func DeleteUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
-	e, err := repos.Emails.GetUserEmail(ctx, usr, v)
+	e, err := repos.Emails.GetUserEmailByValue(ctx, usr, v)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ErrEmailDoesNotExist
+			return errors.New(user.ErrEmailDoesNotExist, nil)
 		}
 		return err
 	}
 
 	if e.IsPrimary {
-		return ErrPrimaryEmailDeletion
+		return errors.New(user.ErrPrimaryEmailDeletion, nil)
 	}
 
-	err = repos.Emails.DeleteUserEmail(ctx, usr, e)
-	if err != nil {
+	if err := repos.Emails.DeleteUserEmail(ctx, usr, e); err != nil {
 		return err
 	}
 
@@ -295,7 +399,7 @@ func PrimaryUserEmail(ctx context.Context, repos *repository.Repositories, usr *
 	for _, e := range emails {
 		if e.Value == v {
 			if !e.IsConfirmed {
-				return ErrEmailNotConfirmed
+				return errors.New(user.ErrEmailIsNotConfirmed, nil)
 			}
 			found = true
 			e.IsPrimary = true
@@ -307,12 +411,11 @@ func PrimaryUserEmail(ctx context.Context, repos *repository.Repositories, usr *
 	}
 
 	if !found {
-		return ErrEmailDoesNotExist
+		return errors.New(user.ErrEmailDoesNotExist, nil)
 	}
 
 	for _, e := range emails {
-		err := repos.Emails.PrimaryUserEmail(ctx, usr, e)
-		if err != nil {
+		if err := repos.Emails.PrimaryUserEmail(ctx, usr, e); err != nil {
 			return err
 		}
 	}

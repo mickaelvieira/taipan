@@ -11,8 +11,11 @@ export default React.memo(function SubscriptionLink({
   item
 }: Props): JSX.Element {
   return (
-    <ExternalLink href={item.url} title={item.title ? item.title : item.url}>
-      {item.url}
+    <ExternalLink
+      href={`${item.url}`}
+      title={item.title ? item.title : `${item.url}`}
+    >
+      {`${item.url}`}
     </ExternalLink>
   );
 });

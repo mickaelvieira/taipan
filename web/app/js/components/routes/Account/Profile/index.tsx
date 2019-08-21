@@ -88,7 +88,7 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
 
   return (
     <Card>
-      <form>
+      <form onSubmit={event => event.preventDefault()}>
         <Title value="Profile" />
         <CardContent>
           <div className={classes.avatar}>
@@ -156,6 +156,7 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
         </CardContent>
         <CardActions>
           <Button
+            type="submit"
             disabled={loading}
             variant="contained"
             color="primary"

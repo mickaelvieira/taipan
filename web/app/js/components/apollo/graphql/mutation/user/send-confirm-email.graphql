@@ -1,0 +1,12 @@
+#import "../../fragment/user.graphql"
+
+mutation sendConfirmationEmail($email: String!) {
+  users {
+    sendConfirmationEmail(email: $email) {
+      id
+      emails {
+        ...emailFields
+      }
+    }
+  }
+}

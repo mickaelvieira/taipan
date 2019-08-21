@@ -1,11 +1,17 @@
 package syndication
 
 import (
-	"fmt"
+	"errors"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"strings"
 	"time"
+)
+
+// Syndication domain errors
+var (
+	ErrXMLTypeIsNotValid  = errors.New("The XML type is not valid")
+	ErrFeedTypeISNotValid = errors.New("The feed type is not valid")
 )
 
 // DefaultWPFeedTitle a default title for WP feeds
@@ -39,7 +45,7 @@ func GetSourceType(t string) (Type, error) {
 	if isAtom(t) {
 		return ATOM, nil
 	}
-	return INVALID, fmt.Errorf("Invalid source type %s", t)
+	return INVALID, ErrXMLTypeIsNotValid
 }
 
 // FromGoFeedType returns the feed type based on the gofeed type
@@ -51,7 +57,7 @@ func FromGoFeedType(t string) (Type, error) {
 	if t == "atom" {
 		return ATOM, nil
 	}
-	return INVALID, fmt.Errorf("Invalid feed type %s", t)
+	return INVALID, ErrFeedTypeISNotValid
 }
 
 var blacklist = []string{"github.com"}
@@ -87,6 +93,7 @@ func NewSource(url *url.URL, title string, feedType Type) *Source {
 		URL:       url,
 		Title:     title,
 		Type:      feedType,
+		IsPaused:  true,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Frequency: http.Hourly,

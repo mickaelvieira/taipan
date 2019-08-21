@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/cmd"
 	"github/mickaelvieira/taipan/internal/domain/messages"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/logger"
@@ -45,7 +44,7 @@ func runDocumentsWorker(c *cli.Context) {
 		// Close RabbitMQ connection
 		client.Close()
 	}
-	cmd.Signal(onStop)
+	Signal(onStop)
 	defer onStop()
 
 	queue := client.GetDocumentQueue()
@@ -76,14 +75,15 @@ func runDocumentsWorker(c *cli.Context) {
 				continue
 			}
 
-			d, err := usecase.Document(ctx, repositories, u, false)
+			// @TODO When I'll stop parsing the same documents over and over again
+			// it would be better to update the document with source ID instead of adding during the creation
+			d, err := usecase.Document(ctx, repositories, u, dm.SourceId)
 			if err != nil {
 				logger.Error(err)
 				continue
 			}
 
-			err = usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID)
-			if err != nil {
+			if usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID); err != nil {
 				logger.Error(err)
 				continue
 			}

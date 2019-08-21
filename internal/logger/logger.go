@@ -1,10 +1,22 @@
 package logger
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/labstack/gommon/log"
+	"github.com/pkg/errors"
 )
+
+// StackTracer --
+type StackTracer interface {
+	StackTrace() errors.StackTrace
+}
+
+// Causer --
+type Causer interface {
+	Cause() error
+}
 
 var l *log.Logger
 
@@ -45,7 +57,11 @@ func Warn(i interface{}) {
 
 // Error prints error messages
 func Error(i interface{}) {
-	l.Error(i)
+	if err, ok := i.(Causer); ok {
+		l.Error(fmt.Sprintf("%+v", err))
+	} else {
+		l.Error(i)
+	}
 }
 
 // Fatal prints fatal messages

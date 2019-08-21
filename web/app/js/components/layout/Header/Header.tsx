@@ -15,7 +15,7 @@ import useSearch from "../../../hooks/useSearch";
 import usePage from "../../../hooks/usePage";
 import Search from "./Search";
 
-const duration = 200;
+const animDuration = 200;
 
 const useStyles = makeStyles(({ breakpoints, palette }) => ({
   appBar: {
@@ -24,21 +24,21 @@ const useStyles = makeStyles(({ breakpoints, palette }) => ({
       width: `calc(100% - ${SIDEBAR_WIDTH}px)`
     },
     "& .animation-entering": {
-      transform: "translate(0px, -25px)"
+      transform: "translate(0px, -36px)"
     },
     "& .animation-entered": {
-      transform: "translate(0px, -25px)"
+      transform: "translate(0px, -36px)"
     },
     "& .animation-exiting": {
-      transform: "translate(0px, 1px)"
+      transform: "translate(0px, 0px)"
     },
     "& .animation-exited": {
-      transform: "translate(0px, 1px)"
+      transform: "translate(0px, 0px)"
     }
   },
   animated: {
     width: "100%",
-    transition: `transform ${duration}ms ease-in-out`,
+    transition: `transform ${animDuration}ms ease-in-out`,
     transform: "translate(0px, 1px)"
   },
   toolbar: {
@@ -46,11 +46,16 @@ const useStyles = makeStyles(({ breakpoints, palette }) => ({
     alignItems: "center",
     justifyContent: "space-between"
   },
+  titleBar: {
+    display: "flex"
+  },
   title: {
     flexGrow: 1,
-    textAlign: "center"
+    textAlign: "center",
+    lineHeight: 1.5
   },
   menuButton: {
+    paddingTop: 4,
     marginLeft: -12
   },
   searchButton: {
@@ -88,29 +93,27 @@ export default function Header({ toggleDrawer }: Props): JSX.Element {
       <Toolbar className={classes.toolbar}>
         {!md && (
           <>
-            <IconButton
-              className={classes.menuButton}
-              color="inherit"
-              aria-label="Menu"
-              onClick={() => toggleDrawer(true)}
-            >
-              <MenuIcon />
-            </IconButton>
-          </>
-        )}
-        {!md && (
-          <>
             <div className={classes.container}>
-              <Transition in={isSearchOpen} timeout={duration}>
+              <Transition in={isSearchOpen} timeout={animDuration}>
                 {state => (
                   <div className={`${classes.animated} animation-${state}`}>
-                    <Typography
-                      component="h6"
-                      variant="h5"
-                      className={classes.title}
-                    >
-                      {page.getSection()}
-                    </Typography>
+                    <div className={classes.titleBar}>
+                      <IconButton
+                        className={classes.menuButton}
+                        color="inherit"
+                        aria-label="Menu"
+                        onClick={() => toggleDrawer(true)}
+                      >
+                        <MenuIcon />
+                      </IconButton>
+                      <Typography
+                        component="h6"
+                        variant="h5"
+                        className={classes.title}
+                      >
+                        {page.getSection()}
+                      </Typography>
+                    </div>
                     <Search type={type} terms={terms} />
                   </div>
                 )}

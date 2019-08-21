@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/repository"
@@ -10,111 +9,111 @@ import (
 	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 
-	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// SyndicationResolver syndication's root resolver
-type SyndicationResolver struct {
+// SyndicationRootResolver syndication's root resolver
+type SyndicationRootResolver struct {
 	repositories *repository.Repositories
 }
 
-// SourceCollectionResolver resolver
-type SourceCollectionResolver struct {
-	Results []*SourceResolver
+// SourceCollection resolver
+type SourceCollection struct {
+	Results []*Source
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
-// SourceResolver resolves the bookmark entity
-type SourceResolver struct {
-	*syndication.Source
-	repositories *repository.Repositories
+// Source resolves the bookmark entity
+type Source struct {
+	source     *syndication.Source
+	repository *repository.Repositories
 }
 
 // ID resolves the ID field
-func (r *SourceResolver) ID() gql.ID {
-	return gql.ID(r.Source.ID)
+func (r *Source) ID() gql.ID {
+	return gql.ID(r.source.ID)
 }
 
 // URL resolves the URL field
-func (r *SourceResolver) URL() scalars.URL {
-	return scalars.NewURL(r.Source.URL)
+func (r *Source) URL() scalars.URL {
+	return scalars.NewURL(r.source.URL)
 }
 
 // Domain resolves the Domain field
-func (r *SourceResolver) Domain() *scalars.URL {
-	d := scalars.NewURL(r.Source.Domain)
+func (r *Source) Domain() *scalars.URL {
+	d := scalars.NewURL(r.source.Domain)
 	return &d
 }
 
 // Title resolves the Title field
-func (r *SourceResolver) Title() string {
-	return r.Source.Title
+func (r *Source) Title() string {
+	return r.source.Title
 }
 
 // Type resolves the Type field
-func (r *SourceResolver) Type() string {
-	return string(r.Source.Type)
+func (r *Source) Type() string {
+	return string(r.source.Type)
 }
 
 // Frequency resolves the Frequency field
-func (r *SourceResolver) Frequency() string {
-	return string(r.Source.Frequency)
+func (r *Source) Frequency() string {
+	return string(r.source.Frequency)
 }
 
 // IsPaused resolves the IsPaused field
-func (r *SourceResolver) IsPaused() bool {
-	return r.Source.IsPaused
+func (r *Source) IsPaused() bool {
+	return r.source.IsPaused
 }
 
 // IsDeleted resolves the IsDeleted field
-func (r *SourceResolver) IsDeleted() bool {
-	return r.Source.IsDeleted
+func (r *Source) IsDeleted() bool {
+	return r.source.IsDeleted
 }
 
 // CreatedAt resolves the CreatedAt field
-func (r *SourceResolver) CreatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Source.CreatedAt)
+func (r *Source) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.source.CreatedAt)
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *SourceResolver) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Source.UpdatedAt)
+func (r *Source) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.source.UpdatedAt)
 }
 
 // ParsedAt resolves the ParsedAt field
-func (r *SourceResolver) ParsedAt() *scalars.Datetime {
-	t := scalars.NewDatetime(r.Source.ParsedAt)
+func (r *Source) ParsedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.source.ParsedAt)
 	return &t
 }
 
 // LogEntries returns the document's parser log
-func (r *SourceResolver) LogEntries(ctx context.Context) (*[]*LogResolver, error) {
-	data, err := r.getLogsLoader().Load(ctx, dataloader.StringKey(r.Source.URL.String()))()
+func (r *Source) LogEntries(ctx context.Context) (*[]*Log, error) {
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Logs.Load(ctx, r.source.URL)()
 	if err != nil {
 		return nil, err
 	}
-	results, ok := data.([]*http.Result)
-	if !ok {
-		return nil, fmt.Errorf("Invalid data")
-	}
-	var resolvers []*LogResolver
-	for _, result := range results {
-		resolvers = append(resolvers, &LogResolver{Result: result})
-	}
-	return &resolvers, nil
-}
 
-func (r *SourceResolver) getLogsLoader() *dataloader.Loader {
-	return loaders.GetHTTPClientLogEntriesLoader(r.repositories.Botlogs)
+	results, ok := d.([]*http.Result)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
+	}
+
+	res := resolve(r.repository).logs(results)
+
+	return &res, nil
 }
 
 // Source returns the syndication source
-func (r *SyndicationResolver) Source(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) Source(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SourceResolver, error) {
+}) (*Source, error) {
 	u := args.URL.ToDomain()
 
 	s, err := r.repositories.Syndication.GetByURL(ctx, u)
@@ -122,32 +121,28 @@ func (r *SyndicationResolver) Source(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s, repositories: r.repositories}
-
-	return res, nil
+	return resolve(r.repositories).source(s), nil
 }
 
 // Create adds a syndication source
-func (r *SyndicationResolver) Create(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) Create(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SourceResolver, error) {
+}) (*Source, error) {
 	u := args.URL.ToDomain()
 
-	s, err := usecase.CreateSyndicationSource(ctx, r.repositories, u)
+	s, err := usecase.CreateSyndicationSource(ctx, r.repositories, u, true)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s}
-
-	return res, nil
+	return resolve(r.repositories).source(s), nil
 }
 
 // UpdateTitle adds a syndication source
-func (r *SyndicationResolver) UpdateTitle(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) UpdateTitle(ctx context.Context, args struct {
 	URL   scalars.URL
 	Title string
-}) (*SourceResolver, error) {
+}) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
@@ -158,15 +153,13 @@ func (r *SyndicationResolver) UpdateTitle(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s}
-
-	return res, nil
+	return resolve(r.repositories).source(s), nil
 }
 
 // Pause disables a syndication source
-func (r *SyndicationResolver) Pause(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) Pause(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SourceResolver, error) {
+}) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
@@ -177,15 +170,13 @@ func (r *SyndicationResolver) Pause(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s}
-
-	return res, nil
+	return resolve(r.repositories).source(s), nil
 }
 
 // Resume enables a syndication source
-func (r *SyndicationResolver) Resume(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) Resume(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SourceResolver, error) {
+}) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
@@ -196,15 +187,13 @@ func (r *SyndicationResolver) Resume(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s}
-
-	return res, nil
+	return resolve(r.repositories).source(s), nil
 }
 
 // Enable enables a syndication source
-func (r *SyndicationResolver) Enable(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) Enable(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SourceResolver, error) {
+}) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
@@ -215,15 +204,13 @@ func (r *SyndicationResolver) Enable(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s}
-
-	return res, nil
+	return resolve(r.repositories).source(s), nil
 }
 
 // Disable disables a syndication source
-func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) Disable(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*SourceResolver, error) {
+}) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
@@ -234,16 +221,14 @@ func (r *SyndicationResolver) Disable(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	res := &SourceResolver{Source: s}
-
-	return res, nil
+	return resolve(r.repositories).source(s), nil
 }
 
 // Sources resolves the query
-func (r *SyndicationResolver) Sources(ctx context.Context, args struct {
+func (r *SyndicationRootResolver) Sources(ctx context.Context, args struct {
 	Pagination offsetPaginationInput
 	Search     searchSourcesInput
-}) (*SourceCollectionResolver, error) {
+}) (*SourceCollection, error) {
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 	paused := args.Search.IsPaused
@@ -259,16 +244,8 @@ func (r *SyndicationResolver) Sources(ctx context.Context, args struct {
 		return nil, err
 	}
 
-	var sources []*SourceResolver
-	for _, result := range results {
-		sources = append(sources, &SourceResolver{
-			Source:       result,
-			repositories: r.repositories,
-		})
-	}
-
-	res := SourceCollectionResolver{
-		Results: sources,
+	res := SourceCollection{
+		Results: resolve(r.repositories).sources(results),
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,

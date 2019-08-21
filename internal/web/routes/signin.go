@@ -3,6 +3,8 @@ package routes
 import (
 	"net/http"
 
+	"github/mickaelvieira/taipan/internal/domain/errors"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web"
@@ -11,10 +13,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type apiError struct {
-	Error string `json:"error"`
-}
-
 func signin(c echo.Context, r *repository.Repositories) error {
 	req := c.Request()
 	ctx := req.Context()
@@ -22,12 +20,20 @@ func signin(c echo.Context, r *repository.Repositories) error {
 
 	creds := new(auth.Credentials)
 	if err := c.Bind(creds); err != nil {
-		return c.JSON(http.StatusInternalServerError, &apiError{Error: auth.ErrorServerIssue.Error()})
+		logger.Error(err)
+		return c.JSON(http.StatusInternalServerError, jsonError(web.ErrServer))
 	}
 
 	u, err := usecase.Signin(ctx, r, creds.Email, creds.Password)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, &apiError{Error: err.Error()})
+		if err, ok := err.(errors.DomainError); ok {
+			if err.HasReason() {
+				logger.Debug(err.Reason())
+			}
+			return c.JSON(http.StatusUnauthorized, jsonError(err.Domain()))
+		}
+		logger.Error(err)
+		return c.JSON(http.StatusInternalServerError, jsonError(web.ErrServer))
 	}
 
 	// open a new session for this user

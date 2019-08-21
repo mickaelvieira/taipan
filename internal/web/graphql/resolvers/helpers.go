@@ -1,10 +1,23 @@
 package resolvers
 
 import (
+	"github/mickaelvieira/taipan/internal/logger"
+	"github/mickaelvieira/taipan/internal/domain/errors"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"log"
 )
+
+func handleError(err error) error {
+	if err, ok := err.(errors.DomainError); ok {
+		if err.HasReason() {
+			logger.Debug(err.Reason())
+		}
+		return err.Domain()
+	}
+	logger.Error(err)
+	return err
+}
 
 const maxLimit = 100
 

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 // BookmarkRepository the User Bookmark repository
@@ -44,7 +45,7 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -65,7 +66,7 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 	query = fmt.Sprintf(formatQuery(query), search)
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -76,12 +77,12 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 		results = append(results, b)
 	}
 
-	if err != nil {
-		return nil, err
-	}
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "scan rows")
+	// }
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -107,7 +108,7 @@ func (r *BookmarkRepository) CountAll(ctx context.Context, user *user.User, term
 	query = fmt.Sprintf(formatQuery(query), search)
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan rows")
 	}
 
 	return total, nil
@@ -118,7 +119,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -171,7 +172,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	args = append(args, limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -182,12 +183,8 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 		results = append(results, b)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -198,7 +195,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	var results []*bookmark.Bookmark
 
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -251,7 +248,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	args = append(args, limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "execute")
 	}
 
 	for rows.Next() {
@@ -262,12 +259,8 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 		results = append(results, b)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "scan rows")
 	}
 
 	return results, nil
@@ -285,7 +278,7 @@ func (r *BookmarkRepository) CountFavorites(ctx context.Context, user *user.User
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan")
 	}
 
 	return total, nil
@@ -303,7 +296,7 @@ func (r *BookmarkRepository) CountReadingList(ctx context.Context, user *user.Us
 	`
 	err := r.db.QueryRowContext(ctx, formatQuery(query), user.ID).Scan(&total)
 	if err != nil {
-		return total, err
+		return total, errors.Wrap(err, "scan")
 	}
 
 	return total, nil
@@ -312,7 +305,7 @@ func (r *BookmarkRepository) CountReadingList(ctx context.Context, user *user.Us
 // GetByURL find a single entry
 func (r *BookmarkRepository) GetByURL(ctx context.Context, user *user.User, u *url.URL) (*bookmark.Bookmark, error) {
 	query := `
-		SELECT d.id, d.url, d.charset, d.language, d.title, d.description,
+		SELECT d.id, b.user_id, d.source_id, d.url, d.charset, d.language, d.title, d.description,
 		d.image_url, d.image_name, d.image_width, d.image_height, d.image_format,
 		b.added_at, b.favorited_at, b.updated_at, b.linked, b.favorite
 		FROM documents AS d
@@ -337,12 +330,12 @@ func (r *BookmarkRepository) getCursorDate(ctx context.Context, id string, date 
 	`
 	t = time.Now()
 	if id == "" {
-		return t, err
+		return t, errors.Wrap(err, "ID is missing")
 	}
 
 	err = r.db.QueryRowContext(ctx, formatQuery(fmt.Sprintf(query, date)), id).Scan(&t)
 	if err != nil && err != sql.ErrNoRows {
-		return time.Now(), err
+		return time.Now(), errors.Wrap(err, "scan")
 	}
 
 	return t, nil
@@ -376,7 +369,11 @@ func (r *BookmarkRepository) BookmarkDocument(ctx context.Context, u *user.User,
 		isFavorite,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // ChangeFavoriteStatus mark or unmark a bookmark as favorite
@@ -396,7 +393,11 @@ func (r *BookmarkRepository) ChangeFavoriteStatus(ctx context.Context, u *user.U
 		b.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 // Remove bookmarks from user list
@@ -415,17 +416,24 @@ func (r *BookmarkRepository) Remove(ctx context.Context, u *user.User, b *bookma
 		b.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 	var b bookmark.Bookmark
 	var imageURL, imageName, imageFormat string
 	var imageWidth, imageHeight int32
+	var sourceID sql.NullString
 	var favoritedAt mysql.NullTime
 
 	err := rows.Scan(
 		&b.ID,
+		&b.UserID,
+		&sourceID,
 		&b.URL,
 		&b.Charset,
 		&b.Lang,
@@ -443,18 +451,25 @@ func (r *BookmarkRepository) scan(rows Scanable) (*bookmark.Bookmark, error) {
 		&b.IsFavorite,
 	)
 
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "scan")
+	}
+
 	if favoritedAt.Valid {
 		b.FavoritedAt = favoritedAt.Time
 	}
 
-	if err != nil {
-		return nil, err
+	if sourceID.Valid {
+		b.SourceID = sourceID.String
 	}
 
 	if imageURL != "" {
 		i, err := document.NewImage(imageURL, imageName, imageWidth, imageHeight, imageFormat)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "Cannot create image")
 		}
 		b.Image = i
 	}

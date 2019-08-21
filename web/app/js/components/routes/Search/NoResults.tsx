@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Terms from "./Terms";
 import { SearchType } from "../../../types/search";
+import Emoji from "../../ui/Emoji";
 
 const useStyles = makeStyles(({ spacing }) => ({
   message: {
@@ -23,7 +24,15 @@ export default function NoResults({ type, terms }: Props): JSX.Element {
   return (
     <Paper className={classes.message}>
       Sorry, I could not find any <span className={classes.type}>{type}s</span>{" "}
-      matching <Terms terms={terms} />
+      matching{" "}
+      {terms.length > 0 ? (
+        <Terms terms={terms} />
+      ) : (
+        <span>
+          nothing
+          <Emoji emoji=":zany_face:" />
+        </span>
+      )}
     </Paper>
   );
 }

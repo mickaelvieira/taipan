@@ -2,205 +2,238 @@ package resolvers
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
+	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/publisher"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/auth"
 	"github/mickaelvieira/taipan/internal/web/clientid"
+	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
 	"log"
 
+	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// BookmarksResolver bookmarks' root resolver
-type BookmarksResolver struct {
+// BookmarkRootResolver bookmarks' root resolver
+type BookmarkRootResolver struct {
 	repositories *repository.Repositories
 	publisher    *publisher.Subscription
 }
 
-// BookmarkCollectionResolver resolver
-type BookmarkCollectionResolver struct {
-	Results []*BookmarkResolver
+// BookmarkCollection resolver
+type BookmarkCollection struct {
+	Results []*Bookmark
 	Total   int32
 	First   string
 	Last    string
 	Limit   int32
 }
 
-// BookmarkSearchResultsResolver resolver
-type BookmarkSearchResultsResolver struct {
-	Results []*BookmarkResolver
+// BookmarkSearchResults resolver
+type BookmarkSearchResults struct {
+	Results []*Bookmark
 	Total   int32
 	Offset  int32
 	Limit   int32
 }
 
-// BookmarkResolver resolves the bookmark entity
-type BookmarkResolver struct {
-	*bookmark.Bookmark
+// Bookmark resolves the bookmark entity
+type Bookmark struct {
+	bookmark     *bookmark.Bookmark
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
-func (r *BookmarkResolver) ID() gql.ID {
-	return gql.ID(r.Bookmark.ID)
+func (r *Bookmark) ID() gql.ID {
+	return gql.ID(r.bookmark.ID)
+}
+
+// User resolves User field
+func (r *Bookmark) User(ctx context.Context) (*User, error) {
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Users.Load(ctx, dataloader.StringKey(r.bookmark.UserID))()
+	if err != nil {
+		return nil, err
+	}
+
+	u, ok := d.(*user.User)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
+	}
+
+	return resolve(r.repositories).user(u), nil
 }
 
 // URL resolves the URL
-func (r *BookmarkResolver) URL() scalars.URL {
-	return scalars.NewURL(r.Bookmark.URL)
+func (r *Bookmark) URL() scalars.URL {
+	return scalars.NewURL(r.bookmark.URL)
 }
 
 // Image resolves the Image field
-func (r *BookmarkResolver) Image() *BookmarkImageResolver {
-	if !r.Bookmark.HasImage() {
+func (r *Bookmark) Image() *BookmarkImage {
+	if !r.bookmark.HasImage() {
 		return nil
 	}
-	return &BookmarkImageResolver{Image: r.Bookmark.Image}
+	return &BookmarkImage{Image: r.bookmark.Image}
 }
 
 // Lang resolves the Lang field
-func (r *BookmarkResolver) Lang() string {
-	return r.Bookmark.Lang
+func (r *Bookmark) Lang() string {
+	return r.bookmark.Lang
 }
 
 // Charset resolves the Charset field
-func (r *BookmarkResolver) Charset() string {
-	return r.Bookmark.Charset
+func (r *Bookmark) Charset() string {
+	return r.bookmark.Charset
 }
 
 // Title resolves the Title field
-func (r *BookmarkResolver) Title() string {
-	return r.Bookmark.Title
+func (r *Bookmark) Title() string {
+	return r.bookmark.Title
 }
 
 // Description resolves the Description field
-func (r *BookmarkResolver) Description() string {
-	return r.Bookmark.Description
+func (r *Bookmark) Description() string {
+	return r.bookmark.Description
 }
 
 // AddedAt resolves the AddedAt field
-func (r *BookmarkResolver) AddedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Bookmark.AddedAt)
+func (r *Bookmark) AddedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.bookmark.AddedAt)
 }
 
 // FavoritedAt resolves the FavoritedAt field
-func (r *BookmarkResolver) FavoritedAt() *scalars.Datetime {
-	t := scalars.NewDatetime(r.Bookmark.FavoritedAt)
+func (r *Bookmark) FavoritedAt() *scalars.Datetime {
+	t := scalars.NewDatetime(r.bookmark.FavoritedAt)
 	return &t
 }
 
 // UpdatedAt resolves the UpdatedAt field
-func (r *BookmarkResolver) UpdatedAt() scalars.Datetime {
-	return scalars.NewDatetime(r.Bookmark.UpdatedAt)
+func (r *Bookmark) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.bookmark.UpdatedAt)
 }
 
 // IsFavorite resolves the IsFavorite field
-func (r *BookmarkResolver) IsFavorite() bool {
-	return bool(r.Bookmark.IsFavorite)
+func (r *Bookmark) IsFavorite() bool {
+	return bool(r.bookmark.IsFavorite)
 }
 
-// BookmarkEventResolver resolves an bookmark event
-type BookmarkEventResolver struct {
-	event *publisher.Event
+// Source resolves the Source field
+func (r *Bookmark) Source(ctx context.Context) (*Source, error) {
+	if r.bookmark.SourceID == "" {
+		return nil, nil
+	}
+
+	l := loaders.FromContext(ctx)
+	if l == nil {
+		return nil, ErrLoadersNotFound
+	}
+
+	d, err := l.Sources.Load(ctx, dataloader.StringKey(r.bookmark.SourceID))()
+	if err != nil {
+		return nil, err
+	}
+
+	result, ok := d.(*syndication.Source)
+	if !ok {
+		return nil, ErrDataTypeIsNotValid
+	}
+
+	return resolve(r.repositories).source(result), nil
+}
+
+// BookmarkEvent resolves an bookmark event
+type BookmarkEvent struct {
+	event        *publisher.Event
+	repositories *repository.Repositories
 }
 
 // Item returns the event's message
-func (r *BookmarkEventResolver) Item() *BookmarkResolver {
+func (r *BookmarkEvent) Item() *Bookmark {
 	b, ok := r.event.Payload.(*bookmark.Bookmark)
 	if !ok {
 		log.Fatal("Cannot resolve item, payload is not a bookmark")
 	}
-	return &BookmarkResolver{Bookmark: b}
+
+	return resolve(r.repositories).bookmark(b)
 }
 
 // Emitter returns the event's emitter ID
-func (r *BookmarkEventResolver) Emitter() string {
+func (r *BookmarkEvent) Emitter() string {
 	return r.event.Emitter
 }
 
 // Topic returns the event's topic
-func (r *BookmarkEventResolver) Topic() string {
+func (r *BookmarkEvent) Topic() string {
 	return string(r.event.Topic)
 }
 
 // Action returns the event's action
-func (r *BookmarkEventResolver) Action() string {
+func (r *BookmarkEvent) Action() string {
 	return string(r.event.Action)
 }
 
-type userSubscriber struct {
-	events chan<- *UserEventResolver
-}
-
-func (s *userSubscriber) Publish(e *publisher.Event) {
-	s.events <- &UserEventResolver{event: e}
-}
-
 type bookmarkSubscriber struct {
-	events chan<- *BookmarkEventResolver
+	repositories *repository.Repositories
+	events       chan<- *BookmarkEvent
 }
 
 func (s *bookmarkSubscriber) Publish(e *publisher.Event) {
-	s.events <- &BookmarkEventResolver{event: e}
-}
-
-type documentSubscriber struct {
-	events chan<- *DocumentEventResolver
-}
-
-func (s *documentSubscriber) Publish(e *publisher.Event) {
-	s.events <- &DocumentEventResolver{event: e}
+	s.events <- &BookmarkEvent{
+		event:        e,
+		repositories: s.repositories,
+	}
 }
 
 // BookmarkChanged --
-func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEventResolver {
+func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEvent {
 	// @TODO better handle authentication
-	c := make(chan *BookmarkEventResolver)
-	s := &bookmarkSubscriber{events: c}
+	c := make(chan *BookmarkEvent)
+	s := &bookmarkSubscriber{
+		events:       c,
+		repositories: r.repositories,
+	}
 	r.publisher.Subscribe(publisher.TopicBookmark, s, ctx.Done())
 	return c
 }
 
 // Bookmark resolves the query
-func (r *BookmarksResolver) Bookmark(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Bookmark(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*BookmarkResolver, error) {
+}) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	u := args.URL.ToDomain()
 
 	b, err := r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("Not found")
-		}
 		return nil, err
 	}
 
-	res := BookmarkResolver{Bookmark: b}
-
-	return &res, nil
+	return resolve(r.repositories).bookmark(b), nil
 }
 
 // Create creates a new document and add it to user's bookmarks
-func (r *BookmarksResolver) Create(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Create(ctx context.Context, args struct {
 	URL        scalars.URL
 	IsFavorite bool
-	WithFeeds  bool
-}) (*BookmarkResolver, error) {
+}) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), args.WithFeeds)
+	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), "")
 	if err != nil {
 		return nil, err
 	}
 
-	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
+	b, err := usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
 	if err != nil {
 		return nil, err
 	}
@@ -209,26 +242,24 @@ func (r *BookmarksResolver) Create(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Bookmark, b),
 	)
 
-	res := &BookmarkResolver{Bookmark: b}
-
-	return res, nil
+	return resolve(r.repositories).bookmark(b), nil
 }
 
 // Add bookmarks a URL
-func (r *BookmarksResolver) Add(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Add(ctx context.Context, args struct {
 	URL           scalars.URL
 	IsFavorite    bool
 	Subscriptions *[]scalars.URL
-}) (*BookmarkResolver, error) {
+}) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
+
 	d, err := r.repositories.Documents.GetByURL(ctx, args.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
 
-	var b *bookmark.Bookmark
-	b, err = usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
+	b, err := usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
 	if err != nil {
 		return nil, err
 	}
@@ -248,15 +279,13 @@ func (r *BookmarksResolver) Add(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Bookmark, b),
 	)
 
-	res := &BookmarkResolver{Bookmark: b}
-
-	return res, nil
+	return resolve(r.repositories).bookmark(b), nil
 }
 
 // Favorite adds the bookmark to favorites
-func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Favorite(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*BookmarkResolver, error) {
+}) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
@@ -269,15 +298,13 @@ func (r *BookmarksResolver) Favorite(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Favorite, b),
 	)
 
-	res := &BookmarkResolver{Bookmark: b}
-
-	return res, nil
+	return resolve(r.repositories).bookmark(b), nil
 }
 
 // Unfavorite removes the bookmark from favorites
-func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Unfavorite(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*BookmarkResolver, error) {
+}) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
@@ -290,15 +317,13 @@ func (r *BookmarksResolver) Unfavorite(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicBookmark, publisher.Unfavorite, b),
 	)
 
-	res := &BookmarkResolver{Bookmark: b}
-
-	return res, nil
+	return resolve(r.repositories).bookmark(b), nil
 }
 
 // Remove removes bookmark from user's list
-func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Remove(ctx context.Context, args struct {
 	URL scalars.URL
-}) (*DocumentResolver, error) {
+}) (*Document, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
@@ -311,22 +336,20 @@ func (r *BookmarksResolver) Remove(ctx context.Context, args struct {
 		publisher.NewEvent(clientID, publisher.TopicDocument, publisher.Unbookmark, d),
 	)
 
-	res := &DocumentResolver{Document: d}
-
-	return res, nil
+	return resolve(r.repositories).document(d), nil
 }
 
 // Search --
-func (r *BookmarksResolver) Search(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Search(ctx context.Context, args struct {
 	Pagination offsetPaginationInput
 	Search     bookmarkSearchInput
-}) (*BookmarkSearchResultsResolver, error) {
+}) (*BookmarkSearchResults, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 	terms := args.Search.Terms
 
-	var bookmarks []*BookmarkResolver
+	var bookmarks []*Bookmark
 	var total int32
 
 	if len(terms) > 0 {
@@ -340,15 +363,10 @@ func (r *BookmarksResolver) Search(ctx context.Context, args struct {
 			return nil, err
 		}
 
-		bookmarks = make([]*BookmarkResolver, len(results))
-		for i, result := range results {
-			bookmarks[i] = &BookmarkResolver{
-				Bookmark: result,
-			}
-		}
+		bookmarks = resolve(r.repositories).bookmarks(results)
 	}
 
-	res := BookmarkSearchResultsResolver{
+	res := BookmarkSearchResults{
 		Results: bookmarks,
 		Total:   total,
 		Offset:  offset,

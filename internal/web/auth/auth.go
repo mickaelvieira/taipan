@@ -23,6 +23,10 @@ type ResetPassword struct {
 	Password string
 }
 
+type ConfirmEmail struct {
+	Token string
+}
+
 // NewContext creates a new context with the userID attached to it
 func NewContext(ctx context.Context, user *user.User) context.Context {
 	return context.WithValue(ctx, config.UserContextKey, user)
