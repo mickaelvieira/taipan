@@ -3,7 +3,9 @@
 mutation updateTitle($url: URL!, $title: String!) {
   syndication {
     updateTitle(url: $url, title: $title) {
-      ...sourceFields
+      id
+      title
+      updatedAt
     }
   }
 }

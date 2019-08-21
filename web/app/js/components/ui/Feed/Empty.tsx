@@ -4,6 +4,9 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyle = makeStyles({
   message: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
     padding: 24
   }
 });

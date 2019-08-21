@@ -256,15 +256,7 @@ func (r *UserRootResolver) Update(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	err := usecase.UpdateUser(
-		ctx,
-		r.repositories,
-		user,
-		args.User.Firstname,
-		args.User.Lastname,
-		args.User.Image,
-	)
-	if err != nil {
+	if err := usecase.UpdateUser(ctx, r.repositories, user, args.User.Firstname, args.User.Lastname, args.User.Image); err != nil {
 		return nil, err
 	}
 
@@ -283,14 +275,7 @@ func (r *UserRootResolver) Password(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	// clientID := clientid.FromContext(ctx)
 
-	err := usecase.ChangePassword(
-		ctx,
-		r.repositories,
-		user,
-		args.Old,
-		args.New,
-	)
-	if err != nil {
+	if err := usecase.ChangePassword(ctx, r.repositories, user, args.Old, args.New); err != nil {
 		return false, err
 	}
 
@@ -308,13 +293,7 @@ func (r *UserRootResolver) Theme(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	err := usecase.UpdateTheme(
-		ctx,
-		r.repositories,
-		user,
-		args.Theme,
-	)
-	if err != nil {
+	if err := usecase.UpdateTheme(ctx, r.repositories, user, args.Theme); err != nil {
 		return nil, err
 	}
 
@@ -332,8 +311,7 @@ func (r *UserRootResolver) CreateEmail(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	err := usecase.CreateUserEmail(ctx, r.repositories, user, args.Email)
-	if err != nil {
+	if err := usecase.CreateUserEmail(ctx, r.repositories, user, args.Email); err != nil {
 		return nil, err
 	}
 
@@ -351,8 +329,7 @@ func (r *UserRootResolver) DeleteEmail(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	err := usecase.DeleteUserEmail(ctx, r.repositories, user, args.Email)
-	if err != nil {
+	if err := usecase.DeleteUserEmail(ctx, r.repositories, user, args.Email); err != nil {
 		return nil, err
 	}
 
@@ -370,8 +347,30 @@ func (r *UserRootResolver) PrimaryEmail(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	err := usecase.PrimaryUserEmail(ctx, r.repositories, user, args.Email)
+	if err := usecase.PrimaryUserEmail(ctx, r.repositories, user, args.Email); err != nil {
+		return nil, err
+	}
+
+	r.publisher.Publish(
+		publisher.NewEvent(clientID, publisher.TopicUser, publisher.Update, user),
+	)
+
+	return resolve(r.repositories).user(user), nil
+}
+
+// SendConfirmationEmail --
+func (r *UserRootResolver) SendConfirmationEmail(ctx context.Context, args struct {
+	Email string
+}) (*User, error) {
+	user := auth.FromContext(ctx)
+	clientID := clientid.FromContext(ctx)
+
+	e, err := r.repositories.Emails.GetUserEmailByValue(ctx, user, args.Email)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := usecase.CreateTokenAndSendConfirmationEmail(ctx, r.repositories, user, e); err != nil {
 		return nil, err
 	}
 

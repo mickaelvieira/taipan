@@ -3,7 +3,10 @@
 mutation primaryEmail($email: String!) {
   users {
     primaryEmail(email: $email) {
-      ...userFields
+      id
+      emails {
+        ...emailFields
+      }
     }
   }
 }

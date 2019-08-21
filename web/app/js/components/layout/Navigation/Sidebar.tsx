@@ -32,6 +32,7 @@ const useStyles = makeStyles(
     },
     paper: {
       [breakpoints.up("md")]: {
+        maxWidth: SIDEBAR_WIDTH + 1, // +1 for the border
         backgroundColor: palette.grey[900]
       }
     },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
@@ -6,6 +6,8 @@ import { confirmEmail } from "../../../helpers/app";
 import { ErrorMessage, SuccessMessage } from "../../ui/Form/Message";
 import Loader from "../../ui/Loader";
 import { RouteConfirmEmailProps } from "../../../types/routes";
+import ReloadUser from "./ReloadUser";
+import { UserContext } from "../../context";
 
 const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
   container: {
@@ -30,6 +32,7 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
 
 export default function ConfirmEmail(_: RouteConfirmEmailProps): JSX.Element {
   const classes = useStyles();
+  const user = useContext(UserContext);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +63,12 @@ export default function ConfirmEmail(_: RouteConfirmEmailProps): JSX.Element {
           <SuccessMessage className={classes.message}>{message}</SuccessMessage>
           <div className={classes.links}>
             <Link href="/account">Go to my account</Link>
+            {/*
+              The user could be logged in and since we don't use apollo to confirm the email address
+              we can't update the cache. We then need to refresh the cache in the background
+              otherwise the user's email will be marked as unconfirmed.
+            */}
+            {user && <ReloadUser />}
           </div>
         </>
       )}

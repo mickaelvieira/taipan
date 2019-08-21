@@ -4,6 +4,15 @@ query loggedInUser {
   users {
     loggedIn {
       ...userFields
+      image {
+        ...imageFields
+      }
+      emails {
+        ...emailFields
+      }
+      stats {
+        ...statsFields
+      }
     }
   }
 }

@@ -41,13 +41,13 @@ func (r *UserEmailConfirmRepository) Create(ctx context.Context, t *user.EmailCo
 }
 
 // FindUserActiveToken find a single entry
-func (r *UserEmailConfirmRepository) FindUserActiveToken(ctx context.Context, usr *user.User) (*user.EmailConfirmToken, error) {
+func (r *UserEmailConfirmRepository) FindUserActiveToken(ctx context.Context, u *user.User, e *user.Email) (*user.EmailConfirmToken, error) {
 	query := `
 		SELECT t.token, t.user_id, t.email_id, t.used, t.expired_at, t.created_at, t.used_at
 		FROM users_emails_confirm as t
-		WHERE t.user_id = ? AND t.used = 0 AND t.used_at IS NULL AND t.expired_at > NOW()
+		WHERE t.user_id = ? AND t.email_id = ? AND t.used = 0 AND t.used_at IS NULL AND t.expired_at > NOW()
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), usr.ID)
+	row := r.db.QueryRowContext(ctx, formatQuery(query), u.ID, e.ID)
 	pr, err := r.scan(row)
 	if err != nil {
 		return nil, err

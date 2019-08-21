@@ -1,9 +1,16 @@
 #import "../../fragment/user.graphql"
+#import "../../fragment/image.graphql"
 
 mutation update($user: UserInput!) {
   users {
     update(user: $user) {
-      ...userFields
+      id
+      firstname
+      lastname
+      updatedAt
+      image {
+        ...imageFields
+      }
     }
   }
 }

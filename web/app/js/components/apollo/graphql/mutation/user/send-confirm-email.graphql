@@ -1,8 +1,8 @@
 #import "../../fragment/user.graphql"
 
-mutation deleteEmail($email: String!) {
+mutation sendConfirmationEmail($email: String!) {
   users {
-    deleteEmail(email: $email) {
+    sendConfirmationEmail(email: $email) {
       id
       emails {
         ...emailFields

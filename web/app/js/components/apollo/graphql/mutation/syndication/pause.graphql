@@ -3,7 +3,9 @@
 mutation pause($url: URL!) {
   syndication {
     pause(url: $url) {
-      ...sourceFields
+      id
+      isPaused
+      updatedAt
     }
   }
 }

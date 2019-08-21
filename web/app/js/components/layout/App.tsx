@@ -5,12 +5,13 @@ import UserContextProvider from "../context/provider/User";
 import FeedContextProvider from "../context/provider/Feeds";
 import Header from "./Header";
 import Sidebar from "./Navigation/Sidebar";
+import usePage from "../../hooks/usePage";
 import useConnectionStatus from "../../hooks/useConnectionStatus";
-import { SnackbarInfo, SnackbarWarning } from "../ui/Snackbar";
+import { SnackbarInfo } from "../ui/Snackbar";
+import SnackbarEmailWarning from "../ui/Snackbar/Warning/Email";
 import { MessageContext, LayoutContext } from "../context";
 import { MessageInfo } from "../../types";
 import { User } from "../../types/users";
-import { getPrimaryEmail } from "../../helpers/users";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -34,12 +35,12 @@ export default function AppLayout({
   children
 }: PropsWithChildren<Props>): JSX.Element | null {
   const classes = useStyles();
+  const page = usePage();
   const [info, setMessageInfo] = useState<MessageInfo | null>(null);
   const [isSideOpen, setIsSidebarOpen] = useState(false);
   const [isContained, setIsContained] = useState(false);
   const isOnline = useConnectionStatus();
   const body = document.querySelector("body");
-  const email = getPrimaryEmail(user);
 
   useEffect(() => {
     const overflow = isContained ? "hidden" : "initial";
@@ -55,10 +56,13 @@ export default function AppLayout({
           <Sidebar isOpen={isSideOpen} toggleDrawer={setIsSidebarOpen} />
           <Header toggleDrawer={setIsSidebarOpen} />
           <Grid container className={classes.container}>
-            <SnackbarWarning
-              open={!!(email && !email.isConfirmed)}
-              message="Your primary has not been confirm yet. Please confirm it."
-            />
+            {!page.isEmailConfirm() && (
+              <SnackbarEmailWarning
+                user={user}
+                onRendSuccess={message => setMessageInfo({ message })}
+                onRendFailure={message => setMessageInfo({ message })}
+              />
+            )}
             <LayoutContext.Provider value={setIsContained}>
               <MessageContext.Provider value={setMessageInfo}>
                 {children}

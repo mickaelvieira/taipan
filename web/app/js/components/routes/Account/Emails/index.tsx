@@ -42,6 +42,12 @@ export default function UserEmails({ user }: Props): JSX.Element {
               onStatusFailure={message => {
                 setMessageInfo({ message });
               }}
+              onRendConfirmEmailFailure={message => {
+                setMessageInfo({ message });
+              }}
+              onRendConfirmEmailSuccess={message => {
+                setMessageInfo({ message });
+              }}
             />
           ))}
         </List>

@@ -23,10 +23,10 @@ type domainError struct {
 
 // Error returns the message of the error that caused the domain error
 func (d *domainError) Error() string {
-	if d.reason == nil {
-		return ""
+	if d.HasReason() {
+		return d.reason.Error()
 	}
-	return d.reason.Error()
+	return d.err.Error()
 }
 
 // Reason returns the error that caused the domain error

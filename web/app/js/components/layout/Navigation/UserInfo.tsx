@@ -2,6 +2,11 @@ import React, { useContext } from "react";
 import { UserContext } from "../../context";
 import { makeStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
+import {
+  getPrimaryEmail,
+  getFullname,
+  getEmailHandle
+} from "../../../helpers/users";
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
   userInfo: {
@@ -17,10 +22,14 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
     }
   },
   name: {
+    width: "100%",
+    maxWidth: 160,
     fontSize: "1.2rem",
     fontWeight: 500,
     lineHeight: 1.33,
-    letterSpacing: "0em"
+    letterSpacing: "0em",
+    overflowWrap: "break-word",
+    textAlign: "center"
   },
   avatar: {
     width: 35,
@@ -31,6 +40,8 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
 export default function UserInfo(): JSX.Element | null {
   const classes = useStyles();
   const user = useContext(UserContext);
+  const email = getPrimaryEmail(user);
+  const fullname = getFullname(user);
 
   return !user ? null : (
     <div className={classes.userInfo}>
@@ -41,9 +52,10 @@ export default function UserInfo(): JSX.Element | null {
           className={classes.avatar}
         />
       )}
-      <p className={classes.name}>
-        {user.firstname} {user.lastname}
-      </p>
+      {fullname && <p className={classes.name}>{fullname}</p>}
+      {!fullname && email && (
+        <p className={classes.name}>{getEmailHandle(email)}</p>
+      )}
     </div>
   );
 }

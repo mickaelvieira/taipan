@@ -43,4 +43,7 @@ export class Page {
   isSearchResults(): boolean {
     return isSearchResultsPage(this.url.pathname);
   }
+  isEmailConfirm(): boolean {
+    return this.url.pathname === "/confirm-email";
+  }
 }

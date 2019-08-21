@@ -13,11 +13,6 @@ import { RouterLink } from "../../ui/Link";
 import Emoji from "../../ui/Emoji";
 
 const useStyles = makeStyles(({ spacing }) => ({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  },
   message: {
     margin: spacing(2)
   },
@@ -47,15 +42,14 @@ export default React.memo(function DocumentList({
       <Latest firstId={firstId} lastId={lastId} />
       {results.length === 0 && (
         <>
-          <EmptyFeed className={classes.container}>
+          <EmptyFeed>
             <Typography className={classes.message}>
               There isn&apos;t any news today.
             </Typography>
             {user && user.stats && user.stats.subscriptions === 0 && (
               <>
                 <Typography className={classes.subscriptions}>
-                  But, you haven&apos;t subscribed to any feeds.{" "}
-                  <Emoji emoji=":sob:" />
+                  But, you haven&apos;t subscribed to any feeds.
                 </Typography>
                 <div className={classes.links}>
                   <Button

@@ -19,6 +19,7 @@ const useStyles = makeStyles(({ palette, spacing, breakpoints }) => ({
 export default function SnackbarWarning({
   className,
   message,
+  action,
   ...rest
 }: SnackbarProps): JSX.Element | null {
   const classes = useStyles();
@@ -31,6 +32,7 @@ export default function SnackbarWarning({
       <SnackbarContent
         className={`${classes.bar} ${className ? className : ""}`}
         message={<span>{message}</span>}
+        action={action}
       />
     </Snackbar>
   );

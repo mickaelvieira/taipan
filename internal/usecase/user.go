@@ -6,6 +6,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/errors"
 	"github/mickaelvieira/taipan/internal/domain/password"
 	"github/mickaelvieira/taipan/internal/domain/user"
+	"github/mickaelvieira/taipan/internal/logger"
 	"github/mickaelvieira/taipan/internal/repository"
 	"time"
 
@@ -122,12 +123,9 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 		return nil, err
 	}
 
-	t := user.NewEmailConfirmToken(u, email)
-	if err := repos.EmailsConfirm.Create(ctx, t); err != nil {
+	if err := CreateTokenAndSendConfirmationEmail(ctx, repos, u, email); err != nil {
 		return nil, err
 	}
-
-	// @TODO send confirmation email
 
 	emails, err := repos.Emails.GetUserEmails(ctx, u)
 	if err != nil {
@@ -207,6 +205,28 @@ func ResetPassword(ctx context.Context, repos *repository.Repositories, t string
 	if err := repos.PasswordReset.UpdateUsage(ctx, e); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// CreateTokenAndSendConfirmationEmail --
+func CreateTokenAndSendConfirmationEmail(ctx context.Context, repos *repository.Repositories, u *user.User, e *user.Email) error {
+	var t *user.EmailConfirmToken
+	// is there an active token?
+	t, err := repos.EmailsConfirm.FindUserActiveToken(ctx, u, e)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		t = user.NewEmailConfirmToken(u, e)
+		if err := repos.EmailsConfirm.Create(ctx, user.NewEmailConfirmToken(u, e)); err != nil {
+			return err
+		}
+	}
+
+	logger.Debug(t)
+
+	// @TODO send confirmation email
 
 	return nil
 }
@@ -316,13 +336,17 @@ func UpdateTheme(ctx context.Context, repos *repository.Repositories, usr *user.
 }
 
 // CreateUserEmail --
-func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *user.User, v string) error {
+func CreateUserEmail(ctx context.Context, repos *repository.Repositories, u *user.User, v string) error {
+	if !user.IsEmailValid(v) {
+		return errors.New(user.ErrEmailIsNotValid, nil)
+	}
+
 	_, err := repos.Emails.GetEmail(ctx, v)
 	if err == nil {
 		return errors.New(user.ErrEmailIsAlreadyUsed, nil)
 	}
 
-	emails, err := repos.Emails.GetUserEmails(ctx, usr)
+	emails, err := repos.Emails.GetUserEmails(ctx, u)
 	if err != nil {
 		return err
 	}
@@ -331,7 +355,12 @@ func CreateUserEmail(ctx context.Context, repos *repository.Repositories, usr *u
 		return errors.New(user.ErrPrimaryEmailIsNotConfirmed, nil)
 	}
 
-	if err := repos.Emails.CreateUserEmail(ctx, usr, user.NewEmail(v)); err != nil {
+	email := user.NewEmail(v)
+	if err := repos.Emails.CreateUserEmail(ctx, u, email); err != nil {
+		return err
+	}
+
+	if err := CreateTokenAndSendConfirmationEmail(ctx, repos, u, email); err != nil {
 		return err
 	}
 

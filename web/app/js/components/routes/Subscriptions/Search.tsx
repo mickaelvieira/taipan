@@ -118,8 +118,7 @@ export default function Search(): JSX.Element | null {
 
       {terms.length === 0 && user.stats && user.stats.subscriptions === 0 && (
         <Empty>
-          You haven&apos;t subscribed to any feeds. Use the search field above
-          to find new sources of excitement.
+          Use the search field above to find new sources of excitement.
         </Empty>
       )}
 

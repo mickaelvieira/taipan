@@ -3,7 +3,9 @@
 mutation enable($url: URL!) {
   syndication {
     enable(url: $url) {
-      ...sourceFields
+      id
+      isDeleted
+      updatedAt
     }
   }
 }
