@@ -13,7 +13,11 @@ import (
 )
 
 // SyndicationRootResolver syndication's root resolver
-type SyndicationRootResolver struct {
+type SyndicationQuery struct {
+	repositories *repository.Repositories
+}
+
+type SyndicationMutation struct {
 	repositories *repository.Repositories
 }
 
@@ -111,7 +115,7 @@ func (r *Source) LogEntries(ctx context.Context) (*[]*Log, error) {
 }
 
 // Source returns the syndication source
-func (r *SyndicationRootResolver) Source(ctx context.Context, args struct {
+func (r *SyndicationQuery) Source(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Source, error) {
 	u := args.URL.ToDomain()
@@ -125,7 +129,7 @@ func (r *SyndicationRootResolver) Source(ctx context.Context, args struct {
 }
 
 // Create adds a syndication source
-func (r *SyndicationRootResolver) Create(ctx context.Context, args struct {
+func (r *SyndicationMutation) Create(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Source, error) {
 	u := args.URL.ToDomain()
@@ -139,7 +143,7 @@ func (r *SyndicationRootResolver) Create(ctx context.Context, args struct {
 }
 
 // UpdateTitle adds a syndication source
-func (r *SyndicationRootResolver) UpdateTitle(ctx context.Context, args struct {
+func (r *SyndicationMutation) UpdateTitle(ctx context.Context, args struct {
 	URL   scalars.URL
 	Title string
 }) (*Source, error) {
@@ -157,7 +161,7 @@ func (r *SyndicationRootResolver) UpdateTitle(ctx context.Context, args struct {
 }
 
 // Pause disables a syndication source
-func (r *SyndicationRootResolver) Pause(ctx context.Context, args struct {
+func (r *SyndicationMutation) Pause(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
@@ -174,7 +178,7 @@ func (r *SyndicationRootResolver) Pause(ctx context.Context, args struct {
 }
 
 // Resume enables a syndication source
-func (r *SyndicationRootResolver) Resume(ctx context.Context, args struct {
+func (r *SyndicationMutation) Resume(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
@@ -191,7 +195,7 @@ func (r *SyndicationRootResolver) Resume(ctx context.Context, args struct {
 }
 
 // Enable enables a syndication source
-func (r *SyndicationRootResolver) Enable(ctx context.Context, args struct {
+func (r *SyndicationMutation) Enable(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
@@ -208,7 +212,7 @@ func (r *SyndicationRootResolver) Enable(ctx context.Context, args struct {
 }
 
 // Disable disables a syndication source
-func (r *SyndicationRootResolver) Disable(ctx context.Context, args struct {
+func (r *SyndicationMutation) Disable(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Source, error) {
 	s, err := r.repositories.Syndication.GetByURL(ctx, args.URL.ToDomain())
@@ -225,9 +229,9 @@ func (r *SyndicationRootResolver) Disable(ctx context.Context, args struct {
 }
 
 // Sources resolves the query
-func (r *SyndicationRootResolver) Sources(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     searchSourcesInput
+func (r *SyndicationQuery) Sources(ctx context.Context, args struct {
+	Pagination OffsetPaginationInput
+	Search     SearchSourcesInput
 }) (*SourceCollection, error) {
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)

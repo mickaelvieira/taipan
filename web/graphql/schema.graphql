@@ -7,47 +7,48 @@ scalar DateTime
 schema {
   query: Query
   mutation: Mutation
-  subscription: Subscription
+  # subscription: Subscription
 }
 
 type Query {
   app: AppQuery
   users: UsersQuery
-  documents: DocumentsQuery
-  bookmarks: BookmarksQuery
-  feeds: FeedsQuery
-  syndication: SyndicationQuery
-  subscriptions: SubscriptionsQuery
-  bot: BotQuery
+  # documents: DocumentsQuery
+  # bookmarks: BookmarksQuery
+  # feeds: FeedsQuery
+  # syndication: SyndicationQuery
+  # subscriptions: SubscriptionsQuery
+  # bot: BotQuery
 }
 
 type Mutation {
-  documents: DocumentMutation
-  bookmarks: BookmarksMutation
-  syndication: SyndicationMutation
-  subscriptions: SubscriptionsMutation
   users: UsersMutation
+  # documents: DocumentMutation
+  # bookmarks: BookmarksMutation
+  # syndication: SyndicationMutation
+  # subscriptions: SubscriptionsMutation
+
 }
 
-type Subscription {
-  # "Subscribes to user events
-  userChanged(): UserEvent!
+# type Subscription {
+#   # "Subscribes to user events
+#   userChanged: UserEvent!
 
-  # "Subscribes to document events
-  documentChanged(): DocumentEvent!
+#   # "Subscribes to document events
+#   documentChanged: DocumentEvent!
 
-  # "Subscribes to bookmark events
-  bookmarkChanged(): BookmarkEvent!
-}
+#   # "Subscribes to bookmark events
+#   bookmarkChanged: BookmarkEvent!
+# }
 
 type AppQuery {
   # "Returns information related to the app itself"
-  info(): AppInfo
+  info: AppInfo
 }
 
 type UsersQuery {
   # "Returns the current logged in user"
-  loggedIn(): User
+  loggedIn: User
 }
 
 input UserInput {
@@ -76,112 +77,112 @@ type UsersMutation {
   theme(theme: String!): User
 }
 
-type DocumentMutation {
-  # "create a document matching the URL
-  create(url: URL!): Document
-}
+# type DocumentMutation {
+#   # "create a document matching the URL
+#   create(url: URL!): Document
+# }
 
-type DocumentsQuery {
-  # "Returns a list of documents"
-  documents(pagination: CursorPaginationInput!): DocumentCollection
+# type DocumentsQuery {
+#   # "Returns a list of documents"
+#   documents(pagination: CursorPaginationInput!): DocumentCollection
 
-  # "Look up user's newsfeed
-  search(pagination: OffsetPaginationInput!, search: DocumentSearchInput!): DocumentSearchResults
-}
+#   # "Look up user's newsfeed
+#   search(pagination: OffsetPaginationInput!, search: DocumentSearchInput!): DocumentSearchResults
+# }
 
-type BookmarksQuery {
-  # "Returns the bookmark matching the URL"
-  bookmark(url: URL!): Bookmark
+# type BookmarksQuery {
+#   # "Returns the bookmark matching the URL"
+#   bookmark(url: URL!): Bookmark
 
-  # "Look up user's bookmarks
-  search(pagination: OffsetPaginationInput!, search: BookmarkSearchInput!): BookmarkSearchResults
-}
+#   # "Look up user's bookmarks
+#   search(pagination: OffsetPaginationInput!, search: BookmarkSearchInput!): BookmarkSearchResults
+# }
 
-type BookmarksMutation {
-  # """
-  # This mutation will fetch the document and create a bookmark
-  # Which will be present in user's reading list
-  # """
-  create(url: URL!, isFavorite: Boolean!): Bookmark
+# type BookmarksMutation {
+#   # """
+#   # This mutation will fetch the document and create a bookmark
+#   # Which will be present in user's reading list
+#   # """
+#   create(url: URL!, isFavorite: Boolean!): Bookmark
 
-  # """
-  # This mutation will add the document and create a bookmark
-  # It will be present in user's reading list or favorites depending
-  # on the isFavorite flag
-  # """
-  add(url: URL!, isFavorite: Boolean!, subscriptions: [URL!]): Bookmark
+#   # """
+#   # This mutation will add the document and create a bookmark
+#   # It will be present in user's reading list or favorites depending
+#   # on the isFavorite flag
+#   # """
+#   add(url: URL!, isFavorite: Boolean!, subscriptions: [URL!]): Bookmark
 
-  # "This mutation will add the document to users's bookmarks."
-  remove(url: URL!): Document
+#   # "This mutation will add the document to users's bookmarks."
+#   remove(url: URL!): Document
 
-  # "This mutation will add the bookmark to users's favorites."
-  favorite(url: URL!): Bookmark
+#   # "This mutation will add the bookmark to users's favorites."
+#   favorite(url: URL!): Bookmark
 
-  # "This mutation will remove the bookmark from users's favorites."
-  unfavorite(url: URL!): Bookmark
-}
+#   # "This mutation will remove the bookmark from users's favorites."
+#   unfavorite(url: URL!): Bookmark
+# }
 
-type FeedsQuery {
-  # "Returns the list of latest news shown in the feed"
-  news(pagination: CursorPaginationInput!): FeedDocumentResults
+# type FeedsQuery {
+#   # "Returns the list of latest news shown in the feed"
+#   news(pagination: CursorPaginationInput!): FeedDocumentResults
 
-  # "Returns the list of latest news when polling documents"
-  latestNews(pagination: CursorPaginationInput!): FeedDocumentResults
+#   # "Returns the list of latest news when polling documents"
+#   latestNews(pagination: CursorPaginationInput!): FeedDocumentResults
 
-  # "Returns the users's favorite bookmarks"
-  favorites(pagination: CursorPaginationInput!): FeedBookmarkResults
+#   # "Returns the users's favorite bookmarks"
+#   favorites(pagination: CursorPaginationInput!): FeedBookmarkResults
 
-  # "Returns the users's reading list"
-  readingList(pagination: CursorPaginationInput!): FeedBookmarkResults
-}
+#   # "Returns the users's reading list"
+#   readingList(pagination: CursorPaginationInput!): FeedBookmarkResults
+# }
 
-type SyndicationQuery {
-  # "Returns a web syndication source matching the URL"
-  source(url: URL!): Source
+# type SyndicationQuery {
+#   # "Returns a web syndication source matching the URL"
+#   source(url: URL!): Source
 
-  # "Returns a list of web syndication sources"
-  sources(pagination: OffsetPaginationInput!, search: SearchSourcesInput!): SourceCollection
-}
+#   # "Returns a list of web syndication sources"
+#   sources(pagination: OffsetPaginationInput!, search: SearchSourcesInput!): SourceCollection
+# }
 
-type SyndicationMutation {
-  # "Add a new web syndication source if it does not exist already"
-  create(url: URL!): Source
+# type SyndicationMutation {
+#   # "Add a new web syndication source if it does not exist already"
+#   create(url: URL!): Source
 
-  # "Update the title of an existing web syndication source"
-  updateTitle(url: URL!, title: String!): Source
+#   # "Update the title of an existing web syndication source"
+#   updateTitle(url: URL!, title: String!): Source
 
-  # "Resumes the web syndication source matching the URL"
-  resume(url: URL!): Source
+#   # "Resumes the web syndication source matching the URL"
+#   resume(url: URL!): Source
 
-  # "Pauses the web syndication source matching the URL"
-  pause(url: URL!): Source
+#   # "Pauses the web syndication source matching the URL"
+#   pause(url: URL!): Source
 
-  # "Enables the web syndication source matching the URL"
-  enable(url: URL!): Source
+#   # "Enables the web syndication source matching the URL"
+#   enable(url: URL!): Source
 
-  # "Disables the web syndication source matching the URL"
-  disable(url: URL!): Source
-}
+#   # "Disables the web syndication source matching the URL"
+#   disable(url: URL!): Source
+# }
 
-type SubscriptionsQuery {
-  # "Returns a list of user's subscription"
-  subscriptions(pagination: OffsetPaginationInput!, search: SubscriptionSearchInput): SubscriptionCollection
-}
+# type SubscriptionsQuery {
+#   # "Returns a list of user's subscription"
+#   subscriptions(pagination: OffsetPaginationInput!, search: SubscriptionSearchInput): SubscriptionCollection
+# }
 
-type SubscriptionsMutation {
-  # "Create a web syndication source and subscribe to it"
-  subscription(url: URL!): UserSubscription
+# type SubscriptionsMutation {
+#   # "Create a web syndication source and subscribe to it"
+#   subscription(url: URL!): UserSubscription
 
-  # "Subscribe the user to a web syndication"
-  subscribe(url: URL!): UserSubscription
+#   # "Subscribe the user to a web syndication"
+#   subscribe(url: URL!): UserSubscription
 
-  # "Unsubscribe the user to a web syndication"
-  unsubscribe(url: URL!): UserSubscription
-}
+#   # "Unsubscribe the user to a web syndication"
+#   unsubscribe(url: URL!): UserSubscription
+# }
 
-type BotQuery {
-  logs(url: URL!, pagination: OffsetPaginationInput!): HTTPClientLogCollection
-}
+# type BotQuery {
+#   logs(url: URL!, pagination: OffsetPaginationInput!): HTTPClientLogCollection
+# }
 
 input SubscriptionSearchInput {
   terms: [String!]!
@@ -269,225 +270,225 @@ type Image {
   format: String!
 }
 
-# """
-# The Document type represents a web document.
-# It may be a bookmark
-# """
-type Document implements Node {
-  id: ID!
-  url: URL!
-  lang: String!
-  charset: String!
-  title: String!
-  description: String!
-  image: Image
-  source: Source
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  logEntries: [HTTPClientLog]
-  syndication: [Source!]
-}
+# # """
+# # The Document type represents a web document.
+# # It may be a bookmark
+# # """
+# type Document implements Node {
+#   id: ID!
+#   url: URL!
+#   lang: String!
+#   charset: String!
+#   title: String!
+#   description: String!
+#   image: Image
+#   source: Source
+#   createdAt: DateTime!
+#   updatedAt: DateTime!
+#   logEntries: [HTTPClientLog]
+#   syndication: [Source!]
+# }
 
-# """
-# The Bookmark type represents a web document but
-# from a user's bookmark perspective
-# """
-type Bookmark implements Node {
-  id: ID!
-  user: User!
-  url: URL!
-  lang: String!
-  charset: String!
-  title: String!
-  description: String!
-  image: Image
-  source: Source
-  updatedAt: DateTime!
-  addedAt: DateTime!
-  favoritedAt: DateTime
-  isFavorite: Boolean!
-}
+# # """
+# # The Bookmark type represents a web document but
+# # from a user's bookmark perspective
+# # """
+# type Bookmark implements Node {
+#   id: ID!
+#   user: User!
+#   url: URL!
+#   lang: String!
+#   charset: String!
+#   title: String!
+#   description: String!
+#   image: Image
+#   source: Source
+#   updatedAt: DateTime!
+#   addedAt: DateTime!
+#   favoritedAt: DateTime
+#   isFavorite: Boolean!
+# }
 
-# """
-# The source type describes a web syndication source.
-# It can be either a RSS or Atom feed
-# """
-type Source implements Node {
-  id: ID!
-  url: URL!
-  domain: URL
-  type: String!
-  title: String!
-  frequency: String!
-  isPaused: Boolean!
-  isDeleted: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  parsedAt: DateTime
-  logEntries: [HTTPClientLog]
-}
+# # """
+# # The source type describes a web syndication source.
+# # It can be either a RSS or Atom feed
+# # """
+# type Source implements Node {
+#   id: ID!
+#   url: URL!
+#   domain: URL
+#   type: String!
+#   title: String!
+#   frequency: String!
+#   isPaused: Boolean!
+#   isDeleted: Boolean!
+#   createdAt: DateTime!
+#   updatedAt: DateTime!
+#   parsedAt: DateTime
+#   logEntries: [HTTPClientLog]
+# }
 
-# """
-# The subscription type describes a user's subscription
-# to a web syndication source.
-# """
-type UserSubscription implements Node {
-  id: ID!
-  url: URL!
-  domain: URL
-  type: String!
-  title: String!
-  isSubscribed: Boolean!
-  frequency: String!
-  createdAt: DateTime
-  updatedAt: DateTime
-  user: User
-}
+# # """
+# # The subscription type describes a user's subscription
+# # to a web syndication source.
+# # """
+# type UserSubscription implements Node {
+#   id: ID!
+#   url: URL!
+#   domain: URL
+#   type: String!
+#   title: String!
+#   isSubscribed: Boolean!
+#   frequency: String!
+#   createdAt: DateTime
+#   updatedAt: DateTime
+#   user: User
+# }
 
-# "The HTTPClientLog type describes an entry in the HTTP client history"
-type HTTPClientLog implements Node {
-  id: ID!
-  checksum: String!
-  requestURI: URL!
-  requestMethod: String!
-  hasFailed: Boolean!
-  failureReason: String!
-  # finalURI: URL!
-  statusCode: Int!
-  contentType: String!
-  createdAt: DateTime!
-}
+# # "The HTTPClientLog type describes an entry in the HTTP client history"
+# type HTTPClientLog implements Node {
+#   id: ID!
+#   checksum: String!
+#   requestURI: URL!
+#   requestMethod: String!
+#   hasFailed: Boolean!
+#   failureReason: String!
+#   # finalURI: URL!
+#   statusCode: Int!
+#   contentType: String!
+#   createdAt: DateTime!
+# }
 
-type HTTPClientLogCollection {
-  offset: Int!
-  total: Int!
-  limit: Int!
-  results: [HTTPClientLog!]!
-}
+# type HTTPClientLogCollection {
+#   offset: Int!
+#   total: Int!
+#   limit: Int!
+#   results: [HTTPClientLog!]!
+# }
 
-# "A collection of web documents"
-type DocumentCollection {
-  first: String!
-  last: String!
-  total: Int!
-  limit: Int!
-  results: [Document!]!
-}
+# # "A collection of web documents"
+# type DocumentCollection {
+#   first: String!
+#   last: String!
+#   total: Int!
+#   limit: Int!
+#   results: [Document!]!
+# }
 
-type BookmarkSearchResults {
-  offset: Int!
-  total: Int!
-  limit: Int!
-  results: [Bookmark!]!
-}
+# type BookmarkSearchResults {
+#   offset: Int!
+#   total: Int!
+#   limit: Int!
+#   results: [Bookmark!]!
+# }
 
-type DocumentSearchResults {
-  offset: Int!
-  total: Int!
-  limit: Int!
-  results: [Document!]!
-}
+# type DocumentSearchResults {
+#   offset: Int!
+#   total: Int!
+#   limit: Int!
+#   results: [Document!]!
+# }
 
-# "A collection of web syndication sources"
-type SourceCollection {
-  offset: Int!
-  total: Int!
-  limit: Int!
-  results: [Source!]!
-}
+# # "A collection of web syndication sources"
+# type SourceCollection {
+#   offset: Int!
+#   total: Int!
+#   limit: Int!
+#   results: [Source!]!
+# }
 
-# "A collection of the user's subscriptions"
-type SubscriptionCollection {
-  offset: Int!
-  total: Int!
-  limit: Int!
-  results: [UserSubscription!]!
-}
+# # "A collection of the user's subscriptions"
+# type SubscriptionCollection {
+#   offset: Int!
+#   total: Int!
+#   limit: Int!
+#   results: [UserSubscription!]!
+# }
 
-# "An item in a feed"
-union FeedItem = Bookmark | Document
+# # "An item in a feed"
+# union FeedItem = Bookmark | Document
 
-interface FeedResults {
-  # "First cursor"
-  first: String!
+# interface FeedResults {
+#   # "First cursor"
+#   first: String!
 
-  # "Last cursor"
-  last: String!
+#   # "Last cursor"
+#   last: String!
 
-  # "Total number of possible results"
-  total: Int!
+#   # "Total number of possible results"
+#   total: Int!
 
-  # "Total number of results"
-  limit: Int!
+#   # "Total number of results"
+#   limit: Int!
 
-  # "List of results"
-  results: [FeedItem!]!
-}
+#   # "List of results"
+#   results: [FeedItem!]!
+# }
 
-type FeedDocumentResults implements FeedResults {
-  first: String!
-  last: String!
-  total: Int!
-  limit: Int!
-  results: [Document!]!
-}
+# type FeedDocumentResults implements FeedResults {
+#   first: String!
+#   last: String!
+#   total: Int!
+#   limit: Int!
+#   results: [Document!]!
+# }
 
-type FeedBookmarkResults implements FeedResults {
-  first: String!
-  last: String!
-  total: Int!
-  limit: Int!
-  results: [Bookmark!]!
-}
+# type FeedBookmarkResults implements FeedResults {
+#   first: String!
+#   last: String!
+#   total: Int!
+#   limit: Int!
+#   results: [Bookmark!]!
+# }
 
-# """
-# When subscribing to a feed, the subsciption will send events to add.
-# When a item is added to or removed from a feed, the subscription will notify
-# the client in order to keep the feed up to date.
-# """
+# # """
+# # When subscribing to a feed, the subsciption will send events to add.
+# # When a item is added to or removed from a feed, the subscription will notify
+# # the client in order to keep the feed up to date.
+# # """
 
-# "A subscription topic"
-enum Topic {
-  user
-  document
-  bookmark
-}
+# # "A subscription topic"
+# enum Topic {
+#   user
+#   document
+#   bookmark
+# }
 
-# "A action represents a action"
-enum Action {
-  add
-  update
-  remove
-  favorite
-  unfavorite
-  bookmark
-  unbookmark
-}
+# # "A action represents a action"
+# enum Action {
+#   add
+#   update
+#   remove
+#   favorite
+#   unfavorite
+#   bookmark
+#   unbookmark
+# }
 
-# "A event describes an action"
-interface Event {
-  emitter: String!
-  topic: Topic!
-  action: Action!
-}
+# # "A event describes an action"
+# interface Event {
+#   emitter: String!
+#   topic: Topic!
+#   action: Action!
+# }
 
-type UserEvent implements Event {
-  emitter: String!
-  item: User!
-  topic: Topic!
-  action: Action!
-}
+# type UserEvent implements Event {
+#   emitter: String!
+#   item: User!
+#   topic: Topic!
+#   action: Action!
+# }
 
-type DocumentEvent implements Event {
-  emitter: String!
-  item: Document!
-  topic: Topic!
-  action: Action!
-}
+# type DocumentEvent implements Event {
+#   emitter: String!
+#   item: Document!
+#   topic: Topic!
+#   action: Action!
+# }
 
-type BookmarkEvent implements Event {
-  emitter: String!
-  item: Bookmark!
-  topic: Topic!
-  action: Action!
-}
+# type BookmarkEvent implements Event {
+#   emitter: String!
+#   item: Bookmark!
+#   topic: Topic!
+#   action: Action!
+# }

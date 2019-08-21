@@ -15,7 +15,11 @@ import (
 )
 
 // SubscriptionRootResolver syndication's root resolver
-type SubscriptionRootResolver struct {
+type SubscriptionsQuery struct {
+	repositories *repository.Repositories
+}
+
+type SubscriptionsMutation struct {
 	repositories *repository.Repositories
 }
 
@@ -109,7 +113,7 @@ func (r *Subscription) UpdatedAt() *scalars.Datetime {
 }
 
 // Subscription adds a syndication source and subscribes to it
-func (r *SubscriptionRootResolver) Subscription(ctx context.Context, args struct {
+func (r *SubscriptionsQuery) Subscription(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Subscription, error) {
 	u := args.URL.ToDomain()
@@ -129,7 +133,7 @@ func (r *SubscriptionRootResolver) Subscription(ctx context.Context, args struct
 }
 
 // Subscribe --
-func (r *SubscriptionRootResolver) Subscribe(ctx context.Context, args struct {
+func (r *SubscriptionsMutation) Subscribe(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Subscription, error) {
 	user := auth.FromContext(ctx)
@@ -143,7 +147,7 @@ func (r *SubscriptionRootResolver) Subscribe(ctx context.Context, args struct {
 }
 
 // Unsubscribe --
-func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, args struct {
+func (r *SubscriptionsMutation) Unsubscribe(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Subscription, error) {
 	user := auth.FromContext(ctx)
@@ -157,9 +161,9 @@ func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, args struct 
 }
 
 // Subscriptions --
-func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     *subscriptionSearchInput
+func (r *SubscriptionsQuery) Subscriptions(ctx context.Context, args struct {
+	Pagination OffsetPaginationInput
+	Search     *SubscriptionSearchInput
 }) (*SubscriptionCollection, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)

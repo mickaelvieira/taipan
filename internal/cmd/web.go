@@ -5,7 +5,6 @@ import (
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/web"
 	"github/mickaelvieira/taipan/internal/web/assets"
-	"github/mickaelvieira/taipan/internal/web/graphql"
 	"github/mickaelvieira/taipan/internal/web/middleware"
 	"github/mickaelvieira/taipan/internal/web/paths"
 	"github/mickaelvieira/taipan/internal/web/routes"
@@ -30,7 +29,7 @@ func runWeb(c *cli.Context) {
 	a := assets.LoadAssetsDefinition(paths.GetStaticDir(), web.UseFileServer())
 	t := templates.NewRenderer(paths.GetTemplatesDir())
 	r := repository.GetRepositories()
-	s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
+	// s := graphql.LoadAndParseSchema(paths.GetGraphQLSchema(), r)
 
 	e := echo.New()
 	l, ok := e.Logger.(*log.Logger)
@@ -54,7 +53,7 @@ func runWeb(c *cli.Context) {
 	}
 
 	index := routes.Index(a)
-	api := routes.GraphQL(s, r)
+	api := routes.GraphQL(r)
 
 	e.POST("/signout", routes.Signout())
 

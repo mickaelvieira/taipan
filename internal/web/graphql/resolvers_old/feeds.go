@@ -6,13 +6,13 @@ import (
 	"github/mickaelvieira/taipan/internal/web/auth"
 )
 
-// FeedsRootResolver feeds' root resolver
-type FeedsRootResolver struct {
+// FeedsQuery feeds' root resolver
+type FeedsQuery struct {
 	repositories *repository.Repositories
 }
 
 // Favorites resolves the query
-func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
+func (r *FeedsQuery) Favorites(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
 }) (*BookmarkCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
@@ -43,7 +43,7 @@ func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
 }
 
 // ReadingList resolves the query
-func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
+func (r *FeedsQuery) ReadingList(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
 }) (*BookmarkCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
@@ -74,7 +74,7 @@ func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
 }
 
 // News resolves the query
-func (r *FeedsRootResolver) News(ctx context.Context, args struct {
+func (r *FeedsQuery) News(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
 }) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
@@ -105,7 +105,7 @@ func (r *FeedsRootResolver) News(ctx context.Context, args struct {
 }
 
 // LatestNews resolves the query
-func (r *FeedsRootResolver) LatestNews(ctx context.Context, args struct {
+func (r *FeedsQuery) LatestNews(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
 }) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)

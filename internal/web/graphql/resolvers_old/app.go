@@ -4,8 +4,8 @@ import (
 	"os"
 )
 
-// AppRootResolver app's root resolver
-type AppRootResolver struct{}
+// AppQuery app's root resolver
+type AppQuery struct{}
 
 // AppInfo resolves information about the application
 type AppInfo struct{}
@@ -21,6 +21,6 @@ func (r *AppInfo) Version() string {
 }
 
 // Info returns information about the application
-func (r *AppRootResolver) Info() *AppInfo {
+func (r *AppQuery) Info() *AppInfo {
 	return &AppInfo{}
 }

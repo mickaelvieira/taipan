@@ -1,0 +1,87 @@
+# .gqlgen.yml example
+#
+# Refer to https://gqlgen.com/config/
+# for detailed .gqlgen.yml documentation.
+
+schema:
+- web/graphql/schema.graphql
+exec:
+  filename: internal/web/graphql/generated/generated.go
+  package: generated
+model:
+  filename: internal/web/graphql/generated/models.go
+  package: generated
+models:
+  UsersQuery:
+    model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.UsersQuery
+    fields:
+      loggedIn:
+        resolver: true
+
+  UsersMutation:
+    model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.UsersMutation
+    fields:
+      update:
+        resolver: true # force a resolver to be generated
+      password:
+        resolver: true
+      createEmail:
+        resolver: true
+      deleteEmail:
+        resolver: true
+      primaryEmail:
+        resolver: true
+      theme:
+        resolver: true
+
+        # Query:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.Query
+  # Mutation:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.Mutation
+  # AppQuery:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.AppQuery
+  #   fields:
+  #     info:
+  #       resolver: true
+  # AppInfo:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.AppInfo
+
+      # password:
+      #   revolver: true
+      # createEmail:
+      #   revolver: true
+      # deleteEmail:
+      #   revolver: true
+      # primaryEmail:
+      #   revolver: true
+      # theme:
+      #   revolver: true
+
+  # User:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.User
+  # DocumentsQuery:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.DocumentsQuery
+  # DocumentsMutation:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.DocumentsMutation
+  # Document:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.Document
+  # BookmarksQuery:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.BookmarksQuery
+  # BookmarksMutation:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.BookmarksMutation
+  # Bookmark:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.Bookmark
+  # FeedsQuery:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.FeedsQuery
+  # SyndicationQuery:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.SyndicationQuery
+  # Source:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.Source
+  # SubscriptionsQuery:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.SubscriptionsQuery
+  # Subscription:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.Subscription
+  # BotQuery:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.BotQuery
+  # HTTPClientLog:
+  #   model: github/mickaelvieira/taipan/internal/web/graphql/resolvers.Log

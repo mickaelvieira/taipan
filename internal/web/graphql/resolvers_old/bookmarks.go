@@ -18,8 +18,14 @@ import (
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// BookmarkRootResolver bookmarks' root resolver
-type BookmarkRootResolver struct {
+// BookmarksQuery --
+type BookmarksQuery struct {
+	repositories *repository.Repositories
+	publisher    *publisher.Subscription
+}
+
+// BookmarksMutation --
+type BookmarksMutation struct {
 	repositories *repository.Repositories
 	publisher    *publisher.Subscription
 }
@@ -206,7 +212,7 @@ func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEven
 }
 
 // Bookmark resolves the query
-func (r *BookmarkRootResolver) Bookmark(ctx context.Context, args struct {
+func (r *BookmarksQuery) Bookmark(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
@@ -221,7 +227,7 @@ func (r *BookmarkRootResolver) Bookmark(ctx context.Context, args struct {
 }
 
 // Create creates a new document and add it to user's bookmarks
-func (r *BookmarkRootResolver) Create(ctx context.Context, args struct {
+func (r *BookmarksMutation) Create(ctx context.Context, args struct {
 	URL        scalars.URL
 	IsFavorite bool
 }) (*Bookmark, error) {
@@ -246,7 +252,7 @@ func (r *BookmarkRootResolver) Create(ctx context.Context, args struct {
 }
 
 // Add bookmarks a URL
-func (r *BookmarkRootResolver) Add(ctx context.Context, args struct {
+func (r *BookmarksMutation) Add(ctx context.Context, args struct {
 	URL           scalars.URL
 	IsFavorite    bool
 	Subscriptions *[]scalars.URL
@@ -283,7 +289,7 @@ func (r *BookmarkRootResolver) Add(ctx context.Context, args struct {
 }
 
 // Favorite adds the bookmark to favorites
-func (r *BookmarkRootResolver) Favorite(ctx context.Context, args struct {
+func (r *BookmarksMutation) Favorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
@@ -302,7 +308,7 @@ func (r *BookmarkRootResolver) Favorite(ctx context.Context, args struct {
 }
 
 // Unfavorite removes the bookmark from favorites
-func (r *BookmarkRootResolver) Unfavorite(ctx context.Context, args struct {
+func (r *BookmarksMutation) Unfavorite(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
@@ -321,7 +327,7 @@ func (r *BookmarkRootResolver) Unfavorite(ctx context.Context, args struct {
 }
 
 // Remove removes bookmark from user's list
-func (r *BookmarkRootResolver) Remove(ctx context.Context, args struct {
+func (r *BookmarksMutation) Remove(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Document, error) {
 	user := auth.FromContext(ctx)
@@ -340,9 +346,9 @@ func (r *BookmarkRootResolver) Remove(ctx context.Context, args struct {
 }
 
 // Search --
-func (r *BookmarkRootResolver) Search(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     bookmarkSearchInput
+func (r *BookmarksQuery) Search(ctx context.Context, args struct {
+	Pagination OffsetPaginationInput
+	Search     BookmarkSearchInput
 }) (*BookmarkSearchResults, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)

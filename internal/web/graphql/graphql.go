@@ -1,12 +1,8 @@
 package graphql
 
 import (
-	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/web/graphql/resolvers"
 	"io/ioutil"
 	"log"
-
-	graphql "github.com/graph-gophers/graphql-go"
 )
 
 func mustLoad(path string) string {
@@ -17,15 +13,15 @@ func mustLoad(path string) string {
 	return string(content)
 }
 
-func mustParse(content string, repositories *repository.Repositories) *graphql.Schema {
-	resolvers := resolvers.GetRootResolver(repositories)
-	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
-	schema := graphql.MustParseSchema(content, resolvers, opts...)
+// func mustParse(content string, repositories *repository.Repositories) *graphql.Schema {
+// 	resolvers := resolvers.GetRootResolver(repositories)
+// 	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
+// 	schema := graphql.MustParseSchema(content, resolvers, opts...)
 
-	return schema
-}
+// 	return schema
+// }
 
 // LoadAndParseSchema load and parse the graphQL schema
-func LoadAndParseSchema(path string, r *repository.Repositories) *graphql.Schema {
-	return mustParse(mustLoad(path), r)
-}
+// func LoadAndParseSchema(path string, r *repository.Repositories) *graphql.Schema {
+// 	return mustParse(mustLoad(path), r)
+// }

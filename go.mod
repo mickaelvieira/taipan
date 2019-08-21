@@ -3,6 +3,7 @@ module github/mickaelvieira/taipan
 go 1.12
 
 require (
+	github.com/99designs/gqlgen v0.9.3
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/aws/aws-sdk-go v1.23.3
 	github.com/go-sql-driver/mysql v1.4.1
@@ -22,6 +23,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/streadway/amqp v0.0.0-20190815233558-eade30b20f1d
 	github.com/urfave/cli v1.21.0
+	github.com/vektah/gqlparser v1.1.2
 	golang.org/x/crypto v0.0.0-20190818085310-4def268fd1a4
 	golang.org/x/image v0.0.0-20190802004718-cff245a6509b
 )

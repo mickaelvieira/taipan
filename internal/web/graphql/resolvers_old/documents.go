@@ -17,8 +17,13 @@ import (
 	gql "github.com/graph-gophers/graphql-go"
 )
 
-// DocumentRootResolver documents' root resolver
-type DocumentRootResolver struct {
+// DocumentsQuery documents' root resolver
+type DocumentsQuery struct {
+	repositories *repository.Repositories
+}
+
+// DocumentsMutation documents' root resolver
+type DocumentsMutation struct {
 	repositories *repository.Repositories
 }
 
@@ -201,7 +206,7 @@ func (r *RootResolver) DocumentChanged(ctx context.Context) <-chan *DocumentEven
 }
 
 // Create creates a new document
-func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
+func (r *DocumentsMutation) Create(ctx context.Context, args struct {
 	URL scalars.URL
 }) (*Document, error) {
 	user := auth.FromContext(ctx)
@@ -229,7 +234,7 @@ func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
 }
 
 // Documents resolves the query
-func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
+func (r *DocumentsQuery) Documents(ctx context.Context, args struct {
 	Pagination cursorPaginationInput
 }) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
@@ -259,9 +264,9 @@ func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
 }
 
 // Search --
-func (r *DocumentRootResolver) Search(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     bookmarkSearchInput
+func (r *DocumentsQuery) Search(ctx context.Context, args struct {
+	Pagination OffsetPaginationInput
+	Search     BookmarkSearchInput
 }) (*DocumentSearchResults, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)
