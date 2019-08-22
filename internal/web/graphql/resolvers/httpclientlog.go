@@ -60,12 +60,12 @@ func (r *Log) RequestMethod() string {
 
 // HasFailed resolves the HasFailed field
 func (r *Log) HasFailed() bool {
-	return r.log.RequestHasFailed()
+	return !r.log.RequestWasSuccessful()
 }
 
 // FailureReason resolves the FailureReason field
 func (r *Log) FailureReason() string {
-	if r.log.RequestHasFailed() {
+	if !r.log.RequestWasSuccessful() {
 		return r.log.GetFailureReason()
 	}
 	return ""

@@ -31,9 +31,9 @@ func (r *Result) RequestWasRedirected() bool {
 	return r.ReqURI.String() != r.FinalURI.String()
 }
 
-// RequestHasFailed determines whether the request was successful
-func (r *Result) RequestHasFailed() bool {
-	return r.RespStatusCode != nethttp.StatusOK
+// RequestWasSuccessful determines whether the request was successful
+func (r *Result) RequestWasSuccessful() bool {
+	return r.RespStatusCode >= nethttp.StatusOK || r.RespStatusCode == nethttp.StatusNotModified
 }
 
 // GetFailureReason returns the failure reason

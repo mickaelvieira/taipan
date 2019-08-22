@@ -19,7 +19,7 @@ export default function useFeed(
   const feed = useMemo(() => getFeed(name), [name]);
   const [result, setResult] = useState<Result>({
     padding: { top: 0, bottom: 0 },
-    items: results
+    items: []
   });
 
   const adjust = useCallback(async () => {
