@@ -34,8 +34,9 @@ export default function Search(): JSX.Element | null {
   const [value, setValue] = useState("");
   const debouncedDispatch = useCallback(debounce(setTerms, 400), []);
   const onChange = useCallback(
-    (terms: string[], debounced = true) => {
-      setValue(terms.join(" "));
+    (input: string, debounced = true) => {
+      const terms = input.split(/\s/).filter(term => term !== "");
+      setValue(input);
       if (debounced) {
         debouncedDispatch(terms);
       } else {
@@ -54,7 +55,7 @@ export default function Search(): JSX.Element | null {
             placeholder="Search..."
             fullWidth
             value={value}
-            onChange={event => onChange(event.target.value.split(/\s/))}
+            onChange={event => onChange(event.target.value)}
             inputProps={{ "aria-label": "Search" }}
           />
           <IconButton type="submit" aria-label="Search">
@@ -63,7 +64,7 @@ export default function Search(): JSX.Element | null {
           <IconButton
             aria-label="Clear search"
             disabled={terms.length === 0}
-            onClick={() => onChange([], false)}
+            onClick={() => onChange("", false)}
           >
             <CloseIcon />
           </IconButton>

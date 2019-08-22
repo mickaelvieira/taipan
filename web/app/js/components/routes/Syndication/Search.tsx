@@ -47,7 +47,8 @@ export default function Search({ editSource }: Props): JSX.Element | null {
   const [value, setValue] = useState("");
   const debouncedDispatch = useCallback(debounce(dispatch, 400), []);
   const onChange = useCallback(
-    (terms: string[], debounced = true) => {
+    (input: string, debounced = true) => {
+      const terms = input.split(/\s/).filter(term => term !== "");
       setValue(terms.join(" "));
       if (debounced) {
         debouncedDispatch([Action.TERMS, terms]);
@@ -69,7 +70,7 @@ export default function Search({ editSource }: Props): JSX.Element | null {
             placeholder="Search..."
             fullWidth
             value={value}
-            onChange={event => onChange(event.target.value.split(/\s/))}
+            onChange={event => onChange(event.target.value)}
             inputProps={{ "aria-label": "Search" }}
           />
           <IconButton type="submit" aria-label="Search">
@@ -78,7 +79,7 @@ export default function Search({ editSource }: Props): JSX.Element | null {
           <IconButton
             aria-label="Clear search"
             disabled={terms.length === 0}
-            onClick={() => onChange([], false)}
+            onClick={() => onChange("", false)}
           >
             <CloseIcon />
           </IconButton>
