@@ -1,4 +1,7 @@
 const LG_WIDTH = 776;
 const SM_WIDTH = 576;
 
-export { LG_WIDTH, SM_WIDTH };
+const FEED_SM_WIDTH = 536;
+const FEED_LG_WIDTH = 536;
+
+export { LG_WIDTH, SM_WIDTH , FEED_SM_WIDTH, FEED_LG_WIDTH};
