@@ -1,5 +1,5 @@
 import React, { useState, PropsWithChildren, useContext } from "react";
-import CreateBookmark from "./Panel/CreateBookmark";
+import CreateBookmark from "../Panel/CreateBookmark";
 import { AddButton } from "../Fab";
 import Grid from "../Grid";
 import { LayoutContext, MessageContext } from "../../context";

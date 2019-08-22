@@ -1,0 +1,11 @@
+#import "../../../fragment/source.graphql"
+
+mutation updateTag($id: ID!, $label: String!) {
+  syndication {
+    updateTag(id: $id, label: $label) {
+      id
+      label
+      updatedAt
+    }
+  }
+}

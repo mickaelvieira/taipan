@@ -53,7 +53,7 @@ export default React.memo(function DocumentList({
                 </Typography>
                 <div className={classes.links}>
                   <Button
-                    to="/syndication"
+                    to="/subscriptions"
                     variant="contained"
                     component={RouterLink}
                     color="primary"

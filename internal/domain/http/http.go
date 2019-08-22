@@ -33,7 +33,7 @@ func (r *Result) RequestWasRedirected() bool {
 
 // RequestWasSuccessful determines whether the request was successful
 func (r *Result) RequestWasSuccessful() bool {
-	return r.RespStatusCode >= nethttp.StatusOK || r.RespStatusCode == nethttp.StatusNotModified
+	return r.RespStatusCode >= nethttp.StatusOK && r.RespStatusCode < nethttp.StatusMultipleChoices || r.RespStatusCode == nethttp.StatusNotModified
 }
 
 // GetFailureReason returns the failure reason

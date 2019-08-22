@@ -158,31 +158,24 @@ func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, args struct 
 
 // Subscriptions --
 func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     *subscriptionSearchInput
+	Pagination OffsetPaginationInput
+	Search     *SubscriptionSearchInput
 }) (*SubscriptionCollection, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 
 	var terms []string
-	showDeleted := false
-	pausedOnly := false
-
 	if args.Search != nil {
 		terms = args.Search.Terms
-		if user.ID == "1" {
-			showDeleted = args.Search.ShowDeleted
-			pausedOnly = args.Search.PausedOnly
-		}
 	}
 
-	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, showDeleted, pausedOnly, offset, limit)
+	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
+	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, terms)
 	if err != nil {
 		return nil, err
 	}

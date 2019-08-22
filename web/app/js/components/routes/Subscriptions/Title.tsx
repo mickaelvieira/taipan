@@ -4,12 +4,11 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { ExternalLink } from "../../ui/Link";
 import Typography from "@material-ui/core/Typography";
 import { Subscription } from "../../../types/subscription";
-import { Source } from "../../../types/syndication";
 import { truncate } from "../../../helpers/string";
 import { getDomain } from "../../../helpers/syndication";
 
 interface Props {
-  item: Subscription | Source;
+  item: Subscription;
   shouldTruncate?: boolean;
   className?: string;
 }
@@ -37,7 +36,7 @@ export default React.memo(function SubscriptionTitle({
   return (
     <ExternalLink
       href={`${url.protocol}//${url.host}`}
-      title={item.title ? item.title : item.url}
+      title={item.title ? item.title : `${item.url}`}
       className={className ? className : ""}
     >
       <Typography component="span">

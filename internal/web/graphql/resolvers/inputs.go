@@ -1,35 +1,35 @@
 package resolvers
 
-type cursorPaginationInput struct {
+type CursorPaginationInput struct {
 	From  *string
 	To    *string
 	Limit *int32
 }
 
-type offsetPaginationInput struct {
+type OffsetPaginationInput struct {
 	Offset *int32
 	Limit  *int32
 }
 
-type subscriptionSearchInput struct {
+type SubscriptionSearchInput struct {
+	Terms []string
+}
+
+type BookmarkSearchInput struct {
+	Terms []string
+}
+
+type DocumentSearchInput struct {
+	Terms []string
+}
+
+type SyndicationSearchInput struct {
 	Terms       []string
 	ShowDeleted bool
 	PausedOnly  bool
 }
 
-type bookmarkSearchInput struct {
-	Terms []string
-}
-
-type documentSearchInput struct {
-	Terms []string
-}
-
-type searchSourcesInput struct {
-	IsPaused bool
-}
-
-type userInput struct {
+type UserInput struct {
 	Firstname string
 	Lastname  string
 	Image     string

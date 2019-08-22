@@ -13,16 +13,17 @@ type Scanable interface {
 
 // Repositories holds a reference to the repositories
 type Repositories struct {
-	Users         *UserRepository
-	Emails        *UserEmailRepository
-	EmailsConfirm *UserEmailConfirmRepository
-	NewsFeed      *NewsFeedRepository
-	Syndication   *SyndicationRepository
-	Subscriptions *SubscriptionRepository
-	Documents     *DocumentRepository
-	Bookmarks     *BookmarkRepository
-	Botlogs       *BotlogRepository
-	PasswordReset *PasswordResetRepository
+	Users           *UserRepository
+	Emails          *UserEmailRepository
+	EmailsConfirm   *UserEmailConfirmRepository
+	NewsFeed        *NewsFeedRepository
+	Syndication     *SyndicationRepository
+	SyndicationTags *SyndicationTagsRepository
+	Subscriptions   *SubscriptionRepository
+	Documents       *DocumentRepository
+	Bookmarks       *BookmarkRepository
+	Botlogs         *BotlogRepository
+	PasswordReset   *PasswordResetRepository
 }
 
 // GetRepositories builds the repository holder
@@ -30,16 +31,17 @@ func GetRepositories() *Repositories {
 	var db = db.GetDB()
 
 	return &Repositories{
-		Users:         &UserRepository{db: db},
-		Emails:        &UserEmailRepository{db: db},
-		EmailsConfirm: &UserEmailConfirmRepository{db: db},
-		NewsFeed:      &NewsFeedRepository{db: db},
-		Syndication:   &SyndicationRepository{db: db},
-		Subscriptions: &SubscriptionRepository{db: db},
-		Documents:     &DocumentRepository{db: db},
-		Bookmarks:     &BookmarkRepository{db: db},
-		Botlogs:       &BotlogRepository{db: db},
-		PasswordReset: &PasswordResetRepository{db: db},
+		Users:           &UserRepository{db: db},
+		Emails:          &UserEmailRepository{db: db},
+		EmailsConfirm:   &UserEmailConfirmRepository{db: db},
+		NewsFeed:        &NewsFeedRepository{db: db},
+		Syndication:     &SyndicationRepository{db: db},
+		SyndicationTags: &SyndicationTagsRepository{db: db},
+		Subscriptions:   &SubscriptionRepository{db: db},
+		Documents:       &DocumentRepository{db: db},
+		Bookmarks:       &BookmarkRepository{db: db},
+		Botlogs:         &BotlogRepository{db: db},
+		PasswordReset:   &PasswordResetRepository{db: db},
 	}
 }
 

@@ -143,12 +143,15 @@ type SyndicationQuery {
   source(url: URL!): Source
 
   # "Returns a list of web syndication sources"
-  sources(pagination: OffsetPaginationInput!, search: SearchSourcesInput!): SourceCollection
+  sources(pagination: OffsetPaginationInput!, search: SyndicationSearchInput!): SourceCollection
+
+  # "Returns a list of web syndication tags
+  tags(): SyndicationTagCollection
 }
 
 type SyndicationMutation {
   # "Add a new web syndication source if it does not exist already"
-  create(url: URL!): Source
+  create(url: URL!, tags: [String!]!): Source
 
   # "Update the title of an existing web syndication source"
   updateTitle(url: URL!, title: String!): Source
@@ -164,6 +167,21 @@ type SyndicationMutation {
 
   # "Disables the web syndication source matching the URL"
   disable(url: URL!): Source
+
+  # "Tag the syndication source with the given tag
+  tag(sourceId: ID!, tagId: ID!): Source
+
+  # "Remove tag from the syndication source
+  untag(sourceId: ID!, tagId: ID!): Source
+
+  # "Create the new syndication tag with the provided label"
+  createTag(label: String!): SyndicationTag
+
+  # "Update the label of a syndication tag"
+  updateTag(id: ID!, label: String!): SyndicationTag
+
+  # "Delete a syndication tag"
+  deleteTag(id: ID!): Boolean!
 }
 
 type SubscriptionsQuery {
@@ -188,8 +206,6 @@ type BotQuery {
 
 input SubscriptionSearchInput {
   terms: [String!]!
-  showDeleted: Boolean!
-  pausedOnly: Boolean!
 }
 
 input BookmarkSearchInput {
@@ -200,8 +216,10 @@ input DocumentSearchInput {
   terms: [String!]!
 }
 
-input SearchSourcesInput {
-  isPaused: Boolean!
+input SyndicationSearchInput {
+  terms: [String!]!
+  showDeleted: Boolean!
+  pausedOnly: Boolean!
 }
 
 input CursorPaginationInput {
@@ -327,7 +345,24 @@ type Source implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   parsedAt: DateTime
+  tags: [SyndicationTag!]!
   logEntries: [HTTPClientLog]
+}
+
+# """
+# The syndication tag type describes a web syndication source's tag.
+# """
+type SyndicationTag implements Node {
+  id: ID!
+  label: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# "A collection of syndication tags"
+type SyndicationTagCollection {
+  total: Int!
+  results: [SyndicationTag!]!
 }
 
 # """

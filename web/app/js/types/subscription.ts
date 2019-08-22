@@ -19,6 +19,4 @@ export interface SubscriptionResults {
 
 export interface SearchParams {
   terms: string[];
-  showDeleted: boolean;
-  pausedOnly: boolean;
 }

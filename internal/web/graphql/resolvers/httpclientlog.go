@@ -84,7 +84,7 @@ func (r *Log) CreatedAt() scalars.Datetime {
 // Logs --
 func (r *LogRootResolver) Logs(ctx context.Context, args struct {
 	URL        scalars.URL
-	Pagination offsetPaginationInput
+	Pagination OffsetPaginationInput
 }) (*LogCollection, error) {
 	u := args.URL.ToDomain()
 	fromArgs := getOffsetBasedPagination(10)

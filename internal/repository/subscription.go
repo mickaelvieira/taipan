@@ -43,19 +43,6 @@ func getSubscriptionSearch(terms []string) (string, []interface{}) {
 	return search, args
 }
 
-func getWhere(showDeleted bool, pausedOnly bool) string {
-	var where []string
-	if showDeleted {
-		where = append(where, "sy.deleted = 1")
-	} else {
-		where = append(where, "sy.deleted = 0")
-	}
-	if pausedOnly {
-		where = append(where, "sy.paused = 1")
-	}
-	return strings.Join(where, " AND ")
-}
-
 // FindSubscribersIDs find users who have subscribed to the syndication source
 func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceID string) ([]string, error) {
 	query := `
@@ -86,26 +73,25 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 }
 
 // FindAll --
-func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*subscription.Subscription, error) {
+func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, offset int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
 		SELECT sy.id, su.user_id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
 		FROM syndication AS sy
 		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
-		WHERE %s AND %s
+		WHERE %s
 		ORDER BY sy.title ASC
 		LIMIT ?, ?
 	`
 	var args []interface{}
 
 	search, t := getSubscriptionSearch(terms)
-	where := getWhere(showDeleted, pausedOnly)
 
 	args = append(args, u.ID)
 	args = append(args, t...)
 	args = append(args, offset)
 	args = append(args, limit)
 
-	query = formatQuery(fmt.Sprintf(query, where, search))
+	query = formatQuery(fmt.Sprintf(query, search))
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -129,24 +115,23 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 }
 
 // GetTotal count latest entries
-func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string, showDeleted bool, pausedOnly bool) (int32, error) {
+func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string) (int32, error) {
 	var total int32
 
 	query := `
 		SELECT COUNT(sy.id) as total
 		FROM syndication AS sy
 		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
-		WHERE %s AND %s
+		WHERE %s
 	`
 	var args []interface{}
 
 	search, t := getSubscriptionSearch(terms)
-	where := getWhere(showDeleted, pausedOnly)
 
 	args = append(args, u.ID)
 	args = append(args, t...)
 
-	query = formatQuery(fmt.Sprintf(query, where, search))
+	query = formatQuery(fmt.Sprintf(query, search))
 
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {

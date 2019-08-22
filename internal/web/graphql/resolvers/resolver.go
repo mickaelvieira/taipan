@@ -81,6 +81,20 @@ func (r *resolver) source(s *syndication.Source) *Source {
 	}
 }
 
+func (r *resolver) tags(results []*syndication.Tag) []*Tag {
+	tags := make([]*Tag, len(results))
+	for i, d := range results {
+		tags[i] = r.tag(d)
+	}
+	return tags
+}
+
+func (r *resolver) tag(t *syndication.Tag) *Tag {
+	return &Tag{
+		tag: t,
+	}
+}
+
 func (r *resolver) subscriptions(results []*subscription.Subscription) []*Subscription {
 	subscription := make([]*Subscription, len(results))
 	for i, d := range results {

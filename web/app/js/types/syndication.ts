@@ -13,7 +13,20 @@ export interface Source {
   updatedAt: Date;
   parsedAt: Date | null;
   stats?: Stats;
+  tags?: Tag[];
   logEntries?: Log[];
+}
+
+export interface Tag {
+  id: string;
+  label: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SyndicationTagResults {
+  total: number;
+  results: Tag[];
 }
 
 export interface SyndicationResults {
@@ -24,7 +37,9 @@ export interface SyndicationResults {
 }
 
 export interface SearchParams {
-  isPaused: boolean;
+  terms: string[];
+  showDeleted: boolean;
+  pausedOnly: boolean;
 }
 
 export interface Stats {

@@ -2,14 +2,18 @@ package resolvers
 
 import (
 	"context"
+	"database/sql"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
 	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
 	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
+	"time"
 
+	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"
+	"github.com/pkg/errors"
 )
 
 // SyndicationRootResolver syndication's root resolver
@@ -25,7 +29,7 @@ type SourceCollection struct {
 	Limit   int32
 }
 
-// Source resolves the bookmark entity
+// Source resolves the syndication source entity
 type Source struct {
 	source     *syndication.Source
 	repository *repository.Repositories
@@ -88,6 +92,40 @@ func (r *Source) ParsedAt() *scalars.Datetime {
 	return &t
 }
 
+// Tags resolves the Tags field
+func (r *Source) Tags(ctx context.Context) ([]*Tag, error) {
+	l := loaders.FromContext(ctx)
+
+	ids, err := r.repository.SyndicationTags.GetSourceTagIDs(ctx, r.source)
+	if err != nil {
+		return nil, err
+	}
+
+	var keys = make([]dataloader.Key, len(ids))
+	for i, id := range ids {
+		keys[i] = dataloader.StringKey(id)
+	}
+
+	future := l.SyndicationTag.LoadMany(ctx, keys)
+	data, e := future()
+	if len(e) > 0 {
+		return nil, e[0]
+	}
+
+	var resolver = resolve(r.repository)
+	var tags = make([]*Tag, len(data))
+
+	for i, datum := range data {
+		result, ok := datum.(*syndication.Tag)
+		if !ok {
+			return nil, ErrDataTypeIsNotValid
+		}
+		tags[i] = resolver.tag(result)
+	}
+
+	return tags, nil
+}
+
 // LogEntries returns the document's parser log
 func (r *Source) LogEntries(ctx context.Context) (*[]*Log, error) {
 	l := loaders.FromContext(ctx)
@@ -110,6 +148,37 @@ func (r *Source) LogEntries(ctx context.Context) (*[]*Log, error) {
 	return &res, nil
 }
 
+// TagCollection resolver
+type TagCollection struct {
+	Results []*Tag
+	Total   int32
+}
+
+// Tag resolves the syndication tag entity
+type Tag struct {
+	tag *syndication.Tag
+}
+
+// ID resolves the ID field
+func (r *Tag) ID() gql.ID {
+	return gql.ID(r.tag.ID)
+}
+
+// Label resolves the Tag field
+func (r *Tag) Label() string {
+	return r.tag.Label
+}
+
+// CreatedAt resolves the CreatedAt field
+func (r *Tag) CreatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.tag.CreatedAt)
+}
+
+// UpdatedAt resolves the UpdatedAt field
+func (r *Tag) UpdatedAt() scalars.Datetime {
+	return scalars.NewDatetime(r.tag.UpdatedAt)
+}
+
 // Source returns the syndication source
 func (r *SyndicationRootResolver) Source(ctx context.Context, args struct {
 	URL scalars.URL
@@ -126,13 +195,24 @@ func (r *SyndicationRootResolver) Source(ctx context.Context, args struct {
 
 // Create adds a syndication source
 func (r *SyndicationRootResolver) Create(ctx context.Context, args struct {
-	URL scalars.URL
+	URL  scalars.URL
+	Tags []string
 }) (*Source, error) {
 	u := args.URL.ToDomain()
 
 	s, err := usecase.CreateSyndicationSource(ctx, r.repositories, u, true)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, id := range args.Tags {
+		t, err := r.repositories.SyndicationTags.GetByID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if err := r.repositories.Syndication.Tag(ctx, s, t); err != nil {
+			return nil, err
+		}
 	}
 
 	return resolve(r.repositories).source(s), nil
@@ -226,20 +306,19 @@ func (r *SyndicationRootResolver) Disable(ctx context.Context, args struct {
 
 // Sources resolves the query
 func (r *SyndicationRootResolver) Sources(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     searchSourcesInput
+	Pagination OffsetPaginationInput
+	Search     SyndicationSearchInput
 }) (*SourceCollection, error) {
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
-	paused := args.Search.IsPaused
 
-	results, err := r.repositories.Syndication.FindAll(ctx, paused, offset, limit)
+	results, err := r.repositories.Syndication.FindAll(ctx, args.Search.Terms, args.Search.ShowDeleted, args.Search.PausedOnly, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
 	var total int32
-	total, err = r.repositories.Syndication.GetTotal(ctx)
+	total, err = r.repositories.Syndication.GetTotal(ctx, args.Search.Terms, args.Search.ShowDeleted, args.Search.PausedOnly)
 	if err != nil {
 		return nil, err
 	}
@@ -252,4 +331,134 @@ func (r *SyndicationRootResolver) Sources(ctx context.Context, args struct {
 	}
 
 	return &res, nil
+}
+
+// Tags resolves the query
+func (r *SyndicationRootResolver) Tags(ctx context.Context) (*TagCollection, error) {
+	results, err := r.repositories.SyndicationTags.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var total int32
+	total, err = r.repositories.SyndicationTags.GetTotal(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res := TagCollection{
+		Results: resolve(r.repositories).tags(results),
+		Total:   total,
+	}
+
+	return &res, nil
+}
+
+// Tag --
+func (r *SyndicationRootResolver) Tag(ctx context.Context, args struct {
+	SourceID string
+	TagID    string
+}) (*Source, error) {
+	s, err := r.repositories.Syndication.GetByID(ctx, args.SourceID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("source not found")
+		}
+		return nil, err
+	}
+
+	t, err := r.repositories.SyndicationTags.GetByID(ctx, args.TagID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("tag not found")
+		}
+		return nil, err
+	}
+
+	if err := r.repositories.Syndication.Tag(ctx, s, t); err != nil {
+		return nil, err
+	}
+
+	return resolve(r.repositories).source(s), nil
+}
+
+// Untag --
+func (r *SyndicationRootResolver) Untag(ctx context.Context, args struct {
+	SourceID string
+	TagID    string
+}) (*Source, error) {
+	s, err := r.repositories.Syndication.GetByID(ctx, args.SourceID)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := r.repositories.SyndicationTags.GetByID(ctx, args.TagID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.repositories.Syndication.Untag(ctx, s, t); err != nil {
+		return nil, err
+	}
+
+	return resolve(r.repositories).source(s), nil
+}
+
+// CreateTag --
+func (r *SyndicationRootResolver) CreateTag(ctx context.Context, args struct{ Label string }) (*Tag, error) {
+	if args.Label == "" {
+		return nil, errors.New("Tab must have a label")
+	}
+
+	t := &syndication.Tag{
+		Label:     args.Label,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := r.repositories.SyndicationTags.Insert(ctx, t); err != nil {
+		return nil, err
+	}
+
+	return resolve(r.repositories).tag(t), nil
+}
+
+// UpdateTag --
+func (r *SyndicationRootResolver) UpdateTag(ctx context.Context, args struct {
+	ID    string
+	Label string
+}) (*Tag, error) {
+	if args.Label == "" {
+		return nil, errors.New("Tab must have a label")
+	}
+
+	t, err := r.repositories.SyndicationTags.GetByID(ctx, args.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	t.Label = args.Label
+	t.UpdatedAt = time.Now()
+
+	if err := r.repositories.SyndicationTags.Update(ctx, t); err != nil {
+		return nil, err
+	}
+
+	return resolve(r.repositories).tag(t), nil
+}
+
+// DeleteTag --
+func (r *SyndicationRootResolver) DeleteTag(ctx context.Context, args struct {
+	ID string
+}) (bool, error) {
+	t, err := r.repositories.SyndicationTags.GetByID(ctx, args.ID)
+	if err != nil {
+		return false, err
+	}
+
+	if err := r.repositories.SyndicationTags.Delete(ctx, t); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

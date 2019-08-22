@@ -14,21 +14,23 @@ import (
 
 // Loaders --
 type Loaders struct {
-	Users      *dataloader.Loader
-	UsersStats *dataloader.Loader
-	Emails     *dataloader.Loader
-	Sources    *dataloader.Loader
-	Logs       *dataloader.Loader
+	Users          *dataloader.Loader
+	UsersStats     *dataloader.Loader
+	Emails         *dataloader.Loader
+	Sources        *dataloader.Loader
+	SyndicationTag *dataloader.Loader
+	Logs           *dataloader.Loader
 }
 
 // NewDataloaders --
 func NewDataloaders(r *repository.Repositories) *Loaders {
 	return &Loaders{
-		Users:      getUserLoaders(r.Users),
-		UsersStats: getUserStatsLoaders(r),
-		Emails:     getEmailsLoaders(r.Emails),
-		Sources:    getSourcesLoaders(r.Syndication),
-		Logs:       getLogsLoader(r.Botlogs),
+		Users:          getUserLoaders(r.Users),
+		UsersStats:     getUserStatsLoaders(r),
+		Emails:         getEmailsLoaders(r.Emails),
+		Sources:        getSourcesLoaders(r.Syndication),
+		SyndicationTag: getTagsLoaders(r.SyndicationTags),
+		Logs:           getLogsLoader(r.Botlogs),
 	}
 }
 
@@ -59,6 +61,23 @@ func getSourcesLoaders(repository *repository.SyndicationRepository) *dataloader
 
 		results := make([]*dataloader.Result, len(sources))
 		for i, s := range sources {
+			results[i] = &dataloader.Result{Data: s}
+		}
+
+		return results
+	})
+}
+
+// getSourcesLoaders get the syndication source loader
+func getTagsLoaders(repository *repository.SyndicationTagsRepository) *dataloader.Loader {
+	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+		tags, err := repository.GetByIDs(ctx, keys.Keys())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		results := make([]*dataloader.Result, len(tags))
+		for i, s := range tags {
 			results[i] = &dataloader.Result{Data: s}
 		}
 

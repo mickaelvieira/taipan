@@ -136,7 +136,8 @@ export default function UserEmail({
       </div>
       {!email.isConfirmed && (
         <BaseHint>
-          Your primary email address has not been confirm yet. Please confirm it.
+          Your primary email address has not been confirm yet. Please confirm
+          it.
           <ConfirmEmailButton
             className={classes.resendButton}
             email={email}

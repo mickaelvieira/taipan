@@ -1,0 +1,12 @@
+#import "../../fragment/source.graphql"
+
+query sources {
+  syndication {
+    tags @connection(key: "syndication_tags")  {
+      total
+      results {
+        ...tagFields
+      }
+    }
+  }
+}

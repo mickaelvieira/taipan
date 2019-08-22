@@ -1,0 +1,12 @@
+#import "../../fragment/source.graphql"
+
+mutation untag($sourceId: ID!, $tagId: ID!) {
+  syndication {
+    untag(sourceId: $sourceId, tagId: $tagId) {
+      id
+      tags {
+        ...tagFields
+      }
+    }
+  }
+}

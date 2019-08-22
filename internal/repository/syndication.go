@@ -134,25 +134,61 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	return results, nil
 }
 
+func getWhere(showDeleted bool, pausedOnly bool) string {
+	var where []string
+	if showDeleted {
+		where = append(where, "s.deleted = 1")
+	} else {
+		where = append(where, "s.deleted = 0")
+	}
+	if pausedOnly {
+		where = append(where, "s.paused = 1")
+	}
+	return strings.Join(where, " AND ")
+}
+
+func getSyndicationSearch(terms []string) (string, []interface{}) {
+	var search string
+	var args []interface{}
+
+	if len(terms) > 0 {
+		var clause = make([]string, len(terms)*2)
+		j := 0
+		for _, t := range terms {
+			clause[j] = "s.url LIKE ?"
+			clause[j+1] = "s.title LIKE ?"
+			args = append(args, "%"+t+"%")
+			args = append(args, "%"+t+"%")
+			j = j + 2
+		}
+
+		search = fmt.Sprintf(" AND (%s)", strings.Join(clause, " OR "))
+	}
+
+	return search, args
+}
+
 // FindAll find newest entries
-func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, cursor int32, limit int32) ([]*syndication.Source, error) {
+func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*syndication.Source, error) {
 	query := `
 		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
-		WHERE %s
-		ORDER BY s.created_at DESC
+		WHERE %s %s
+		ORDER BY s.title ASC
 		LIMIT ?, ?
 	`
-	var where []string
 	var args []interface{}
 
-	where = append(where, "s.deleted = 0")
-	query = fmt.Sprintf(query, strings.Join(where, " AND "))
+	where := getWhere(showDeleted, pausedOnly)
+	search, t := getSyndicationSearch(terms)
 
-	args = append(args, cursor)
+	args = append(args, t...)
+	args = append(args, offset)
 	args = append(args, limit)
 
-	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
+	query = formatQuery(fmt.Sprintf(query, where, search))
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute")
 	}
@@ -174,13 +210,19 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, isPaused bool, curs
 }
 
 // GetTotal count latest entries
-func (r *SyndicationRepository) GetTotal(ctx context.Context) (int32, error) {
+func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, showDeleted bool, pausedOnly bool) (int32, error) {
 	var total int32
 
 	query := `
-		SELECT COUNT(s.id) as total FROM syndication AS s WHERE s.deleted = 0
+		SELECT COUNT(s.id) as total FROM syndication AS s WHERE %s %s
 	`
-	err := r.db.QueryRowContext(ctx, formatQuery(query)).Scan(&total)
+
+	where := getWhere(showDeleted, pausedOnly)
+	search, args := getSyndicationSearch(terms)
+
+	query = formatQuery(fmt.Sprintf(query, where, search))
+
+	err := r.db.QueryRowContext(ctx, formatQuery(query), args...).Scan(&total)
 	if err != nil {
 		return total, errors.Wrap(err, "scan")
 	}
@@ -388,6 +430,48 @@ func (r *SyndicationRepository) InsertAllIfNotExists(ctx context.Context, source
 		}
 	}
 	return err
+}
+
+// Tag tags a syndication source
+func (r *SyndicationRepository) Tag(ctx context.Context, s *syndication.Source, t *syndication.Tag) error {
+	query := `
+		INSERT INTO syndication_tags_relation
+		(source_id, tag_id)
+		VALUES
+		(?, ?)
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		s.ID,
+		t.ID,
+	)
+
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
+}
+
+// Untag remove tag
+func (r *SyndicationRepository) Untag(ctx context.Context, s *syndication.Source, t *syndication.Tag) error {
+	query := `
+		DELETE FROM syndication_tags_relation
+		WHERE source_id = ? AND tag_id = ?
+	`
+	_, err := r.db.ExecContext(
+		ctx,
+		formatQuery(query),
+		s.ID,
+		t.ID,
+	)
+
+	if err != nil {
+		return errors.Wrap(err, "execute")
+	}
+
+	return nil
 }
 
 func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error) {
