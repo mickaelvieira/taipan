@@ -7,6 +7,7 @@ import { SearchType } from "../../../types/search";
 import { queryDocuments, queryBookmarks } from "../../apollo/Query/Search";
 import ListBookmarks from "./List/Bookmark";
 import ListDocuments from "./List/Document";
+import ScrollToTop from "../../ui/ScrollToTop";
 
 export interface SearchProps {
   type: SearchType;
@@ -17,25 +18,27 @@ export default function Search(_: RouteSearchProps): JSX.Element {
   const [type, terms] = useSearch();
 
   return (
-    <FeedPage>
-      {type === "bookmark" && (
-        <Feed
-          name="searchbookmarks"
-          terms={terms}
-          type={type}
-          query={queryBookmarks}
-          List={ListBookmarks}
-        />
-      )}
-      {type === "document" && (
-        <Feed
-          name="searchnews"
-          terms={terms}
-          type={type}
-          query={queryDocuments}
-          List={ListDocuments}
-        />
-      )}
-    </FeedPage>
+    <ScrollToTop>
+      <FeedPage>
+        {type === "bookmark" && (
+          <Feed
+            name="searchbookmarks"
+            terms={terms}
+            type={type}
+            query={queryBookmarks}
+            List={ListBookmarks}
+          />
+        )}
+        {type === "document" && (
+          <Feed
+            name="searchnews"
+            terms={terms}
+            type={type}
+            query={queryDocuments}
+            List={ListDocuments}
+          />
+        )}
+      </FeedPage>
+    </ScrollToTop>
   );
 }
