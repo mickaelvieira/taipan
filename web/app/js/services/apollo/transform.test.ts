@@ -3,7 +3,7 @@ import transformer from "./transform";
 import { Document } from "../../types/document";
 import { Bookmark } from "../../types/bookmark";
 import { Subscription } from "../../types/subscription";
-import { Source } from "../../types/syndication";
+import { Source, Tag } from "../../types/syndication";
 
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 
@@ -53,6 +53,17 @@ function getFetchedSubscription(o?: Record<string, any>): any {
     createdAt: "2019-07-28T11:15:39Z",
     updatedAt: "2019-07-28T11:15:39Z",
     __typename: "UserSubscription",
+    ...o
+  };
+}
+
+function getFetchedTag(o?: Record<string, any>): any {
+  return {
+    id: "foo",
+    label: "bar",
+    createdAt: "2019-07-28T11:15:39Z",
+    updatedAt: "2019-07-28T11:15:39Z",
+    __typename: "SyndicationTag",
     ...o
   };
 }
@@ -112,6 +123,9 @@ describe("Transformer", () => {
         subscription: {
           bar: getFetchedSubscription()
         },
+        tag: {
+          bar: getFetchedTag()
+        },
         feeddocuments: {
           documents: {
             results: [
@@ -170,6 +184,16 @@ describe("Transformer", () => {
               getFetchedSource({ id: "baz" })
             ],
             __typename: "SourceCollection"
+          }
+        },
+        tags: {
+          foo: {
+            results: [
+              getFetchedTag({ id: "foo" }),
+              getFetchedTag({ id: "bar" }),
+              getFetchedTag({ id: "baz" })
+            ],
+            __typename: "SyndicationTagCollection"
           }
         },
         unknown: {
@@ -270,6 +294,13 @@ describe("Transformer", () => {
     expect(subscription.updatedAt instanceof Date).toBe(true);
   });
 
+  it("transform a single tag", () => {
+    const data = transformer(result);
+    const tag = data.data.tag.bar;
+    expect(tag.createdAt instanceof Date).toBe(true);
+    expect(tag.updatedAt instanceof Date).toBe(true);
+  });
+
   it("transform a collection of documents", () => {
     const data = transformer(result);
     if (!data.data) {
@@ -350,6 +381,15 @@ describe("Transformer", () => {
       expect(source.createdAt instanceof Date).toBe(true);
       expect(source.updatedAt instanceof Date).toBe(true);
       expect(source.parsedAt instanceof Date).toBe(true);
+    });
+  });
+
+  it("transform a collection of syndication tags", () => {
+    const data = transformer(result);
+    const tags = data.data.tags.foo.results;
+    tags.forEach((tag: Tag) => {
+      expect(tag.createdAt instanceof Date).toBe(true);
+      expect(tag.updatedAt instanceof Date).toBe(true);
     });
   });
 });

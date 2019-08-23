@@ -9,6 +9,12 @@ import { Data, query } from "../../../apollo/Query/Tags";
 import Loader from "../../Loader";
 
 const useStyles = makeStyles(() => ({
+  list: {
+    width: "100%",
+    overflowX: "hidden",
+    overflowY: "auto",
+    maxHeight: "75vh"
+  },
   item: {
     padding: 0
   }
@@ -44,7 +50,7 @@ export default React.memo(function Tags({
   } = data;
 
   return (
-    <List>
+    <List className={classes.list}>
       {tags.results.map(tag => (
         <ListItem key={tag.id} className={classes.item}>
           <Checkbox

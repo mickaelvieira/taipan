@@ -26,11 +26,6 @@ export default React.memo(function Row({ subscription }: Props): JSX.Element {
           <Domain item={subscription} />
         )}
       </TableCell>
-      {md && (
-        <TableCell>
-          <Domain item={subscription} />
-        </TableCell>
-      )}
       {md && <TableCell align="center">{subscription.frequency}</TableCell>}
       <TableCell align="center">
         <StatusButton subscription={subscription} />
