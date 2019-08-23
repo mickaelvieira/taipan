@@ -1,10 +1,10 @@
 package resolvers
 
 import (
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/domain/errors"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/errors"
+	"github/mickaelvieira/taipan/internal/logger"
 	"log"
 )
 

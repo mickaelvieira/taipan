@@ -62,3 +62,35 @@ func getMultiInsertPlacements(t int, n int) string {
 	}
 	return strings.Join(a, ", ")
 }
+
+func getDocumentSearch(terms []string) (string, []interface{}) {
+	var s string
+	var a []interface{}
+	if len(terms) > 0 {
+		// @TODO the WITH QUERY EXPANSION mode is awesoe but is quite slow,
+		// we need to see find out how we can improve that
+		s = "AND MATCH(d.title, d.description) AGAINST(? IN NATURAL LANGUAGE MODE)"
+		a = append(a, strings.Join(terms, " "))
+	}
+	return s, a
+}
+
+func getSyndicationSearch(terms []string) (string, []interface{}) {
+	var s string
+	var a []interface{}
+
+	if len(terms) > 0 {
+		var or []string
+		for _, t := range terms {
+			or = append(or, "s.url LIKE ?")
+			a = append(a, "%"+t+"%")
+		}
+
+		or = append(or, "MATCH(s.title) AGAINST(? IN NATURAL LANGUAGE MODE)")
+
+		a = append(a, strings.Join(terms, " "))
+		s = fmt.Sprintf("(%s)", strings.Join(or, " OR "))
+	}
+
+	return s, a
+}

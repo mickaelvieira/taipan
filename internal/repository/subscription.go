@@ -8,7 +8,6 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/user"
-	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -18,29 +17,6 @@ import (
 // SubscriptionRepository the Feed repository
 type SubscriptionRepository struct {
 	db *sql.DB
-}
-
-func getSubscriptionSearch(terms []string) (string, []interface{}) {
-	var search string
-	var args []interface{}
-
-	if len(terms) > 0 {
-		var clause = make([]string, len(terms)*2)
-		j := 0
-		for _, t := range terms {
-			clause[j] = "sy.url LIKE ?"
-			clause[j+1] = "sy.title LIKE ?"
-			args = append(args, "%"+t+"%")
-			args = append(args, "%"+t+"%")
-			j = j + 2
-		}
-
-		search = fmt.Sprintf("(%s)", strings.Join(clause, " OR "))
-	} else {
-		search = "su.subscribed = 1"
-	}
-
-	return search, args
 }
 
 // FindSubscribersIDs find users who have subscribed to the syndication source
@@ -75,23 +51,29 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 // FindAll --
 func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, offset int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, su.user_id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
-		FROM syndication AS sy
-		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
+		SELECT s.id, su.user_id, s.url, s.domain, s.title, s.type, su.subscribed, s.frequency, su.created_at, su.updated_at
+		FROM syndication AS s
+		LEFT JOIN subscriptions AS su ON s.id = su.source_id AND su.user_id = ?
 		WHERE %s
-		ORDER BY sy.title ASC
+		ORDER BY s.title ASC
 		LIMIT ?, ?
 	`
 	var args []interface{}
-
-	search, t := getSubscriptionSearch(terms)
-
 	args = append(args, u.ID)
-	args = append(args, t...)
+
+	var s string
+	if len(terms) > 0 {
+		var a []interface{}
+		s, a = getSyndicationSearch(terms)
+		args = append(args, a...)
+	} else {
+		s = "su.subscribed = 1"
+	}
+
 	args = append(args, offset)
 	args = append(args, limit)
 
-	query = formatQuery(fmt.Sprintf(query, search))
+	query = formatQuery(fmt.Sprintf(query, s))
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -119,19 +101,24 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 	var total int32
 
 	query := `
-		SELECT COUNT(sy.id) as total
-		FROM syndication AS sy
-		LEFT JOIN subscriptions AS su ON sy.id = su.source_id AND su.user_id = ?
+		SELECT COUNT(s.id) as total
+		FROM syndication AS s
+		LEFT JOIN subscriptions AS su ON s.id = su.source_id AND su.user_id = ?
 		WHERE %s
 	`
 	var args []interface{}
-
-	search, t := getSubscriptionSearch(terms)
-
 	args = append(args, u.ID)
-	args = append(args, t...)
 
-	query = formatQuery(fmt.Sprintf(query, search))
+	var s string
+	if len(terms) > 0 {
+		var a []interface{}
+		s, a = getSyndicationSearch(terms)
+		args = append(args, a...)
+	} else {
+		s = "su.subscribed = 1"
+	}
+
+	query = formatQuery(fmt.Sprintf(query, s))
 
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
@@ -144,9 +131,9 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 // CountUserSubscription --
 func (r *SubscriptionRepository) CountUserSubscription(ctx context.Context, u *user.User) (int32, error) {
 	query := `
-		SELECT COUNT(sy.id) as total
-		FROM syndication AS sy
-		INNER JOIN subscriptions AS su ON sy.id = su.source_id
+		SELECT COUNT(s.id) as total
+		FROM syndication AS s
+		INNER JOIN subscriptions AS su ON s.id = su.source_id
 		WHERE su.user_id = ? AND su.subscribed = 1
 	`
 	var total int32
@@ -161,10 +148,10 @@ func (r *SubscriptionRepository) CountUserSubscription(ctx context.Context, u *u
 // GetByURL find a single entry by URL
 func (r *SubscriptionRepository) GetByURL(ctx context.Context, usr *user.User, u *url.URL) (*subscription.Subscription, error) {
 	query := `
-		SELECT sy.id, su.user_id, sy.url, sy.domain, sy.title, sy.type, su.subscribed, sy.frequency, su.created_at, su.updated_at
+		SELECT s.id, su.user_id, s.url, s.domain, s.title, s.type, su.subscribed, s.frequency, su.created_at, su.updated_at
 		FROM subscriptions AS su
-		INNER JOIN syndication AS sy ON sy.id = su.source_id
-		WHERE su.user_id = ? AND sy.url = ?
+		INNER JOIN syndication AS s ON s.id = su.source_id
+		WHERE su.user_id = ? AND s.url = ?
 	`
 	rows := r.db.QueryRowContext(ctx, formatQuery(query), usr.ID, u.UnescapeString())
 	s, err := r.scan(rows)

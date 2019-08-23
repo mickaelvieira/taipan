@@ -134,7 +134,7 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	return results, nil
 }
 
-func getWhere(showDeleted bool, pausedOnly bool) string {
+func getSyndicationFilters(showDeleted bool, pausedOnly bool) string {
 	var where []string
 	if showDeleted {
 		where = append(where, "s.deleted = 1")
@@ -147,46 +147,33 @@ func getWhere(showDeleted bool, pausedOnly bool) string {
 	return strings.Join(where, " AND ")
 }
 
-func getSyndicationSearch(terms []string) (string, []interface{}) {
-	var search string
-	var args []interface{}
-
-	if len(terms) > 0 {
-		var clause = make([]string, len(terms)*2)
-		j := 0
-		for _, t := range terms {
-			clause[j] = "s.url LIKE ?"
-			clause[j+1] = "s.title LIKE ?"
-			args = append(args, "%"+t+"%")
-			args = append(args, "%"+t+"%")
-			j = j + 2
-		}
-
-		search = fmt.Sprintf(" AND (%s)", strings.Join(clause, " OR "))
-	}
-
-	return search, args
-}
-
 // FindAll find newest entries
 func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*syndication.Source, error) {
 	query := `
 		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
-		WHERE %s %s
+		WHERE %s
 		ORDER BY s.title ASC
 		LIMIT ?, ?
 	`
 	var args []interface{}
 
-	where := getWhere(showDeleted, pausedOnly)
-	search, t := getSyndicationSearch(terms)
+	var w []string
+	f := getSyndicationFilters(showDeleted, pausedOnly)
+	w = append(w, f)
 
-	args = append(args, t...)
+	var s string
+	var a []interface{}
+	if len(terms) > 0 {
+		s, a = getSyndicationSearch(terms)
+		w = append(w, s)
+		args = append(args, a...)
+	}
+
 	args = append(args, offset)
 	args = append(args, limit)
 
-	query = formatQuery(fmt.Sprintf(query, where, search))
+	query = formatQuery(fmt.Sprintf(query, strings.Join(w, " AND ")))
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -214,15 +201,23 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, sh
 	var total int32
 
 	query := `
-		SELECT COUNT(s.id) as total FROM syndication AS s WHERE %s %s
+		SELECT COUNT(s.id) as total FROM syndication AS s WHERE %s
 	`
 
-	where := getWhere(showDeleted, pausedOnly)
-	search, args := getSyndicationSearch(terms)
+	var w []string
+	f := getSyndicationFilters(showDeleted, pausedOnly)
+	w = append(w, f)
 
-	query = formatQuery(fmt.Sprintf(query, where, search))
+	var s string
+	var a []interface{}
+	if len(terms) > 0 {
+		s, a = getSyndicationSearch(terms)
+		w = append(w, s)
+	}
 
-	err := r.db.QueryRowContext(ctx, formatQuery(query), args...).Scan(&total)
+	query = formatQuery(fmt.Sprintf(query, strings.Join(w, " AND ")))
+
+	err := r.db.QueryRowContext(ctx, formatQuery(query), a...).Scan(&total)
 	if err != nil {
 		return total, errors.Wrap(err, "scan")
 	}

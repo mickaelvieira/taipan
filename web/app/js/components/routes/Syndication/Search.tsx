@@ -49,7 +49,7 @@ export default function Search({ editSource }: Props): JSX.Element | null {
   const onChange = useCallback(
     (input: string, debounced = true) => {
       const terms = input.split(/\s/).filter(term => term !== "");
-      setValue(terms.join(" "));
+      setValue(input);
       if (debounced) {
         debouncedDispatch([Action.TERMS, terms]);
       } else {
