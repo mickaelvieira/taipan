@@ -148,15 +148,25 @@ func getSyndicationFilters(showDeleted bool, pausedOnly bool) string {
 }
 
 // FindAll find newest entries
-func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*syndication.Source, error) {
+func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tags []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*syndication.Source, error) {
 	query := `
-		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		SELECT DISTINCT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
+		%s
 		WHERE %s
 		ORDER BY s.title ASC
 		LIMIT ?, ?
 	`
 	var args []interface{}
+
+	var t string
+	if len(tags) > 0 {
+		p := getMultiInsertPlacements(1, len(tags))
+		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
+		for _, a := range tags {
+			args = append(args, a)
+		}
+	}
 
 	var w []string
 	f := getSyndicationFilters(showDeleted, pausedOnly)
@@ -173,7 +183,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, sho
 	args = append(args, offset)
 	args = append(args, limit)
 
-	query = formatQuery(fmt.Sprintf(query, strings.Join(w, " AND ")))
+	query = formatQuery(fmt.Sprintf(query, t, strings.Join(w, " AND ")))
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -197,12 +207,25 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, sho
 }
 
 // GetTotal count latest entries
-func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, showDeleted bool, pausedOnly bool) (int32, error) {
+func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, tags []string, showDeleted bool, pausedOnly bool) (int32, error) {
 	var total int32
 
 	query := `
-		SELECT COUNT(s.id) as total FROM syndication AS s WHERE %s
+		SELECT COUNT(DISTINCT s.id) as total
+		FROM syndication AS s
+		%s
+		WHERE %s
 	`
+	var args []interface{}
+
+	var t string
+	if len(tags) > 0 {
+		p := getMultiInsertPlacements(1, len(tags))
+		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
+		for _, a := range tags {
+			args = append(args, a)
+		}
+	}
 
 	var w []string
 	f := getSyndicationFilters(showDeleted, pausedOnly)
@@ -213,11 +236,12 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, sh
 	if len(terms) > 0 {
 		s, a = getSyndicationSearch(terms)
 		w = append(w, s)
+		args = append(args, a...)
 	}
 
-	query = formatQuery(fmt.Sprintf(query, strings.Join(w, " AND ")))
+	query = formatQuery(fmt.Sprintf(query, t, strings.Join(w, " AND ")))
 
-	err := r.db.QueryRowContext(ctx, formatQuery(query), a...).Scan(&total)
+	err := r.db.QueryRowContext(ctx, formatQuery(query), args...).Scan(&total)
 	if err != nil {
 		return total, errors.Wrap(err, "scan")
 	}
@@ -467,6 +491,37 @@ func (r *SyndicationRepository) Untag(ctx context.Context, s *syndication.Source
 	}
 
 	return nil
+}
+
+// GetActiveTagIDs --
+func (r *SyndicationRepository) GetActiveTagIDs(ctx context.Context) ([]string, error) {
+	query := `
+		SELECT tag_id FROM syndication_tags_relation GROUP BY tag_id;
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query))
+	if err != nil {
+		return nil, errors.Wrap(err, "execute")
+	}
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		err := rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "scan rows")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ids, nil
 }
 
 func (r *SyndicationRepository) scan(rows Scanable) (*syndication.Source, error) {

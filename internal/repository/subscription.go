@@ -49,16 +49,27 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 }
 
 // FindAll --
-func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, offset int32, limit int32) ([]*subscription.Subscription, error) {
+func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, tags []string, offset int32, limit int32) ([]*subscription.Subscription, error) {
 	query := `
-		SELECT s.id, su.user_id, s.url, s.domain, s.title, s.type, su.subscribed, s.frequency, su.created_at, su.updated_at
+		SELECT DISTINCT s.id, su.user_id, s.url, s.domain, s.title, s.type, su.subscribed, s.frequency, su.created_at, su.updated_at
 		FROM syndication AS s
+		%s
 		LEFT JOIN subscriptions AS su ON s.id = su.source_id AND su.user_id = ?
-		WHERE %s
+		%s
 		ORDER BY s.title ASC
 		LIMIT ?, ?
 	`
 	var args []interface{}
+
+	var t string
+	if len(tags) > 0 {
+		p := getMultiInsertPlacements(1, len(tags))
+		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
+		for _, a := range tags {
+			args = append(args, a)
+		}
+	}
+
 	args = append(args, u.ID)
 
 	var s string
@@ -66,14 +77,20 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 		var a []interface{}
 		s, a = getSyndicationSearch(terms)
 		args = append(args, a...)
-	} else {
+	}
+
+	if len(terms) == 0 && len(tags) == 0 {
 		s = "su.subscribed = 1"
+	}
+
+	if s != "" {
+		s = "WHERE " + s
 	}
 
 	args = append(args, offset)
 	args = append(args, limit)
 
-	query = formatQuery(fmt.Sprintf(query, s))
+	query = formatQuery(fmt.Sprintf(query, t, s))
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -97,16 +114,27 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 }
 
 // GetTotal count latest entries
-func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string) (int32, error) {
+func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string, tags []string) (int32, error) {
 	var total int32
 
 	query := `
-		SELECT COUNT(s.id) as total
+		SELECT COUNT(DISTINCT s.id) as total
 		FROM syndication AS s
+		%s
 		LEFT JOIN subscriptions AS su ON s.id = su.source_id AND su.user_id = ?
-		WHERE %s
+		%s
 	`
 	var args []interface{}
+
+	var t string
+	if len(tags) > 0 {
+		p := getMultiInsertPlacements(1, len(tags))
+		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
+		for _, a := range tags {
+			args = append(args, a)
+		}
+	}
+
 	args = append(args, u.ID)
 
 	var s string
@@ -114,11 +142,17 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 		var a []interface{}
 		s, a = getSyndicationSearch(terms)
 		args = append(args, a...)
-	} else {
+	}
+
+	if len(terms) == 0 && len(tags) == 0 {
 		s = "su.subscribed = 1"
 	}
 
-	query = formatQuery(fmt.Sprintf(query, s))
+	if s != "" {
+		s = "WHERE " + s
+	}
+
+	query = formatQuery(fmt.Sprintf(query, t, s))
 
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {

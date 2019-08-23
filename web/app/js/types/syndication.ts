@@ -38,6 +38,7 @@ export interface SyndicationResults {
 
 export interface SearchParams {
   terms: string[];
+  tags: string[];
   showDeleted: boolean;
   pausedOnly: boolean;
 }

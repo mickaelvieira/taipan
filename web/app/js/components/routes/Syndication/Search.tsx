@@ -15,6 +15,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import { UserContext } from "../../context";
 import Results from "./Results";
 import useSearchReducer, { Action } from "./useSearchReducer";
+import Tags from "../../ui/Tags";
 
 const useStyles = makeStyles(({ palette }) => ({
   search: {
@@ -44,6 +45,7 @@ export default function Search({ editSource }: Props): JSX.Element | null {
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const [state, dispatch] = useSearchReducer();
+  const [tags, setTags] = useState<string[]>([]);
   const [value, setValue] = useState("");
   const debouncedDispatch = useCallback(debounce(dispatch, 400), []);
   const onChange = useCallback(
@@ -116,8 +118,12 @@ export default function Search({ editSource }: Props): JSX.Element | null {
           </FormGroup>
         )}
       </form>
+
+      <Tags ids={tags} onChange={setTags} />
+
       <Results
         terms={terms}
+        tags={tags}
         showDeleted={showDeleted}
         pausedOnly={pausedOnly}
         editSource={editSource}

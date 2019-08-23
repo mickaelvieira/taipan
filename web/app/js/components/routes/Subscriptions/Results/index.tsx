@@ -36,17 +36,19 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   terms: string[];
+  tags: string[];
 }
 
 export default React.memo(function SubscriptionsTable({
-  terms
+  terms,
+  tags
 }: Props): JSX.Element | null {
   const classes = useStyles();
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const { data, loading, error, fetchMore } = useQuery<Data, Variables>(query, {
     fetchPolicy: "network-only",
-    variables: { ...variables, search: { terms } }
+    variables: { ...variables, search: { terms, tags } }
   });
 
   if (loading) {
@@ -95,7 +97,7 @@ export default React.memo(function SubscriptionsTable({
                 ...variables.pagination,
                 offset: results.length
               },
-              search: { terms }
+              search: { terms, tags }
             })}
           >
             Load more

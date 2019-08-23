@@ -13,6 +13,7 @@ type OffsetPaginationInput struct {
 
 type SubscriptionSearchInput struct {
 	Terms []string
+	Tags  []string
 }
 
 type BookmarkSearchInput struct {
@@ -25,6 +26,7 @@ type DocumentSearchInput struct {
 
 type SyndicationSearchInput struct {
 	Terms       []string
+	Tags        []string
 	ShowDeleted bool
 	PausedOnly  bool
 }

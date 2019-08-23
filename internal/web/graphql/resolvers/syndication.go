@@ -31,8 +31,8 @@ type SourceCollection struct {
 
 // Source resolves the syndication source entity
 type Source struct {
-	source     *syndication.Source
-	repository *repository.Repositories
+	source       *syndication.Source
+	repositories *repository.Repositories
 }
 
 // ID resolves the ID field
@@ -96,7 +96,7 @@ func (r *Source) ParsedAt() *scalars.Datetime {
 func (r *Source) Tags(ctx context.Context) ([]*Tag, error) {
 	l := loaders.FromContext(ctx)
 
-	ids, err := r.repository.SyndicationTags.GetSourceTagIDs(ctx, r.source)
+	ids, err := r.repositories.SyndicationTags.GetSourceTagIDs(ctx, r.source)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (r *Source) Tags(ctx context.Context) ([]*Tag, error) {
 		return nil, e[0]
 	}
 
-	var resolver = resolve(r.repository)
+	var resolver = resolve(r.repositories)
 	var tags = make([]*Tag, len(data))
 
 	for i, datum := range data {
@@ -143,7 +143,7 @@ func (r *Source) LogEntries(ctx context.Context) (*[]*Log, error) {
 		return nil, ErrDataTypeIsNotValid
 	}
 
-	res := resolve(r.repository).logs(results)
+	res := resolve(r.repositories).logs(results)
 
 	return &res, nil
 }
@@ -312,13 +312,13 @@ func (r *SyndicationRootResolver) Sources(ctx context.Context, args struct {
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 
-	results, err := r.repositories.Syndication.FindAll(ctx, args.Search.Terms, args.Search.ShowDeleted, args.Search.PausedOnly, offset, limit)
+	results, err := r.repositories.Syndication.FindAll(ctx, args.Search.Terms, args.Search.Tags, args.Search.ShowDeleted, args.Search.PausedOnly, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
 	var total int32
-	total, err = r.repositories.Syndication.GetTotal(ctx, args.Search.Terms, args.Search.ShowDeleted, args.Search.PausedOnly)
+	total, err = r.repositories.Syndication.GetTotal(ctx, args.Search.Terms, args.Search.Tags, args.Search.ShowDeleted, args.Search.PausedOnly)
 	if err != nil {
 		return nil, err
 	}

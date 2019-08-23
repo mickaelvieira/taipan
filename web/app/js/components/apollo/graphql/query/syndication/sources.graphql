@@ -8,6 +8,9 @@ query sources($pagination: OffsetPaginationInput!, $search: SyndicationSearchInp
       offset
       results {
         ...sourceFields
+        tags {
+          ...tagFields
+        }
       }
     }
   }

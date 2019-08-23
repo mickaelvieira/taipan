@@ -71,16 +71,14 @@ func getSourcesLoaders(repository *repository.SyndicationRepository) *dataloader
 // getSourcesLoaders get the syndication source loader
 func getTagsLoaders(repository *repository.SyndicationTagsRepository) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
-		tags, err := repository.GetByIDs(ctx, keys.Keys())
-		if err != nil {
-			log.Fatalln(err)
+		results := make([]*dataloader.Result, len(keys))
+		for i, key := range keys.Keys() {
+			tag, err := repository.GetByID(ctx, key)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			results[i] = &dataloader.Result{Data: tag}
 		}
-
-		results := make([]*dataloader.Result, len(tags))
-		for i, s := range tags {
-			results[i] = &dataloader.Result{Data: s}
-		}
-
 		return results
 	})
 }

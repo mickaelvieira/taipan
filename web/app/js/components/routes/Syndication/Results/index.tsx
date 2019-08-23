@@ -35,6 +35,7 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   terms: string[];
+  tags: string[];
   showDeleted: boolean;
   pausedOnly: boolean;
   editSource: (url: URL) => void;
@@ -42,6 +43,7 @@ interface Props {
 
 export default React.memo(function SyndicationTable({
   terms,
+  tags,
   showDeleted,
   pausedOnly,
   editSource
@@ -49,7 +51,10 @@ export default React.memo(function SyndicationTable({
   const classes = useStyles();
   const { data, loading, error, fetchMore } = useQuery<Data, Variables>(query, {
     fetchPolicy: "network-only",
-    variables: { ...variables, search: { terms, pausedOnly, showDeleted } }
+    variables: {
+      ...variables,
+      search: { terms, tags, pausedOnly, showDeleted }
+    }
   });
 
   if (loading) {
@@ -77,6 +82,7 @@ export default React.memo(function SyndicationTable({
         <TableHead>
           <TableRow>
             <TableCell>Feed</TableCell>
+            <TableCell>Tags</TableCell>
             <TableCell>&nbsp;</TableCell>
           </TableRow>
         </TableHead>
@@ -96,7 +102,7 @@ export default React.memo(function SyndicationTable({
                 ...variables.pagination,
                 offset: results.length
               },
-              search: { terms, pausedOnly, showDeleted }
+              search: { terms, tags, pausedOnly, showDeleted }
             })}
           >
             Load more

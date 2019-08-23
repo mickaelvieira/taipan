@@ -76,6 +76,7 @@ func (r *SyndicationTagsRepository) GetSourceTagIDs(ctx context.Context, s *synd
 		SELECT t.id
 		FROM syndication_tags_relation AS r
 		INNER JOIN syndication_tags AS t ON r.tag_id = t.id AND r.source_id = ?
+		ORDER BY t.label ASC
 	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), s.ID)
 	if err != nil {

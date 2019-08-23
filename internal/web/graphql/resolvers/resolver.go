@@ -76,8 +76,8 @@ func (r *resolver) sources(results []*syndication.Source) []*Source {
 
 func (r *resolver) source(s *syndication.Source) *Source {
 	return &Source{
-		source:     s,
-		repository: r.repositories,
+		source:       s,
+		repositories: r.repositories,
 	}
 }
 

@@ -187,6 +187,9 @@ type SyndicationMutation {
 type SubscriptionsQuery {
   # "Returns a list of user's subscription"
   subscriptions(pagination: OffsetPaginationInput!, search: SubscriptionSearchInput): SubscriptionCollection
+
+  # "Returns a list of web syndication tags containing sources
+  tags(): SyndicationTagCollection
 }
 
 type SubscriptionsMutation {
@@ -206,6 +209,7 @@ type BotQuery {
 
 input SubscriptionSearchInput {
   terms: [String!]!
+  tags: [String!]!
 }
 
 input BookmarkSearchInput {
@@ -218,6 +222,7 @@ input DocumentSearchInput {
 
 input SyndicationSearchInput {
   terms: [String!]!
+  tags: [String!]!
   showDeleted: Boolean!
   pausedOnly: Boolean!
 }

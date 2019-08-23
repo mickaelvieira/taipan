@@ -8,6 +8,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import { UserContext } from "../../context";
 import Results from "./Results";
 import Empty from "./Empty";
+import Tags from "../../ui/Tags";
 
 const useStyles = makeStyles(({ palette }) => ({
   search: {
@@ -31,6 +32,7 @@ export default function Search(): JSX.Element | null {
   const classes = useStyles();
   const user = useContext(UserContext);
   const [terms, setTerms] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [value, setValue] = useState("");
   const debouncedDispatch = useCallback(debounce(setTerms, 400), []);
   const onChange = useCallback(
@@ -71,14 +73,21 @@ export default function Search(): JSX.Element | null {
         </div>
       </form>
 
-      {terms.length === 0 && user.stats && user.stats.subscriptions === 0 && (
-        <Empty>
-          Use the search field above to find new sources of excitement.
-        </Empty>
-      )}
+      <Tags ids={tags} onChange={setTags} />
 
-      {(terms.length > 0 || (user.stats && user.stats.subscriptions > 0)) && (
-        <Results terms={terms} />
+      {terms.length === 0 &&
+        tags.length === 0 &&
+        user.stats &&
+        user.stats.subscriptions === 0 && (
+          <Empty>
+            Use the search field above to find new sources of excitement.
+          </Empty>
+        )}
+
+      {(terms.length > 0 ||
+        tags.length > 0 ||
+        (user.stats && user.stats.subscriptions > 0)) && (
+        <Results terms={terms} tags={tags} />
       )}
     </>
   );

@@ -1,3 +1,5 @@
+import { Tag } from "./syndication";
+
 export interface Subscription {
   id: string;
   url: URL;
@@ -19,4 +21,10 @@ export interface SubscriptionResults {
 
 export interface SearchParams {
   terms: string[];
+  tags: string[];
+}
+
+export interface TagResults {
+  total: number;
+  results: Tag[];
 }
