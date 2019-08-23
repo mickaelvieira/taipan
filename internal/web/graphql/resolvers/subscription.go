@@ -3,6 +3,7 @@ package resolvers
 import (
 	"context"
 	"github/mickaelvieira/taipan/internal/domain/subscription"
+	"github/mickaelvieira/taipan/internal/domain/syndication"
 	"github/mickaelvieira/taipan/internal/domain/user"
 	"github/mickaelvieira/taipan/internal/repository"
 	"github/mickaelvieira/taipan/internal/usecase"
@@ -158,31 +159,29 @@ func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, args struct 
 
 // Subscriptions --
 func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     *subscriptionSearchInput
+	Pagination OffsetPaginationInput
+	Search     *SubscriptionSearchInput
 }) (*SubscriptionCollection, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)
 	offset, limit := fromArgs(args.Pagination)
 
 	var terms []string
-	showDeleted := false
-	pausedOnly := false
-
 	if args.Search != nil {
 		terms = args.Search.Terms
-		if user.ID == "1" {
-			showDeleted = args.Search.ShowDeleted
-			pausedOnly = args.Search.PausedOnly
-		}
 	}
 
-	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, showDeleted, pausedOnly, offset, limit)
+	var tags []string
+	if args.Search.Tags != nil {
+		tags = args.Search.Tags
+	}
+
+	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, tags, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, terms, showDeleted, pausedOnly)
+	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, terms, tags)
 	if err != nil {
 		return nil, err
 	}
@@ -192,6 +191,45 @@ func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struc
 		Total:   total,
 		Offset:  offset,
 		Limit:   limit,
+	}
+
+	return &res, nil
+}
+
+// Tags resolves the query
+func (r *SubscriptionRootResolver) Tags(ctx context.Context) (*TagCollection, error) {
+	ids, err := r.repositories.Syndication.GetActiveTagIDs(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	l := loaders.FromContext(ctx)
+
+	var keys = make([]dataloader.Key, len(ids))
+	for i, id := range ids {
+		keys[i] = dataloader.StringKey(id)
+	}
+
+	future := l.SyndicationTag.LoadMany(ctx, keys)
+	data, e := future()
+	if len(e) > 0 {
+		return nil, e[0]
+	}
+
+	var resolver = resolve(r.repositories)
+	var tags = make([]*Tag, len(data))
+
+	for i, datum := range data {
+		result, ok := datum.(*syndication.Tag)
+		if !ok {
+			return nil, ErrDataTypeIsNotValid
+		}
+		tags[i] = resolver.tag(result)
+	}
+
+	res := TagCollection{
+		Results: tags,
+		Total:   int32(len(tags)),
 	}
 
 	return &res, nil

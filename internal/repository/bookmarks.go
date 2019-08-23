@@ -20,26 +20,6 @@ type BookmarkRepository struct {
 	db *sql.DB
 }
 
-func getBookmarkSearch(terms []string) (string, []interface{}) {
-	var search string
-	var args []interface{}
-	if len(terms) > 0 {
-		var and = make([]string, len(terms))
-		for i, t := range terms {
-			var or = make([]string, 3)
-			or[0] = "d.url LIKE ?"
-			or[1] = "d.title LIKE ?"
-			or[2] = "d.description LIKE ?"
-			args = append(args, "%"+t+"%")
-			args = append(args, "%"+t+"%")
-			args = append(args, "%"+t+"%")
-			and[i] = fmt.Sprintf("(%s)", strings.Join(or, " OR "))
-		}
-		search = fmt.Sprintf("AND %s ", strings.Join(and, " AND "))
-	}
-	return search, args
-}
-
 // FindAll find bookmarks
 func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms []string, offset int32, limit int32) ([]*bookmark.Bookmark, error) {
 	var results []*bookmark.Bookmark
@@ -55,15 +35,16 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 		LIMIT ?, ?
 	`
 
-	search, t := getBookmarkSearch(terms)
+	s, a := getDocumentSearch(terms)
 
 	var args []interface{}
 	args = append(args, user.ID)
-	args = append(args, t...)
+	args = append(args, a...)
 	args = append(args, offset)
 	args = append(args, limit)
 
-	query = fmt.Sprintf(formatQuery(query), search)
+	query = fmt.Sprintf(formatQuery(query), s)
+
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute")
@@ -76,10 +57,6 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 		}
 		results = append(results, b)
 	}
-
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "scan rows")
-	// }
 
 	if err = rows.Err(); err != nil {
 		return nil, errors.Wrap(err, "scan rows")
@@ -99,13 +76,14 @@ func (r *BookmarkRepository) CountAll(ctx context.Context, user *user.User, term
 		WHERE d.deleted = 0 AND b.linked = 1 AND b.user_id = ? %s
 		ORDER BY b.added_at DESC
 	`
-	search, t := getBookmarkSearch(terms)
+	s, a := getDocumentSearch(terms)
 
 	var args []interface{}
 	args = append(args, user.ID)
-	args = append(args, t...)
+	args = append(args, a...)
 
-	query = fmt.Sprintf(formatQuery(query), search)
+	query = fmt.Sprintf(formatQuery(query), s)
+
 	err := r.db.QueryRowContext(ctx, query, args...).Scan(&total)
 	if err != nil {
 		return total, errors.Wrap(err, "scan rows")

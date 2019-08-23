@@ -9,7 +9,7 @@ const titles: Titles = {
   "/": "News",
   "/reading-list": "Reading List",
   "/favorites": "Favorites",
-  "/syndication": "RSS",
+  "/subscriptions": "RSS",
   "/account": "My Account",
   "/search": "Search"
 };

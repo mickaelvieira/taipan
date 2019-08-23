@@ -33,6 +33,9 @@ const SearchPage = lazy(() =>
 const SubscriptionsPage = lazy(() =>
   import(/* webpackChunkName: "Subscriptions" */ "./Subscriptions")
 );
+const SyndicationPage = lazy(() =>
+  import(/* webpackChunkName: "Syndication" */ "./Syndication")
+);
 const AccountPage = lazy(() =>
   import(/* webpackChunkName: "Account" */ "./Account")
 );
@@ -63,8 +66,13 @@ export default function Routes(): JSX.Element {
         />
         <Route
           exact
-          path="/syndication"
+          path="/subscriptions"
           render={routeProps => <SubscriptionsPage {...routeProps} />}
+        />
+        <Route
+          exact
+          path="/syndication"
+          render={routeProps => <SyndicationPage {...routeProps} />}
         />
         <Route
           exact

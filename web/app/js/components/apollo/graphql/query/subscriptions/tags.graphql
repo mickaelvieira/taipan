@@ -1,0 +1,12 @@
+#import "../../fragment/source.graphql"
+
+query tags {
+  subscriptions {
+    tags @connection(key: "subscriptions_tags")  {
+      total
+      results {
+        ...tagFields
+      }
+    }
+  }
+}

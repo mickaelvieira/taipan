@@ -1,10 +1,12 @@
 #import "../../fragment/source.graphql"
-#import "../../fragment/log.graphql"
 
 query source($url: URL!) {
   syndication {
     source(url: $url) {
       ...sourceFields
+      tags {
+        ...tagFields
+      }
     }
   }
 }

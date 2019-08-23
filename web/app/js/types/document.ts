@@ -20,7 +20,3 @@ export interface SearchResults {
   offset: number;
   results: Document[];
 }
-
-export interface SearchParams {
-  terms: string[];
-}

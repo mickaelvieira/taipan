@@ -27,7 +27,8 @@ const transformers: Transformers = {
   FeedDocumentResults: data => transformCollection(data as Collection),
   BookmarkSearchResults: data => transformCollection(data as Collection),
   DocumentSearchResults: data => transformCollection(data as Collection),
-  SubscriptionCollection: data => transformCollection(data as Collection)
+  SubscriptionCollection: data => transformCollection(data as Collection),
+  SourceCollection: data => transformCollection(data as Collection)
 };
 
 const isObject = (value: any): boolean =>

@@ -341,8 +341,8 @@ func (r *BookmarkRootResolver) Remove(ctx context.Context, args struct {
 
 // Search --
 func (r *BookmarkRootResolver) Search(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     bookmarkSearchInput
+	Pagination OffsetPaginationInput
+	Search     BookmarkSearchInput
 }) (*BookmarkSearchResults, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)

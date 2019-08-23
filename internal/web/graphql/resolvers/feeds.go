@@ -13,7 +13,7 @@ type FeedsRootResolver struct {
 
 // Favorites resolves the query
 func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
-	Pagination cursorPaginationInput
+	Pagination CursorPaginationInput
 }) (*BookmarkCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
@@ -44,7 +44,7 @@ func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
 
 // ReadingList resolves the query
 func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
-	Pagination cursorPaginationInput
+	Pagination CursorPaginationInput
 }) (*BookmarkCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
@@ -75,7 +75,7 @@ func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
 
 // News resolves the query
 func (r *FeedsRootResolver) News(ctx context.Context, args struct {
-	Pagination cursorPaginationInput
+	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
@@ -106,7 +106,7 @@ func (r *FeedsRootResolver) News(ctx context.Context, args struct {
 
 // LatestNews resolves the query
 func (r *FeedsRootResolver) LatestNews(ctx context.Context, args struct {
-	Pagination cursorPaginationInput
+	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)

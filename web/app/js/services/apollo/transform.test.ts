@@ -3,6 +3,7 @@ import transformer from "./transform";
 import { Document } from "../../types/document";
 import { Bookmark } from "../../types/bookmark";
 import { Subscription } from "../../types/subscription";
+import { Source } from "../../types/syndication";
 
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 
@@ -161,6 +162,16 @@ describe("Transformer", () => {
             __typename: "SubscriptionCollection"
           }
         },
+        sources: {
+          foo: {
+            results: [
+              getFetchedSource({ id: "foo" }),
+              getFetchedSource({ id: "bar" }),
+              getFetchedSource({ id: "baz" })
+            ],
+            __typename: "SourceCollection"
+          }
+        },
         unknown: {
           foo: {
             bar: "bar",
@@ -285,6 +296,18 @@ describe("Transformer", () => {
       expect(subscription.domain instanceof URL).toBe(true);
       expect(subscription.createdAt instanceof Date).toBe(true);
       expect(subscription.updatedAt instanceof Date).toBe(true);
+    });
+  });
+
+  it("transform a collection of syndication sources", () => {
+    const data = transformer(result);
+    const sources = data.data.sources.foo.results;
+    sources.forEach((source: Source) => {
+      expect(source.url instanceof URL).toBe(true);
+      expect(source.domain instanceof URL).toBe(true);
+      expect(source.createdAt instanceof Date).toBe(true);
+      expect(source.updatedAt instanceof Date).toBe(true);
+      expect(source.parsedAt instanceof Date).toBe(true);
     });
   });
 });

@@ -92,7 +92,7 @@ func Document(ctx context.Context, repos *repository.Repositories, u *url.URL, s
 		return nil, err
 	}
 
-	if result.RequestHasFailed() {
+	if !result.RequestWasSuccessful() {
 		return nil, fmt.Errorf(result.GetFailureReason())
 	}
 

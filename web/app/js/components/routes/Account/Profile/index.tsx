@@ -144,7 +144,7 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
             />
           </Group>
           <Group>
-            <Label htmlFor="lastname">Firstname</Label>
+            <Label htmlFor="lastname">Lastname</Label>
             <InputBase
               id="lastname"
               value={lastname}

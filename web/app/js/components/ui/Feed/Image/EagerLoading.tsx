@@ -13,9 +13,9 @@ interface Props {
 const useStyles = makeStyles(({ breakpoints }) => ({
   media: {
     backgroundSize: "cover",
-    minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`,
+    minHeight: `calc(${getImageWidth("sm")}px * .5)`,
     [breakpoints.up("md")]: {
-      minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`
+      minHeight: `calc(${getImageWidth("sm")}px * .5)`
     }
   }
 }));

@@ -1,10 +1,10 @@
 package resolvers
 
 import (
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/domain/errors"
 	"github/mickaelvieira/taipan/internal/domain/bookmark"
 	"github/mickaelvieira/taipan/internal/domain/document"
+	"github/mickaelvieira/taipan/internal/domain/errors"
+	"github/mickaelvieira/taipan/internal/logger"
 	"log"
 )
 
@@ -26,12 +26,12 @@ const maxLimit = 100
 // Example:
 // 		fromArgs := getOffsetBasedPagination(10)
 // 		offset, limit := fromArgs(args.Offset, args.Limit)
-func getOffsetBasedPagination(defLimit int32) func(offsetPaginationInput) (int32, int32) {
+func getOffsetBasedPagination(defLimit int32) func(OffsetPaginationInput) (int32, int32) {
 	if defLimit <= 0 {
 		log.Fatal("the default limit must be greater than zero")
 	}
 
-	return func(i offsetPaginationInput) (offset int32, limit int32) {
+	return func(i OffsetPaginationInput) (offset int32, limit int32) {
 		if i.Offset != nil {
 			offset = *i.Offset
 		}
@@ -57,12 +57,12 @@ func getOffsetBasedPagination(defLimit int32) func(offsetPaginationInput) (int32
 // Example:
 // 		fromArgs := getCursorBasedPagination(10)
 // 		from, to, limit := fromArgs(args.First, args.Last, args.Limit)
-func getCursorBasedPagination(defLimit int32) func(i cursorPaginationInput) (string, string, int32) {
+func getCursorBasedPagination(defLimit int32) func(i CursorPaginationInput) (string, string, int32) {
 	if defLimit <= 0 {
 		log.Fatal("the default limit must be greater than zero")
 	}
 
-	return func(i cursorPaginationInput) (from string, to string, limit int32) {
+	return func(i CursorPaginationInput) (from string, to string, limit int32) {
 		if i.From != nil {
 			from = *i.From
 		}

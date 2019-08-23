@@ -1,6 +1,6 @@
 #import "../../fragment/source.graphql"
 
-query sources($pagination: OffsetPaginationInput!, $search: SearchSourcesInput!) {
+query sources($pagination: OffsetPaginationInput!, $search: SyndicationSearchInput!) {
   syndication {
     sources(pagination: $pagination, search: $search) @connection(key: "syndication_sources")  {
       total
@@ -8,6 +8,9 @@ query sources($pagination: OffsetPaginationInput!, $search: SearchSourcesInput!)
       offset
       results {
         ...sourceFields
+        tags {
+          ...tagFields
+        }
       }
     }
   }

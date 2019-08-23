@@ -60,12 +60,12 @@ func (r *Log) RequestMethod() string {
 
 // HasFailed resolves the HasFailed field
 func (r *Log) HasFailed() bool {
-	return r.log.RequestHasFailed()
+	return !r.log.RequestWasSuccessful()
 }
 
 // FailureReason resolves the FailureReason field
 func (r *Log) FailureReason() string {
-	if r.log.RequestHasFailed() {
+	if !r.log.RequestWasSuccessful() {
 		return r.log.GetFailureReason()
 	}
 	return ""
@@ -84,7 +84,7 @@ func (r *Log) CreatedAt() scalars.Datetime {
 // Logs --
 func (r *LogRootResolver) Logs(ctx context.Context, args struct {
 	URL        scalars.URL
-	Pagination offsetPaginationInput
+	Pagination OffsetPaginationInput
 }) (*LogCollection, error) {
 	u := args.URL.ToDomain()
 	fromArgs := getOffsetBasedPagination(10)

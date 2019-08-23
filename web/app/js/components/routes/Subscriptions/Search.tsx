@@ -1,12 +1,5 @@
 import React, { useCallback, useState, useContext } from "react";
 import { debounce } from "lodash";
-import { useTheme } from "@material-ui/core/styles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import RadioGroup from "@material-ui/core/RadioGroup";
-import Radio from "@material-ui/core/Radio";
-import Checkbox from "@material-ui/core/Checkbox";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
@@ -14,10 +7,8 @@ import SearchIcon from "@material-ui/icons/Search";
 import CloseIcon from "@material-ui/icons/Close";
 import { UserContext } from "../../context";
 import Results from "./Results";
-import EditSource from "./EditSource";
 import Empty from "./Empty";
-import { isAdmin } from "../../../helpers/users";
-import useSearchReducer, { Action } from "./useSearchReducer";
+import Tags from "../../ui/Tags";
 
 const useStyles = makeStyles(({ palette }) => ({
   search: {
@@ -40,26 +31,22 @@ const useStyles = makeStyles(({ palette }) => ({
 export default function Search(): JSX.Element | null {
   const classes = useStyles();
   const user = useContext(UserContext);
-  const theme = useTheme();
-  const md = useMediaQuery(theme.breakpoints.up("md"));
-  const canEdit = isAdmin(user);
-  const [state, dispatch] = useSearchReducer();
+  const [terms, setTerms] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [value, setValue] = useState("");
-  const [editUrl, setEditURL] = useState<URL | null>(null);
-  const debouncedDispatch = useCallback(debounce(dispatch, 400), []);
+  const debouncedDispatch = useCallback(debounce(setTerms, 400), []);
   const onChange = useCallback(
-    (terms: string[], debounced = true) => {
-      setValue(terms.join(" "));
+    (input: string, debounced = true) => {
+      const terms = input.split(/\s/).filter(term => term !== "");
+      setValue(input);
       if (debounced) {
-        debouncedDispatch([Action.TERMS, terms]);
+        debouncedDispatch(terms);
       } else {
-        dispatch([Action.TERMS, terms]);
+        setTerms(terms);
       }
     },
-    [debouncedDispatch, dispatch]
+    [debouncedDispatch, setTerms]
   );
-
-  const { terms, showDeleted, pausedOnly } = state;
 
   return !user ? null : (
     <>
@@ -70,7 +57,7 @@ export default function Search(): JSX.Element | null {
             placeholder="Search..."
             fullWidth
             value={value}
-            onChange={event => onChange(event.target.value.split(/\s/))}
+            onChange={event => onChange(event.target.value)}
             inputProps={{ "aria-label": "Search" }}
           />
           <IconButton type="submit" aria-label="Search">
@@ -78,65 +65,29 @@ export default function Search(): JSX.Element | null {
           </IconButton>
           <IconButton
             aria-label="Clear search"
-            onClick={() => onChange([], false)}
+            disabled={terms.length === 0}
+            onClick={() => onChange("", false)}
           >
             <CloseIcon />
           </IconButton>
         </div>
-        {canEdit && md && (
-          <FormGroup row className={classes.options}>
-            <RadioGroup
-              aria-label="deleted"
-              name="deleted"
-              className={classes.radioGroup}
-              value={showDeleted ? "1" : "0"}
-              onChange={(_, value) =>
-                dispatch([Action.DELETED, value === "1" ? true : false])
-              }
-            >
-              <FormControlLabel value="0" control={<Radio />} label="Enabled" />
-              <FormControlLabel
-                value="1"
-                control={<Radio />}
-                label="Disabled"
-              />
-            </RadioGroup>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={pausedOnly}
-                  onChange={() => dispatch([Action.PAUSED, !pausedOnly])}
-                  value="Paused"
-                />
-              }
-              labelPlacement="start"
-              label="Paused only"
-            />
-          </FormGroup>
-        )}
       </form>
 
-      {terms.length === 0 && user.stats && user.stats.subscriptions === 0 && (
-        <Empty>
-          Use the search field above to find new sources of excitement.
-        </Empty>
-      )}
+      <Tags ids={tags} onChange={setTags} />
 
-      {(terms.length > 0 || (user.stats && user.stats.subscriptions > 0)) && (
-        <Results
-          terms={terms}
-          showDeleted={showDeleted}
-          pausedOnly={pausedOnly}
-          canEdit={canEdit}
-          editSource={setEditURL}
-        />
-      )}
-      {canEdit && (
-        <EditSource
-          url={editUrl}
-          isOpen={editUrl !== null}
-          close={() => setEditURL(null)}
-        />
+      {terms.length === 0 &&
+        tags.length === 0 &&
+        user.stats &&
+        user.stats.subscriptions === 0 && (
+          <Empty>
+            Use the search field above to find new sources of excitement.
+          </Empty>
+        )}
+
+      {(terms.length > 0 ||
+        tags.length > 0 ||
+        (user.stats && user.stats.subscriptions > 0)) && (
+        <Results terms={terms} tags={tags} />
       )}
     </>
   );
