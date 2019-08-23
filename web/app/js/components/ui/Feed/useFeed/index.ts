@@ -22,7 +22,7 @@ export default function useFeed(
     items: []
   });
 
-  console.log(result)
+  console.log(result);
 
   const adjust = useCallback(async () => {
     if (ref.current) {

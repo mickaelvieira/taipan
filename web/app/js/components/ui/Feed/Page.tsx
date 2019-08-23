@@ -4,7 +4,7 @@ import CreateBookmark from "../Panel/CreateBookmark";
 import { AddButton } from "../Fab";
 import Grid from "../Grid";
 import { LayoutContext, MessageContext } from "../../context";
-import {FEED_SM_WIDTH, FEED_LG_WIDTH} from "../../../constant/layout";
+import { FEED_SM_WIDTH, FEED_LG_WIDTH } from "../../../constant/layout";
 
 const useStyles = makeStyles(({ breakpoints }) => ({
   root: {
@@ -14,19 +14,18 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   },
   content: {
     [breakpoints.up("sm")]: {
-      width: FEED_SM_WIDTH,
+      width: FEED_SM_WIDTH
     },
     [breakpoints.up("md")]: {
-      width: FEED_LG_WIDTH,
+      width: FEED_LG_WIDTH
     }
   }
 }));
 
-
 export default function FeedPage({
   children
 }: PropsWithChildren<{}>): JSX.Element {
-  const classes = useStyles()
+  const classes = useStyles();
   const setMessageInfo = useContext(MessageContext);
   const setIsContained = useContext(LayoutContext);
   const [isPanelOpen, setIsPanelOpen] = useState(false);

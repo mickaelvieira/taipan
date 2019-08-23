@@ -98,9 +98,7 @@ export default React.memo(function Tags({ url }: Props): JSX.Element | null {
       <Table className={classes.table} size="small">
         <TableHead>
           <TableRow>
-            <TableCell align="center">
-              Label
-            </TableCell>
+            <TableCell align="center">Label</TableCell>
             <TableCell align="center">&nbsp;</TableCell>
           </TableRow>
         </TableHead>
