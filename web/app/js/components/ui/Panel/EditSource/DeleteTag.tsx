@@ -38,11 +38,13 @@ export default React.memo(function DeleteTagButton({
     <IconButton
       className={classes.button}
       onClick={() => {
-        mutate({
-          variables: {
-            id: tag.id
-          }
-        });
+        if (window.confirm("Are you sure you want to delete this tag?")) {
+          mutate({
+            variables: {
+              id: tag.id
+            }
+          });
+        }
       }}
     >
       <DeleteIcon color="primary" />
