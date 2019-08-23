@@ -23,11 +23,20 @@ export default function Syndication(_: RouteSyndicationProps): JSX.Element {
   const [isModalOpen, setModalStatus] = useState(false);
   const [editUrl, setEditURL] = useState<URL | null>(null);
 
+  const editSource = (url: URL | null): void => {
+    if (!url) {
+      setIsContained(false);
+    } else {
+      setIsContained(true);
+    }
+    setEditURL(url);
+  };
+
   return (
     <>
       <Grid>
         <Paper className={classes.paper}>
-          <Search editSource={setEditURL} />
+          <Search editSource={editSource} />
         </Paper>
       </Grid>
       <AddButton
@@ -51,7 +60,7 @@ export default function Syndication(_: RouteSyndicationProps): JSX.Element {
       <EditSource
         url={editUrl}
         isOpen={editUrl !== null}
-        close={() => setEditURL(null)}
+        close={() => editSource(null)}
       />
     </>
   );

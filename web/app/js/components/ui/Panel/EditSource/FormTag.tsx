@@ -49,7 +49,6 @@ export default function FormTag(): JSX.Element {
         <InputBase
           fullWidth
           className={classes.input}
-          autoFocus
           value={value}
           onChange={event => setValue(event.target.value)}
         />
