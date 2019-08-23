@@ -14,13 +14,15 @@ import EditTitle from "./EditTitle";
 import Domain from "../../../routes/Syndication/Domain";
 import Link from "../../../routes/Syndication/Link";
 
-const useStyles = makeStyles(({ typography }) => ({
+const useStyles = makeStyles(({ breakpoints, typography }) => ({
   title: {
     paddingTop: 12,
     paddingBottom: 12
   },
   list: {
-    width: "50%"
+    [breakpoints.up("md")]: {
+      width: "50%"
+    }
   },
   date: {
     fontWeight: typography.fontWeightMedium

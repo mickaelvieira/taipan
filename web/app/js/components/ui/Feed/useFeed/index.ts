@@ -22,6 +22,8 @@ export default function useFeed(
     items: []
   });
 
+  console.log(result)
+
   const adjust = useCallback(async () => {
     if (ref.current) {
       await feed.collectHeights(ref.current);

@@ -12,7 +12,9 @@ import MenuLink from "./MenuLink";
 
 const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
   nested: {
-    paddingLeft: spacing(4)
+    [breakpoints.up("md")]: {
+      backgroundColor: "#1d1d1d"
+    }
   },
   toggle: {
     color: palette.grey[600],

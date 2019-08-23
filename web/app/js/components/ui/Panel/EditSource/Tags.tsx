@@ -22,7 +22,7 @@ import FormTag from "./FormTag";
 import EditTag from "./EditTag";
 import DeleteTagButton from "./DeleteTag";
 
-const useStyles = makeStyles(({ typography }) => ({
+const useStyles = makeStyles(({ breakpoints, typography }) => ({
   container: {
     width: "100%",
     overflowX: "hidden",
@@ -31,7 +31,9 @@ const useStyles = makeStyles(({ typography }) => ({
     maxHeight: 380
   },
   table: {
-    minWidth: 650
+    [breakpoints.up("md")]: {
+      minWidth: 650
+    }
   },
   error: {
     color: red[500],
@@ -96,7 +98,7 @@ export default React.memo(function Tags({ url }: Props): JSX.Element | null {
       <Table className={classes.table} size="small">
         <TableHead>
           <TableRow>
-            <TableCell align="center" style={{ width: "80%" }}>
+            <TableCell align="center">
               Label
             </TableCell>
             <TableCell align="center">&nbsp;</TableCell>

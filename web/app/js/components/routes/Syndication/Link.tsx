@@ -12,7 +12,7 @@ export default React.memo(function SourceLink({ item }: Props): JSX.Element {
       href={`${item.url}`}
       title={item.title ? item.title : `${item.url}`}
     >
-      {`${item.url}`}
+      {`${item.title}`}
     </ExternalLink>
   );
 });

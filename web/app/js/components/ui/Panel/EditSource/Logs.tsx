@@ -10,7 +10,7 @@ import red from "@material-ui/core/colors/red";
 import { Data, Variables, query, variables } from "../../../apollo/Query/Logs";
 import Loader from "../../Loader";
 
-const useStyles = makeStyles(({ typography }) => ({
+const useStyles = makeStyles(({ breakpoints, typography }) => ({
   container: {
     width: "100%",
     overflowX: "hidden",
@@ -19,7 +19,9 @@ const useStyles = makeStyles(({ typography }) => ({
     maxHeight: 380
   },
   table: {
-    minWidth: 650
+    [breakpoints.up("md")]: {
+      minWidth: 650
+    }
   },
   error: {
     color: red[500],
