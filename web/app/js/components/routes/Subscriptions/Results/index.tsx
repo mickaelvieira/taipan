@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
@@ -8,12 +8,13 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Button from "@material-ui/core/Button";
+import useWindowBottom from "../../../../hooks/useWindowBottom";
 import Loader from "../../../ui/Loader";
 import Empty from "../Empty";
 import {
   Data,
   Variables,
+  LoadMore,
   query,
   variables,
   getFetchMore
@@ -43,6 +44,8 @@ export default React.memo(function SubscriptionsTable({
   terms,
   tags
 }: Props): JSX.Element | null {
+  const isAtTheBottom = useWindowBottom();
+  const loadMore = useRef<LoadMore | undefined>();
   const classes = useStyles();
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
@@ -50,6 +53,12 @@ export default React.memo(function SubscriptionsTable({
     fetchPolicy: "network-only",
     variables: { ...variables, search: { terms, tags } }
   });
+
+  useEffect(() => {
+    if (isAtTheBottom && loadMore.current) {
+      loadMore.current();
+    }
+  }, [isAtTheBottom, loadMore]);
 
   if (loading) {
     return <Loader />;
@@ -63,8 +72,16 @@ export default React.memo(function SubscriptionsTable({
     return null;
   }
 
-  const { total, results } = data.subscriptions.subscriptions;
-  const showLoadMoreButton = results.length < total;
+  const { results } = data.subscriptions.subscriptions;
+
+  loadMore.current = getFetchMore(fetchMore, data, {
+    ...variables,
+    pagination: {
+      ...variables.pagination,
+      offset: results.length
+    },
+    search: { terms, tags }
+  });
 
   if (results.length === 0) {
     return <Empty>We could not find any sources matching your query.</Empty>;
@@ -76,7 +93,6 @@ export default React.memo(function SubscriptionsTable({
         <TableHead>
           <TableRow>
             <TableCell>Title</TableCell>
-            {md && <TableCell>Domain</TableCell>}
             {md && <TableCell>Updated</TableCell>}
             <TableCell align="center">Subscribed</TableCell>
           </TableRow>
@@ -87,23 +103,6 @@ export default React.memo(function SubscriptionsTable({
           ))}
         </TableBody>
       </Table>
-      <div className={classes.fetchMore}>
-        {showLoadMoreButton && (
-          <Button
-            className={classes.button}
-            onClick={getFetchMore(fetchMore, data, {
-              ...variables,
-              pagination: {
-                ...variables.pagination,
-                offset: results.length
-              },
-              search: { terms, tags }
-            })}
-          >
-            Load more
-          </Button>
-        )}
-      </div>
     </>
   );
 });

@@ -6,7 +6,8 @@ import IconEdit from "@material-ui/icons/Edit";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
 import { Source } from "../../../../types/syndication";
-import Link from "../Link";
+import Title from "../Title";
+import Domain from "../Domain";
 import { sort } from "../../../../helpers/tags";
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
@@ -28,12 +29,17 @@ export default React.memo(function Row({
   source,
   editSource
 }: Props): JSX.Element {
+  const { title } = source;
   const classes = useStyles();
   const list = sort(source.tags ? source.tags : []);
   return (
     <TableRow>
       <TableCell>
-        <Link item={source} />
+        {title ? (
+          <Title item={source} shouldTruncate />
+        ) : (
+          <Domain item={source} />
+        )}
       </TableCell>
       <TableCell>
         {list.map(tag => (

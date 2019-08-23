@@ -15,8 +15,11 @@ const useStyles = makeStyles(({ breakpoints, typography }) => ({
     width: "100%",
     overflowX: "hidden",
     overflowY: "auto",
-    height: 380,
-    maxHeight: 380
+    height: "80vh",
+    [breakpoints.up("md")]: {
+      height: 380,
+      maxHeight: 380
+    }
   },
   table: {
     [breakpoints.up("md")]: {

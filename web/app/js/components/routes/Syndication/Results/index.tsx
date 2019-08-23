@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
@@ -6,13 +6,14 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Button from "@material-ui/core/Button";
+import useWindowBottom from "../../../../hooks/useWindowBottom";
 import Loader from "../../../ui/Loader";
 import Empty from "../Empty";
 
 import {
   Data,
   Variables,
+  LoadMore,
   query,
   variables,
   getFetchMore
@@ -48,6 +49,8 @@ export default React.memo(function SyndicationTable({
   pausedOnly,
   editSource
 }: Props): JSX.Element | null {
+  const isAtTheBottom = useWindowBottom();
+  const loadMore = useRef<LoadMore | undefined>();
   const classes = useStyles();
   const { data, loading, error, fetchMore } = useQuery<Data, Variables>(query, {
     fetchPolicy: "network-only",
@@ -56,6 +59,12 @@ export default React.memo(function SyndicationTable({
       search: { terms, tags, pausedOnly, showDeleted }
     }
   });
+
+  useEffect(() => {
+    if (isAtTheBottom && loadMore.current) {
+      loadMore.current();
+    }
+  }, [isAtTheBottom, loadMore]);
 
   if (loading) {
     return <Loader />;
@@ -69,8 +78,16 @@ export default React.memo(function SyndicationTable({
     return null;
   }
 
-  const { total, results } = data.syndication.sources;
-  const showLoadMoreButton = results.length < total;
+  const { results } = data.syndication.sources;
+
+  loadMore.current = getFetchMore(fetchMore, data, {
+    ...variables,
+    pagination: {
+      ...variables.pagination,
+      offset: results.length
+    },
+    search: { terms, tags, pausedOnly, showDeleted }
+  });
 
   if (results.length === 0) {
     return <Empty>We could not find any sources matching your query.</Empty>;
@@ -92,23 +109,6 @@ export default React.memo(function SyndicationTable({
           ))}
         </TableBody>
       </Table>
-      <div className={classes.fetchMore}>
-        {showLoadMoreButton && (
-          <Button
-            className={classes.button}
-            onClick={getFetchMore(fetchMore, data, {
-              ...variables,
-              pagination: {
-                ...variables.pagination,
-                offset: results.length
-              },
-              search: { terms, tags, pausedOnly, showDeleted }
-            })}
-          >
-            Load more
-          </Button>
-        )}
-      </div>
     </>
   );
 });
