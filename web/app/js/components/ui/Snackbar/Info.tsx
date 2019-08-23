@@ -16,8 +16,10 @@ const useStyles = makeStyles(({ palette }) => ({
   link: {
     cursor: "pointer",
     display: "inline-box",
+    textTransform: "uppercase",
+    fontWeight: 500,
     marginLeft: 12,
-    color: palette.grey[100],
+    color: palette.secondary.light,
     textDecoration: "underline",
     "&:hover": {
       textDecoration: "none"

@@ -1,16 +1,41 @@
 import React from "react";
 import { RouteSearchProps } from "../../../types/routes";
-import Grid from "../../ui/Grid";
+import FeedPage from "../../ui/Feed/Page";
 import useSearch from "../../../hooks/useSearch";
-import Bookmarks from "./Bookmarks";
-import Documents from "./Documents";
+import Feed from "./Feed";
+import { SearchType } from "../../../types/search";
+import { queryDocuments, queryBookmarks } from "../../apollo/Query/Search";
+import ListBookmarks from "./List/Bookmark";
+import ListDocuments from "./List/Document";
+
+export interface SearchProps {
+  type: SearchType;
+  terms: string[];
+}
 
 export default function Search(_: RouteSearchProps): JSX.Element {
   const [type, terms] = useSearch();
+
   return (
-    <Grid>
-      {type === "bookmark" && <Bookmarks terms={terms} type={type} />}
-      {type === "document" && <Documents terms={terms} type={type} />}
-    </Grid>
+    <FeedPage>
+      {type === "bookmark" && (
+        <Feed
+          name="searchbookmarks"
+          terms={terms}
+          type={type}
+          query={queryBookmarks}
+          List={ListBookmarks}
+        />
+      )}
+      {type === "document" && (
+        <Feed
+          name="searchnews"
+          terms={terms}
+          type={type}
+          query={queryDocuments}
+          List={ListDocuments}
+        />
+      )}
+    </FeedPage>
   );
 }

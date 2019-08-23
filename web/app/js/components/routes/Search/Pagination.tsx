@@ -38,7 +38,7 @@ export default function Pagination({
     <div className={classes.container}>
       {!withCount && (
         <span>
-          I found {total}{" "}
+          We found {total}{" "}
           <span className={classes.type}>
             {type}
             {count > 1 ? "s" : ""}

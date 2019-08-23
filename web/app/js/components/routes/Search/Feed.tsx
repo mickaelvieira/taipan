@@ -1,35 +1,35 @@
 import React, { useRef, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import {
-  query,
-  variables,
-  getFetchMore,
-  LoadMore,
-  Variables
-} from "../../apollo/Query/Documents";
-import { SearchQueryData } from "../../../types/search";
+import PropTypes from "prop-types";
+import { variables, getFetchMore, LoadMore } from "../../apollo/Query/Search";
+import { FeedName } from "../../../types/feed";
+import { SearchQueryData, SearchQueryVariables } from "../../../types/search";
 import { hasReceivedData } from "../../apollo/helpers/search";
 import useWindowBottom from "../../../hooks/useWindowBottom";
 import Loader from "../../ui/Loader";
+import FeedContainer from "../../ui/Feed/Container";
+import { ListProps } from "../../ui/Feed/Feed";
 import Pagination from "./Pagination";
-import Results from "./Results";
-import { SearchType } from "../../../types/search";
+import { SearchProps } from ".";
 
-interface Props {
-  terms: string[];
+interface Props extends SearchProps {
+  name: FeedName;
+  List: React.FunctionComponent<ListProps & SearchProps>;
+  query: PropTypes.Validator<object>;
 }
 
-interface Props {
-  type: SearchType;
-  terms: string[];
-}
-
-export default function SearchDocuments({ terms, type }: Props): JSX.Element {
+export default function Feed({
+  terms,
+  type,
+  query,
+  List,
+  name
+}: Props): JSX.Element {
   const isAtTheBottom = useWindowBottom();
   const loadMore = useRef<LoadMore | undefined>();
   const { data, loading, error, networkStatus, fetchMore } = useQuery<
     SearchQueryData,
-    Variables
+    SearchQueryVariables
   >(query, {
     fetchPolicy: "network-only",
     skip: terms.length === 0,
@@ -48,7 +48,7 @@ export default function SearchDocuments({ terms, type }: Props): JSX.Element {
   const isFetchingMore = loading && networkStatus === 3;
 
   if (hasResults) {
-    loadMore.current = getFetchMore(fetchMore, data, {
+    loadMore.current = getFetchMore(fetchMore, query, data, {
       ...variables,
       pagination: {
         ...variables.pagination,
@@ -70,7 +70,13 @@ export default function SearchDocuments({ terms, type }: Props): JSX.Element {
             terms={terms}
             type={type}
           />
-          <Results results={results} type={type} terms={terms} />
+          <FeedContainer
+            name={name}
+            List={List}
+            results={results}
+            terms={terms}
+            type={type}
+          />
           <Pagination
             withCount
             count={results.length}

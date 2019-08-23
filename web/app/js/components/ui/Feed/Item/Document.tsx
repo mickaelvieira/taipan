@@ -1,50 +1,53 @@
 import React, { useContext } from "react";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
-import { Bookmark } from "../../../types/bookmark";
+import { Document } from "../../../../types/document";
 import {
-  UnfavoriteButton,
-  UnbookmarkButton,
-  ShareButton
-} from "../../ui/Feed/Button";
-import Domain from "../../ui/Feed/Item/Domain";
-import ItemTitle from "../../ui/Feed/Item/Title";
-import ItemDescription from "../../ui/Feed/Item/Description";
-import ItemImage from "../../ui/Feed/Image";
-import ItemFooter from "../../ui/Feed/Item/Footer";
-import { MessageContext } from "../../context";
+  ShareButton,
+  BookmarkButton,
+  BookmarkAndFavoriteButton
+} from "../Button";
+import Domain from "./Domain";
+import ItemTitle from "./Title";
+import ItemDescription from "./Description";
+import ItemImage from "../Image";
+import ItemFooter from "./Footer";
+import { MessageContext } from "../../../context";
 
 interface Props {
-  bookmark: Bookmark;
+  document: Document;
 }
 
-export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
+export default React.memo(function FeedItemDocument({
+  document
+}: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
+
   return (
     <>
-      <ItemImage item={bookmark} />
+      <ItemImage item={document} />
       <CardContent>
-        <ItemTitle item={bookmark} />
-        <ItemDescription item={bookmark} />
+        <ItemTitle item={document} />
+        <ItemDescription item={document} />
       </CardContent>
       <ItemFooter>
         <CardActions disableSpacing>
-          <Domain item={bookmark} />
+          <Domain item={document} />
         </CardActions>
         <CardActions disableSpacing>
           <ShareButton
-            item={bookmark}
+            item={document}
             onSucceed={message => {
               setMessageInfo({ message });
             }}
             onFail={message => setMessageInfo({ message })}
           />
-          <UnbookmarkButton
+          <BookmarkAndFavoriteButton
             iconOnly
-            bookmark={bookmark}
+            document={document}
             onSucceed={({ updateCache, undo }) => {
               setMessageInfo({
-                message: "The document was removed from your bookmarks",
+                message: "The document was added to your favorites",
                 action: undo,
                 label: "undo"
               });
@@ -52,12 +55,12 @@ export default React.memo(function FeedItem({ bookmark }: Props): JSX.Element {
             }}
             onFail={message => setMessageInfo({ message })}
           />
-          <UnfavoriteButton
+          <BookmarkButton
             iconOnly
-            bookmark={bookmark}
+            document={document}
             onSucceed={({ updateCache, undo }) => {
               setMessageInfo({
-                message: "The bookmark was added back to your reading list",
+                message: "The document was added to your reading list",
                 action: undo,
                 label: "undo"
               });

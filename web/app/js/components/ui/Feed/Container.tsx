@@ -12,9 +12,6 @@ const useStyles = makeStyles({
     marginBottom: 60,
     minHeight: "100vh",
     pointerEvents: "auto"
-  },
-  scrolling: {
-    pointerEvents: "none"
   }
 });
 
@@ -37,13 +34,12 @@ export default React.memo(function FeedContainer({
   return (
     <PointerEvents>
       <section
-        id="feed"
         ref={ref}
         style={{
           paddingTop: `${padding.top}px`,
           paddingBottom: `${padding.bottom}px`
         }}
-        className={`${classes.container}`}
+        className={classes.container}
       >
         <List results={items} {...rest} />
       </section>
