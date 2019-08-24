@@ -250,13 +250,13 @@ func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEvent {
 }
 
 // Update resolves the mutation
-func (r *UserRootResolver) Update(ctx context.Context, args struct {
+func (r *UserRootResolver) Update(ctx context.Context, a struct {
 	User UserInput
 }) (*User, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	if err := usecase.UpdateUser(ctx, r.repositories, user, args.User.Firstname, args.User.Lastname, args.User.Image); err != nil {
+	if err := usecase.UpdateUser(ctx, r.repositories, user, a.User.Firstname, a.User.Lastname, a.User.Image); err != nil {
 		return nil, err
 	}
 
@@ -268,14 +268,14 @@ func (r *UserRootResolver) Update(ctx context.Context, args struct {
 }
 
 // Password resolves the mutation
-func (r *UserRootResolver) Password(ctx context.Context, args struct {
+func (r *UserRootResolver) Password(ctx context.Context, a struct {
 	Old string
 	New string
 }) (bool, error) {
 	user := auth.FromContext(ctx)
 	// clientID := clientid.FromContext(ctx)
 
-	if err := usecase.ChangePassword(ctx, r.repositories, user, args.Old, args.New); err != nil {
+	if err := usecase.ChangePassword(ctx, r.repositories, user, a.Old, a.New); err != nil {
 		return false, err
 	}
 
@@ -287,13 +287,13 @@ func (r *UserRootResolver) Password(ctx context.Context, args struct {
 }
 
 // Theme resolves the mutation
-func (r *UserRootResolver) Theme(ctx context.Context, args struct {
+func (r *UserRootResolver) Theme(ctx context.Context, a struct {
 	Theme string
 }) (*User, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	if err := usecase.UpdateTheme(ctx, r.repositories, user, args.Theme); err != nil {
+	if err := usecase.UpdateTheme(ctx, r.repositories, user, a.Theme); err != nil {
 		return nil, err
 	}
 
@@ -305,13 +305,13 @@ func (r *UserRootResolver) Theme(ctx context.Context, args struct {
 }
 
 // CreateEmail --
-func (r *UserRootResolver) CreateEmail(ctx context.Context, args struct {
+func (r *UserRootResolver) CreateEmail(ctx context.Context, a struct {
 	Email string
 }) (*User, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	if err := usecase.CreateUserEmail(ctx, r.repositories, user, args.Email); err != nil {
+	if err := usecase.CreateUserEmail(ctx, r.repositories, user, a.Email); err != nil {
 		return nil, err
 	}
 
@@ -323,13 +323,13 @@ func (r *UserRootResolver) CreateEmail(ctx context.Context, args struct {
 }
 
 // DeleteEmail --
-func (r *UserRootResolver) DeleteEmail(ctx context.Context, args struct {
+func (r *UserRootResolver) DeleteEmail(ctx context.Context, a struct {
 	Email string
 }) (*User, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	if err := usecase.DeleteUserEmail(ctx, r.repositories, user, args.Email); err != nil {
+	if err := usecase.DeleteUserEmail(ctx, r.repositories, user, a.Email); err != nil {
 		return nil, err
 	}
 
@@ -341,13 +341,13 @@ func (r *UserRootResolver) DeleteEmail(ctx context.Context, args struct {
 }
 
 // PrimaryEmail --
-func (r *UserRootResolver) PrimaryEmail(ctx context.Context, args struct {
+func (r *UserRootResolver) PrimaryEmail(ctx context.Context, a struct {
 	Email string
 }) (*User, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	if err := usecase.PrimaryUserEmail(ctx, r.repositories, user, args.Email); err != nil {
+	if err := usecase.PrimaryUserEmail(ctx, r.repositories, user, a.Email); err != nil {
 		return nil, err
 	}
 
@@ -359,13 +359,13 @@ func (r *UserRootResolver) PrimaryEmail(ctx context.Context, args struct {
 }
 
 // SendConfirmationEmail --
-func (r *UserRootResolver) SendConfirmationEmail(ctx context.Context, args struct {
+func (r *UserRootResolver) SendConfirmationEmail(ctx context.Context, a struct {
 	Email string
 }) (*User, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	e, err := r.repositories.Emails.GetUserEmailByValue(ctx, user, args.Email)
+	e, err := r.repositories.Emails.GetUserEmailByValue(ctx, user, a.Email)
 	if err != nil {
 		return nil, err
 	}
