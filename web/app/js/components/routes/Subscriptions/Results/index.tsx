@@ -50,7 +50,6 @@ export default React.memo(function SubscriptionsTable({
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const { data, loading, error, fetchMore } = useQuery<Data, Variables>(query, {
-    fetchPolicy: "network-only",
     variables: { ...variables, search: { terms, tags } }
   });
 
