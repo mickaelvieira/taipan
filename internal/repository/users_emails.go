@@ -149,7 +149,7 @@ func (r *UserEmailRepository) GetUserEmails(ctx context.Context, u *user.User) (
 		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at, e.confirmed_at
 		FROM users_emails as e
 		WHERE e.user_id = ? ORDER BY e.primary DESC
-		`
+	`
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), u.ID)
 	if err != nil {
 		return nil, err
