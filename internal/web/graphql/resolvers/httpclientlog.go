@@ -87,10 +87,9 @@ func (r *LogRootResolver) Logs(ctx context.Context, args struct {
 	Pagination OffsetPaginationInput
 }) (*LogCollection, error) {
 	u := args.URL.ToDomain()
-	fromArgs := getOffsetBasedPagination(10)
-	offset, limit := fromArgs(args.Pagination)
+	page := offsetPagination(10)(args.Pagination)
 
-	results, err := r.repositories.Botlogs.FindAll(ctx, u, offset, limit)
+	results, err := r.repositories.Botlogs.FindAll(ctx, u, page)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +103,8 @@ func (r *LogRootResolver) Logs(ctx context.Context, args struct {
 	res := LogCollection{
 		Results: resolve(r.repositories).logs(results),
 		Total:   total,
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  page.Offset,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil

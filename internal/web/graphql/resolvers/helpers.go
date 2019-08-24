@@ -5,6 +5,7 @@ import (
 	"github/mickaelvieira/taipan/internal/domain/document"
 	"github/mickaelvieira/taipan/internal/domain/errors"
 	"github/mickaelvieira/taipan/internal/logger"
+	"github/mickaelvieira/taipan/internal/repository"
 	"log"
 )
 
@@ -21,65 +22,108 @@ func handleError(err error) error {
 
 const maxLimit = 100
 
-// getOffsetBasedPagination prepare the default offset and limit for the SQL query
+// offsetPagination prepare the default offset and limit for the SQL query
 // provide a default limit value and get back a closure to prepare the boundaries
 // Example:
-// 		fromArgs := getOffsetBasedPagination(10)
-// 		offset, limit := fromArgs(args.Offset, args.Limit)
-func getOffsetBasedPagination(defLimit int32) func(OffsetPaginationInput) (int32, int32) {
+// 		page := offsetPagination(10)(args.Offset, args.Limit)
+func offsetPagination(defLimit int32) func(OffsetPaginationInput) *repository.OffsetPagination {
 	if defLimit <= 0 {
 		log.Fatal("the default limit must be greater than zero")
 	}
 
-	return func(i OffsetPaginationInput) (offset int32, limit int32) {
+	return func(i OffsetPaginationInput) *repository.OffsetPagination {
+		p := &repository.OffsetPagination{}
 		if i.Offset != nil {
-			offset = *i.Offset
+			p.Offset = *i.Offset
 		}
 
-		if offset < 0 {
-			offset = 0
+		if p.Offset < 0 {
+			p.Offset = 0
 		}
 
 		if i.Limit != nil {
-			limit = *i.Limit
+			p.Limit = *i.Limit
 		}
 
-		if limit <= 0 || limit > maxLimit {
-			limit = defLimit
+		if p.Limit <= 0 || p.Limit > maxLimit {
+			p.Limit = defLimit
 		}
 
-		return offset, limit
+		return p
 	}
 }
 
-// getCursorBasedPagination prepare the default offset and limit for the SQL query
+// cursorPagination prepare the default offset and limit for the SQL query
 // provide a default limit value and get back a closure to prepare the boundaries
 // Example:
-// 		fromArgs := getCursorBasedPagination(10)
-// 		from, to, limit := fromArgs(args.First, args.Last, args.Limit)
-func getCursorBasedPagination(defLimit int32) func(i CursorPaginationInput) (string, string, int32) {
-	if defLimit <= 0 {
+// 		page := cursorPagination(10)(args.First, args.Last, args.Limit)
+func cursorPagination(l int32) func(i CursorPaginationInput) *repository.CursorPagination {
+	if l <= 0 {
 		log.Fatal("the default limit must be greater than zero")
 	}
 
-	return func(i CursorPaginationInput) (from string, to string, limit int32) {
+	return func(i CursorPaginationInput) *repository.CursorPagination {
+		p := &repository.CursorPagination{}
+
 		if i.From != nil {
-			from = *i.From
+			p.From = *i.From
 		}
 
 		if i.To != nil {
-			to = *i.To
+			p.To = *i.To
 		}
 
 		if i.Limit != nil {
-			limit = *i.Limit
+			p.Limit = *i.Limit
 		}
 
-		if limit <= 0 || limit > maxLimit {
-			limit = defLimit
+		if p.Limit <= 0 || p.Limit > maxLimit {
+			p.Limit = l
 		}
 
-		return from, to, limit
+		return p
+	}
+}
+
+func sorting(by string, dir string, allowed []string) func(i *SortingInput) *repository.Sorting {
+	okBy := func(b *string) bool {
+		if b == nil {
+			return false
+		}
+		v := *b
+		for _, a := range allowed {
+			if a == v {
+				return true
+			}
+		}
+		return false
+	}
+
+	okDir := func(d *string) bool {
+		if d == nil {
+			return false
+		}
+		v := *d
+		if v == "ASC" || v == "DESC" {
+			return true
+		}
+		return false
+	}
+
+	return func(i *SortingInput) *repository.Sorting {
+		s := &repository.Sorting{
+			By:  by,
+			Dir: dir,
+		}
+		if i != nil {
+			if okBy(i.By) {
+				s.By = *i.By
+			}
+			if okDir(i.Dir) {
+				s.Dir = *i.Dir
+			}
+		}
+		return s
 	}
 }
 

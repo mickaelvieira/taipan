@@ -11,6 +11,11 @@ type OffsetPaginationInput struct {
 	Limit  *int32
 }
 
+type SortingInput struct {
+	By  *string
+	Dir *string
+}
+
 type SubscriptionSearchInput struct {
 	Terms []string
 	Tags  []string
@@ -25,10 +30,11 @@ type DocumentSearchInput struct {
 }
 
 type SyndicationSearchInput struct {
-	Terms       []string
-	Tags        []string
-	ShowDeleted bool
-	PausedOnly  bool
+	Terms  []string
+	Tags   []string
+	Hidden bool
+	Paused bool
+	Sort   *SortingInput
 }
 
 type UserInput struct {

@@ -232,10 +232,9 @@ func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
 func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
-	fromArgs := getCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.Pagination)
+	page := cursorPagination(10)(args.Pagination)
 
-	results, err := r.repositories.Documents.GetDocuments(ctx, from, to, limit)
+	results, err := r.repositories.Documents.GetDocuments(ctx, page)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +251,7 @@ func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
 		Total:   total,
 		First:   first,
 		Last:    last,
-		Limit:   limit,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil
@@ -264,15 +263,14 @@ func (r *DocumentRootResolver) Search(ctx context.Context, args struct {
 	Search     BookmarkSearchInput
 }) (*DocumentSearchResults, error) {
 	user := auth.FromContext(ctx)
-	fromArgs := getOffsetBasedPagination(10)
-	offset, limit := fromArgs(args.Pagination)
+	page := offsetPagination(10)(args.Pagination)
 	terms := args.Search.Terms
 
 	var documents []*Document
 	var total int32
 
 	if len(terms) > 0 {
-		results, err := r.repositories.Documents.FindAll(ctx, user, terms, offset, limit)
+		results, err := r.repositories.Documents.FindAll(ctx, user, terms, page)
 		if err != nil {
 			return nil, err
 		}
@@ -288,8 +286,8 @@ func (r *DocumentRootResolver) Search(ctx context.Context, args struct {
 	res := DocumentSearchResults{
 		Results: documents,
 		Total:   total,
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  page.Offset,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil

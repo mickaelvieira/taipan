@@ -26,6 +26,22 @@ type Repositories struct {
 	PasswordReset   *PasswordResetRepository
 }
 
+type CursorPagination struct {
+	From  string
+	To    string
+	Limit int32
+}
+
+type OffsetPagination struct {
+	Offset int32
+	Limit  int32
+}
+
+type Sorting struct {
+	By  string
+	Dir string
+}
+
 // GetRepositories builds the repository holder
 func GetRepositories() *Repositories {
 	var db = db.GetDB()

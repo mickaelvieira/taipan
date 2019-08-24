@@ -49,7 +49,7 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 }
 
 // FindAll --
-func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, tags []string, offset int32, limit int32) ([]*subscription.Subscription, error) {
+func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, tags []string, page *OffsetPagination) ([]*subscription.Subscription, error) {
 	query := `
 		SELECT DISTINCT s.id, su.user_id, s.url, s.domain, s.title, s.type, su.subscribed, s.frequency, su.created_at, su.updated_at
 		FROM syndication AS s
@@ -87,8 +87,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 		s = "WHERE " + s
 	}
 
-	args = append(args, offset)
-	args = append(args, limit)
+	args = append(args, page.Offset)
+	args = append(args, page.Limit)
 
 	query = formatQuery(fmt.Sprintf(query, t, s))
 
