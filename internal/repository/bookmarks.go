@@ -21,7 +21,7 @@ type BookmarkRepository struct {
 }
 
 // FindAll find bookmarks
-func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms []string, offset int32, limit int32) ([]*bookmark.Bookmark, error) {
+func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms []string, page *OffsetPagination) ([]*bookmark.Bookmark, error) {
 	var results []*bookmark.Bookmark
 
 	query := `
@@ -40,8 +40,8 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 	var args []interface{}
 	args = append(args, user.ID)
 	args = append(args, a...)
-	args = append(args, offset)
-	args = append(args, limit)
+	args = append(args, page.Offset)
+	args = append(args, page.Limit)
 
 	query = fmt.Sprintf(formatQuery(query), s)
 
@@ -93,7 +93,7 @@ func (r *BookmarkRepository) CountAll(ctx context.Context, user *user.User, term
 }
 
 // GetReadingList find latest entries
-func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User, fromID string, toID string, limit int32) ([]*bookmark.Bookmark, error) {
+func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User, page *CursorPagination) ([]*bookmark.Bookmark, error) {
 	var results []*bookmark.Bookmark
 
 	query := `
@@ -110,34 +110,34 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	var where []string
 	var args []interface{}
 
-	fromDate, err := r.getCursorDate(ctx, fromID, "added_at")
+	fromDate, err := r.getCursorDate(ctx, page.From, "added_at")
 	if err != nil {
 		return nil, err
 	}
 
-	toDate, err := r.getCursorDate(ctx, toID, "added_at")
+	toDate, err := r.getCursorDate(ctx, page.To, "added_at")
 	if err != nil {
 		return nil, err
 	}
 
-	if fromID != "" && toID != "" {
+	if page.From != "" && page.To != "" {
 		where = append(where, "b.added_at <= ?")
 		where = append(where, "b.added_at >= ?")
 		where = append(where, "d.id NOT IN (?, ?)")
 		args = append(args, fromDate)
 		args = append(args, toDate)
-		args = append(args, fromID)
-		args = append(args, toID)
-	} else if fromID != "" && toID == "" {
+		args = append(args, page.From)
+		args = append(args, page.To)
+	} else if page.From != "" && page.To == "" {
 		where = append(where, "b.added_at <= ?")
 		where = append(where, "d.id != ?")
 		args = append(args, fromDate)
-		args = append(args, fromID)
-	} else if fromID == "" && toID != "" {
+		args = append(args, page.From)
+	} else if page.From == "" && page.To != "" {
 		where = append(where, "b.added_at >= ?")
 		where = append(where, "d.id != ?")
 		args = append(args, toDate)
-		args = append(args, toID)
+		args = append(args, page.To)
 	}
 
 	where = append(where, "d.deleted = 0")
@@ -147,7 +147,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
 	args = append(args, user.ID)
-	args = append(args, limit)
+	args = append(args, page.Limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute")
@@ -169,7 +169,7 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 }
 
 // GetFavorites find latest entries
-func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, fromID string, toID string, limit int32) ([]*bookmark.Bookmark, error) {
+func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, page *CursorPagination) ([]*bookmark.Bookmark, error) {
 	var results []*bookmark.Bookmark
 
 	query := `
@@ -186,34 +186,34 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	var where []string
 	var args []interface{}
 
-	fromDate, err := r.getCursorDate(ctx, fromID, "favorited_at")
+	fromDate, err := r.getCursorDate(ctx, page.From, "favorited_at")
 	if err != nil {
 		return nil, err
 	}
 
-	toDate, err := r.getCursorDate(ctx, toID, "favorited_at")
+	toDate, err := r.getCursorDate(ctx, page.To, "favorited_at")
 	if err != nil {
 		return nil, err
 	}
 
-	if fromID != "" && toID != "" {
+	if page.From != "" && page.To != "" {
 		where = append(where, "b.favorited_at <= ?")
 		where = append(where, "b.favorited_at >= ?")
 		where = append(where, "d.id NOT IN (?, ?)")
 		args = append(args, fromDate)
 		args = append(args, toDate)
-		args = append(args, fromID)
-		args = append(args, toID)
-	} else if fromID != "" && toID == "" {
+		args = append(args, page.From)
+		args = append(args, page.To)
+	} else if page.From != "" && page.To == "" {
 		where = append(where, "b.favorited_at <= ?")
 		where = append(where, "d.id != ?")
 		args = append(args, fromDate)
-		args = append(args, fromID)
-	} else if fromID == "" && toID != "" {
+		args = append(args, page.From)
+	} else if page.From == "" && page.To != "" {
 		where = append(where, "b.favorited_at >= ?")
 		where = append(where, "d.id != ?")
 		args = append(args, toDate)
-		args = append(args, toID)
+		args = append(args, page.To)
 	}
 
 	where = append(where, "d.deleted = 0")
@@ -223,7 +223,7 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
 	args = append(args, user.ID)
-	args = append(args, limit)
+	args = append(args, page.Limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute")

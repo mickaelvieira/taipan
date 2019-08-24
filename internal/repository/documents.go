@@ -167,7 +167,7 @@ func getPagination(fromID string, toID string) (string, []interface{}) {
 }
 
 // FindAll find bookmarks
-func (r *DocumentRepository) FindAll(ctx context.Context, user *user.User, terms []string, offset int32, limit int32) ([]*document.Document, error) {
+func (r *DocumentRepository) FindAll(ctx context.Context, user *user.User, terms []string, page *OffsetPagination) ([]*document.Document, error) {
 	var results []*document.Document
 
 	query := `
@@ -192,8 +192,8 @@ func (r *DocumentRepository) FindAll(ctx context.Context, user *user.User, terms
 	args = append(args, user.ID)
 	args = append(args, user.ID)
 	args = append(args, a...)
-	args = append(args, offset)
-	args = append(args, limit)
+	args = append(args, page.Offset)
+	args = append(args, page.Limit)
 
 	query = fmt.Sprintf(formatQuery(query), s)
 	rows, err := r.db.QueryContext(ctx, query, args...)
@@ -248,7 +248,7 @@ func (r *DocumentRepository) CountAll(ctx context.Context, user *user.User, term
 }
 
 // GetNews find newest entries
-func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID string, toID string, limit int32, isDescending bool) ([]*document.Document, error) {
+func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, page *CursorPagination, isDescending bool) ([]*document.Document, error) {
 	var results []*document.Document
 
 	query := `
@@ -272,12 +272,12 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 	}
 
 	var args []interface{}
-	where, bounds := getPagination(fromID, toID)
+	where, bounds := getPagination(page.From, page.To)
 	query = fmt.Sprintf(query, where, dir)
 
 	args = append(args, u.ID, u.ID)
 	args = append(args, bounds...)
-	args = append(args, limit)
+	args = append(args, page.Limit)
 
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
@@ -300,7 +300,7 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 }
 
 // GetTotalLatestNews returns the number of latest news
-func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.User, fromID string, toID string, isDescending bool) (int32, error) {
+func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.User, page *CursorPagination, isDescending bool) (int32, error) {
 	var total int32
 	query := `
 		SELECT COUNT(d.id) AS total
@@ -319,7 +319,7 @@ func (r *DocumentRepository) GetTotalLatestNews(ctx context.Context, u *user.Use
 	}
 
 	var args []interface{}
-	where, bounds := getPagination(fromID, toID)
+	where, bounds := getPagination(page.From, page.To)
 	query = fmt.Sprintf(query, where, dir)
 
 	args = append(args, u.ID, u.ID)
@@ -355,7 +355,7 @@ func (r *DocumentRepository) GetTotalNews(ctx context.Context, u *user.User) (in
 }
 
 // GetDocuments returns the paginated documents
-func (r *DocumentRepository) GetDocuments(ctx context.Context, fromID string, toID string, limit int32) ([]*document.Document, error) {
+func (r *DocumentRepository) GetDocuments(ctx context.Context, page *CursorPagination) ([]*document.Document, error) {
 	var results []*document.Document
 
 	query := `
@@ -367,10 +367,10 @@ func (r *DocumentRepository) GetDocuments(ctx context.Context, fromID string, to
 		ORDER BY d.id DESC
 		LIMIT ?
 	`
-	where, args := r.getPagination(fromID, toID)
+	where, args := r.getPagination(page.From, page.To)
 	query = fmt.Sprintf(query, strings.Join(where, " AND "))
 
-	args = append(args, limit)
+	args = append(args, page.Limit)
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "execute")

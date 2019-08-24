@@ -11,6 +11,16 @@ export interface OffsetPagination {
   limit?: number;
 }
 
+export interface Sorting {
+  by: string;
+  dir: SortingDirection;
+}
+
+export enum SortingDirection {
+  ASC = "ASC",
+  DESC = "DESC"
+}
+
 export type Undoer = () => void;
 export type CacheUpdater = () => void;
 
