@@ -2,15 +2,15 @@ import { useReducer, Reducer, Dispatch } from "react";
 
 interface State {
   terms: string[];
-  showDeleted: boolean;
-  pausedOnly: boolean;
+  hidden: boolean;
+  paused: boolean;
 }
 
 type Payload = string[] | boolean;
 
 export enum Action {
   TERMS = "terms",
-  DELETED = "deleted",
+  HIDDEN = "hidden",
   PAUSED = "paused"
 }
 
@@ -21,15 +21,15 @@ function reducer(state: State, [type, payload]: [Action, Payload]): State {
         ...state,
         terms: payload as string[]
       };
-    case Action.DELETED:
+    case Action.HIDDEN:
       return {
         ...state,
-        showDeleted: payload as boolean
+        hidden: payload as boolean
       };
     case Action.PAUSED:
       return {
         ...state,
-        pausedOnly: payload as boolean
+        paused: payload as boolean
       };
     default:
       throw new Error(`Invalid action type '${type}'`);
@@ -41,8 +41,8 @@ type SearchReducer = Reducer<State, [Action, Payload]>;
 export default function Search(): [State, Dispatch<[Action, Payload]>] {
   const [state, dispatch] = useReducer<SearchReducer>(reducer, {
     terms: [],
-    showDeleted: false,
-    pausedOnly: false
+    hidden: false,
+    paused: false
   });
 
   return [state, dispatch];

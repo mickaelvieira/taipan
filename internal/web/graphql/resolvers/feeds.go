@@ -15,11 +15,10 @@ type FeedsRootResolver struct {
 func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*BookmarkCollection, error) {
-	fromArgs := getCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.Pagination)
+	page := cursorPagination(10)(args.Pagination)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, from, to, limit)
+	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, page)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +35,7 @@ func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
 		Total:   total,
 		First:   first,
 		Last:    last,
-		Limit:   limit,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil
@@ -46,11 +45,10 @@ func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
 func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*BookmarkCollection, error) {
-	fromArgs := getCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.Pagination)
+	page := cursorPagination(10)(args.Pagination)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, from, to, limit)
+	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, page)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +65,7 @@ func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
 		Total:   total,
 		First:   first,
 		Last:    last,
-		Limit:   limit,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil
@@ -77,11 +75,10 @@ func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
 func (r *FeedsRootResolver) News(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
-	fromArgs := getCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.Pagination)
+	page := cursorPagination(10)(args.Pagination)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Documents.GetNews(ctx, user, from, to, limit, true)
+	results, err := r.repositories.Documents.GetNews(ctx, user, page, true)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +95,7 @@ func (r *FeedsRootResolver) News(ctx context.Context, args struct {
 		Total:   total,
 		First:   first,
 		Last:    last,
-		Limit:   limit,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil
@@ -108,16 +105,15 @@ func (r *FeedsRootResolver) News(ctx context.Context, args struct {
 func (r *FeedsRootResolver) LatestNews(ctx context.Context, args struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
-	fromArgs := getCursorBasedPagination(10)
-	from, to, limit := fromArgs(args.Pagination)
+	page := cursorPagination(10)(args.Pagination)
 	user := auth.FromContext(ctx)
 
-	results, err := r.repositories.Documents.GetNews(ctx, user, from, to, limit, false)
+	results, err := r.repositories.Documents.GetNews(ctx, user, page, false)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := r.repositories.Documents.GetTotalLatestNews(ctx, user, from, to, false)
+	total, err := r.repositories.Documents.GetTotalLatestNews(ctx, user, page, false)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +125,7 @@ func (r *FeedsRootResolver) LatestNews(ctx context.Context, args struct {
 		Total:   total,
 		First:   first,
 		Last:    last,
-		Limit:   limit,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil
