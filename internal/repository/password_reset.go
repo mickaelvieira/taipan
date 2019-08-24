@@ -16,7 +16,7 @@ type PasswordResetRepository struct {
 }
 
 // Create --
-func (r *PasswordResetRepository) Create(ctx context.Context, pr *password.ResetToken) error {
+func (r *PasswordResetRepository) Create(ctx context.Context, t *password.ResetToken) error {
 	query := `
 		INSERT INTO password_reset
 		(token, user_id, used, expired_at, created_at)
@@ -26,11 +26,11 @@ func (r *PasswordResetRepository) Create(ctx context.Context, pr *password.Reset
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
-		pr.Token,
-		pr.UserID,
-		pr.IsUsed,
-		pr.ExpiredAt,
-		pr.CreatedAt,
+		t.Token,
+		t.UserID,
+		t.IsUsed,
+		t.ExpiredAt,
+		t.CreatedAt,
 	)
 
 	if err != nil {
@@ -41,13 +41,13 @@ func (r *PasswordResetRepository) Create(ctx context.Context, pr *password.Reset
 }
 
 // FindUserActiveToken find a single entry
-func (r *PasswordResetRepository) FindUserActiveToken(ctx context.Context, usr *user.User) (*password.ResetToken, error) {
+func (r *PasswordResetRepository) FindUserActiveToken(ctx context.Context, u *user.User) (*password.ResetToken, error) {
 	query := `
 		SELECT t.token, t.user_id, t.used, t.expired_at, t.created_at, t.used_at
 		FROM password_reset as t
 		WHERE t.user_id = ? AND t.used = 0 AND t.used_at IS NULL AND t.expired_at > NOW()
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), usr.ID)
+	row := r.db.QueryRowContext(ctx, formatQuery(query), u.ID)
 	pr, err := r.scan(row)
 	if err != nil {
 		return nil, err

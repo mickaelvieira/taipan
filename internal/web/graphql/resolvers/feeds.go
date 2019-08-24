@@ -12,10 +12,10 @@ type FeedsRootResolver struct {
 }
 
 // Favorites resolves the query
-func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
+func (r *FeedsRootResolver) Favorites(ctx context.Context, a struct {
 	Pagination CursorPaginationInput
 }) (*BookmarkCollection, error) {
-	page := cursorPagination(10)(args.Pagination)
+	page := cursorPagination(10)(a.Pagination)
 	user := auth.FromContext(ctx)
 
 	results, err := r.repositories.Bookmarks.GetFavorites(ctx, user, page)
@@ -42,10 +42,10 @@ func (r *FeedsRootResolver) Favorites(ctx context.Context, args struct {
 }
 
 // ReadingList resolves the query
-func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
+func (r *FeedsRootResolver) ReadingList(ctx context.Context, a struct {
 	Pagination CursorPaginationInput
 }) (*BookmarkCollection, error) {
-	page := cursorPagination(10)(args.Pagination)
+	page := cursorPagination(10)(a.Pagination)
 	user := auth.FromContext(ctx)
 
 	results, err := r.repositories.Bookmarks.GetReadingList(ctx, user, page)
@@ -72,10 +72,10 @@ func (r *FeedsRootResolver) ReadingList(ctx context.Context, args struct {
 }
 
 // News resolves the query
-func (r *FeedsRootResolver) News(ctx context.Context, args struct {
+func (r *FeedsRootResolver) News(ctx context.Context, a struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
-	page := cursorPagination(10)(args.Pagination)
+	page := cursorPagination(10)(a.Pagination)
 	user := auth.FromContext(ctx)
 
 	results, err := r.repositories.Documents.GetNews(ctx, user, page, true)
@@ -102,10 +102,10 @@ func (r *FeedsRootResolver) News(ctx context.Context, args struct {
 }
 
 // LatestNews resolves the query
-func (r *FeedsRootResolver) LatestNews(ctx context.Context, args struct {
+func (r *FeedsRootResolver) LatestNews(ctx context.Context, a struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
-	page := cursorPagination(10)(args.Pagination)
+	page := cursorPagination(10)(a.Pagination)
 	user := auth.FromContext(ctx)
 
 	results, err := r.repositories.Documents.GetNews(ctx, user, page, false)

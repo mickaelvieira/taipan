@@ -82,12 +82,12 @@ func (r *Log) CreatedAt() scalars.Datetime {
 }
 
 // Logs --
-func (r *LogRootResolver) Logs(ctx context.Context, args struct {
+func (r *LogRootResolver) Logs(ctx context.Context, a struct {
 	URL        scalars.URL
 	Pagination OffsetPaginationInput
 }) (*LogCollection, error) {
-	u := args.URL.ToDomain()
-	page := offsetPagination(10)(args.Pagination)
+	u := a.URL.ToDomain()
+	page := offsetPagination(10)(a.Pagination)
 
 	results, err := r.repositories.Botlogs.FindAll(ctx, u, page)
 	if err != nil {

@@ -201,12 +201,12 @@ func (r *RootResolver) DocumentChanged(ctx context.Context) <-chan *DocumentEven
 }
 
 // Create creates a new document
-func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
+func (r *DocumentRootResolver) Create(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Document, error) {
 	user := auth.FromContext(ctx)
 
-	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), "")
+	d, err := usecase.Document(ctx, r.repositories, a.URL.ToDomain(), "")
 	if err != nil {
 		return nil, err
 	}
@@ -229,10 +229,10 @@ func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
 }
 
 // Documents resolves the query
-func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
+func (r *DocumentRootResolver) Documents(ctx context.Context, a struct {
 	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
-	page := cursorPagination(10)(args.Pagination)
+	page := cursorPagination(10)(a.Pagination)
 
 	results, err := r.repositories.Documents.GetDocuments(ctx, page)
 	if err != nil {
@@ -258,13 +258,13 @@ func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
 }
 
 // Search --
-func (r *DocumentRootResolver) Search(ctx context.Context, args struct {
+func (r *DocumentRootResolver) Search(ctx context.Context, a struct {
 	Pagination OffsetPaginationInput
 	Search     BookmarkSearchInput
 }) (*DocumentSearchResults, error) {
 	user := auth.FromContext(ctx)
-	page := offsetPagination(10)(args.Pagination)
-	terms := args.Search.Terms
+	page := offsetPagination(10)(a.Pagination)
+	terms := a.Search.Terms
 
 	var documents []*Document
 	var total int32
