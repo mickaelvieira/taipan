@@ -2,7 +2,7 @@
 
 query subscriptions($pagination: OffsetPaginationInput!, $search: SubscriptionSearchInput) {
   subscriptions {
-    subscriptions(pagination: $pagination, search: $search) @connection(key: "user_subscriptions")  {
+    subscriptions(pagination: $pagination, search: $search) @connection(key: "user_subscriptions", filter: ["search"])  {
       total
       limit
       offset
