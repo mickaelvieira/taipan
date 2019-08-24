@@ -206,11 +206,11 @@ func (r *RootResolver) BookmarkChanged(ctx context.Context) <-chan *BookmarkEven
 }
 
 // Bookmark resolves the query
-func (r *BookmarkRootResolver) Bookmark(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Bookmark(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
-	u := args.URL.ToDomain()
+	u := a.URL.ToDomain()
 
 	b, err := r.repositories.Bookmarks.GetByURL(ctx, user, u)
 	if err != nil {
@@ -221,19 +221,19 @@ func (r *BookmarkRootResolver) Bookmark(ctx context.Context, args struct {
 }
 
 // Create creates a new document and add it to user's bookmarks
-func (r *BookmarkRootResolver) Create(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Create(ctx context.Context, a struct {
 	URL        scalars.URL
 	IsFavorite bool
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	d, err := usecase.Document(ctx, r.repositories, args.URL.ToDomain(), "")
+	d, err := usecase.Document(ctx, r.repositories, a.URL.ToDomain(), "")
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
+	b, err := usecase.Bookmark(ctx, r.repositories, user, d, a.IsFavorite)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func (r *BookmarkRootResolver) Create(ctx context.Context, args struct {
 }
 
 // Add bookmarks a URL
-func (r *BookmarkRootResolver) Add(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Add(ctx context.Context, a struct {
 	URL           scalars.URL
 	IsFavorite    bool
 	Subscriptions *[]scalars.URL
@@ -254,19 +254,19 @@ func (r *BookmarkRootResolver) Add(ctx context.Context, args struct {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	d, err := r.repositories.Documents.GetByURL(ctx, args.URL.ToDomain())
+	d, err := r.repositories.Documents.GetByURL(ctx, a.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := usecase.Bookmark(ctx, r.repositories, user, d, args.IsFavorite)
+	b, err := usecase.Bookmark(ctx, r.repositories, user, d, a.IsFavorite)
 	if err != nil {
 		return nil, err
 	}
 
 	// subscribes to sources sent along
-	if args.Subscriptions != nil {
-		subscriptions := *args.Subscriptions
+	if a.Subscriptions != nil {
+		subscriptions := *a.Subscriptions
 		for _, u := range subscriptions {
 			_, err := usecase.SubscribeToSource(ctx, r.repositories, user, u.ToDomain())
 			if err != nil {
@@ -283,13 +283,13 @@ func (r *BookmarkRootResolver) Add(ctx context.Context, args struct {
 }
 
 // Favorite adds the bookmark to favorites
-func (r *BookmarkRootResolver) Favorite(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Favorite(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	b, err := usecase.Favorite(ctx, r.repositories, user, args.URL.ToDomain())
+	b, err := usecase.Favorite(ctx, r.repositories, user, a.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -302,13 +302,13 @@ func (r *BookmarkRootResolver) Favorite(ctx context.Context, args struct {
 }
 
 // Unfavorite removes the bookmark from favorites
-func (r *BookmarkRootResolver) Unfavorite(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Unfavorite(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Bookmark, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	b, err := usecase.Unfavorite(ctx, r.repositories, user, args.URL.ToDomain())
+	b, err := usecase.Unfavorite(ctx, r.repositories, user, a.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -321,13 +321,13 @@ func (r *BookmarkRootResolver) Unfavorite(ctx context.Context, args struct {
 }
 
 // Remove removes bookmark from user's list
-func (r *BookmarkRootResolver) Remove(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Remove(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Document, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)
 
-	d, err := usecase.Unbookmark(ctx, r.repositories, user, args.URL.ToDomain())
+	d, err := usecase.Unbookmark(ctx, r.repositories, user, a.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -340,13 +340,13 @@ func (r *BookmarkRootResolver) Remove(ctx context.Context, args struct {
 }
 
 // Search --
-func (r *BookmarkRootResolver) Search(ctx context.Context, args struct {
+func (r *BookmarkRootResolver) Search(ctx context.Context, a struct {
 	Pagination OffsetPaginationInput
 	Search     BookmarkSearchInput
 }) (*BookmarkSearchResults, error) {
 	user := auth.FromContext(ctx)
-	page := offsetPagination(10)(args.Pagination)
-	terms := args.Search.Terms
+	page := offsetPagination(10)(a.Pagination)
+	terms := a.Search.Terms
 
 	var bookmarks []*Bookmark
 	var total int32

@@ -19,6 +19,13 @@ type SyndicationRepository struct {
 	db *sql.DB
 }
 
+type SyndicationSearchParams struct {
+	Terms  []string
+	Tags   []string
+	Hidden bool
+	Paused bool
+}
+
 // GetByID find a single entry
 func (r *SyndicationRepository) GetByID(ctx context.Context, id string) (*syndication.Source, error) {
 	query := `
@@ -150,7 +157,7 @@ func getSyndicationFilters(hidden bool, paused bool) string {
 }
 
 // FindAll find newest entries
-func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tags []string, hidden bool, paused bool, page *OffsetPagination, sort *Sorting) ([]*syndication.Source, error) {
+func (r *SyndicationRepository) FindAll(ctx context.Context, search *SyndicationSearchParams, paging *OffsetPagination, sort *Sorting) ([]*syndication.Source, error) {
 	query := `
 		SELECT DISTINCT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
@@ -162,28 +169,28 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tag
 	var args []interface{}
 
 	var t string
-	if len(tags) > 0 {
-		p := getMultiInsertPlacements(1, len(tags))
+	if len(search.Tags) > 0 {
+		p := getMultiInsertPlacements(1, len(search.Tags))
 		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
-		for _, a := range tags {
+		for _, a := range search.Tags {
 			args = append(args, a)
 		}
 	}
 
 	var w []string
-	f := getSyndicationFilters(hidden, paused)
+	f := getSyndicationFilters(search.Hidden, search.Paused)
 	w = append(w, f)
 
 	var s string
 	var a []interface{}
-	if len(terms) > 0 {
-		s, a = getSyndicationSearch(terms)
+	if len(search.Terms) > 0 {
+		s, a = getSyndicationSearch(search.Terms)
 		w = append(w, s)
 		args = append(args, a...)
 	}
 
-	args = append(args, page.Offset)
-	args = append(args, page.Limit)
+	args = append(args, paging.Offset)
+	args = append(args, paging.Limit)
 
 	query = formatQuery(fmt.Sprintf(query, t, strings.Join(w, " AND "), sort.By, sort.Dir))
 
@@ -209,7 +216,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tag
 }
 
 // GetTotal count latest entries
-func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, tags []string, hidden bool, paused bool) (int32, error) {
+func (r *SyndicationRepository) GetTotal(ctx context.Context, search *SyndicationSearchParams) (int32, error) {
 	var total int32
 
 	query := `
@@ -221,22 +228,22 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, ta
 	var args []interface{}
 
 	var t string
-	if len(tags) > 0 {
-		p := getMultiInsertPlacements(1, len(tags))
+	if len(search.Tags) > 0 {
+		p := getMultiInsertPlacements(1, len(search.Tags))
 		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
-		for _, a := range tags {
+		for _, a := range search.Tags {
 			args = append(args, a)
 		}
 	}
 
 	var w []string
-	f := getSyndicationFilters(hidden, paused)
+	f := getSyndicationFilters(search.Hidden, search.Paused)
 	w = append(w, f)
 
 	var s string
 	var a []interface{}
-	if len(terms) > 0 {
-		s, a = getSyndicationSearch(terms)
+	if len(search.Terms) > 0 {
+		s, a = getSyndicationSearch(search.Terms)
 		w = append(w, s)
 		args = append(args, a...)
 	}

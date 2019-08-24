@@ -110,10 +110,10 @@ func (r *Subscription) UpdatedAt() *scalars.Datetime {
 }
 
 // Subscription adds a syndication source and subscribes to it
-func (r *SubscriptionRootResolver) Subscription(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Subscription(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Subscription, error) {
-	u := args.URL.ToDomain()
+	u := a.URL.ToDomain()
 	user := auth.FromContext(ctx)
 
 	_, err := usecase.CreateSyndicationSource(ctx, r.repositories, u, false)
@@ -130,12 +130,12 @@ func (r *SubscriptionRootResolver) Subscription(ctx context.Context, args struct
 }
 
 // Subscribe --
-func (r *SubscriptionRootResolver) Subscribe(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Subscribe(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Subscription, error) {
 	user := auth.FromContext(ctx)
 
-	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, args.URL.ToDomain())
+	s, err := usecase.SubscribeToSource(ctx, r.repositories, user, a.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +144,12 @@ func (r *SubscriptionRootResolver) Subscribe(ctx context.Context, args struct {
 }
 
 // Unsubscribe --
-func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, a struct {
 	URL scalars.URL
 }) (*Subscription, error) {
 	user := auth.FromContext(ctx)
 
-	s, err := usecase.UnubscribeFromSource(ctx, r.repositories, user, args.URL.ToDomain())
+	s, err := usecase.UnubscribeFromSource(ctx, r.repositories, user, a.URL.ToDomain())
 	if err != nil {
 		return nil, err
 	}
@@ -158,29 +158,28 @@ func (r *SubscriptionRootResolver) Unsubscribe(ctx context.Context, args struct 
 }
 
 // Subscriptions --
-func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struct {
+func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, a struct {
 	Pagination OffsetPaginationInput
 	Search     *SubscriptionSearchInput
 }) (*SubscriptionCollection, error) {
 	user := auth.FromContext(ctx)
-	page := offsetPagination(10)(args.Pagination)
+	p := offsetPagination(10)(a.Pagination)
+	s := &repository.SubscriptionSearchParams{}
 
-	var terms []string
-	if args.Search != nil {
-		terms = args.Search.Terms
+	if a.Search != nil {
+		s.Terms = a.Search.Terms
 	}
 
-	var tags []string
-	if args.Search.Tags != nil {
-		tags = args.Search.Tags
+	if a.Search.Tags != nil {
+		s.Tags = a.Search.Tags
 	}
 
-	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, tags, page)
+	results, err := r.repositories.Subscriptions.FindAll(ctx, user, s, p)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, terms, tags)
+	total, err := r.repositories.Subscriptions.GetTotal(ctx, user, s)
 	if err != nil {
 		return nil, err
 	}
@@ -188,8 +187,8 @@ func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struc
 	res := SubscriptionCollection{
 		Results: resolve(r.repositories).subscriptions(results),
 		Total:   total,
-		Offset:  page.Offset,
-		Limit:   page.Limit,
+		Offset:  p.Offset,
+		Limit:   p.Limit,
 	}
 
 	return &res, nil

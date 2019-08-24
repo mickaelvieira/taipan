@@ -16,13 +16,13 @@ type UserEmailRepository struct {
 }
 
 // GetEmail retrieves an address email
-func (r *UserEmailRepository) GetEmail(ctx context.Context, email string) (*user.Email, error) {
+func (r *UserEmailRepository) GetEmail(ctx context.Context, v string) (*user.Email, error) {
 	query := `
 		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at, e.confirmed_at
 		FROM users_emails as e
 		WHERE e.value = ?
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), email)
+	row := r.db.QueryRowContext(ctx, formatQuery(query), v)
 	u, err := r.scan(row)
 	if err != nil {
 		return nil, err
@@ -32,13 +32,13 @@ func (r *UserEmailRepository) GetEmail(ctx context.Context, email string) (*user
 }
 
 // GetUserEmailByValue retrieves an address email
-func (r *UserEmailRepository) GetUserEmailByValue(ctx context.Context, u *user.User, email string) (*user.Email, error) {
+func (r *UserEmailRepository) GetUserEmailByValue(ctx context.Context, u *user.User, v string) (*user.Email, error) {
 	query := `
 		SELECT e.id, e.value, e.primary, e.confirmed, e.created_at, e.updated_at, e.confirmed_at
 		FROM users_emails as e
 		WHERE e.value = ? AND e.user_id = ?
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), email, u.ID)
+	row := r.db.QueryRowContext(ctx, formatQuery(query), v, u.ID)
 	e, err := r.scan(row)
 	if err != nil {
 		return nil, err
