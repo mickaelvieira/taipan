@@ -340,6 +340,9 @@ describe("Transformer", () => {
 
   it("transform a collection of syndication sources", () => {
     const data = transformer(result);
+    if (!data.data) {
+      throw new Error("No data returned");
+    }
     const sources = data.data.sources.foo.results;
     sources.forEach((source: Source) => {
       expect(source.url instanceof URL).toBe(true);
