@@ -98,7 +98,7 @@ func (r *UserRepository) GetByIDs(ctx context.Context, ids []string) ([]*user.Us
 }
 
 // GetByPrimaryEmail find a single entry
-func (r *UserRepository) GetByPrimaryEmail(ctx context.Context, email string) (*user.User, error) {
+func (r *UserRepository) GetByPrimaryEmail(ctx context.Context, v string) (*user.User, error) {
 	query := `
 		SELECT u.id, u.firstname, u.lastname, u.theme,
 		u.image_name, u.image_width, u.image_height, u.image_format,
@@ -107,7 +107,7 @@ func (r *UserRepository) GetByPrimaryEmail(ctx context.Context, email string) (*
 		INNER JOIN users_emails as e ON u.id = e.user_id
 		WHERE e.value = ? AND e.primary = 1
 	`
-	row := r.db.QueryRowContext(ctx, formatQuery(query), email)
+	row := r.db.QueryRowContext(ctx, formatQuery(query), v)
 	u, err := r.scan(row)
 
 	if err != nil {

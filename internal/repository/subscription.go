@@ -19,6 +19,11 @@ type SubscriptionRepository struct {
 	db *sql.DB
 }
 
+type SubscriptionSearchParams struct {
+	Terms []string
+	Tags  []string
+}
+
 // FindSubscribersIDs find users who have subscribed to the syndication source
 func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceID string) ([]string, error) {
 	query := `
@@ -49,7 +54,7 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 }
 
 // FindAll --
-func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, terms []string, tags []string, page *OffsetPagination) ([]*subscription.Subscription, error) {
+func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, search *SubscriptionSearchParams, paging *OffsetPagination) ([]*subscription.Subscription, error) {
 	query := `
 		SELECT DISTINCT s.id, su.user_id, s.url, s.domain, s.title, s.type, su.subscribed, s.frequency, su.created_at, su.updated_at
 		FROM syndication AS s
@@ -62,10 +67,10 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	var args []interface{}
 
 	var t string
-	if len(tags) > 0 {
-		p := getMultiInsertPlacements(1, len(tags))
+	if len(search.Tags) > 0 {
+		p := getMultiInsertPlacements(1, len(search.Tags))
 		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
-		for _, a := range tags {
+		for _, a := range search.Tags {
 			args = append(args, a)
 		}
 	}
@@ -73,13 +78,13 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	args = append(args, u.ID)
 
 	var s string
-	if len(terms) > 0 {
+	if len(search.Terms) > 0 {
 		var a []interface{}
-		s, a = getSyndicationSearch(terms)
+		s, a = getSyndicationSearch(search.Terms)
 		args = append(args, a...)
 	}
 
-	if len(terms) == 0 && len(tags) == 0 {
+	if len(search.Terms) == 0 && len(search.Tags) == 0 {
 		s = "su.subscribed = 1"
 	}
 
@@ -87,8 +92,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 		s = "WHERE " + s
 	}
 
-	args = append(args, page.Offset)
-	args = append(args, page.Limit)
+	args = append(args, paging.Offset)
+	args = append(args, paging.Limit)
 
 	query = formatQuery(fmt.Sprintf(query, t, s))
 
@@ -114,7 +119,7 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 }
 
 // GetTotal count latest entries
-func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, terms []string, tags []string) (int32, error) {
+func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, search *SubscriptionSearchParams) (int32, error) {
 	var total int32
 
 	query := `
@@ -127,10 +132,10 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 	var args []interface{}
 
 	var t string
-	if len(tags) > 0 {
-		p := getMultiInsertPlacements(1, len(tags))
+	if len(search.Tags) > 0 {
+		p := getMultiInsertPlacements(1, len(search.Tags))
 		t = fmt.Sprintf("INNER JOIN syndication_tags_relation AS r ON r.source_id = s.id AND tag_id IN %s", p)
-		for _, a := range tags {
+		for _, a := range search.Tags {
 			args = append(args, a)
 		}
 	}
@@ -138,13 +143,13 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 	args = append(args, u.ID)
 
 	var s string
-	if len(terms) > 0 {
+	if len(search.Terms) > 0 {
 		var a []interface{}
-		s, a = getSyndicationSearch(terms)
+		s, a = getSyndicationSearch(search.Terms)
 		args = append(args, a...)
 	}
 
-	if len(terms) == 0 && len(tags) == 0 {
+	if len(search.Terms) == 0 && len(search.Tags) == 0 {
 		s = "su.subscribed = 1"
 	}
 
