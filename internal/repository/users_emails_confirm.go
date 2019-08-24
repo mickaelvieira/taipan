@@ -21,7 +21,7 @@ func (r *UserEmailConfirmRepository) Create(ctx context.Context, t *user.EmailCo
 		(token, user_id, email_id, used, expired_at, created_at)
 		VALUES
 		(?, ?, ?, ?, ?, ?)
-`
+	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),

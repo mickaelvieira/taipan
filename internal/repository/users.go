@@ -19,11 +19,11 @@ type UserRepository struct {
 // CreateUser --
 func (r *UserRepository) CreateUser(ctx context.Context, hash string) (string, error) {
 	query := `
-	INSERT INTO users
-	(password, created_at, updated_at)
-	VALUES
-	(?, ?, ?)
-`
+		INSERT INTO users
+		(password, created_at, updated_at)
+		VALUES
+		(?, ?, ?)
+	`
 	res, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),

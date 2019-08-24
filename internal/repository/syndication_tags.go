@@ -35,9 +35,9 @@ func (r *SyndicationTagsRepository) GetByID(ctx context.Context, id string) (*sy
 // GetByIDs find a multiple entries by their ID
 func (r *SyndicationTagsRepository) GetByIDs(ctx context.Context, ids []string) ([]*syndication.Tag, error) {
 	query := `
-	SELECT t.id, t.label, t.created_at, t.updated_at
-	FROM syndication_tags AS t
-	WHERE t.id IN %s
+		SELECT t.id, t.label, t.created_at, t.updated_at
+		FROM syndication_tags AS t
+		WHERE t.id IN %s
 	`
 	args := make([]interface{}, len(ids))
 	for i, a := range ids {

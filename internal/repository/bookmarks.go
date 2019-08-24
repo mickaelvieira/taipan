@@ -106,7 +106,6 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, u *user.User, p
 		ORDER BY b.added_at DESC
 		LIMIT ?
 	`
-
 	var where []string
 	var args []interface{}
 
