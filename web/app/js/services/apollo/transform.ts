@@ -4,8 +4,11 @@ import transformation, { WithTypename } from "./transformation";
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 
 export default function(fetchResults: FetchResult): FetchResult {
-  const data: Record<string, any> = {};
+  if (!fetchResults.data) {
+    return fetchResults;
+  }
 
+  const data: Record<string, any> = {};
   for (const [ns, op] of Object.entries(fetchResults.data)) {
     if (op) {
       const { __typename, ...rest } = op as Record<string, any> & WithTypename;
