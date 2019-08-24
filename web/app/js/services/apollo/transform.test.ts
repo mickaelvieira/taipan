@@ -296,6 +296,9 @@ describe("Transformer", () => {
 
   it("transform a single tag", () => {
     const data = transformer(result);
+    if (!data.data) {
+      throw new Error("No data returned");
+    }
     const tag = data.data.tag.bar;
     expect(tag.createdAt instanceof Date).toBe(true);
     expect(tag.updatedAt instanceof Date).toBe(true);
@@ -386,6 +389,9 @@ describe("Transformer", () => {
 
   it("transform a collection of syndication tags", () => {
     const data = transformer(result);
+    if (!data.data) {
+      throw new Error("No data returned");
+    }
     const tags = data.data.tags.foo.results;
     tags.forEach((tag: Tag) => {
       expect(tag.createdAt instanceof Date).toBe(true);
