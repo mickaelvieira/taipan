@@ -3,11 +3,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { Document } from "../../../types/document";
-import Item from "./Item";
+import Item from "../../ui/Feed/Item/Document";
 import { ListProps } from "../../ui/Feed/Feed";
 import { UserContext } from "../../context";
 import Latest from "./Latest";
-import FeedItem from "../../ui/Feed/Item/Item";
+import FeedItem from "../../ui/Feed/Item/Wrapper";
 import EmptyFeed from "../../ui/Feed/Empty";
 import { RouterLink } from "../../ui/Link";
 import Emoji from "../../ui/Emoji";
@@ -53,7 +53,7 @@ export default React.memo(function DocumentList({
                 </Typography>
                 <div className={classes.links}>
                   <Button
-                    to="/syndication"
+                    to="/subscriptions"
                     variant="contained"
                     component={RouterLink}
                     color="primary"

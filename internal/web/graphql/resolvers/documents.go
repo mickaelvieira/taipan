@@ -230,7 +230,7 @@ func (r *DocumentRootResolver) Create(ctx context.Context, args struct {
 
 // Documents resolves the query
 func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
-	Pagination cursorPaginationInput
+	Pagination CursorPaginationInput
 }) (*DocumentCollection, error) {
 	fromArgs := getCursorBasedPagination(10)
 	from, to, limit := fromArgs(args.Pagination)
@@ -260,8 +260,8 @@ func (r *DocumentRootResolver) Documents(ctx context.Context, args struct {
 
 // Search --
 func (r *DocumentRootResolver) Search(ctx context.Context, args struct {
-	Pagination offsetPaginationInput
-	Search     bookmarkSearchInput
+	Pagination OffsetPaginationInput
+	Search     BookmarkSearchInput
 }) (*DocumentSearchResults, error) {
 	user := auth.FromContext(ctx)
 	fromArgs := getOffsetBasedPagination(10)

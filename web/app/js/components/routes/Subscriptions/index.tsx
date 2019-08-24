@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import { RouteSubscriptionProps } from "../../../types/routes";
 import { LayoutContext, MessageContext } from "../../context";
-import AddSubscriptionModal from "../../ui/Subscriptions/Panel/AddSubscription";
+import CreateSubscription from "../../ui/Panel/CreateSubscription";
 import { AddButton } from "../../ui/Fab";
 import Grid from "../../ui/Grid";
 import Search from "./Search";
@@ -34,7 +34,7 @@ export default function Subscriptions(_: RouteSubscriptionProps): JSX.Element {
           setModalStatus(true);
         }}
       />
-      <AddSubscriptionModal
+      <CreateSubscription
         isOpen={isModalOpen}
         toggleDialog={status => {
           setIsContained(status);

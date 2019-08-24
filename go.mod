@@ -4,10 +4,10 @@ go 1.12
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.0
-	github.com/aws/aws-sdk-go v1.23.6
+	github.com/aws/aws-sdk-go v1.23.8
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gogo/protobuf v1.2.1
-	github.com/golang-migrate/migrate/v4 v4.6.0
+	github.com/golang-migrate/migrate/v4 v4.6.1
 	github.com/golang/protobuf v1.3.2
 	github.com/gorilla/sessions v1.2.0
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
@@ -23,5 +23,5 @@ require (
 	github.com/streadway/amqp v0.0.0-20190815233558-eade30b20f1d
 	github.com/urfave/cli v1.21.0
 	golang.org/x/crypto v0.0.0-20190820174958-60c769a6c586
-	golang.org/x/image v0.0.0-20190802004718-cff245a6509b
+	golang.org/x/image v0.0.0-20190823072537-3a9bac650e44
 )

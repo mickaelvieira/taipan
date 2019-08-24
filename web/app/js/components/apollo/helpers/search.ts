@@ -22,10 +22,14 @@ export function hasReceivedData(
     limit: 0
   };
 
+  console.log(data);
   if (data) {
     const key = getDataKey(data);
     if (key) {
+      console.log(key);
       results = data[key].search;
+
+      console.log(results);
       if (results.results.length > 0) {
         hasResults = true;
       }

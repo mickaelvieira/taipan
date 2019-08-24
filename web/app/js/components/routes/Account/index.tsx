@@ -6,6 +6,7 @@ import Grid from "../../ui/Grid";
 import Prolile from "./Profile";
 import Emails from "./Emails";
 import Password from "./Password";
+import ScrollToTop from "../../ui/ScrollToTop";
 
 const useStyles = makeStyles(() => ({
   content: {
@@ -22,10 +23,12 @@ export default function Account(_: RouteAccountProps): JSX.Element | null {
   }
 
   return (
-    <Grid className={classes.content}>
-      <Prolile user={user} />
-      <Emails user={user} />
-      <Password />
-    </Grid>
+    <ScrollToTop>
+      <Grid className={classes.content}>
+        <Prolile user={user} />
+        <Emails user={user} />
+        <Password />
+      </Grid>
+    </ScrollToTop>
   );
 }

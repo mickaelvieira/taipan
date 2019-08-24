@@ -1,10 +1,9 @@
 import React from "react";
 import { ExternalLink } from "../../ui/Link";
 import { Subscription } from "../../../types/subscription";
-import { Source } from "../../../types/syndication";
 
 interface Props {
-  item: Subscription | Source;
+  item: Subscription;
 }
 
 export default React.memo(function SubscriptionLink({

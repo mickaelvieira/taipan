@@ -251,7 +251,7 @@ func (r *RootResolver) UserChanged(ctx context.Context) <-chan *UserEvent {
 
 // Update resolves the mutation
 func (r *UserRootResolver) Update(ctx context.Context, args struct {
-	User userInput
+	User UserInput
 }) (*User, error) {
 	user := auth.FromContext(ctx)
 	clientID := clientid.FromContext(ctx)

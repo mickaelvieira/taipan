@@ -66,7 +66,7 @@ func HandleImage(ctx context.Context, repos *repository.Repositories, d *documen
 		return err
 	}
 
-	if result.RequestHasFailed() {
+	if !result.RequestWasSuccessful() {
 		return fmt.Errorf(result.GetFailureReason())
 	}
 

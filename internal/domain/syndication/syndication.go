@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// @TODO there is a bug while parsing this doc: https://www.foodandwine.com/rss.xml
+
 // Syndication domain errors
 var (
 	ErrXMLTypeIsNotValid  = errors.New("The XML type is not valid")
@@ -98,10 +100,4 @@ func NewSource(url *url.URL, title string, feedType Type) *Source {
 		UpdatedAt: time.Now(),
 		Frequency: http.Hourly,
 	}
-}
-
-// UserSource represents a feed from a user's prespective
-type UserSource struct {
-	Source
-	AddedAt time.Time
 }

@@ -1,5 +1,6 @@
 import { Bookmark } from "./bookmark";
 import { Document } from "./document";
+import { OffsetPagination } from ".";
 
 export type SearchType = "bookmark" | "document";
 
@@ -16,4 +17,13 @@ export interface SearchQueryData {
   [key: string]: {
     search: SearchResults;
   };
+}
+
+export interface SearchParams {
+  terms: string[];
+}
+
+export interface SearchQueryVariables {
+  pagination: OffsetPagination;
+  search?: SearchParams;
 }

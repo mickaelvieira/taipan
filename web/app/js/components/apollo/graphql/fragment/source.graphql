@@ -11,3 +11,10 @@ fragment sourceFields on Source {
   updatedAt
   parsedAt
 }
+
+fragment tagFields on SyndicationTag {
+  id
+  label
+  createdAt
+  updatedAt
+}

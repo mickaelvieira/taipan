@@ -19,7 +19,7 @@ describe("Navigation helpers", () => {
     });
 
     it("returns the syndication section title", () => {
-      expect(getSectionTitle("/syndication")).toBe("RSS");
+      expect(getSectionTitle("/subscriptions")).toBe("RSS");
     });
 
     it("returns the account section title", () => {
@@ -56,7 +56,7 @@ describe("Navigation helpers", () => {
     });
 
     it("returns the syndication page title", () => {
-      expect(getPageTitle("/syndication")).toBe(
+      expect(getPageTitle("/subscriptions")).toBe(
         `RSS | ${appTitle} - ${appBaseline}`
       );
     });

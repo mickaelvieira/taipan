@@ -68,9 +68,9 @@ class Feed {
     const cursor = calculateCursor(scrollPosition, this.heights);
     const [first, last] = calculateInterval(cursor, results.length);
 
-    if (first === this.first && last === this.last) {
-      return null;
-    }
+    // if (first === this.first && last === this.last) {
+    //   return null;
+    // }
 
     this.first = first;
     this.last = last;

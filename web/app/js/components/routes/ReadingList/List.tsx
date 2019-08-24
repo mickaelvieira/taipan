@@ -1,8 +1,8 @@
 import React from "react";
 import { Bookmark } from "../../../types/bookmark";
-import Item from "./Item";
+import Item from "../../ui/Feed/Item/Bookmark";
 import { ListProps } from "../../ui/Feed/Feed";
-import FeedItem from "../../ui/Feed/Item/Item";
+import FeedItem from "../../ui/Feed/Item/Wrapper";
 import EmptyFeed from "../../ui/Feed/Empty";
 import Emoji from "../../ui/Emoji";
 

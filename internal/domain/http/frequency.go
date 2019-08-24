@@ -2,7 +2,6 @@ package http
 
 import (
 	"fmt"
-	"net/http"
 	"sort"
 	"time"
 )
@@ -82,9 +81,10 @@ func filterDuplicateUnchanged(in []*Result) (out []*Result) {
 	return
 }
 
+// @TODO can we be a bit smarter here and handle cases with successive errors between successful request?
 func filterSuccessfulResults(in []*Result) (out []*Result) {
 	for _, r := range in {
-		if r.RespStatusCode == http.StatusOK {
+		if r.RequestWasSuccessful() {
 			out = append(out, r)
 		}
 	}

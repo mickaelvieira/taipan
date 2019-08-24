@@ -8,6 +8,7 @@ export type RouteSignupProps = RouteComponentProps<{}>;
 export type RouteSearchProps = RouteComponentProps<{ type?: string }>;
 export type RouteFeedProps = RouteComponentProps<{}>;
 export type RouteSubscriptionProps = RouteComponentProps<{}>;
+export type RouteSyndicationProps = RouteComponentProps<{}>;
 export type RouteAccountProps = RouteComponentProps<{}>;
 
 export type RoutesProps = RouteSigninProps &
@@ -15,6 +16,7 @@ export type RoutesProps = RouteSigninProps &
   RouteFeedProps &
   RouteSearchProps &
   RouteSubscriptionProps &
+  RouteSyndicationProps &
   RouteAccountProps &
   RouteConfirmEmailProps &
   RouteResetPasswordProps &

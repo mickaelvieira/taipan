@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"database/sql"
+
 	"fmt"
 	"github/mickaelvieira/taipan/internal/domain/http"
 	"github/mickaelvieira/taipan/internal/domain/syndication"
@@ -84,6 +85,15 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 		return nil
 	}
 
+	// Update parsed time to avoid retrying to fetch too soon
+	s.ParsedAt = time.Now()
+
+	if err := repos.Syndication.Update(ctx, s); err != nil {
+		return err
+	}
+
+	// @TODO this is error proned. We should not paused the feed after network issues
+	// instead the feed parsed time should be updated in order for the feed to be retried
 	if r.Failed {
 		// @TODO Should we check whether they are actually 5 successive errors?
 		l, err := repos.Botlogs.FindFailureByURL(ctx, r.ReqURI)
@@ -95,7 +105,7 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 			return nil
 		}
 
-		logger.Warn(fmt.Sprintf("Failed request: '%s' was marked as paused", s.URL))
+		logger.Warn(fmt.Sprintf("Failed request [%s]: '%s' will be marked as paused", s.URL, r.GetFailureReason()))
 		return PauseSyndicationSource(ctx, repos, s)
 	}
 
@@ -111,12 +121,17 @@ func handleFeedHTTPErrors(ctx context.Context, repos *repository.Repositories, r
 		}
 
 		if syndication.IsHTTPErrorPermanent(r.RespStatusCode) {
-			logger.Warn(fmt.Sprintf("Unexisting source: '%s' was marked as deleted", s.URL))
-			return DisableSyndicationSource(ctx, repos, s)
+			logger.Warn(fmt.Sprintf("Server error [%d]: '%s' will be marked as deleted", r.RespStatusCode, s.URL))
+			if err := DisableSyndicationSource(ctx, repos, s); err != nil {
+				return err
+			}
 		}
+
 		if syndication.IsHTTPErrorTemporary(r.RespStatusCode) {
-			logger.Warn(fmt.Sprintf("Server error: '%s' was marked as paused", s.URL))
-			return PauseSyndicationSource(ctx, repos, s)
+			logger.Warn(fmt.Sprintf("Server error [%d]: '%s' will be marked as paused", r.RespStatusCode, s.URL))
+			if err := PauseSyndicationSource(ctx, repos, s); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -196,7 +211,7 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	}
 
 	// We only want successful requests at this point
-	if r.RequestHasFailed() {
+	if !r.RequestWasSuccessful() {
 		return urls, fmt.Errorf("%s", r.GetFailureReason())
 	}
 
@@ -255,10 +270,10 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 				continue
 			}
 			if !b {
-				logger.Warn(fmt.Sprintf("Adding URL [%s]", u))
+				logger.Info(fmt.Sprintf("Adding URL [%s]", u))
 				urls = append(urls, u)
 			} else {
-				logger.Warn(fmt.Sprintf("URL [%s] already exists", u))
+				logger.Info(fmt.Sprintf("URL [%s] already exists", u))
 			}
 		}
 	} else {
@@ -277,7 +292,7 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	}
 
 	f := http.CalculateFrequency(results)
-	logger.Info(fmt.Sprintf("Source frequency: [%s], previous: [%s]", f, s.Frequency))
+	logger.Warn(fmt.Sprintf("Source frequency: [%s], previous: [%s]", f, s.Frequency))
 
 	s.Frequency = f
 	s.ParsedAt = time.Now()

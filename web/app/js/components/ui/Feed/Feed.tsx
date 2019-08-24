@@ -15,8 +15,8 @@ import useWindowBottom from "../../../hooks/useWindowBottom";
 
 export interface ListProps {
   results: FeedItem[];
-  firstId: string;
-  lastId: string;
+  firstId?: string;
+  lastId?: string;
 }
 
 interface Props {

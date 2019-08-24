@@ -31,4 +31,9 @@ export interface FeedEventData {
   [key: string]: FeedEvent;
 }
 
-export type FeedName = "news" | "readinglist" | "favorites";
+export type FeedName =
+  | "news"
+  | "readinglist"
+  | "favorites"
+  | "searchbookmarks"
+  | "searchnews";

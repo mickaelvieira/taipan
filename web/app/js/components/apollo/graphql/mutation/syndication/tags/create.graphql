@@ -1,0 +1,9 @@
+#import "../../../fragment/source.graphql"
+
+mutation createTag($label: String!) {
+  syndication {
+    createTag(label: $label) {
+      ...tagFields
+    }
+  }
+}

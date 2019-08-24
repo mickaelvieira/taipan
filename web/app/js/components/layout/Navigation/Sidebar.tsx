@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { makeStyles } from "@material-ui/core/styles";
@@ -6,7 +6,6 @@ import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Divider from "@material-ui/core/Divider";
-import Link from "@material-ui/core/Link";
 import ListItemText from "@material-ui/core/ListItemText";
 import LibraryIcon from "@material-ui/icons/LocalLibrarySharp";
 import ExitIcon from "@material-ui/icons/ExitToApp";
@@ -16,10 +15,13 @@ import FavoriteIcon from "@material-ui/icons/FavoriteSharp";
 import RssFeedIcon from "@material-ui/icons/RssFeedSharp";
 import UserInfo from "./UserInfo";
 import AppInfo from "./AppInfo";
-import { RouterLink } from "../../ui/Link";
 import { SIDEBAR_WIDTH } from "../../../constant/sidebar";
 import { getSectionTitle } from "../../../helpers/navigation";
 import { logout } from "../../../helpers/app";
+import MenuLink from "./MenuLink";
+import Admin from "./Admin";
+import { UserContext } from "../../context";
+import { isAdmin } from "../../../helpers/users";
 
 const useStyles = makeStyles(
   ({ breakpoints, spacing, palette, typography }) => ({
@@ -74,7 +76,7 @@ const entries = [
     icon: FavoriteIcon
   },
   {
-    path: "/syndication",
+    path: "/subscriptions",
     icon: RssFeedIcon
   }
 ];
@@ -85,6 +87,7 @@ interface Props {
 }
 
 export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
+  const user = useContext(UserContext);
   const classes = useStyles();
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
@@ -105,51 +108,31 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         <List className={classes.list}>
           {entries.map(entry => (
             <li key={entry.path}>
-              <Link
-                to={entry.path}
-                classes={{
-                  root: classes.link
-                }}
-                component={RouterLink}
-                underline="none"
-                onClick={() => toggleDrawer(false)}
-              >
+              <MenuLink to={entry.path} onClick={() => toggleDrawer(false)}>
                 <ListItem button>
                   <entry.icon className={classes.icon} />
                   <ListItemText disableTypography>
                     {getSectionTitle(entry.path)}
                   </ListItemText>
                 </ListItem>
-              </Link>
+              </MenuLink>
             </li>
           ))}
         </List>
         <Divider className={classes.divider} />
         <List>
           <li>
-            <Link
-              to="/account"
-              classes={{
-                root: classes.link
-              }}
-              component={RouterLink}
-              underline="none"
-              onClick={() => toggleDrawer(false)}
-            >
+            <MenuLink to="/account" onClick={() => toggleDrawer(false)}>
               <ListItem button>
                 <AccountIcon className={classes.icon} />
                 <ListItemText disableTypography>Account</ListItemText>
               </ListItem>
-            </Link>
+            </MenuLink>
           </li>
+          {user && isAdmin(user) && <Admin toggleDrawer={toggleDrawer} />}
           <li>
-            <Link
+            <MenuLink
               to="/signin"
-              classes={{
-                root: classes.link
-              }}
-              component={RouterLink}
-              underline="none"
               onClick={(event: React.MouseEvent) => {
                 event.preventDefault();
                 logout()
@@ -169,7 +152,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
                 <ExitIcon className={classes.icon} />
                 <ListItemText disableTypography>Sign out</ListItemText>
               </ListItem>
-            </Link>
+            </MenuLink>
           </li>
         </List>
         <Divider className={classes.divider} />

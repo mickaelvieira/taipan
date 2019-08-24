@@ -20,7 +20,3 @@ export interface SearchResults {
   offset: number;
   results: Bookmark[];
 }
-
-export interface SearchParams {
-  terms: string[];
-}
