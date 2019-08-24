@@ -223,8 +223,9 @@ input DocumentSearchInput {
 input SyndicationSearchInput {
   terms: [String!]!
   tags: [String!]!
-  showDeleted: Boolean!
-  pausedOnly: Boolean!
+  hidden: Boolean!
+  paused: Boolean!
+  sort: SortingInput
 }
 
 input CursorPaginationInput {
@@ -236,6 +237,16 @@ input CursorPaginationInput {
 input OffsetPaginationInput {
   offset: Int
   limit: Int
+}
+
+input SortingInput {
+  by: String
+  dir: SortingDirection
+}
+
+enum SortingDirection {
+  ASC
+  DESC
 }
 
 interface Node {

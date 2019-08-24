@@ -51,7 +51,7 @@ func (r *BotlogRepository) Insert(ctx context.Context, l *http.Result) error {
 }
 
 // FindAll finds the log entries for a given URL
-func (r *BotlogRepository) FindAll(ctx context.Context, URL *url.URL, cursor int32, limit int32) ([]*http.Result, error) {
+func (r *BotlogRepository) FindAll(ctx context.Context, URL *url.URL, page *OffsetPagination) ([]*http.Result, error) {
 	var logs []*http.Result
 
 	query := `
@@ -66,8 +66,8 @@ func (r *BotlogRepository) FindAll(ctx context.Context, URL *url.URL, cursor int
 	var args []interface{}
 
 	args = append(args, URL.UnescapeString())
-	args = append(args, cursor)
-	args = append(args, limit)
+	args = append(args, page.Offset)
+	args = append(args, page.Limit)
 
 	rows, err := r.db.QueryContext(ctx, formatQuery(query), args...)
 	if err != nil {

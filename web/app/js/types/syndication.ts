@@ -1,4 +1,5 @@
 import { Log } from "./http";
+import { Sorting } from ".";
 
 export interface Source {
   id: string;
@@ -39,8 +40,9 @@ export interface SyndicationResults {
 export interface SearchParams {
   terms: string[];
   tags: string[];
-  showDeleted: boolean;
-  pausedOnly: boolean;
+  hidden: boolean;
+  paused: boolean;
+  sort: Sorting;
 }
 
 export interface Stats {

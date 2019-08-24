@@ -345,15 +345,14 @@ func (r *BookmarkRootResolver) Search(ctx context.Context, args struct {
 	Search     BookmarkSearchInput
 }) (*BookmarkSearchResults, error) {
 	user := auth.FromContext(ctx)
-	fromArgs := getOffsetBasedPagination(10)
-	offset, limit := fromArgs(args.Pagination)
+	page := offsetPagination(10)(args.Pagination)
 	terms := args.Search.Terms
 
 	var bookmarks []*Bookmark
 	var total int32
 
 	if len(terms) > 0 {
-		results, err := r.repositories.Bookmarks.FindAll(ctx, user, terms, offset, limit)
+		results, err := r.repositories.Bookmarks.FindAll(ctx, user, terms, page)
 		if err != nil {
 			return nil, err
 		}
@@ -369,8 +368,8 @@ func (r *BookmarkRootResolver) Search(ctx context.Context, args struct {
 	res := BookmarkSearchResults{
 		Results: bookmarks,
 		Total:   total,
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  page.Offset,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil

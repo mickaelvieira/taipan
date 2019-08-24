@@ -163,8 +163,7 @@ func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struc
 	Search     *SubscriptionSearchInput
 }) (*SubscriptionCollection, error) {
 	user := auth.FromContext(ctx)
-	fromArgs := getOffsetBasedPagination(10)
-	offset, limit := fromArgs(args.Pagination)
+	page := offsetPagination(10)(args.Pagination)
 
 	var terms []string
 	if args.Search != nil {
@@ -176,7 +175,7 @@ func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struc
 		tags = args.Search.Tags
 	}
 
-	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, tags, offset, limit)
+	results, err := r.repositories.Subscriptions.FindAll(ctx, user, terms, tags, page)
 	if err != nil {
 		return nil, err
 	}
@@ -189,8 +188,8 @@ func (r *SubscriptionRootResolver) Subscriptions(ctx context.Context, args struc
 	res := SubscriptionCollection{
 		Results: resolve(r.repositories).subscriptions(results),
 		Total:   total,
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  page.Offset,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil

@@ -309,16 +309,16 @@ func (r *SyndicationRootResolver) Sources(ctx context.Context, args struct {
 	Pagination OffsetPaginationInput
 	Search     SyndicationSearchInput
 }) (*SourceCollection, error) {
-	fromArgs := getOffsetBasedPagination(10)
-	offset, limit := fromArgs(args.Pagination)
+	page := offsetPagination(10)(args.Pagination)
+	sort := sorting("title", "ASC", []string{"title", "updated_at"})(args.Search.Sort)
 
-	results, err := r.repositories.Syndication.FindAll(ctx, args.Search.Terms, args.Search.Tags, args.Search.ShowDeleted, args.Search.PausedOnly, offset, limit)
+	results, err := r.repositories.Syndication.FindAll(ctx, args.Search.Terms, args.Search.Tags, args.Search.Hidden, args.Search.Paused, page, sort)
 	if err != nil {
 		return nil, err
 	}
 
 	var total int32
-	total, err = r.repositories.Syndication.GetTotal(ctx, args.Search.Terms, args.Search.Tags, args.Search.ShowDeleted, args.Search.PausedOnly)
+	total, err = r.repositories.Syndication.GetTotal(ctx, args.Search.Terms, args.Search.Tags, args.Search.Hidden, args.Search.Paused)
 	if err != nil {
 		return nil, err
 	}
@@ -326,8 +326,8 @@ func (r *SyndicationRootResolver) Sources(ctx context.Context, args struct {
 	res := SourceCollection{
 		Results: resolve(r.repositories).sources(results),
 		Total:   total,
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  page.Offset,
+		Limit:   page.Limit,
 	}
 
 	return &res, nil

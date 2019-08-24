@@ -134,27 +134,29 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	return results, nil
 }
 
-func getSyndicationFilters(showDeleted bool, pausedOnly bool) string {
+func getSyndicationFilters(hidden bool, paused bool) string {
 	var where []string
-	if showDeleted {
+	if hidden {
 		where = append(where, "s.deleted = 1")
 	} else {
 		where = append(where, "s.deleted = 0")
 	}
-	if pausedOnly {
+	if paused {
 		where = append(where, "s.paused = 1")
+	} else {
+		where = append(where, "s.paused = 0")
 	}
 	return strings.Join(where, " AND ")
 }
 
 // FindAll find newest entries
-func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tags []string, showDeleted bool, pausedOnly bool, offset int32, limit int32) ([]*syndication.Source, error) {
+func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tags []string, hidden bool, paused bool, page *OffsetPagination, sort *Sorting) ([]*syndication.Source, error) {
 	query := `
 		SELECT DISTINCT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
 		FROM syndication AS s
 		%s
 		WHERE %s
-		ORDER BY s.title ASC
+		ORDER BY s.%s %s
 		LIMIT ?, ?
 	`
 	var args []interface{}
@@ -169,7 +171,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tag
 	}
 
 	var w []string
-	f := getSyndicationFilters(showDeleted, pausedOnly)
+	f := getSyndicationFilters(hidden, paused)
 	w = append(w, f)
 
 	var s string
@@ -180,10 +182,10 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tag
 		args = append(args, a...)
 	}
 
-	args = append(args, offset)
-	args = append(args, limit)
+	args = append(args, page.Offset)
+	args = append(args, page.Limit)
 
-	query = formatQuery(fmt.Sprintf(query, t, strings.Join(w, " AND ")))
+	query = formatQuery(fmt.Sprintf(query, t, strings.Join(w, " AND "), sort.By, sort.Dir))
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -207,7 +209,7 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, terms []string, tag
 }
 
 // GetTotal count latest entries
-func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, tags []string, showDeleted bool, pausedOnly bool) (int32, error) {
+func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, tags []string, hidden bool, paused bool) (int32, error) {
 	var total int32
 
 	query := `
@@ -228,7 +230,7 @@ func (r *SyndicationRepository) GetTotal(ctx context.Context, terms []string, ta
 	}
 
 	var w []string
-	f := getSyndicationFilters(showDeleted, pausedOnly)
+	f := getSyndicationFilters(hidden, paused)
 	w = append(w, f)
 
 	var s string
