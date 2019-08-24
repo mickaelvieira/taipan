@@ -22,7 +22,7 @@ func (r *PasswordResetRepository) Create(ctx context.Context, t *password.ResetT
 		(token, user_id, used, expired_at, created_at)
 		VALUES
 		(?, ?, ?, ?, ?)
-`
+	`
 	_, err := r.db.ExecContext(
 		ctx,
 		formatQuery(query),
