@@ -105,7 +105,7 @@ function isScript(pathname) {
  * @returns {Boolean}
  */
 function isImage(pathname) {
-  return /\.(jpg|jpeg|gif|png|svg|webm)$/.test(pathname);
+  return /\.(jpg|jpeg|gif|png|svg|webp)$/.test(pathname);
 }
 
 /**
