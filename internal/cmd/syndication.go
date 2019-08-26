@@ -55,11 +55,23 @@ func runSyndicationWorker(c *cli.Context) {
 	defer onStop()
 
 	for {
-		logger.Warn(fmt.Sprintf("Get outdated sources with frequency [%s]", http.Hourly))
-		sources, err := repos.Syndication.GetOutdatedSources(ctx, http.Hourly)
-		if err != nil {
-			panic(err)
+		var sources []*syndication.Source
+		fetch := func(f http.Frequency) {
+			var err error
+			if len(sources) > 0 {
+				return
+			}
+
+			logger.Warn(fmt.Sprintf("Get outdated sources with frequency [%s]", f))
+			sources, err = repos.Syndication.GetOutdatedSources(ctx, f)
+			if err != nil {
+				panic(err)
+			}
 		}
+
+		fetch(http.Hourly)
+		fetch(http.Daily)
+		fetch(http.Weekly)
 
 		if len(sources) == 0 {
 			d := 60 * time.Second
@@ -76,7 +88,8 @@ func runSyndicationWorker(c *cli.Context) {
 		// which will be empty when all sources will be parsed
 		queue := syndication.QueueSources(sources)
 		// The mixer contains a queue for each sources
-		// containing a list of messages
+		// containing a list of messages. The mixer is full
+		// when all sources have been parsed
 		mixer := syndication.MakeMixer(len(queue))
 
 		logger.Info(fmt.Sprintf("Process queue of [%d] entities", len(queue)))
