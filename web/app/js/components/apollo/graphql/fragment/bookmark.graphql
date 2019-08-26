@@ -1,7 +1,6 @@
 #import "./image.graphql"
 #import "./source.graphql"
 
-# @TODO remove source field
 fragment bookmarkFields on Bookmark {
   id
   url
@@ -9,9 +8,6 @@ fragment bookmarkFields on Bookmark {
   description
   image {
     ...imageFields
-  }
-  source {
-    ...sourceFields
   }
   addedAt
   favoritedAt
