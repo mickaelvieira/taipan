@@ -292,9 +292,12 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	}
 
 	f := http.CalculateFrequency(results)
-	logger.Warn(fmt.Sprintf("Source frequency: [%s], previous: [%s]", f, s.Frequency))
 
-	s.Frequency = f
+	if s.Frequency != f {
+		logger.Warn(fmt.Sprintf("Change source %s frequency: [%s], previous: [%s]", s.URL, f, s.Frequency))
+		s.Frequency = f
+	}
+
 	s.ParsedAt = time.Now()
 
 	if err := repos.Syndication.Update(ctx, s); err != nil {
