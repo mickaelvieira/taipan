@@ -23,5 +23,5 @@ require (
 	github.com/streadway/amqp v0.0.0-20190827075055-edfb9018d271
 	github.com/urfave/cli v1.21.0
 	golang.org/x/crypto v0.0.0-20190820174958-60c769a6c586
-	golang.org/x/image v0.0.0-20190823072537-3a9bac650e44
+	golang.org/x/image v0.0.0-20190828090100-23ea20f87cfc
 )
