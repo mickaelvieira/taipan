@@ -111,8 +111,8 @@ github.com/gorilla/sessions v1.2.0 h1:S7P+1Hm5V/AT9cjEcUD5uDaQSX0OE577aCXgoaKpYb
 github.com/gorilla/sessions v1.2.0/go.mod h1:dk2InVEVJ0sfLlnXv9EAgkf6ecYs/i80K/zI+bUmuGM=
 github.com/graph-gophers/dataloader v5.0.0+incompatible h1:R+yjsbrNq1Mo3aPG+Z/EKYrXrXXUNJHOgbRt+U6jOug=
 github.com/graph-gophers/dataloader v5.0.0+incompatible/go.mod h1:jk4jk0c5ZISbKaMe8WsVopGB5/15GvGHMdMdPtwlRp4=
-github.com/graph-gophers/graphql-go v0.0.0-20190830041028-33de425462b0 h1:es41Vm+/swMv+bJRK43s9qROjPkCzyO07aL6/DUJbW0=
-github.com/graph-gophers/graphql-go v0.0.0-20190830041028-33de425462b0/go.mod h1:Au3iQ8DvDis8hZ4q2OzRcaKYlAsPt+fYvib5q4nIqu4=
+github.com/graph-gophers/graphql-go v0.0.0-20190902095048-c760ee3fa257 h1:OnUCWIrMoavDhNOlI4Hwn2qasqKmX04xUvml9kSF8QY=
+github.com/graph-gophers/graphql-go v0.0.0-20190902095048-c760ee3fa257/go.mod h1:Au3iQ8DvDis8hZ4q2OzRcaKYlAsPt+fYvib5q4nIqu4=
 github.com/grokify/html-strip-tags-go v0.0.0-20190424092004-025bd760b278 h1:DZo48DQFIDo/YWjUeFip1dfJztBhRuaxfUnPd+gAfcs=
 github.com/grokify/html-strip-tags-go v0.0.0-20190424092004-025bd760b278/go.mod h1:Xk7G0nwBiIloTMbLddk4WWJOqi4i/JLhadLd0HUXO30=
 github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed/go.mod h1:tMWxXQ9wFIaZeTI9F+hmhFiGpFmhOHzyShyFUhRm0H4=
