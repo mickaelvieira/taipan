@@ -34,7 +34,7 @@
     "@material-ui/core": "4.4.3",
     "@material-ui/icons": "4.4.3",
     "@types/jest": "24.0.18",
-    "@types/lodash": "4.14.139",
+    "@types/lodash": "4.14.140",
     "@types/react": "16.9.3",
     "@types/react-dom": "16.9.1",
     "@types/react-router": "5.1.0",
