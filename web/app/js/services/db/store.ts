@@ -14,6 +14,7 @@ function batch(items: any[]): Process {
   return process;
 }
 
+/* eslint @typescript-eslint/explicit-function-return-type: off */
 export default class Store {
   store: IDBObjectStore;
 
