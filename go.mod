@@ -11,7 +11,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/gorilla/sessions v1.2.0
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
-	github.com/graph-gophers/graphql-go v0.0.0-20191113173545-5ef3e23df847
+	github.com/graph-gophers/graphql-go v0.0.0-20191115155744-f33e81362277
 	github.com/grokify/html-strip-tags-go v0.0.0-20190916062342-6f856a90d556
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo-contrib v0.7.0
