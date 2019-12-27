@@ -22,6 +22,6 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	github.com/urfave/cli v1.22.2
-	golang.org/x/crypto v0.0.0-20191219195013-becbf705a915
+	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52
 )
