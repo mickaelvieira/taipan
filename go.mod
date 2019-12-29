@@ -14,7 +14,7 @@ require (
 	github.com/graph-gophers/graphql-go v0.0.0-20191115155744-f33e81362277
 	github.com/grokify/html-strip-tags-go v0.0.0-20190916062342-6f856a90d556
 	github.com/joho/godotenv v1.3.0
-	github.com/labstack/echo-contrib v0.7.0
+	github.com/labstack/echo-contrib v0.8.0
 	github.com/labstack/echo/v4 v4.1.10
 	github.com/labstack/gommon v0.3.0
 	github.com/mmcdole/gofeed v1.0.0-beta2
