@@ -20,7 +20,7 @@ require (
 	github.com/mmcdole/gofeed v1.0.0-beta2
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/streadway/amqp v0.0.0-20200108112537-55cd81a10b0c
+	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
 	github.com/urfave/cli v1.22.2
 	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52
