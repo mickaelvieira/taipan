@@ -19,7 +19,7 @@ require (
 	github.com/labstack/gommon v0.3.0
 	github.com/mmcdole/gofeed v1.0.0-beta2
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
-	github.com/pkg/errors v0.9.0
+	github.com/pkg/errors v0.9.1
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
 	github.com/urfave/cli v1.22.2
 	golang.org/x/crypto v0.0.0-20200109152110-61a87790db17
