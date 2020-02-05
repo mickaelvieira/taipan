@@ -3,7 +3,7 @@ module github/mickaelvieira/taipan
 go 1.12
 
 require (
-	github.com/PuerkitoBio/goquery v1.5.0
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/aws/aws-sdk-go v1.28.10
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gogo/protobuf v1.3.1
