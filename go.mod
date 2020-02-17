@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go v1.28.13
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang-migrate/migrate/v4 v4.8.0
+	github.com/golang-migrate/migrate/v4 v4.9.1
 	github.com/golang/protobuf v1.3.3
 	github.com/gorilla/sessions v1.2.0
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
