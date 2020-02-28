@@ -72,7 +72,7 @@
     "roboto-fontface": "0.10.0",
     "subscriptions-transport-ws": "0.9.16",
     "terser-webpack-plugin": "2.3.5",
-    "typescript": "3.8.2",
+    "typescript": "3.8.3",
     "uglify-js": "3.8.0",
     "uglifycss": "0.0.29",
     "webpack": "4.41.6",
