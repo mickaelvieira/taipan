@@ -5,6 +5,8 @@ import { MessageInfo } from "../../types";
 import FeedsUpdater from "../apollo/helpers/feeds-updater";
 import FeedsMutator from "../apollo/helpers/feeds-mutator";
 
+/* eslint @typescript-eslint/no-empty-function:off */
+
 const ClientContext = React.createContext<string>("");
 const LayoutContext = React.createContext((_: boolean) => {});
 const AppContext = React.createContext<AppInfo | null>(null);

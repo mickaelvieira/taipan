@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+// =============================================================
+// @TODO REPLACE math/rand with crypto/rand
+// https://golang.org/pkg/crypto/rand/
+// =============================================================
+
 // returns a random integer between 2 values
 func randomInt(min, max int) int {
 	return min + rand.Intn(max-min)
