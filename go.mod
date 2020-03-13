@@ -1,6 +1,6 @@
 module github/mickaelvieira/taipan
 
-go 1.12
+go 1.14
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
@@ -25,3 +25,5 @@ require (
 	golang.org/x/crypto v0.0.0-20200208060501-ecb85df21340
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1
 )
+
+replace github.com/belogik/goes => github.com/OwnLocal/goes v1.0.0
