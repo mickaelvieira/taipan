@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e -u -o pipefail
+# set -x
+
+main() {
+  local sess="taipan"
+
+  cd web/app || exit 1
+
+  PATH="$(pwd)/node_modules/.bin:$PATH"
+
+  tmux new-session -s ${sess} -d
+  tmux ls
+
+  tmux new-window -c "$(pwd -P)" -n "scripts" "yarn watch"
+  tmux new-window -c "$(pwd -P)" -n "test" "yarn watch-test"
+
+  sleep 5
+  cd ../..
+  tmux new-window -c "$(pwd -P)" -n "server" "make build-app && make run"
+
+  tmux list-windows
+  tmux select-window -t "scripts"
+  tmux attach-session -t ${sess}
+}
+
+main "$@"

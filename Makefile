@@ -34,6 +34,9 @@ build-ui:
 test-ui:
 	$(CDWEB) && yarn test
 
+watch:
+	scripts/watch
+
 watch-ui:
 	$(RMSCRIPTS) && $(RMSTYLES) && $(CDWEB) && yarn watch
 
