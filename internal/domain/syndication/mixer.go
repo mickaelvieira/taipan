@@ -1,10 +1,11 @@
 package syndication
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/url"
 	"github/mickaelvieira/taipan/internal/domain/messages"
+	"github/mickaelvieira/taipan/internal/domain/url"
 )
 
+// Queue can be used to store a list of messages
 type Queue []*messages.Document
 
 // Shift returns the entity at the front of the queue

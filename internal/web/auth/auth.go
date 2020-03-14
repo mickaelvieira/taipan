@@ -18,11 +18,13 @@ type Credentials struct {
 	Password string
 }
 
+// ResetPassword represents a password reset token
 type ResetPassword struct {
 	Token    string
 	Password string
 }
 
+// ConfirmEmail email confirmation token
 type ConfirmEmail struct {
 	Token string
 }
