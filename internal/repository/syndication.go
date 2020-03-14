@@ -129,6 +129,36 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 	return results, nil
 }
 
+// GetUndiscoveredSources returns the sources that have been parsed and are paused
+func (r *SyndicationRepository) GetUndiscoveredSources(ctx context.Context) ([]*syndication.Source, error) {
+	query := `
+		SELECT s.id, s.url, s.domain, s.title, s.type, s.created_at, s.updated_at, s.parsed_at, s.deleted, s.paused, s.frequency
+		FROM syndication AS s
+		WHERE s.deleted = 0 AND s.paused = 1 AND s.parsed_at IS NULL
+		ORDER BY s.parsed_at ASC
+		LIMIT ?;
+	`
+	rows, err := r.db.QueryContext(ctx, formatQuery(query), 50)
+	if err != nil {
+		return nil, errors.Wrap(err, "execute")
+	}
+
+	var results []*syndication.Source
+	for rows.Next() {
+		s, err := r.scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, s)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "scan rows")
+	}
+
+	return results, nil
+}
+
 func getSyndicationFilters(hidden bool, paused bool) string {
 	var where []string
 	if hidden {

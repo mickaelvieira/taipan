@@ -73,6 +73,11 @@ func runSyndicationWorker(c *cli.Context) {
 		fetch(http.Daily)
 		fetch(http.Weekly)
 
+		// if len(sources) == 0 {
+		// 	sources, err = repos.Syndication.GetUndiscoveredSources(ctx)
+		// 	r := usecase.DiscoverResource(sources)
+		// }
+
 		if len(sources) == 0 {
 			d := 60 * time.Second
 			logger.Warn(fmt.Sprintf("Waiting for sources to be outdated, sleep for [%ds]", 60))

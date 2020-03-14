@@ -49,6 +49,7 @@ func runWeb(c *cli.Context) {
 		e.Debug = true
 		e.Use(middleware.CORS())
 	}
+
 	if web.UseFileServer() {
 		e.Static(paths.GetBasePath(web.UseFileServer()), paths.GetStaticDir())
 	}

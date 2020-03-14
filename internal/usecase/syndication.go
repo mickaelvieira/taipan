@@ -184,16 +184,16 @@ func CreateSyndicationSource(ctx context.Context, repos *repository.Repositories
 		}
 	}
 
-	result, err := FetchResource(ctx, repos, s.URL)
-	if err != nil {
-		return nil, err
-	}
+	// result, err := FetchResource(ctx, repos, s.URL)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	// @TODO URLs must be pushed to otherwise if the feed does not change they will never be sent to the parser
-	_, err = ParseSyndicationSource(ctx, repos, result, s)
-	if err != nil {
-		return nil, err
-	}
+	// // @TODO URLs must be pushed to otherwise if the feed does not change they will never be sent to the parser
+	// _, err = ParseSyndicationSource(ctx, repos, result, s)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return s, nil
 }
@@ -256,24 +256,27 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 			}
 		}
 
-		for _, item := range c.Items {
-			u, err := url.FromRawURL(item.Link)
-			if err != nil {
-				logger.Error(err)
-				continue // Just skip invalid URLs
-			}
+		// Do not extract URLs if the source is paused
+		if !s.IsPaused {
+			for _, item := range c.Items {
+				u, err := url.FromRawURL(item.Link)
+				if err != nil {
+					logger.Error(err)
+					continue // Just skip invalid URLs
+				}
 
-			// @TODO Add a list of Source proxy and resolve source's URLs before pushing to the queue
-			b, err := repos.Documents.ExistWithURL(ctx, u)
-			if err != nil {
-				logger.Error(err)
-				continue
-			}
-			if !b {
-				logger.Info(fmt.Sprintf("Adding URL [%s]", u))
-				urls = append(urls, u)
-			} else {
-				logger.Info(fmt.Sprintf("URL [%s] already exists", u))
+				// @TODO Add a list of Source proxy and resolve source's URLs before pushing to the queue
+				b, err := repos.Documents.ExistWithURL(ctx, u)
+				if err != nil {
+					logger.Error(err)
+					continue
+				}
+				if !b {
+					logger.Info(fmt.Sprintf("Adding URL [%s]", u))
+					urls = append(urls, u)
+				} else {
+					logger.Info(fmt.Sprintf("URL [%s] already exists", u))
+				}
 			}
 		}
 	} else {
