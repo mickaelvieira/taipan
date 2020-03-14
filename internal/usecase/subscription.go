@@ -19,7 +19,7 @@ func SubscribeToSource(ctx context.Context, repos *repository.Repositories, usr 
 
 	// make sure the source is not paused
 	if src.IsPaused {
-		if err := ResumeSyndicationSource(ctx, repos, src); err != nil {
+		if err = ResumeSyndicationSource(ctx, repos, src); err != nil {
 			return nil, err
 		}
 	}
@@ -55,7 +55,7 @@ func UnubscribeFromSource(ctx context.Context, repos *repository.Repositories, u
 	}
 
 	if len(subscribers) == 0 && !src.IsPaused {
-		if err := PauseSyndicationSource(ctx, repos, src); err != nil {
+		if err = PauseSyndicationSource(ctx, repos, src); err != nil {
 			return nil, err
 		}
 		logger.Warn(fmt.Sprintf("Source [%s] does not have any subscribers, it was marked as paused", src.URL))

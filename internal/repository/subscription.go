@@ -39,7 +39,7 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 	var subscribers []string
 	for rows.Next() {
 		var userID string
-		err := rows.Scan(&userID)
+		err = rows.Scan(&userID)
 		if err != nil {
 			return nil, errors.Wrap(err, "scan")
 		}
@@ -89,7 +89,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, sear
 	}
 
 	if s != "" {
-		s = "WHERE " + s
+		// @TODO I need to improve the contrustion of those queries
+		s = fmt.Sprintf("WHERE %s", s) // #nosec
 	}
 
 	args = append(args, paging.Offset)
@@ -104,7 +105,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, sear
 
 	var results []*subscription.Subscription
 	for rows.Next() {
-		d, err := r.scan(rows)
+		var d *subscription.Subscription
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -154,7 +156,8 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, sea
 	}
 
 	if s != "" {
-		s = "WHERE " + s
+		// @TODO I need to improve the contrustion of those queries
+		s = fmt.Sprintf("WHERE %s", s) // #nosec
 	}
 
 	query = formatQuery(fmt.Sprintf(query, t, s))

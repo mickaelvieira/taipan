@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	// mysql driver registration
 	_ "github.com/go-sql-driver/mysql"
 )
 

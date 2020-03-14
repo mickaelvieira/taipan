@@ -62,7 +62,7 @@ func runDocumentsWorker(c *cli.Context) {
 	go func() {
 		for d := range msgs {
 			dm := &messages.Document{}
-			if err := proto.Unmarshal(d.Body, dm); err != nil {
+			if err = proto.Unmarshal(d.Body, dm); err != nil {
 				logger.Error(fmt.Sprintf("Failed to parse document message: %s", err))
 				continue
 			}
@@ -83,7 +83,7 @@ func runDocumentsWorker(c *cli.Context) {
 				continue
 			}
 
-			if usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID); err != nil {
+			if err := usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID); err != nil {
 				logger.Error(err)
 				continue
 			}

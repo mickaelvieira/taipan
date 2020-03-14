@@ -38,7 +38,9 @@ func signin(c echo.Context, r *repository.Repositories) error {
 
 	// open a new session for this user
 	sess.Values["user_id"] = u.ID
-	sess.Save(c.Request(), c.Response())
+	if err := sess.Save(c.Request(), c.Response()); err != nil {
+		return err
+	}
 
 	return c.JSON(http.StatusOK, &u)
 }

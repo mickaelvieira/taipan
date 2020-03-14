@@ -85,6 +85,7 @@ type Email struct {
 	ConfirmedAt time.Time
 }
 
+// Stats represents the user's statistics, number of bookmarks, favourite, etc...
 type Stats struct {
 	Bookmarks     int32
 	ReadingList   int32

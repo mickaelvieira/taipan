@@ -79,7 +79,8 @@ func (r *UserRepository) GetByIDs(ctx context.Context, ids []string) ([]*user.Us
 
 	var results []*user.User
 	for rows.Next() {
-		s, err := r.scan(rows)
+		var s *user.User
+		s, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}

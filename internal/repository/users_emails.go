@@ -157,7 +157,8 @@ func (r *UserEmailRepository) GetUserEmails(ctx context.Context, u *user.User) (
 
 	var emails []*user.Email
 	for rows.Next() {
-		e, err := r.scan(rows)
+		var e *user.Email
+		e, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}

@@ -44,7 +44,10 @@ func (c *Checksum) Scan(value interface{}) error {
 // FromBytes creates a sha256 checksum from bytes
 func FromBytes(b []byte) Checksum {
 	buf := sha256.New()
-	buf.Write(b)
+	_, err := buf.Write(b)
+	if err != nil {
+		panic(err)
+	}
 	return buf.Sum(nil)
 }
 

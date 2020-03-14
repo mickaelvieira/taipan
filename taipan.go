@@ -20,5 +20,7 @@ func main() {
 		cmd.Syndication,
 		cmd.Documents,
 	}
-	app.Run(os.Args)
+	if err := app.Run(os.Args); err != nil {
+		panic(err)
+	}
 }

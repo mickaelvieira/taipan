@@ -63,7 +63,8 @@ func (r *SyndicationRepository) GetByIDs(ctx context.Context, ids []string) ([]*
 
 	var results []*syndication.Source
 	for rows.Next() {
-		s, err := r.scan(rows)
+		var s *syndication.Source
+		s, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +146,8 @@ func (r *SyndicationRepository) GetUndiscoveredSources(ctx context.Context) ([]*
 
 	var results []*syndication.Source
 	for rows.Next() {
-		s, err := r.scan(rows)
+		var s *syndication.Source
+		s, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -219,7 +221,8 @@ func (r *SyndicationRepository) FindAll(ctx context.Context, search *Syndication
 
 	var results []*syndication.Source
 	for rows.Next() {
-		d, err := r.scan(rows)
+		var d *syndication.Source
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -533,7 +536,7 @@ func (r *SyndicationRepository) GetActiveTagIDs(ctx context.Context) ([]string, 
 	var ids []string
 	for rows.Next() {
 		var id string
-		err := rows.Scan(&id)
+		err = rows.Scan(&id)
 		if err != nil {
 			return nil, err
 		}
