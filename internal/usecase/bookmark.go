@@ -213,7 +213,7 @@ func Unbookmark(ctx context.Context, repos *repository.Repositories, usr *user.U
 	b.IsLinked = false
 	b.UpdatedAt = time.Now()
 
-	if err := repos.Bookmarks.Remove(ctx, usr, b); err != nil {
+	if err = repos.Bookmarks.Remove(ctx, usr, b); err != nil {
 		return nil, err
 	}
 

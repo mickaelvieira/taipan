@@ -229,7 +229,8 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 	}
 
 	if r.IsContentDifferent(pr) {
-		c, err := gofeed.NewParser().Parse(r.Content)
+		var c *gofeed.Feed
+		c, err = gofeed.NewParser().Parse(r.Content)
 		if err != nil {
 			return urls, fmt.Errorf("Parsing error: %s - URL %s", err, s.URL)
 		}
@@ -241,14 +242,16 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 		}
 
 		if c.Link != "" {
-			l, err := url.FromRawURL(c.Link)
+			var l *url.URL
+			l, err = url.FromRawURL(c.Link)
 			if err == nil {
 				s.Domain = l
 			}
 		}
 
 		if s.Type == "" {
-			feedType, err := syndication.FromGoFeedType(c.FeedType)
+			var feedType syndication.Type
+			feedType, err = syndication.FromGoFeedType(c.FeedType)
 			if err == nil {
 				s.Type = feedType
 			} else {
@@ -257,14 +260,16 @@ func ParseSyndicationSource(ctx context.Context, repos *repository.Repositories,
 		}
 
 		for _, item := range c.Items {
-			u, err := url.FromRawURL(item.Link)
+			var u *url.URL
+			u, err = url.FromRawURL(item.Link)
 			if err != nil {
 				logger.Error(err)
 				continue // Just skip invalid URLs
 			}
 
 			// @TODO Add a list of Source proxy and resolve source's URLs before pushing to the queue
-			b, err := repos.Documents.ExistWithURL(ctx, u)
+			var b bool
+			b, err = repos.Documents.ExistWithURL(ctx, u)
 			if err != nil {
 				logger.Error(err)
 				continue

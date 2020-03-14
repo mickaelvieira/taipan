@@ -51,7 +51,8 @@ func (r *BookmarkRepository) FindAll(ctx context.Context, user *user.User, terms
 	}
 
 	for rows.Next() {
-		b, err := r.scan(rows)
+		var b *bookmark.Bookmark
+		b, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -154,7 +155,8 @@ func (r *BookmarkRepository) GetReadingList(ctx context.Context, user *user.User
 	}
 
 	for rows.Next() {
-		b, err := r.scan(rows)
+		var b *bookmark.Bookmark
+		b, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -230,7 +232,8 @@ func (r *BookmarkRepository) GetFavorites(ctx context.Context, user *user.User, 
 	}
 
 	for rows.Next() {
-		b, err := r.scan(rows)
+		var b *bookmark.Bookmark
+		b, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}

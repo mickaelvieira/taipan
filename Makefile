@@ -1,11 +1,11 @@
-OS    := $(shell uname -s)
-SHELL := /bin/bash
-GOFMT := gofmt -s -w -l
+OS     := $(shell uname -s)
+SHELL  := /bin/bash
+GOFMT  := gofmt -s -w -l
 GOLINT := golint
 GOVET  := go vet
-GOSHDW := go vet -vettool=$(which shadow)
-GOSEC  := gosec
-CDWEB := cd web/app
+GOSHDW := go vet -vettool=$$(which shadow)
+GOSEC  := gosec --quiet
+CDWEB  := cd web/app
 RMSCRIPTS := rm -rf web/static/js/
 RMSTYLES := rm -rf web/static/css/
 

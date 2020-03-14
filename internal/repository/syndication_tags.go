@@ -52,7 +52,8 @@ func (r *SyndicationTagsRepository) GetByIDs(ctx context.Context, ids []string) 
 
 	var results []*syndication.Tag
 	for rows.Next() {
-		s, err := r.scan(rows)
+		var s *syndication.Tag
+		s, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -86,7 +87,7 @@ func (r *SyndicationTagsRepository) GetSourceTagIDs(ctx context.Context, s *synd
 	var ids []string
 	for rows.Next() {
 		var id string
-		err := rows.Scan(&id)
+		err = rows.Scan(&id)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +119,8 @@ func (r *SyndicationTagsRepository) FindAll(ctx context.Context) ([]*syndication
 
 	var results []*syndication.Tag
 	for rows.Next() {
-		d, err := r.scan(rows)
+		var d *syndication.Tag
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}

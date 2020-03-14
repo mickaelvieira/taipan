@@ -92,15 +92,16 @@ func Signup(ctx context.Context, repos *repository.Repositories, e string, p str
 	email := user.NewEmail(e)
 	email.IsPrimary = true // first email is always the primary
 
-	if err := repos.Emails.CreateUserEmail(ctx, u, email); err != nil {
+	if err = repos.Emails.CreateUserEmail(ctx, u, email); err != nil {
 		return nil, err
 	}
 
-	if err := CreateTokenAndSendConfirmationEmail(ctx, repos, u, email); err != nil {
+	if err = CreateTokenAndSendConfirmationEmail(ctx, repos, u, email); err != nil {
 		return nil, err
 	}
 
-	emails, err := repos.Emails.GetUserEmails(ctx, u)
+	var emails []*user.Email
+	emails, err = repos.Emails.GetUserEmails(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +284,7 @@ func ChangePassword(ctx context.Context, repos *repository.Repositories, usr *us
 	}
 
 	// is the old password correct?
-	if err := bcrypt.CompareHashAndPassword([]byte(p), []byte(o)); err != nil {
+	if err = bcrypt.CompareHashAndPassword([]byte(p), []byte(o)); err != nil {
 		if err == bcrypt.ErrMismatchedHashAndPassword {
 			return errors.New(user.ErrPasswordIsNotValid, err)
 		}

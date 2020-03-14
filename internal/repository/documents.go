@@ -108,7 +108,8 @@ func (r *DocumentRepository) GetByIDs(ctx context.Context, ids []string) ([]*doc
 	}
 
 	for rows.Next() {
-		d, err := r.scan(rows)
+		var d *document.Document
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -202,11 +203,12 @@ func (r *DocumentRepository) FindAll(ctx context.Context, user *user.User, terms
 	}
 
 	for rows.Next() {
-		b, err := r.scan(rows)
+		var d *document.Document
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, b)
+		results = append(results, d)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -285,7 +287,8 @@ func (r *DocumentRepository) GetNews(ctx context.Context, u *user.User, fromID s
 	}
 
 	for rows.Next() {
-		d, err := r.scan(rows)
+		var d *document.Document
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -377,7 +380,8 @@ func (r *DocumentRepository) GetDocuments(ctx context.Context, fromID string, to
 	}
 
 	for rows.Next() {
-		d, err := r.scan(rows)
+		var d *document.Document
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}

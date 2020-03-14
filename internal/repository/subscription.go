@@ -34,7 +34,7 @@ func (r *SubscriptionRepository) FindSubscribersIDs(ctx context.Context, sourceI
 	var subscribers []string
 	for rows.Next() {
 		var userID string
-		err := rows.Scan(&userID)
+		err = rows.Scan(&userID)
 		if err != nil {
 			return nil, errors.Wrap(err, "scan")
 		}
@@ -100,7 +100,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 
 	var results []*subscription.Subscription
 	for rows.Next() {
-		d, err := r.scan(rows)
+		var d *subscription.Subscription
+		d, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
