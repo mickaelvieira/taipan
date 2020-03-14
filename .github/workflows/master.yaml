@@ -30,11 +30,11 @@ jobs:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('go.mod') }}
       - run: make build
-      - name: go lint
-        uses: grandcolline/golang-github-actions@v1.1.0
-        with:
-          run: lint
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: go lint
+      #   uses: grandcolline/golang-github-actions@v1.1.0
+      #   with:
+      #     run: lint
+      #     token: ${{ secrets.GITHUB_TOKEN }}
       # - name: go vet
       #   uses: grandcolline/golang-github-actions@v1.1.0
       #   with:
