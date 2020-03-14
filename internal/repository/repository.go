@@ -2,8 +2,9 @@ package repository
 
 import (
 	"fmt"
-	"github.com/mickaelvieira/taipan/internal/db"
 	"strings"
+
+	"github.com/mickaelvieira/taipan/internal/db"
 )
 
 // Scanable sql.Rows or sql.Row
@@ -26,17 +27,20 @@ type Repositories struct {
 	PasswordReset   *PasswordResetRepository
 }
 
+// CursorPagination cursor based pagination
 type CursorPagination struct {
 	From  string
 	To    string
 	Limit int32
 }
 
+// OffsetPagination offset based pagination
 type OffsetPagination struct {
 	Offset int32
 	Limit  int32
 }
 
+// Sorting sorting parameters
 type Sorting struct {
 	By  string
 	Dir string

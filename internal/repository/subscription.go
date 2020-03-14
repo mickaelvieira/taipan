@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
+
 	"github.com/mickaelvieira/taipan/internal/domain/subscription"
 	"github.com/mickaelvieira/taipan/internal/domain/syndication"
 	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"github.com/mickaelvieira/taipan/internal/domain/user"
-	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
@@ -19,6 +20,7 @@ type SubscriptionRepository struct {
 	db *sql.DB
 }
 
+// SubscriptionSearchParams search parameters
 type SubscriptionSearchParams struct {
 	Terms []string
 	Tags  []string

@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
+
 	"github.com/mickaelvieira/taipan/internal/db"
 	"github.com/mickaelvieira/taipan/internal/domain/http"
 	"github.com/mickaelvieira/taipan/internal/domain/syndication"
 	"github.com/mickaelvieira/taipan/internal/domain/url"
-	"strings"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
@@ -19,6 +20,7 @@ type SyndicationRepository struct {
 	db *sql.DB
 }
 
+// SyndicationSearchParams search parameters
 type SyndicationSearchParams struct {
 	Terms  []string
 	Tags   []string
@@ -116,7 +118,8 @@ func (r *SyndicationRepository) GetOutdatedSources(ctx context.Context, f http.F
 
 	var results []*syndication.Source
 	for rows.Next() {
-		s, err := r.scan(rows)
+		var s *syndication.Source
+		s, err = r.scan(rows)
 		if err != nil {
 			return nil, err
 		}
