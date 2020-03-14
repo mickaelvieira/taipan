@@ -24,6 +24,8 @@ require (
 	github.com/urfave/cli v1.22.3
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1
+	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 
 replace github.com/belogik/goes => github.com/OwnLocal/goes v1.0.0

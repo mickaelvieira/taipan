@@ -30,7 +30,28 @@ jobs:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('go.mod') }}
       - run: make build
-      - run: make analyse
+      - name: go lint
+        uses: grandcolline/golang-github-actions@v1.1.0
+        with:
+          run: lint
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: go vet
+        uses: grandcolline/golang-github-actions@v1.1.0
+        with:
+          run: vet
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: go shadow
+        uses: grandcolline/golang-github-actions@v1.1.0
+        with:
+          run: shadow
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: go sec
+        uses: grandcolline/golang-github-actions@v1.1.0
+        with:
+          run: sec
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - run: yarn lint
+        working-directory: ./web/app
       - run: make test
         env:
           NODE_ENV: test

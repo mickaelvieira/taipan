@@ -1,6 +1,10 @@
 OS    := $(shell uname -s)
 SHELL := /bin/bash
 GOFMT := gofmt -s -w -l
+GOLINT := golint
+GOVET  := go vet
+GOSHDW := go vet -vettool=$(which shadow)
+GOSEC  := gosec
 CDWEB := cd web/app
 RMSCRIPTS := rm -rf web/static/js/
 RMSTYLES := rm -rf web/static/css/
@@ -43,7 +47,7 @@ test-e2e:
 	$(CDWEB) && yarn test-e2e
 
 fmt:
-	$(GOFMT) taipan.go
+	$(GOFMT) *.go
 	$(GOFMT) internal/**/*.go
 	$(GOFMT) cmd/*.go
 	$(CDWEB) && yarn lint:fix
@@ -56,7 +60,11 @@ clean:
 	rm -rf web/static/js
 	rm -f web/static/hashes.json
 
-analyse:
+lint:
+	$(GOLINT) ./...
+	$(GOVET) ./...
+	$(GOSEC) ./...
+	$(GOSHDW) ./...
 	# staticcheck taipan.go
 	cd web/app && yarn lint
 
