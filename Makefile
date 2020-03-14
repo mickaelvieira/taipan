@@ -7,7 +7,7 @@ GOSHDW := go vet -vettool=$$(which shadow)
 GOSEC  := gosec --quiet
 CDWEB  := cd web/app
 RMSCRIPTS := rm -rf web/static/js/
-RMSTYLES := rm -rf web/static/css/
+RMSTYLES  := rm -rf web/static/css/
 
 build: build-app build-ui
 
@@ -62,12 +62,12 @@ clean:
 
 # https://github.com/actions/setup-go/issues/27
 lint:
-	# $(GOLINT) ./...
-	# $(GOVET) ./...
-	# $(GOSEC) ./...
-	# $(GOSHDW) ./...
+	$(GOLINT) ./...
+	$(GOVET) ./...
+	$(GOSEC) ./...
+	$(GOSHDW) ./...
 	# staticcheck taipan.go
-	cd web/app && yarn lint
+	$(CDWEB) && yarn lint
 
 gen-proto:
 	protoc --proto_path=web/proto --go_out=internal/domain/messages web/proto/document.proto
