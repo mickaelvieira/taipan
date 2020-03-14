@@ -5,12 +5,13 @@ import (
 	"github/mickaelvieira/taipan/internal/web/graphql/resolvers"
 	"io/ioutil"
 	"log"
+	"path/filepath"
 
 	graphql "github.com/graph-gophers/graphql-go"
 )
 
 func mustLoad(path string) string {
-	content, err := ioutil.ReadFile(path)
+	content, err := ioutil.ReadFile(filepath.Clean(path))
 	if err != nil {
 		log.Fatal(err)
 	}

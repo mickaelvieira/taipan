@@ -83,7 +83,7 @@ func runDocumentsWorker(c *cli.Context) {
 				continue
 			}
 
-			if usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID); err != nil {
+			if err := usecase.AddDocumentToNewsFeeds(ctx, repositories, dm.SourceId, d.ID); err != nil {
 				logger.Error(err)
 				continue
 			}

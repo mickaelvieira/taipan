@@ -30,7 +30,10 @@ func Generate(len int) string {
 	// - a fix length string
 	// - a URL safe string
 	buf := sha256.New()
-	buf.Write(bytes)
+	_, err := buf.Write(bytes)
+	if err != nil {
+		panic(err)
+	}
 	b := buf.Sum(nil)
 
 	return hex.EncodeToString(b)

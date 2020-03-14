@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -27,10 +28,18 @@ func LoadEnvironment(path string) {
 		env = "development"
 	}
 
-	godotenv.Load(path + ".env." + env + ".local")
-	if "test" != env {
-		godotenv.Load(path + ".env.local")
+	if err := godotenv.Load(path + ".env." + env + ".local"); err != nil {
+		log.Println(err)
 	}
-	godotenv.Load(path + ".env." + env)
-	godotenv.Load(path + ".env")
+	if "test" != env {
+		if err := godotenv.Load(path + ".env.local"); err != nil {
+			log.Println(err)
+		}
+	}
+	if err := godotenv.Load(path + ".env." + env); err != nil {
+		log.Println(err)
+	}
+	if err := godotenv.Load(path + ".env"); err != nil {
+		log.Println(err)
+	}
 }

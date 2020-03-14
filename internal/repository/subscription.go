@@ -84,7 +84,8 @@ func (r *SubscriptionRepository) FindAll(ctx context.Context, u *user.User, term
 	}
 
 	if s != "" {
-		s = "WHERE " + s
+		// @TODO I need to improve the contrustion of those queries
+		s = fmt.Sprintf("WHERE %s", s) // #nosec
 	}
 
 	args = append(args, offset)
@@ -149,7 +150,8 @@ func (r *SubscriptionRepository) GetTotal(ctx context.Context, u *user.User, ter
 	}
 
 	if s != "" {
-		s = "WHERE " + s
+		// @TODO I need to improve the contrustion of those queries
+		s = fmt.Sprintf("WHERE %s", s) // #nosec
 	}
 
 	query = formatQuery(fmt.Sprintf(query, t, s))

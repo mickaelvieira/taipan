@@ -39,7 +39,9 @@ func signup(c echo.Context, r *repository.Repositories) error {
 
 	// all good, open a new session for this user
 	sess.Values["user_id"] = u.ID
-	sess.Save(c.Request(), c.Response())
+	if err := sess.Save(c.Request(), c.Response()); err != nil {
+		return err
+	}
 
 	return c.JSON(http.StatusOK, struct{}{})
 }

@@ -24,9 +24,13 @@ type AMQPClient struct {
 // Close closes the connections
 func (c *AMQPClient) Close() {
 	if c.Channel != nil {
-		c.Channel.Close()
+		if err := c.Channel.Close(); err != nil {
+			panic(err)
+		}
 	}
-	c.conn.Close()
+	if err := c.conn.Close(); err != nil {
+		panic(err)
+	}
 }
 
 // GetDocumentQueue creates the document queue
