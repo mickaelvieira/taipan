@@ -3,9 +3,9 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/newsfeed"
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/domain/newsfeed"
+	"github.com/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/repository"
 )
 
 // AddDocumentToNewsFeeds adds an entry to the users's newsfeeds

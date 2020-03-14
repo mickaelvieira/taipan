@@ -1,9 +1,9 @@
 package subscription
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/http"
-	"github/mickaelvieira/taipan/internal/domain/syndication"
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/http"
+	"github.com/mickaelvieira/taipan/internal/domain/syndication"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
 

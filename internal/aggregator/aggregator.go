@@ -3,8 +3,8 @@ package aggregator
 import (
 	"context"
 	"errors"
-	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/repository"
 )
 
 // AggType type of aggregation

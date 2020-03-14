@@ -1,9 +1,9 @@
 package document
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/checksum"
-	"github/mickaelvieira/taipan/internal/domain/syndication"
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/checksum"
+	"github.com/mickaelvieira/taipan/internal/domain/syndication"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"time"
 )
 

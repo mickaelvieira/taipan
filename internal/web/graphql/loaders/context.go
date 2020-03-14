@@ -2,7 +2,7 @@ package loaders
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/config"
+	"github.com/mickaelvieira/taipan/internal/config"
 )
 
 // NewContext creates a new context containing the dataloaders

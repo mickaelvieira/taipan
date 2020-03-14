@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"

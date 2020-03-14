@@ -2,7 +2,7 @@ package image
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/checksum"
+	"github.com/mickaelvieira/taipan/internal/domain/checksum"
 	"testing"
 )
 

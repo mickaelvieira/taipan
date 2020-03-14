@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/web"
-	"github/mickaelvieira/taipan/internal/web/auth"
-	"github/mickaelvieira/taipan/internal/web/clientid"
-	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
+	"github.com/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/web"
+	"github.com/mickaelvieira/taipan/internal/web/auth"
+	"github.com/mickaelvieira/taipan/internal/web/clientid"
+	"github.com/mickaelvieira/taipan/internal/web/graphql/loaders"
 
 	"net/http"
 	"os"

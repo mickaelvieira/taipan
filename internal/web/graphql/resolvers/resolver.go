@@ -1,13 +1,13 @@
 package resolvers
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/bookmark"
-	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/http"
-	"github/mickaelvieira/taipan/internal/domain/subscription"
-	"github/mickaelvieira/taipan/internal/domain/syndication"
-	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/domain/bookmark"
+	"github.com/mickaelvieira/taipan/internal/domain/document"
+	"github.com/mickaelvieira/taipan/internal/domain/http"
+	"github.com/mickaelvieira/taipan/internal/domain/subscription"
+	"github.com/mickaelvieira/taipan/internal/domain/syndication"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/repository"
 )
 
 type resolver struct {

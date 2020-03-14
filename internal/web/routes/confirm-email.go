@@ -3,12 +3,12 @@ package routes
 import (
 	"net/http"
 
-	"github/mickaelvieira/taipan/internal/domain/errors"
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/usecase"
-	"github/mickaelvieira/taipan/internal/web"
-	"github/mickaelvieira/taipan/internal/web/auth"
+	"github.com/mickaelvieira/taipan/internal/domain/errors"
+	"github.com/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/usecase"
+	"github.com/mickaelvieira/taipan/internal/web"
+	"github.com/mickaelvieira/taipan/internal/web/auth"
 
 	"github.com/labstack/echo/v4"
 )

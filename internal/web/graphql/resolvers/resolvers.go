@@ -1,8 +1,8 @@
 package resolvers
 
 import (
-	"github/mickaelvieira/taipan/internal/publisher"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/publisher"
+	"github.com/mickaelvieira/taipan/internal/repository"
 
 	"github.com/pkg/errors"
 )

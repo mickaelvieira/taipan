@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/logger"
 	"os"
 	"os/signal"
 	"syscall"

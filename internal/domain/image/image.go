@@ -2,7 +2,7 @@ package image
 
 import (
 	"bytes"
-	"github/mickaelvieira/taipan/internal/domain/checksum"
+	"github.com/mickaelvieira/taipan/internal/domain/checksum"
 	img "image"
 	"io"
 	"io/ioutil"

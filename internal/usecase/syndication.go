@@ -5,11 +5,11 @@ import (
 	"database/sql"
 
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/http"
-	"github/mickaelvieira/taipan/internal/domain/syndication"
-	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/domain/http"
+	"github.com/mickaelvieira/taipan/internal/domain/syndication"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/repository"
 	"time"
 
 	"github.com/mmcdole/gofeed"

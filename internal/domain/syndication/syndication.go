@@ -2,8 +2,8 @@ package syndication
 
 import (
 	"errors"
-	"github/mickaelvieira/taipan/internal/domain/http"
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/http"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"strings"
 	"time"
 )

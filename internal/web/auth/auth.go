@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"errors"
-	"github/mickaelvieira/taipan/internal/config"
-	"github/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/config"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
 )
 
 // Authentication errors

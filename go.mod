@@ -1,4 +1,4 @@
-module github/mickaelvieira/taipan
+module github.com/mickaelvieira/taipan
 
 go 1.12
 

@@ -3,12 +3,12 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/messages"
-	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/rmq"
-	"github/mickaelvieira/taipan/internal/usecase"
+	"github.com/mickaelvieira/taipan/internal/domain/messages"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/rmq"
+	"github.com/mickaelvieira/taipan/internal/usecase"
 	"os"
 
 	"github.com/gogo/protobuf/proto"

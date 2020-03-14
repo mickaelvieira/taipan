@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 )
 
 // URL is a custom GraphQL type to represent a URL.

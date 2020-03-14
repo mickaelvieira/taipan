@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/checksum"
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/checksum"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"io"
 	nethttp "net/http"
 	"time"

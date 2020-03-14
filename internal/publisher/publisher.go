@@ -2,7 +2,7 @@ package publisher
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/logger"
 	"math/rand"
 	"time"
 )

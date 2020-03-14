@@ -1,7 +1,7 @@
 package rmq
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/messages"
+	"github.com/mickaelvieira/taipan/internal/domain/messages"
 	"log"
 	"os"
 

@@ -2,7 +2,7 @@ package syndication
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"testing"
 )
 

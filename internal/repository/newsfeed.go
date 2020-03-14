@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/newsfeed"
+	"github.com/mickaelvieira/taipan/internal/domain/newsfeed"
 
 	"github.com/pkg/errors"
 )

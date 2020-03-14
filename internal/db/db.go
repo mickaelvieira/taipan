@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/logger"
 	"log"
 	"os"
 	"strconv"

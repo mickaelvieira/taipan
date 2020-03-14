@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/db"
-	"github/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/db"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
 	"time"
 
 	"github.com/pkg/errors"

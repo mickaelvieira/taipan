@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/syndication"
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/document"
+	"github.com/mickaelvieira/taipan/internal/domain/syndication"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"html"
 	"io"
 	neturl "net/url"

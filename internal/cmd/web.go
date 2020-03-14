@@ -1,15 +1,15 @@
 package cmd
 
 import (
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/web"
-	"github/mickaelvieira/taipan/internal/web/assets"
-	"github/mickaelvieira/taipan/internal/web/graphql"
-	"github/mickaelvieira/taipan/internal/web/middleware"
-	"github/mickaelvieira/taipan/internal/web/paths"
-	"github/mickaelvieira/taipan/internal/web/routes"
-	"github/mickaelvieira/taipan/internal/web/templates"
+	"github.com/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/web"
+	"github.com/mickaelvieira/taipan/internal/web/assets"
+	"github.com/mickaelvieira/taipan/internal/web/graphql"
+	"github.com/mickaelvieira/taipan/internal/web/middleware"
+	"github.com/mickaelvieira/taipan/internal/web/paths"
+	"github.com/mickaelvieira/taipan/internal/web/routes"
+	"github.com/mickaelvieira/taipan/internal/web/templates"
 	"os"
 
 	"github.com/labstack/gommon/log"

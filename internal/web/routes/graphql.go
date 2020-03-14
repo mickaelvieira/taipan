@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/repository"
 
 	"github.com/labstack/echo/v4"
 

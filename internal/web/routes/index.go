@@ -3,9 +3,9 @@ package routes
 import (
 	"net/http"
 
-	"github/mickaelvieira/taipan/internal/web"
-	"github/mickaelvieira/taipan/internal/web/assets"
-	"github/mickaelvieira/taipan/internal/web/paths"
+	"github.com/mickaelvieira/taipan/internal/web"
+	"github.com/mickaelvieira/taipan/internal/web/assets"
+	"github.com/mickaelvieira/taipan/internal/web/paths"
 
 	"github.com/labstack/echo/v4"
 )

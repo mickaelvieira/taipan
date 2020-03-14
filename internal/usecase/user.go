@@ -3,11 +3,11 @@ package usecase
 import (
 	"context"
 	"database/sql"
-	"github/mickaelvieira/taipan/internal/domain/errors"
-	"github/mickaelvieira/taipan/internal/domain/password"
-	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/logger"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/domain/errors"
+	"github.com/mickaelvieira/taipan/internal/domain/password"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/repository"
 	"strings"
 	"time"
 

@@ -3,8 +3,8 @@ package password
 import (
 	"time"
 
-	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/nonce"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/nonce"
 )
 
 // ResetToken reset password entry

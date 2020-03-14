@@ -2,9 +2,9 @@ package usecase
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/domain/http"
-	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/domain/http"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/repository"
 )
 
 // FetchResource fetches the related resource

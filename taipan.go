@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github/mickaelvieira/taipan/internal/cmd"
-	"github/mickaelvieira/taipan/internal/config"
+	"github.com/mickaelvieira/taipan/internal/cmd"
+	"github.com/mickaelvieira/taipan/internal/config"
 
 	"github.com/urfave/cli"
 )

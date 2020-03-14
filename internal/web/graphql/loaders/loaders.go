@@ -4,10 +4,10 @@ import (
 	"context"
 	"log"
 
-	"github/mickaelvieira/taipan/internal/aggregator"
-	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/aggregator"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/repository"
 
 	"github.com/graph-gophers/dataloader"
 )

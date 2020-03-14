@@ -2,7 +2,7 @@ package user
 
 import (
 	"errors"
-	"github/mickaelvieira/taipan/internal/nonce"
+	"github.com/mickaelvieira/taipan/internal/nonce"
 	"strings"
 	"time"
 )

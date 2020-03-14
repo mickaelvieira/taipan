@@ -2,14 +2,14 @@ package resolvers
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/domain/subscription"
-	"github/mickaelvieira/taipan/internal/domain/syndication"
-	"github/mickaelvieira/taipan/internal/domain/user"
-	"github/mickaelvieira/taipan/internal/repository"
-	"github/mickaelvieira/taipan/internal/usecase"
-	"github/mickaelvieira/taipan/internal/web/auth"
-	"github/mickaelvieira/taipan/internal/web/graphql/loaders"
-	"github/mickaelvieira/taipan/internal/web/graphql/scalars"
+	"github.com/mickaelvieira/taipan/internal/domain/subscription"
+	"github.com/mickaelvieira/taipan/internal/domain/syndication"
+	"github.com/mickaelvieira/taipan/internal/domain/user"
+	"github.com/mickaelvieira/taipan/internal/repository"
+	"github.com/mickaelvieira/taipan/internal/usecase"
+	"github.com/mickaelvieira/taipan/internal/web/auth"
+	"github.com/mickaelvieira/taipan/internal/web/graphql/loaders"
+	"github.com/mickaelvieira/taipan/internal/web/graphql/scalars"
 
 	"github.com/graph-gophers/dataloader"
 	gql "github.com/graph-gophers/graphql-go"

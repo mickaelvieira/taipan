@@ -1,8 +1,8 @@
 package syndication
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/domain/messages"
+	"github.com/mickaelvieira/taipan/internal/domain/messages"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 )
 
 type Queue []*messages.Document

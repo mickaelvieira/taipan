@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github/mickaelvieira/taipan/internal/web"
+	"github.com/mickaelvieira/taipan/internal/web"
 
 	"github.com/labstack/echo/v4"
 )

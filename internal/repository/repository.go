@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/db"
+	"github.com/mickaelvieira/taipan/internal/db"
 	"strings"
 )
 

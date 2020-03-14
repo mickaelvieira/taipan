@@ -3,9 +3,9 @@ package http
 import (
 	"bytes"
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/checksum"
-	"github/mickaelvieira/taipan/internal/domain/url"
-	"github/mickaelvieira/taipan/internal/logger"
+	"github.com/mickaelvieira/taipan/internal/domain/checksum"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/logger"
 	"io/ioutil"
 	"log"
 	nethttp "net/http"

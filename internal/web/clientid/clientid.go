@@ -2,7 +2,7 @@ package clientid
 
 import (
 	"context"
-	"github/mickaelvieira/taipan/internal/config"
+	"github.com/mickaelvieira/taipan/internal/config"
 )
 
 // @TODO sign and validate the client ID instead to strenghen security

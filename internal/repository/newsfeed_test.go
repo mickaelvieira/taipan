@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github/mickaelvieira/taipan/internal/domain/newsfeed"
+	"github.com/mickaelvieira/taipan/internal/domain/newsfeed"
 	"testing"
 	"time"
 )

@@ -2,8 +2,8 @@ package bookmark
 
 import (
 	"fmt"
-	"github/mickaelvieira/taipan/internal/domain/document"
-	"github/mickaelvieira/taipan/internal/domain/url"
+	"github.com/mickaelvieira/taipan/internal/domain/document"
+	"github.com/mickaelvieira/taipan/internal/domain/url"
 	"testing"
 )
 
