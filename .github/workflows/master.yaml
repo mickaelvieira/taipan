@@ -35,16 +35,16 @@ jobs:
         with:
           run: lint
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: go vet
-        uses: grandcolline/golang-github-actions@v1.1.0
-        with:
-          run: vet
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: go shadow
-        uses: grandcolline/golang-github-actions@v1.1.0
-        with:
-          run: shadow
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: go vet
+      #   uses: grandcolline/golang-github-actions@v1.1.0
+      #   with:
+      #     run: vet
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: go shadow
+      #   uses: grandcolline/golang-github-actions@v1.1.0
+      #   with:
+      #     run: shadow
+      #     token: ${{ secrets.GITHUB_TOKEN }}
       - name: go sec
         uses: grandcolline/golang-github-actions@v1.1.0
         with:
