@@ -1,5 +1,5 @@
 import { FetchResult } from "apollo-link";
-import transformer from "./transform";
+import transform from "./transform";
 import { Document } from "../../types/document";
 import { Bookmark } from "../../types/bookmark";
 import { Subscription } from "../../types/subscription";
@@ -207,7 +207,7 @@ describe("Transformer", () => {
   });
 
   it("handles null data", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -216,7 +216,7 @@ describe("Transformer", () => {
   });
 
   it("does not transform unknown types", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -226,7 +226,7 @@ describe("Transformer", () => {
   });
 
   it("transform a single document", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -237,7 +237,7 @@ describe("Transformer", () => {
   });
 
   it("transform a nested types", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -246,7 +246,7 @@ describe("Transformer", () => {
   });
 
   it("transform a single user", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -258,7 +258,7 @@ describe("Transformer", () => {
   });
 
   it("transform a single bookmark", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -270,7 +270,7 @@ describe("Transformer", () => {
   });
 
   it("transform a single source", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -283,7 +283,7 @@ describe("Transformer", () => {
   });
 
   it("transform a single subscription", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -295,7 +295,7 @@ describe("Transformer", () => {
   });
 
   it("transform a single tag", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -305,7 +305,7 @@ describe("Transformer", () => {
   });
 
   it("transform a collection of documents", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -318,7 +318,7 @@ describe("Transformer", () => {
   });
 
   it("transform a search result of documents", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -331,7 +331,7 @@ describe("Transformer", () => {
   });
 
   it("transform a collection of bookmarks", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -345,7 +345,7 @@ describe("Transformer", () => {
   });
 
   it("transform a search result of bookmarks", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -359,7 +359,7 @@ describe("Transformer", () => {
   });
 
   it("transform a collection of subscriptions", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -373,7 +373,7 @@ describe("Transformer", () => {
   });
 
   it("transform a collection of syndication sources", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
@@ -388,7 +388,7 @@ describe("Transformer", () => {
   });
 
   it("transform a collection of syndication tags", () => {
-    const data = transformer(result);
+    const data = transform(result);
     if (!data.data) {
       throw new Error("No data returned");
     }
