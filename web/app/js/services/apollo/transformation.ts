@@ -11,38 +11,17 @@ interface Collection {
   results: Item[];
 }
 
-interface Transformers {
-  [type: string]: (data: Item | Collection) => Item | Collection;
-}
-
-const transformers: Transformers = {
-  Document: transformItem,
-  Bookmark: transformItem,
-  Source: transformItem,
-  SyndicationTag: transformItem,
-  UserSubscription: transformItem,
-  Image: transformItem,
-  User: transformItem,
-  Email: transformItem,
-  FeedBookmarkResults: data => transformCollection(data as Collection),
-  FeedDocumentResults: data => transformCollection(data as Collection),
-  BookmarkSearchResults: data => transformCollection(data as Collection),
-  DocumentSearchResults: data => transformCollection(data as Collection),
-  SubscriptionCollection: data => transformCollection(data as Collection),
-  SourceCollection: data => transformCollection(data as Collection),
-  SyndicationTagCollection: data => transformCollection(data as Collection)
+const types = {
+  url: ["url", "domain"],
+  date: ["createdAt", "updatedAt", "addedAt", "parsedAt", "favoritedAt"]
 };
 
 const isObject = (value: any): boolean =>
   value && typeof value === "object" && value.constructor === Object;
-const isURL = (name: string): boolean => ["url", "domain"].includes(name);
-const isDate = (name: string): boolean =>
-  ["createdAt", "updatedAt", "addedAt", "parsedAt", "favoritedAt"].includes(
-    name
-  );
-
-const isTransformable = (type?: string): boolean =>
-  !!type && Object.keys(transformers).includes(type);
+const isURL = (name: string): boolean => types.url.includes(name);
+const isDate = (name: string): boolean => types.date.includes(name);
+const isCollection = (entity: any): boolean =>
+  typeof entity.results !== "undefined";
 
 function transformItem(input: Item): Item {
   const output: Record<string, any> = {};
@@ -76,9 +55,11 @@ function transformCollection(result: Collection): Collection {
 export default function transform(
   input: Record<string, any>
 ): Item | Collection {
-  if (input && isTransformable(input.__typename)) {
-    const transformer = transformers[input.__typename];
-    return transformer(input);
+  if (input) {
+    if (isCollection(input)) {
+      return transformCollection(input as Collection);
+    }
+    return transformItem(input);
   }
   return input;
 }
