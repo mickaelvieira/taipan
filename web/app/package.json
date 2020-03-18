@@ -56,7 +56,7 @@
     "dayjs": "1.8.23",
     "dotenv-flow": "3.1.0",
     "dotenv-flow-webpack": "1.0.0",
-    "emoji-mart": "2.11.2",
+    "emoji-mart": "3.0.0",
     "fastdom": "1.0.9",
     "graphql": "14.6.0",
     "graphql-tag": "2.10.3",
