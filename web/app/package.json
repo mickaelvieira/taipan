@@ -1,6 +1,6 @@
 {
   "name": "taipan",
-  "version": "0.0.2",
+  "version": "0.0.16",
   "main": "js/app.ts",
   "repository": "git@github.com:mickaelvieira/taipan.git",
   "author": "Mickael Vieira <contact@mickael-vieira.com>",
