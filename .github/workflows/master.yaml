@@ -32,7 +32,9 @@ jobs:
       - run: go install golang.org/x/lint/golint
       - run: go install github.com/securego/gosec/cmd/gosec
       - run: go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
-      - run: make build
+      - run: |
+        export PATH=${PATH}:"$(go env GOPATH)/bin"
+        make build
       - run: make lint
       - run: make test
         env:
