@@ -12,7 +12,7 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
 	github.com/graph-gophers/graphql-go v0.0.0-20200309224638-dae41bde9ef9
-	github.com/grokify/html-strip-tags-go v0.0.0-20190916062342-6f856a90d556
+	github.com/grokify/html-strip-tags-go v0.0.0-20200322061010-ea0c1cf2f119
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/echo/v4 v4.1.15
