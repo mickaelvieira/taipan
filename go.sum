@@ -150,8 +150,8 @@ github.com/graph-gophers/dataloader v5.0.0+incompatible h1:R+yjsbrNq1Mo3aPG+Z/EK
 github.com/graph-gophers/dataloader v5.0.0+incompatible/go.mod h1:jk4jk0c5ZISbKaMe8WsVopGB5/15GvGHMdMdPtwlRp4=
 github.com/graph-gophers/graphql-go v0.0.0-20200309224638-dae41bde9ef9 h1:kLnsdud6Fl1/7ZX/5oD23cqYAzBfuZBhNkGr2NvuEsU=
 github.com/graph-gophers/graphql-go v0.0.0-20200309224638-dae41bde9ef9/go.mod h1:9CQHMSxwO4MprSdzoIEobiHpoLtHm77vfxsvsIN5Vuc=
-github.com/grokify/html-strip-tags-go v0.0.0-20190916062342-6f856a90d556 h1:RS7ewakEriTcISIy+USQV9tE37SpWCblCiPE6QWxagk=
-github.com/grokify/html-strip-tags-go v0.0.0-20190916062342-6f856a90d556/go.mod h1:Xk7G0nwBiIloTMbLddk4WWJOqi4i/JLhadLd0HUXO30=
+github.com/grokify/html-strip-tags-go v0.0.0-20200322061010-ea0c1cf2f119 h1:h3iGUlU8HyW4baKd6D+h1mwOHnM2kwskSuG6Bv4tSbc=
+github.com/grokify/html-strip-tags-go v0.0.0-20200322061010-ea0c1cf2f119/go.mod h1:2Su6romC5/1VXOQMaWL2yb618ARB8iVo6/DR99A6d78=
 github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed/go.mod h1:tMWxXQ9wFIaZeTI9F+hmhFiGpFmhOHzyShyFUhRm0H4=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
