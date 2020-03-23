@@ -14,18 +14,18 @@ const useStyles = makeStyles(({ palette }) => ({
   search: {
     display: "flex",
     margin: 16,
-    borderBottom: `1px solid  ${palette.grey[500]}`
+    borderBottom: `1px solid  ${palette.grey[500]}`,
   },
   options: {
     margin: 16,
-    alignItems: "center"
+    alignItems: "center",
   },
   radioLabel: {
-    marginRight: 16
+    marginRight: 16,
   },
   radioGroup: {
-    flexDirection: "row"
-  }
+    flexDirection: "row",
+  },
 }));
 
 export default function Search(): JSX.Element | null {
@@ -37,7 +37,7 @@ export default function Search(): JSX.Element | null {
   const debouncedDispatch = useCallback(debounce(setTerms, 400), []);
   const onChange = useCallback(
     (input: string, debounced = true) => {
-      const terms = input.split(/\s/).filter(term => term !== "");
+      const terms = input.split(/\s/).filter((term) => term !== "");
       setValue(input);
       if (debounced) {
         debouncedDispatch(terms);
@@ -50,14 +50,14 @@ export default function Search(): JSX.Element | null {
 
   return !user ? null : (
     <>
-      <form onSubmit={event => event.preventDefault()}>
+      <form onSubmit={(event) => event.preventDefault()}>
         <div className={classes.search}>
           <InputBase
             aria-label="Look up RSS feeds available"
             placeholder="Search..."
             fullWidth
             value={value}
-            onChange={event => onChange(event.target.value)}
+            onChange={(event) => onChange(event.target.value)}
             inputProps={{ "aria-label": "Search" }}
           />
           <IconButton type="submit" aria-label="Search">

@@ -1,19 +1,19 @@
 /* eslint @typescript-eslint/no-explicit-any: off */
 export enum KeyPaths {
   ID = "id",
-  TYPE = "type"
+  TYPE = "type",
 }
 
 export enum StoreName {
   BOOKMARKS = "bookmarks",
   FEED = "feed",
-  USER = "user"
+  USER = "user",
 }
 
 export enum Mode {
   READONLY = "readonly",
   READWRITE = "readwrite",
-  VERSIONCHANGE = "versionchange"
+  VERSIONCHANGE = "versionchange",
 }
 
 export interface BatchOperation {

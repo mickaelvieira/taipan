@@ -7,7 +7,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   content: {
     width: "100%",
@@ -16,16 +16,16 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     [breakpoints.up("sm")]: {
       width: SM_WIDTH,
       paddingLeft: 12,
-      paddingRight: 12
+      paddingRight: 12,
     },
     [breakpoints.up("md")]: {
       width: LG_WIDTH,
       paddingLeft: 12,
-      paddingRight: 12
+      paddingRight: 12,
     },
     paddingTop: 70,
-    paddingBottom: 20
-  }
+    paddingBottom: 20,
+  },
 }));
 
 interface Props {
@@ -34,7 +34,7 @@ interface Props {
 
 export default function Content({
   children,
-  className
+  className,
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   return (

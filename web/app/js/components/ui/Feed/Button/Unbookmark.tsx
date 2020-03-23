@@ -7,7 +7,7 @@ import { Bookmark } from "../../../../types/bookmark";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Bookmarks/Unbookmark";
 import { FeedsContext, FeedsCacheContext } from "../../../context";
 import { SuccessOptions } from ".";
@@ -20,8 +20,8 @@ interface Props extends Partial<ButtonBaseProps> {
 
 const useStyles = makeStyles(({ palette }) => ({
   button: {
-    color: palette.primary.main
-  }
+    color: palette.primary.main,
+  },
 }));
 
 export default React.memo(function Unbookmark({
@@ -34,7 +34,7 @@ export default React.memo(function Unbookmark({
   const updater = useContext(FeedsCacheContext);
   const mutator = useContext(FeedsContext);
   const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
-    onCompleted: data => {
+    onCompleted: (data) => {
       const item = data.bookmarks.remove;
       onSucceed({
         updateCache: () => {
@@ -47,10 +47,10 @@ export default React.memo(function Unbookmark({
             mutator.bookmark(item, bookmark.isFavorite);
           }
         },
-        item
+        item,
       });
     },
-    onError: error => onFail(error.message)
+    onError: (error) => onFail(error.message),
   });
 
   return (
@@ -61,7 +61,7 @@ export default React.memo(function Unbookmark({
       disabled={loading}
       onClick={() =>
         mutate({
-          variables: { url: bookmark.url }
+          variables: { url: bookmark.url },
         })
       }
       className={classes.button}

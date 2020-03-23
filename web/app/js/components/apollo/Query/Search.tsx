@@ -1,7 +1,7 @@
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
-  FetchMoreOptions
+  FetchMoreOptions,
 } from "apollo-client";
 import PropTypes from "prop-types";
 import queryDocuments from "../graphql/query/documents/search.graphql";
@@ -51,19 +51,19 @@ export function getFetchMore(
                   offset: next[key].search.offset,
                   results: [
                     ...prev[key].search.results,
-                    ...next[key].search.results
-                  ]
-                }
-              }
+                    ...next[key].search.results,
+                  ],
+                },
+              },
             };
-          }
+          },
         });
 }
 
 const variables = {
   pagination: {
-    limit: 50
-  }
+    limit: 50,
+  },
 };
 
 export { queryDocuments, queryBookmarks, variables };

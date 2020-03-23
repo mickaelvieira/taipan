@@ -1,11 +1,11 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import FormHelperText, {
-  FormHelperTextProps
+  FormHelperTextProps,
 } from "@material-ui/core/FormHelperText";
 
 const useStyles = makeStyles(() => ({
-  element: {}
+  element: {},
 }));
 
 export default function Hint({

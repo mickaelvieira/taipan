@@ -12,7 +12,7 @@ interface Props {
 export default function AddSubscription({
   isOpen,
   toggleDialog,
-  onSubscriptionCreated
+  onSubscriptionCreated,
 }: Props): JSX.Element {
   return (
     <Panel

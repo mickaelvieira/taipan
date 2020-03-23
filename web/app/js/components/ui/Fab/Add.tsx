@@ -11,9 +11,9 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     right: spacing(2),
     backgroundColor: palette.secondary.main,
     "&:hover": {
-      backgroundColor: palette.secondary.light
-    }
-  }
+      backgroundColor: palette.secondary.light,
+    },
+  },
 }));
 
 interface Props {

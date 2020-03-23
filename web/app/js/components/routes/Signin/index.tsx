@@ -18,20 +18,20 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
     border: `1px solid ${palette.grey[500]}`,
     padding: spacing(2),
     [breakpoints.up("sm")]: {
-      width: "600px"
-    }
+      width: "600px",
+    },
   },
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   button: {
-    margin: `${spacing(2)}px 0`
+    margin: `${spacing(2)}px 0`,
   },
   links: {
     display: "flex",
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 }));
 
 export default function Signin(_: RouteSigninProps): JSX.Element {
@@ -45,14 +45,17 @@ export default function Signin(_: RouteSigninProps): JSX.Element {
       <Typography component="h2" variant="h5">
         Sign in
       </Typography>
-      <form className={classes.form} onSubmit={event => event.preventDefault()}>
+      <form
+        className={classes.form}
+        onSubmit={(event) => event.preventDefault()}
+      >
         <Group>
           <Label htmlFor="email">Email address</Label>
           <InputBase
             id="email"
             type="email"
             value={email}
-            onChange={event => setEmail(event.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
           />
         </Group>
         <Group>
@@ -60,7 +63,7 @@ export default function Signin(_: RouteSigninProps): JSX.Element {
           <InputPassword
             id="password"
             value={password}
-            onChange={event => setPassword(event.target.value)}
+            onChange={(event) => setPassword(event.target.value)}
           />
         </Group>
         {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -78,7 +81,7 @@ export default function Signin(_: RouteSigninProps): JSX.Element {
                   window.location.href = "/";
                 }
               })
-              .catch(e => {
+              .catch((e) => {
                 setError(e.message);
               });
           }}

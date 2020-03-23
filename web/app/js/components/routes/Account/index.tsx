@@ -11,8 +11,8 @@ import ScrollToTop from "../../ui/ScrollToTop";
 const useStyles = makeStyles(() => ({
   content: {
     paddingLeft: 12,
-    paddingRight: 12
-  }
+    paddingRight: 12,
+  },
 }));
 
 export default function Account(_: RouteAccountProps): JSX.Element | null {

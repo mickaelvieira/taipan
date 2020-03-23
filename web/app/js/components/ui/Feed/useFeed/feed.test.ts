@@ -2,7 +2,7 @@ import {
   calculateCursor,
   calculateInterval,
   calculateHeightUpToFirstIndex,
-  calculateHeightFromIndex
+  calculateHeightFromIndex,
 } from "./helpers";
 
 function interval(a: number, b: number): number {
@@ -35,7 +35,7 @@ describe("Feed helpers", () => {
         { g: 100, i: 7 },
         { g: 120, i: 8 },
         { g: 130, i: 9 },
-        { g: 150, i: 10 }
+        { g: 150, i: 10 },
       ].forEach(({ i, g }) => {
         expect(calculateCursor(g, heights)).toBe(i);
       });
@@ -124,7 +124,7 @@ describe("Feed helpers", () => {
         { i: 1, g: 10 },
         { i: 2, g: 30 },
         { i: 3, g: 60 },
-        { i: 4, g: 100 }
+        { i: 4, g: 100 },
       ].forEach(({ i, g }) => {
         expect(calculateHeightUpToFirstIndex(i, heights)).toBe(g);
       });
@@ -143,7 +143,7 @@ describe("Feed helpers", () => {
         { i: 6, g: 270 },
         { i: 7, g: 190 },
         { i: 8, g: 100 },
-        { i: 9, g: 0 }
+        { i: 9, g: 0 },
       ].forEach(({ i, g }) => {
         expect(calculateHeightFromIndex(i, heights)).toBe(g);
       });

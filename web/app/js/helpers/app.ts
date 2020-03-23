@@ -18,9 +18,9 @@ function getJSONRequest(endpoint: string, body: any): Request {
   return new Request(endpoint, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json; charset=utf-8"
+      "Content-Type": "application/json; charset=utf-8",
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 }
 
@@ -31,7 +31,7 @@ export async function join(
   const response = await fetch(
     getJSONRequest("/join", {
       email,
-      password
+      password,
     })
   );
   const json = await response.json();
@@ -45,7 +45,7 @@ export async function login(
   const response = await fetch(
     getJSONRequest("/signin", {
       email,
-      password
+      password,
     })
   );
   const json = await response.json();
@@ -63,7 +63,7 @@ export async function askForResetEmail(
 ): Promise<APIResponse<{}>> {
   const response = await fetch(
     getJSONRequest("/forgot-password", {
-      email
+      email,
     })
   );
   const json = await response.json();
@@ -77,7 +77,7 @@ export async function resetPassword(
   const response = await fetch(
     getJSONRequest("/reset-password", {
       token,
-      password
+      password,
     })
   );
   const json = await response.json();
@@ -89,7 +89,7 @@ export async function confirmEmail(
 ): Promise<APIResponse<{}>> {
   const response = await fetch(
     getJSONRequest("/confirm-email", {
-      token
+      token,
     })
   );
   const json = await response.json();

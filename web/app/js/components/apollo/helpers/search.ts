@@ -19,7 +19,7 @@ export function hasReceivedData(
     results: [],
     total: 0,
     offset: 0,
-    limit: 0
+    limit: 0,
   };
 
   console.log(data);

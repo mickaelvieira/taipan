@@ -8,7 +8,7 @@ const unsecured = [
   "/sign-out",
   "/forgot-password",
   "/reset-password",
-  "/confirm-email"
+  "/confirm-email",
 ];
 
 function shouldRedirect(redirect: string): boolean {

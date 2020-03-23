@@ -5,7 +5,7 @@ import Button from "@material-ui/core/Button";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/User/CreateEmail";
 import Group from "../../../ui/Form/Group";
 import { InputBase } from "../../../ui/Form/Input";
@@ -17,15 +17,15 @@ import { EmailHint } from "../../../ui/Form/Message/Hint";
 const useStyles = makeStyles(({ spacing }) => ({
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   actions: {
-    paddingRight: 0
+    paddingRight: 0,
   },
   button: {
     marginTop: spacing(1),
-    alignSelf: "flex-end"
-  }
+    alignSelf: "flex-end",
+  },
 }));
 
 interface Props {
@@ -34,7 +34,7 @@ interface Props {
 }
 
 export default function UserEmailForm({
-  onCreationFailure
+  onCreationFailure,
 }: Props): JSX.Element {
   const [email, setEmail] = useState("");
   const classes = useStyles();
@@ -42,11 +42,11 @@ export default function UserEmailForm({
     onCompleted: () => {
       setEmail("");
     },
-    onError: error => onCreationFailure(getErrorMessage(error))
+    onError: (error) => onCreationFailure(getErrorMessage(error)),
   });
 
   return (
-    <form className={classes.form} onSubmit={event => event.preventDefault()}>
+    <form className={classes.form} onSubmit={(event) => event.preventDefault()}>
       <Group>
         <Label htmlFor="new-email">Email</Label>
         <InputBase
@@ -54,7 +54,7 @@ export default function UserEmailForm({
           type="email"
           value={email}
           aria-describedby="new-email-helper-text"
-          onChange={event => setEmail(event.target.value)}
+          onChange={(event) => setEmail(event.target.value)}
         />
         <EmailHint id="new-email-helper-text" />
       </Group>

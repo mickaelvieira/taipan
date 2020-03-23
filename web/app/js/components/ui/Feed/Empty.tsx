@@ -7,8 +7,8 @@ const useStyle = makeStyles({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: 24
-  }
+    padding: 24,
+  },
 });
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
 
 export default function EmptyFeed({
   className,
-  children
+  children,
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyle();
   return (

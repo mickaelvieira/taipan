@@ -10,14 +10,14 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   wrapper: {
     display: "flex",
     ["&:focus-within .revealer"]: {
-      borderColor: palette.primary.main
-    }
+      borderColor: palette.primary.main,
+    },
   },
   element: {
     flexGrow: 1,
     borderRight: 0,
     borderTopRightRadius: 0,
-    borderBottomRightRadius: 0
+    borderBottomRightRadius: 0,
   },
   button: {
     padding: spacing(1),
@@ -25,8 +25,8 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     borderLeft: 0,
     borderRadius: 4,
     borderTopLeftRadius: 0,
-    borderBottomLeftRadius: 0
-  }
+    borderBottomLeftRadius: 0,
+  },
 }));
 
 export default function InputPassword({

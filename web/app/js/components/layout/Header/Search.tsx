@@ -14,16 +14,16 @@ const useStyles = makeStyles(({ palette }) => ({
   search: {
     flexGrow: 1,
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
   },
   searchLabel: {
     flexGrow: 1,
-    margin: "0 24px"
+    margin: "0 24px",
   },
   searchButton: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   clearButton: {
     display: "flex",
@@ -31,15 +31,15 @@ const useStyles = makeStyles(({ palette }) => ({
     justifyContent: "center",
     visibility: "hidden",
     "&.active": {
-      visibility: "visible"
-    }
+      visibility: "visible",
+    },
   },
   inputRoot: {
-    width: "100%"
+    width: "100%",
   },
   inputInput: {
-    color: palette.common.white
-  }
+    color: palette.common.white,
+  },
 }));
 
 interface Props extends RoutesProps {
@@ -52,7 +52,7 @@ export default withRouter(function Search({
   type,
   terms,
   history,
-  className
+  className,
 }: Props): JSX.Element {
   const classes = useStyles();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -95,14 +95,14 @@ export default withRouter(function Search({
           value={value}
           inputRef={inputRef}
           aria-label="Look up your bookmarks"
-          onChange={event => {
+          onChange={(event) => {
             const value = event.target.value;
             setValue(value);
-            setSearch(value.split(/\s/).filter(word => word !== ""));
+            setSearch(value.split(/\s/).filter((word) => word !== ""));
           }}
           classes={{
             root: classes.inputRoot,
-            input: classes.inputInput
+            input: classes.inputInput,
           }}
         />
       </label>

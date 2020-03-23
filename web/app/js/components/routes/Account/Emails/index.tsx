@@ -32,20 +32,20 @@ export default function UserEmails({ user }: Props): JSX.Element {
           reset your password.
         </Typography>
         <List>
-          {user.emails.map(email => (
+          {user.emails.map((email) => (
             <UserEmail
               key={email.id}
               email={email}
-              onDeletionFailure={message => {
+              onDeletionFailure={(message) => {
                 setMessageInfo({ message });
               }}
-              onStatusFailure={message => {
+              onStatusFailure={(message) => {
                 setMessageInfo({ message });
               }}
-              onRendConfirmEmailFailure={message => {
+              onRendConfirmEmailFailure={(message) => {
                 setMessageInfo({ message });
               }}
-              onRendConfirmEmailSuccess={message => {
+              onRendConfirmEmailSuccess={(message) => {
                 setMessageInfo({ message });
               }}
             />
@@ -53,7 +53,7 @@ export default function UserEmails({ user }: Props): JSX.Element {
         </List>
         {canAdd && (
           <FormUserEmail
-            onCreationFailure={message => {
+            onCreationFailure={(message) => {
               setMessageInfo({ message });
             }}
           />

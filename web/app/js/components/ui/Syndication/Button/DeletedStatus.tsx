@@ -7,7 +7,7 @@ import {
   enableMutation,
   disableMutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Syndication/DeletedStatus";
 import { Source } from "../../../../types/syndication";
 
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default React.memo(function VisibilityButton({
-  source
+  source,
 }: Props): JSX.Element {
   const { isDeleted } = source;
   const [mutate] = useMutation<Data, Variables>(
@@ -28,8 +28,8 @@ export default React.memo(function VisibilityButton({
       onClick={() => {
         mutate({
           variables: {
-            url: source.url
-          }
+            url: source.url,
+          },
         });
       }}
     >

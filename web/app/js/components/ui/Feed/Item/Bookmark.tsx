@@ -6,7 +6,7 @@ import {
   FavoriteButton,
   UnfavoriteButton,
   UnbookmarkButton,
-  ShareButton
+  ShareButton,
 } from "../Button";
 import Domain from "./Domain";
 import ItemTitle from "./Title";
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export default React.memo(function FeedItemBookmark({
-  bookmark
+  bookmark,
 }: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
   return (
@@ -37,10 +37,10 @@ export default React.memo(function FeedItemBookmark({
         <CardActions disableSpacing>
           <ShareButton
             item={bookmark}
-            onSucceed={message => {
+            onSucceed={(message) => {
               setMessageInfo({ message });
             }}
-            onFail={message => setMessageInfo({ message })}
+            onFail={(message) => setMessageInfo({ message })}
           />
           <UnbookmarkButton
             iconOnly
@@ -49,11 +49,11 @@ export default React.memo(function FeedItemBookmark({
               setMessageInfo({
                 message: "The document was removed from your bookmarks",
                 action: undo,
-                label: "undo"
+                label: "undo",
               });
               updateCache();
             }}
-            onFail={message => setMessageInfo({ message })}
+            onFail={(message) => setMessageInfo({ message })}
           />
           {bookmark.isFavorite && (
             <UnfavoriteButton
@@ -63,11 +63,11 @@ export default React.memo(function FeedItemBookmark({
                 setMessageInfo({
                   message: "The bookmark was added back to your reading list",
                   action: undo,
-                  label: "undo"
+                  label: "undo",
                 });
                 updateCache();
               }}
-              onFail={message => setMessageInfo({ message })}
+              onFail={(message) => setMessageInfo({ message })}
             />
           )}
           {!bookmark.isFavorite && (
@@ -78,11 +78,11 @@ export default React.memo(function FeedItemBookmark({
                 setMessageInfo({
                   message: "The bookmark was added to your favorites",
                   action: undo,
-                  label: "undo"
+                  label: "undo",
                 });
                 updateCache();
               }}
-              onFail={message => setMessageInfo({ message })}
+              onFail={(message) => setMessageInfo({ message })}
             />
           )}
         </CardActions>

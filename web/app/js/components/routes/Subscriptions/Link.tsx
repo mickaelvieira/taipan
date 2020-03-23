@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default React.memo(function SubscriptionLink({
-  item
+  item,
 }: Props): JSX.Element {
   return (
     <ExternalLink

@@ -7,7 +7,7 @@ import {
   Data,
   Variables,
   pauseMutation,
-  resumeMutation
+  resumeMutation,
 } from "../../../apollo/Mutation/Syndication/PausedStatus";
 import { Source } from "../../../../types/syndication";
 
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default React.memo(function StatusButton({
-  source
+  source,
 }: Props): JSX.Element {
   const { isPaused } = source;
   const [mutate] = useMutation<Data, Variables>(
@@ -28,8 +28,8 @@ export default React.memo(function StatusButton({
       onClick={() => {
         mutate({
           variables: {
-            url: source.url
-          }
+            url: source.url,
+          },
         });
       }}
     >

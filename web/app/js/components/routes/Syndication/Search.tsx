@@ -22,18 +22,18 @@ const useStyles = makeStyles(({ palette }) => ({
   search: {
     display: "flex",
     margin: 16,
-    borderBottom: `1px solid  ${palette.grey[500]}`
+    borderBottom: `1px solid  ${palette.grey[500]}`,
   },
   options: {
     margin: 16,
-    alignItems: "center"
+    alignItems: "center",
   },
   radioLabel: {
-    marginRight: 16
+    marginRight: 16,
   },
   radioGroup: {
-    flexDirection: "row"
-  }
+    flexDirection: "row",
+  },
 }));
 
 interface Props {
@@ -42,7 +42,7 @@ interface Props {
 
 const sortingValues = [
   { by: "title", dir: "ASC", label: "Title" },
-  { by: "updated_at", dir: "DESC", label: "Last Modified" }
+  { by: "updated_at", dir: "DESC", label: "Last Modified" },
 ];
 
 export default function Search({ editSource }: Props): JSX.Element | null {
@@ -57,7 +57,7 @@ export default function Search({ editSource }: Props): JSX.Element | null {
   const debouncedDispatch = useCallback(debounce(dispatch, 400), []);
   const onChange = useCallback(
     (input: string, debounced = true) => {
-      const terms = input.split(/\s/).filter(term => term !== "");
+      const terms = input.split(/\s/).filter((term) => term !== "");
       setValue(input);
       if (debounced) {
         debouncedDispatch([Action.TERMS, terms]);
@@ -72,14 +72,14 @@ export default function Search({ editSource }: Props): JSX.Element | null {
 
   return !user ? null : (
     <>
-      <form onSubmit={event => event.preventDefault()}>
+      <form onSubmit={(event) => event.preventDefault()}>
         <div className={classes.search}>
           <InputBase
             aria-label="Look up RSS feeds available"
             placeholder="Search..."
             fullWidth
             value={value}
-            onChange={event => onChange(event.target.value)}
+            onChange={(event) => onChange(event.target.value)}
             inputProps={{ "aria-label": "Search" }}
           />
           <IconButton type="submit" aria-label="Search">
@@ -122,7 +122,7 @@ export default function Search({ editSource }: Props): JSX.Element | null {
 
             <Select
               value={sorting}
-              onChange={event => setSorting(event.target.value)}
+              onChange={(event) => setSorting(event.target.value)}
             >
               {sortingValues.map(({ label }, index) => (
                 <MenuItem key={index} value={index}>

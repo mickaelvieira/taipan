@@ -4,7 +4,7 @@ import {
   FeedEventData,
   FeedResults,
   FeedItem,
-  FeedEvent
+  FeedEvent,
 } from "../../../types/feed";
 
 export function getDataKey(data: FeedQueryData | undefined): string | null {
@@ -24,7 +24,7 @@ export function hasReceivedData(
     last: "",
     results: [],
     total: 0,
-    limit: 0
+    limit: 0,
   };
 
   if (data) {
@@ -99,7 +99,7 @@ export function addItem(result: FeedResults, item: FeedItem): FeedResults {
     first,
     last,
     total,
-    results
+    results,
   };
 }
 
@@ -114,7 +114,7 @@ export function removeItem(result: FeedResults, item: FeedItem): FeedResults {
 
   const cloned = cloneDeep(result);
   const total = result.total - 1;
-  const results = cloned.results.filter(i => i.id !== item.id);
+  const results = cloned.results.filter((i) => i.id !== item.id);
   const [first, last] = getBoundaries(results);
 
   return {
@@ -122,7 +122,7 @@ export function removeItem(result: FeedResults, item: FeedItem): FeedResults {
     first,
     last,
     total,
-    results
+    results,
   };
 }
 export function removeItemWithId(result: FeedResults, id: string): FeedResults {
@@ -130,14 +130,14 @@ export function removeItemWithId(result: FeedResults, id: string): FeedResults {
     return result;
   }
 
-  const index = result.results.findIndex(item => item.id === id);
+  const index = result.results.findIndex((item) => item.id === id);
   if (index < 0) {
     return result;
   }
 
   const cloned = cloneDeep(result);
   const total = result.total - 1;
-  const results = cloned.results.filter(item => item.id !== id);
+  const results = cloned.results.filter((item) => item.id !== id);
   const [first, last] = getBoundaries(results);
 
   return {
@@ -145,6 +145,6 @@ export function removeItemWithId(result: FeedResults, id: string): FeedResults {
     first,
     last,
     total,
-    results
+    results,
   };
 }

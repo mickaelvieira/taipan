@@ -10,7 +10,7 @@ interface Props {
 export default React.memo(function Datetime({
   value,
   className,
-  format = "DD MMMM YYYY, HH:mm:ss"
+  format = "DD MMMM YYYY, HH:mm:ss",
 }: Props): JSX.Element {
   const date = dayjs(value);
   return (

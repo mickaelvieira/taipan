@@ -7,22 +7,22 @@ export default {
       light: pink[300],
       main: pink[500],
       dark: pink[700],
-      contrastText: "#fff"
+      contrastText: "#fff",
     },
     secondary: {
       light: teal[300],
       main: teal["A700"],
       dark: teal[700],
-      contrastText: "#fff"
-    }
+      contrastText: "#fff",
+    },
   },
   status: {
-    danger: "orange"
+    danger: "orange",
   },
   typography: {
     button: {
       fontWeight: 400,
-      textAlign: "capitalize"
-    }
-  }
+      textAlign: "capitalize",
+    },
+  },
 };

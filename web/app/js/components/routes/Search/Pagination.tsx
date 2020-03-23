@@ -7,11 +7,11 @@ const useStyles = makeStyles(({ spacing }) => ({
   container: {
     display: "flex",
     justifyContent: "flex-end",
-    padding: spacing(2)
+    padding: spacing(2),
   },
   type: {
-    fontWeight: 500
-  }
+    fontWeight: 500,
+  },
 }));
 
 interface Props {
@@ -27,7 +27,7 @@ export default function Pagination({
   total,
   terms,
   type,
-  withCount = false
+  withCount = false,
 }: Props): JSX.Element | null {
   const classes = useStyles();
   if (count === 0) {

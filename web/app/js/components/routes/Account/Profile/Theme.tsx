@@ -7,7 +7,7 @@ import {
   themes,
   defaultTheme,
   getThemeClasses,
-  ThemeName
+  ThemeName,
 } from "../../../ui/themes";
 import Empty from "../../../ui/Empty";
 import { mutation, Data, Variables } from "../../../apollo/Mutation/User/Theme";
@@ -18,7 +18,7 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
   buttons: {
     display: "flex",
     justifyContent: "center",
-    margin: "16px 0"
+    margin: "16px 0",
   },
   button: {
     width: 25,
@@ -27,9 +27,9 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
     color: palette.common.white,
     [breakpoints.up("md")]: {
       width: 50,
-      height: 50
-    }
-  }
+      height: 50,
+    },
+  },
 }));
 
 interface Props {
@@ -63,8 +63,8 @@ export default function UserTheme({ user }: Props): JSX.Element {
             onClick={() =>
               mutate({
                 variables: {
-                  theme: name
-                }
+                  theme: name,
+                },
               })
             }
           >

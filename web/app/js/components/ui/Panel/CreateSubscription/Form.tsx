@@ -6,7 +6,7 @@ import { Subscription } from "../../../../types/subscription";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Subscriptions/Subscription";
 import Group from "../../Form/Group";
 import Label from "../../Form/Label";
@@ -16,18 +16,18 @@ import { InputBase } from "../../Form/Input";
 const useStyles = makeStyles(({ palette }) => ({
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   input: {
     borderRadius: 0,
     border: 0,
     borderBottom: `1px solid ${palette.grey[400]}`,
     paddingRight: 0,
-    paddingLeft: 0
+    paddingLeft: 0,
   },
   button: {
-    alignSelf: "flex-end"
-  }
+    alignSelf: "flex-end",
+  },
 }));
 
 interface Props {
@@ -40,7 +40,7 @@ export default function FormSubscription({ onCreated }: Props): JSX.Element {
   const [mutate, { loading, error }] = useMutation<Data, Variables>(mutation, {
     onCompleted: ({ subscriptions: { subscription } }) => {
       onCreated(subscription);
-    }
+    },
   });
 
   return (
@@ -57,7 +57,7 @@ export default function FormSubscription({ onCreated }: Props): JSX.Element {
           autoComplete="off"
           autoCapitalize="off"
           autoCorrect="off"
-          onChange={event => setUrl(event.target.value)}
+          onChange={(event) => setUrl(event.target.value)}
           className={classes.input}
         />
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
@@ -65,7 +65,7 @@ export default function FormSubscription({ onCreated }: Props): JSX.Element {
       <Button
         onClick={() =>
           mutate({
-            variables: { url }
+            variables: { url },
           })
         }
         className={classes.button}

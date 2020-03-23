@@ -11,7 +11,7 @@ const titles: Titles = {
   "/favorites": "Favorites",
   "/subscriptions": "RSS",
   "/account": "My Account",
-  "/search": "Search"
+  "/search": "Search",
 };
 
 export function getSectionTitle(pathname: string): string {

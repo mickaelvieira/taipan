@@ -8,7 +8,7 @@ import {
   mutation,
   variables,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Bookmarks/Create";
 
 interface Props extends Partial<ButtonBaseProps> {
@@ -19,8 +19,8 @@ interface Props extends Partial<ButtonBaseProps> {
 
 const useStyles = makeStyles(({ palette }) => ({
   button: {
-    color: palette.primary.main
-  }
+    color: palette.primary.main,
+  },
 }));
 
 export default React.memo(function Refresh({
@@ -31,8 +31,8 @@ export default React.memo(function Refresh({
 }: Props): JSX.Element {
   const classes = useStyles();
   const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
-    onCompleted: data => onSucceed(data.bookmarks.create),
-    onError: error => onFail(error.message)
+    onCompleted: (data) => onSucceed(data.bookmarks.create),
+    onError: (error) => onFail(error.message),
   });
   return (
     <ButtonBase
@@ -47,8 +47,8 @@ export default React.memo(function Refresh({
           variables: {
             ...variables,
             isFavorite: bookmark.isFavorite,
-            url: bookmark.url
-          }
+            url: bookmark.url,
+          },
         })
       }
       {...rest}

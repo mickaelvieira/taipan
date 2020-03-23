@@ -6,7 +6,7 @@ import Typography from "@material-ui/core/Typography";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Documents/Create";
 import { Document } from "../../../../types/document";
 import Group from "../../Form/Group";
@@ -17,19 +17,19 @@ import { InputBase } from "../../Form/Input";
 const useStyles = makeStyles(({ palette }) => ({
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   input: {
     borderRadius: 0,
     border: 0,
     borderBottom: `1px solid ${palette.grey[400]}`,
     paddingRight: 0,
-    paddingLeft: 0
+    paddingLeft: 0,
   },
   button: {
     marginTop: 16,
-    alignSelf: "flex-end"
-  }
+    alignSelf: "flex-end",
+  },
 }));
 
 interface Props {
@@ -37,14 +37,14 @@ interface Props {
 }
 
 export default function FormDocument({
-  onDocumentFetched
+  onDocumentFetched,
 }: Props): JSX.Element {
   const classes = useStyles();
   const [url, setUrl] = useState("");
   const [createDocument, { loading, error }] = useMutation<Data, Variables>(
     mutation,
     {
-      onCompleted: ({ documents: { create } }) => onDocumentFetched(create)
+      onCompleted: ({ documents: { create } }) => onDocumentFetched(create),
     }
   );
 
@@ -65,7 +65,7 @@ export default function FormDocument({
           autoComplete="off"
           autoCapitalize="off"
           autoCorrect="off"
-          onChange={event => setUrl(event.target.value)}
+          onChange={(event) => setUrl(event.target.value)}
           className={classes.input}
         />
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
@@ -73,7 +73,7 @@ export default function FormDocument({
       <Button
         onClick={() =>
           createDocument({
-            variables: { url }
+            variables: { url },
           })
         }
         color="primary"

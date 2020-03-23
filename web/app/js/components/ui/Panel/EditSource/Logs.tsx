@@ -18,18 +18,18 @@ const useStyles = makeStyles(({ breakpoints, typography }) => ({
     height: "80vh",
     [breakpoints.up("md")]: {
       height: 380,
-      maxHeight: 380
-    }
+      maxHeight: 380,
+    },
   },
   table: {
     [breakpoints.up("md")]: {
-      minWidth: 650
-    }
+      minWidth: 650,
+    },
   },
   error: {
     color: red[500],
-    fontWeight: typography.fontWeightBold
-  }
+    fontWeight: typography.fontWeightBold,
+  },
 }));
 
 interface Props {
@@ -39,7 +39,7 @@ interface Props {
 export default React.memo(function Logs({ url }: Props): JSX.Element | null {
   const classes = useStyles();
   const { data, loading, error } = useQuery<Data, Variables>(query, {
-    variables: { ...variables, url }
+    variables: { ...variables, url },
   });
 
   if (loading) {
@@ -55,7 +55,7 @@ export default React.memo(function Logs({ url }: Props): JSX.Element | null {
   }
 
   const {
-    bot: { logs }
+    bot: { logs },
   } = data;
 
   return (
@@ -70,7 +70,7 @@ export default React.memo(function Logs({ url }: Props): JSX.Element | null {
           </TableRow>
         </TableHead>
         <TableBody>
-          {logs.results.map(entry => (
+          {logs.results.map((entry) => (
             <TableRow key={entry.id}>
               <TableCell
                 align="center"

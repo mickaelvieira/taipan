@@ -32,7 +32,7 @@ export const themes: Themes = {
   // indigo,
   orange,
   pink,
-  purple
+  purple,
 };
 
 export const defaultTheme = "purple";
@@ -48,7 +48,7 @@ export function getThemeClasses(): ThemeClasseNames {
       if (palette && palette.primary) {
         const primary = palette.primary as SimplePaletteColorOptions;
         acc[name] = {
-          backgroundColor: primary.main
+          backgroundColor: primary.main,
         };
       }
       return acc;

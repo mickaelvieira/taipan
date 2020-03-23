@@ -7,8 +7,8 @@ const useStyles = makeStyles(({ palette }) => ({
     padding: "0 4px",
     margin: "0 2px",
     color: palette.common.white,
-    backgroundColor: palette.primary.main
-  }
+    backgroundColor: palette.primary.main,
+  },
 }));
 
 interface Props {
@@ -19,7 +19,7 @@ export default function Terms({ terms }: Props): JSX.Element {
   const classes = useStyles();
   return (
     <>
-      {terms.map(term => (
+      {terms.map((term) => (
         <span className={classes.term} key={term}>
           {term}
         </span>

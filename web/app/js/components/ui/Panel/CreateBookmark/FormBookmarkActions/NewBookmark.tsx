@@ -6,7 +6,7 @@ import { Document } from "../../../../../types/document";
 import { Bookmark } from "../../../../../types/bookmark";
 import {
   BookmarkButton,
-  BookmarkAndFavoriteButton
+  BookmarkAndFavoriteButton,
 } from "../../../Feed/Button";
 import Syndication from "../Syndication";
 
@@ -18,22 +18,22 @@ const useStyles = makeStyles(({ breakpoints, typography, palette }) => ({
     [breakpoints.up("md")]: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "flex-end"
-    }
+      justifyContent: "flex-end",
+    },
   },
   button: {
     ...typography.body1,
     padding: "0 0 .06rem .2rem",
-    color: palette.primary.main
+    color: palette.primary.main,
   },
   cancel: {
     ...typography.body1,
-    color: palette.secondary.main
+    color: palette.secondary.main,
   },
   addto: {
     display: "inline-block",
-    paddingLeft: "0.3rem"
-  }
+    paddingLeft: "0.3rem",
+  },
 }));
 
 interface Props {
@@ -43,7 +43,7 @@ interface Props {
 
 export default function NewBookmark({
   document,
-  onFinish
+  onFinish,
 }: Props): JSX.Element {
   const classes = useStyles();
   const setMessageInfo = useContext(MessageContext);
@@ -68,12 +68,12 @@ export default function NewBookmark({
             className={classes.button}
             onSucceed={({ updateCache, item }) => {
               setMessageInfo({
-                message: "The document was added to your reading list"
+                message: "The document was added to your reading list",
               });
               updateCache();
               onFinish(item as Bookmark);
             }}
-            onFail={message => setMessageInfo({ message })}
+            onFail={(message) => setMessageInfo({ message })}
           />
           {","}
           <BookmarkAndFavoriteButton
@@ -83,12 +83,12 @@ export default function NewBookmark({
             className={classes.button}
             onSucceed={({ updateCache, item }) => {
               setMessageInfo({
-                message: "The document was added to your favorites"
+                message: "The document was added to your favorites",
               });
               updateCache();
               onFinish(item as Bookmark);
             }}
-            onFail={message => setMessageInfo({ message })}
+            onFail={(message) => setMessageInfo({ message })}
           />
           {"?"}
         </div>

@@ -10,13 +10,13 @@ interface State {
 export default class Bootstrap extends Component<{}, State> {
   state = {
     error: null,
-    info: null
+    info: null,
   };
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     this.setState({
       error: error,
-      info: info
+      info: info,
     });
   }
 

@@ -3,7 +3,7 @@ import { getDBStore } from "../idb";
 
 /* eslint @typescript-eslint/no-explicit-any: off */
 export enum FeedTypes {
-  LATEST = "latest"
+  LATEST = "latest",
 }
 
 interface Feed {
@@ -31,7 +31,7 @@ export async function all(): Promise<Feed> {
   const results = await store.select();
   return {
     type: FeedTypes.LATEST,
-    results
+    results,
   };
 }
 
@@ -39,5 +39,5 @@ export default {
   upsert,
   update,
   batch,
-  all
+  all,
 };

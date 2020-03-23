@@ -61,7 +61,7 @@ export default (clientId: string): ApolloClient<object> => {
         return `${__typename}@${name}`;
       }
       return null;
-    }
+    },
   });
 
   const headerName = process.env.APP_CLIENT_ID_HEADER as string;
@@ -73,7 +73,7 @@ export default (clientId: string): ApolloClient<object> => {
   }
 
   const httpLink = new HttpLink({
-    uri: `http${isEncrypted ? "s" : ""}:${endpoint}`
+    uri: `http${isEncrypted ? "s" : ""}:${endpoint}`,
   });
   // const wsLink = new WebSocketLink({
   //   uri: `ws${isEncrypted ? "s" : ""}:${endpoint}`,
@@ -117,8 +117,8 @@ export default (clientId: string): ApolloClient<object> => {
   });
   const clientIdLink = setContext(() => ({
     headers: {
-      [headerName]: clientId
-    }
+      [headerName]: clientId,
+    },
   }));
 
   const link = concat(
@@ -127,7 +127,7 @@ export default (clientId: string): ApolloClient<object> => {
   );
   const client = new ApolloClient({
     link,
-    cache
+    cache,
   });
 
   return client;

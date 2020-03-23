@@ -12,8 +12,8 @@ import Search from "./Search";
 const useStyles = makeStyles(() => ({
   paper: {
     display: "flex",
-    flexDirection: "column"
-  }
+    flexDirection: "column",
+  },
 }));
 
 export default function Syndication(_: RouteSyndicationProps): JSX.Element {
@@ -47,7 +47,7 @@ export default function Syndication(_: RouteSyndicationProps): JSX.Element {
       />
       <CreateSyndication
         isOpen={isModalOpen}
-        toggleDialog={status => {
+        toggleDialog={(status) => {
           setIsContained(status);
           setModalStatus(status);
         }}

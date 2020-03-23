@@ -5,7 +5,7 @@ import {
   Data,
   Variables,
   subscribeMutation,
-  unsubscribeMutation
+  unsubscribeMutation,
 } from "../../../apollo/Mutation/Subscriptions/Status";
 import { Subscription } from "../../../../types/subscription";
 
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default React.memo(function StatusCheckbox({
-  subscription
+  subscription,
 }: Props): JSX.Element {
   const { isSubscribed } = subscription;
   const [isChecked, setIsChecked] = useState(isSubscribed);
@@ -28,8 +28,8 @@ export default React.memo(function StatusCheckbox({
         setIsChecked(!isChecked);
         mutate({
           variables: {
-            url: subscription.url
-          }
+            url: subscription.url,
+          },
         });
       }}
       checked={isChecked}

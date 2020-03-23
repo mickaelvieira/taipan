@@ -17,16 +17,16 @@ import Link from "../../../routes/Syndication/Link";
 const useStyles = makeStyles(({ breakpoints, typography }) => ({
   title: {
     paddingTop: 12,
-    paddingBottom: 12
+    paddingBottom: 12,
   },
   list: {
     [breakpoints.up("md")]: {
-      width: "50%"
-    }
+      width: "50%",
+    },
   },
   date: {
-    fontWeight: typography.fontWeightMedium
-  }
+    fontWeight: typography.fontWeightMedium,
+  },
 }));
 
 interface Props {
@@ -36,7 +36,7 @@ interface Props {
 export default React.memo(function Info({ url }: Props): JSX.Element | null {
   const classes = useStyles();
   const { data, loading, error } = useQuery<Data, Variables>(query, {
-    variables: { url }
+    variables: { url },
   });
 
   if (loading) {
@@ -52,7 +52,7 @@ export default React.memo(function Info({ url }: Props): JSX.Element | null {
   }
 
   const {
-    syndication: { source }
+    syndication: { source },
   } = data;
 
   if (!source) {

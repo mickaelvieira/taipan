@@ -6,7 +6,7 @@ import DeleteIcon from "@material-ui/icons/DeleteSharp";
 import {
   Data,
   Variables,
-  mutation
+  mutation,
 } from "../../../apollo/Mutation/Syndication/Tags/Delete";
 import { Tag } from "../../../../types/syndication";
 import { query } from "../../../apollo/Query/Tags";
@@ -14,8 +14,8 @@ import { query } from "../../../apollo/Query/Tags";
 const useStyles = makeStyles(() => ({
   button: {
     paddingTop: 0,
-    paddingBottom: 0
-  }
+    paddingBottom: 0,
+  },
 }));
 
 interface Props {
@@ -23,15 +23,15 @@ interface Props {
 }
 
 export default React.memo(function DeleteTagButton({
-  tag
+  tag,
 }: Props): JSX.Element {
   const classes = useStyles();
   const [mutate] = useMutation<Data, Variables>(mutation, {
     refetchQueries: [
       {
-        query
-      }
-    ]
+        query,
+      },
+    ],
   });
 
   return (
@@ -41,8 +41,8 @@ export default React.memo(function DeleteTagButton({
         if (window.confirm("Are you sure you want to delete this tag?")) {
           mutate({
             variables: {
-              id: tag.id
-            }
+              id: tag.id,
+            },
           });
         }
       }}

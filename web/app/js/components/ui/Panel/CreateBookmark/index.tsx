@@ -14,7 +14,7 @@ interface Props {
 export default function CreateBookmark({
   isOpen,
   setIsPanelOpen,
-  onBookmarkCreated
+  onBookmarkCreated,
 }: Props): JSX.Element {
   const [document, setDocument] = useState<Document | null>(null);
   const prev = (): void => {
@@ -31,7 +31,7 @@ export default function CreateBookmark({
       {document && (
         <FormBookmark
           document={document}
-          onFinish={bookmark => {
+          onFinish={(bookmark) => {
             setDocument(null);
             onBookmarkCreated(bookmark);
           }}

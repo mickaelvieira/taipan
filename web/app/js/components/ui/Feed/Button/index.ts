@@ -21,5 +21,5 @@ export {
   RefreshButton,
   UnbookmarkButton,
   BookmarkAndFavoriteButton,
-  ShareButton
+  ShareButton,
 };

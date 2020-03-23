@@ -16,18 +16,18 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
     border: `1px solid ${palette.grey[500]}`,
     padding: spacing(2),
     [breakpoints.up("sm")]: {
-      width: "600px"
-    }
+      width: "600px",
+    },
   },
   message: {
     textAlign: "center",
-    marginBottom: spacing(2)
+    marginBottom: spacing(2),
   },
   links: {
     display: "flex",
     justifyContent: "center",
-    marginTop: spacing(2)
-  }
+    marginTop: spacing(2),
+  },
 }));
 
 export default function ConfirmEmail(_: RouteConfirmEmailProps): JSX.Element {
@@ -51,7 +51,7 @@ export default function ConfirmEmail(_: RouteConfirmEmailProps): JSX.Element {
           setMessage(`Many thanks. Your email address has been confirmed.`);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         setError(e.message);
       });
   }, [token]);

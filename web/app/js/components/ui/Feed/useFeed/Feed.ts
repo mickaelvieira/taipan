@@ -4,7 +4,7 @@ import {
   calculateCursor,
   calculateHeightUpToFirstIndex,
   calculateHeightFromIndex,
-  calculateInterval
+  calculateInterval,
 } from "./helpers";
 import { FeedName, FeedItem } from "../../../../types/feed";
 
@@ -43,15 +43,15 @@ class Feed {
     let j = this.first;
 
     const tasks = Array.from(container.querySelectorAll(".feed-item")).map(
-      element =>
+      (element) =>
         FastDom.measure(
-          (function(index) {
+          (function (index) {
             return () => {
               const rect = element.getBoundingClientRect();
               const height = rect.height + ElementsMarginBottom;
               return {
                 index,
-                height
+                height,
               };
             };
           })(j++)
@@ -84,9 +84,9 @@ class Feed {
     return {
       padding: {
         top,
-        bottom
+        bottom,
       },
-      items
+      items,
     };
   }
 
@@ -101,7 +101,7 @@ class Feed {
 
 const cache = new Map<FeedName, Feed>();
 
-export default function(name: FeedName): Feed {
+export default function (name: FeedName): Feed {
   if (!cache.has(name)) {
     cache.set(name, new Feed(name));
   }

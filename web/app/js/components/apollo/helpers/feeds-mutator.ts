@@ -16,7 +16,7 @@ export default class FeedsMutator {
     favorite: favoriteMutation,
     unfavorite: unfavoriteMutation,
     bookmark: bookmarkMutation,
-    unbookmark: unbookmarkMutation
+    unbookmark: unbookmarkMutation,
   };
 
   constructor(client: ApolloClient<object>, cacheUpdater: FeedsUpdater) {
@@ -28,12 +28,12 @@ export default class FeedsMutator {
     this.client.mutate({
       mutation: this.mutation["favorite"],
       variables: {
-        url: bookmark.url
+        url: bookmark.url,
       },
       update: (_, result) => {
         const { data } = result;
         this.cacheUpdater.favorite(data.bookmarks.favorite);
-      }
+      },
     });
   }
 
@@ -41,12 +41,12 @@ export default class FeedsMutator {
     this.client.mutate({
       mutation: this.mutation["unfavorite"],
       variables: {
-        url: bookmark.url
+        url: bookmark.url,
       },
       update: (_, result) => {
         const { data } = result;
         this.cacheUpdater.unfavorite(data.bookmarks.unfavorite);
-      }
+      },
     });
   }
 
@@ -55,12 +55,12 @@ export default class FeedsMutator {
       mutation: this.mutation["bookmark"],
       variables: {
         url: document.url,
-        isFavorite
+        isFavorite,
       },
       update: (_, result) => {
         const { data } = result;
         this.cacheUpdater.bookmark(data.bookmarks.add);
-      }
+      },
     });
   }
 
@@ -68,12 +68,12 @@ export default class FeedsMutator {
     this.client.mutate({
       mutation: this.mutation["unbookmark"],
       variables: {
-        url: bookmark.url
+        url: bookmark.url,
       },
       update: (_, result) => {
         const { data } = result;
         this.cacheUpdater.unbookmark(data.bookmarks.remove);
-      }
+      },
     });
   }
 }

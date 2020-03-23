@@ -4,8 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(() => ({
   title: {
-    padding: "16px 16px 0 16px"
-  }
+    padding: "16px 16px 0 16px",
+  },
 }));
 
 interface Props {

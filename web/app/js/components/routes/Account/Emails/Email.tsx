@@ -10,12 +10,12 @@ import { BaseHint } from "../../../ui/Form/Message/Hint";
 import {
   mutation as primaryStatusMutation,
   Variables as PrimaryStatusMutationVariables,
-  Data as PrimaryStatusMutationData
+  Data as PrimaryStatusMutationData,
 } from "../../../apollo/Mutation/User/PrimaryEmail";
 import {
   mutation as deleteUserEmailMutation,
   Variables as DeleteUserEmailMutationVariables,
-  Data as DeleteUserEmailMutationData
+  Data as DeleteUserEmailMutationData,
 } from "../../../apollo/Mutation/User/DeleteEmail";
 import { getErrorMessage } from "../../../apollo/helpers/error";
 import { Email } from "../../../../types/users";
@@ -26,21 +26,21 @@ import ConfirmDeleteEmail from "./ConfirmDelete";
 const useStyles = makeStyles(({ typography }) => ({
   item: {
     flexDirection: "column",
-    alignItems: "stretch"
+    alignItems: "stretch",
   },
   row: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
   },
   button: {
-    padding: "12px 6px"
+    padding: "12px 6px",
   },
   resendButton: {
-    fontSize: typography.caption.fontSize
+    fontSize: typography.caption.fontSize,
   },
   chip: {
-    margin: "0 2px"
-  }
+    margin: "0 2px",
+  },
 }));
 
 interface Props {
@@ -58,7 +58,7 @@ export default function UserEmail({
   onDeletionFailure,
   onStatusFailure,
   onRendConfirmEmailSuccess,
-  onRendConfirmEmailFailure
+  onRendConfirmEmailFailure,
 }: Props): JSX.Element {
   const classes = useStyles();
   const [isShown, setIsShown] = useState(false);
@@ -66,14 +66,14 @@ export default function UserEmail({
     PrimaryStatusMutationData,
     PrimaryStatusMutationVariables
   >(primaryStatusMutation, {
-    onError: error => onStatusFailure(getErrorMessage(error))
+    onError: (error) => onStatusFailure(getErrorMessage(error)),
   });
 
   const [deleteEmail, { loading: isDeleting }] = useMutation<
     DeleteUserEmailMutationData,
     DeleteUserEmailMutationVariables
   >(deleteUserEmailMutation, {
-    onError: error => onDeletionFailure(getErrorMessage(error))
+    onError: (error) => onDeletionFailure(getErrorMessage(error)),
   });
 
   return (
@@ -104,7 +104,7 @@ export default function UserEmail({
             disabled={isChangingStatus}
             onClick={() =>
               primaryStatus({
-                variables: { email: email.value }
+                variables: { email: email.value },
               })
             }
             iconOnly
@@ -127,7 +127,7 @@ export default function UserEmail({
               onCancel={() => setIsShown(false)}
               onConfirm={() =>
                 deleteEmail({
-                  variables: { email: email.value }
+                  variables: { email: email.value },
                 })
               }
             />

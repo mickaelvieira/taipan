@@ -13,7 +13,7 @@ interface Collection {
 
 const types = {
   url: ["url", "domain"],
-  date: ["createdAt", "updatedAt", "addedAt", "parsedAt", "favoritedAt"]
+  date: ["createdAt", "updatedAt", "addedAt", "parsedAt", "favoritedAt"],
 };
 
 const isObject = (value: any): boolean =>
@@ -48,7 +48,7 @@ function transformItem(input: Item): Item {
 function transformCollection(result: Collection): Collection {
   return {
     ...result,
-    results: result.results.map(transform)
+    results: result.results.map(transform),
   };
 }
 

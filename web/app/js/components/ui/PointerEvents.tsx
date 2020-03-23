@@ -3,11 +3,11 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles({
   scrolling: {
-    pointerEvents: "none"
+    pointerEvents: "none",
   },
   idle: {
-    pointerEvents: "auto"
-  }
+    pointerEvents: "auto",
+  },
 });
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 
 export default function PointerEvents({
   children,
-  isScrolling
+  isScrolling,
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   return (

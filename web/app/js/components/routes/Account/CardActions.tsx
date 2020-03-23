@@ -5,8 +5,8 @@ import CardActions, { CardActionsProps } from "@material-ui/core/CardActions";
 const useStyles = makeStyles(() => ({
   element: {
     padding: 16,
-    justifyContent: "flex-end"
-  }
+    justifyContent: "flex-end",
+  },
 }));
 
 export default function ProfileCardActions({

@@ -4,8 +4,8 @@ import Domain, { DomainProps } from "../../Domain";
 
 const useStyles = makeStyles(() => ({
   link: {
-    padding: 12
-  }
+    padding: 12,
+  },
 }));
 
 export default function FeedItemDomain(props: DomainProps): JSX.Element {

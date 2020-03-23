@@ -4,7 +4,7 @@ import { useMutation } from "@apollo/react-hooks";
 import {
   mutation,
   Variables,
-  Data
+  Data,
 } from "../../../apollo/Mutation/User/ConfirmEmail";
 import { getErrorMessage } from "../../../apollo/helpers/error";
 import { Email } from "../../../../types/users";
@@ -13,8 +13,8 @@ import { Button } from "@material-ui/core";
 const useStyles = makeStyles(({ palette }) => ({
   message: {
     color: palette.common.black,
-    padding: "6px 8px"
-  }
+    padding: "6px 8px",
+  },
 }));
 
 interface Props {
@@ -30,16 +30,16 @@ export default function ConfirmEmail({
   showConfirm,
   className,
   onFailure,
-  onSuccess
+  onSuccess,
 }: Props): JSX.Element | null {
   const classes = useStyles();
   const [sent, setIsSent] = useState(false);
   const [send, { loading }] = useMutation<Data, Variables>(mutation, {
-    onError: error => onFailure(getErrorMessage(error)),
+    onError: (error) => onFailure(getErrorMessage(error)),
     onCompleted: () => {
       setIsSent(true);
       onSuccess(`We have sent you an email to ${email.value}`);
-    }
+    },
   });
 
   if (sent) {
@@ -56,7 +56,7 @@ export default function ConfirmEmail({
       disabled={loading}
       onClick={() =>
         send({
-          variables: { email: email.value }
+          variables: { email: email.value },
         })
       }
     >

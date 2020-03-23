@@ -6,7 +6,7 @@ import { Bookmark } from "../../../../types/bookmark";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Bookmarks/Favorite";
 import { FeedsContext, FeedsCacheContext } from "../../../context";
 import { SuccessOptions } from ".";
@@ -26,7 +26,7 @@ export default React.memo(function Favorite({
   const updater = useContext(FeedsCacheContext);
   const mutator = useContext(FeedsContext);
   const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
-    onCompleted: data => {
+    onCompleted: (data) => {
       const item = data.bookmarks.favorite;
       onSucceed({
         updateCache: () => {
@@ -39,10 +39,10 @@ export default React.memo(function Favorite({
             mutator.unfavorite(item);
           }
         },
-        item
+        item,
       });
     },
-    onError: error => onFail(error.message)
+    onError: (error) => onFail(error.message),
   });
 
   return (
@@ -54,8 +54,8 @@ export default React.memo(function Favorite({
       onClick={() =>
         mutate({
           variables: {
-            url: bookmark.url
-          }
+            url: bookmark.url,
+          },
         })
       }
       {...rest}

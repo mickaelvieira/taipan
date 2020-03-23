@@ -7,11 +7,11 @@ const useStyles = makeStyles(({ spacing }) => ({
     flex: 1,
     display: "flex",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   progress: {
-    margin: spacing(2)
-  }
+    margin: spacing(2),
+  },
 }));
 
 export default function Loader(): JSX.Element {

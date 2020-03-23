@@ -22,5 +22,5 @@ export {
   UserContext,
   MessageContext,
   FeedsCacheContext,
-  FeedsContext
+  FeedsContext,
 };

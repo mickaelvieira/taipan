@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default React.memo(function SubscriptionDomain({
-  item
+  item,
 }: Props): JSX.Element {
   const url = getDomain(item);
 

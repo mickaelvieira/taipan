@@ -16,14 +16,14 @@ import { User } from "../../types/users";
 const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
-    height: "100vh"
+    height: "100vh",
   },
   container: {
-    justifyContent: "center"
+    justifyContent: "center",
   },
   contained: {
-    overflow: "hidden"
-  }
+    overflow: "hidden",
+  },
 }));
 
 interface Props {
@@ -32,7 +32,7 @@ interface Props {
 
 export default function AppLayout({
   user,
-  children
+  children,
 }: PropsWithChildren<Props>): JSX.Element | null {
   const classes = useStyles();
   const page = usePage();
@@ -59,8 +59,8 @@ export default function AppLayout({
             {!page.isEmailConfirm() && (
               <SnackbarEmailWarning
                 user={user}
-                onRendSuccess={message => setMessageInfo({ message })}
-                onRendFailure={message => setMessageInfo({ message })}
+                onRendSuccess={(message) => setMessageInfo({ message })}
+                onRendFailure={(message) => setMessageInfo({ message })}
               />
             )}
             <LayoutContext.Provider value={setIsContained}>

@@ -8,8 +8,8 @@ const useStyles = makeStyles(() => ({
     zIndex: 10000,
     position: "fixed",
     width: "100vw",
-    height: "100vh"
-  }
+    height: "100vh",
+  },
 }));
 
 interface Props {
@@ -19,7 +19,7 @@ interface Props {
 
 export default function AddForm({
   isOpen,
-  children
+  children,
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
 

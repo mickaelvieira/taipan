@@ -11,7 +11,7 @@ interface Props {
 
 export default function UserContextProvider({
   children,
-  user
+  user,
 }: PropsWithChildren<Props>): JSX.Element {
   // useSubscription<UserEvent>(userSubscription, {
   //   onSubscriptionData: ({ subscriptionData }) => {

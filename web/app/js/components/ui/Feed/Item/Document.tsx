@@ -5,7 +5,7 @@ import { Document } from "../../../../types/document";
 import {
   ShareButton,
   BookmarkButton,
-  BookmarkAndFavoriteButton
+  BookmarkAndFavoriteButton,
 } from "../Button";
 import Domain from "./Domain";
 import ItemTitle from "./Title";
@@ -19,7 +19,7 @@ interface Props {
 }
 
 export default React.memo(function FeedItemDocument({
-  document
+  document,
 }: Props): JSX.Element {
   const setMessageInfo = useContext(MessageContext);
 
@@ -37,10 +37,10 @@ export default React.memo(function FeedItemDocument({
         <CardActions disableSpacing>
           <ShareButton
             item={document}
-            onSucceed={message => {
+            onSucceed={(message) => {
               setMessageInfo({ message });
             }}
-            onFail={message => setMessageInfo({ message })}
+            onFail={(message) => setMessageInfo({ message })}
           />
           <BookmarkAndFavoriteButton
             iconOnly
@@ -49,11 +49,11 @@ export default React.memo(function FeedItemDocument({
               setMessageInfo({
                 message: "The document was added to your favorites",
                 action: undo,
-                label: "undo"
+                label: "undo",
               });
               updateCache();
             }}
-            onFail={message => setMessageInfo({ message })}
+            onFail={(message) => setMessageInfo({ message })}
           />
           <BookmarkButton
             iconOnly
@@ -62,11 +62,11 @@ export default React.memo(function FeedItemDocument({
               setMessageInfo({
                 message: "The document was added to your reading list",
                 action: undo,
-                label: "undo"
+                label: "undo",
               });
               updateCache();
             }}
-            onFail={message => setMessageInfo({ message })}
+            onFail={(message) => setMessageInfo({ message })}
           />
         </CardActions>
       </ItemFooter>

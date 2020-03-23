@@ -4,8 +4,8 @@ import FormLabel, { FormLabelProps } from "@material-ui/core/FormLabel";
 
 const useStyles = makeStyles(({ spacing }) => ({
   element: {
-    margin: `${spacing(1)}px 0`
-  }
+    margin: `${spacing(1)}px 0`,
+  },
 }));
 
 export default function Label({

@@ -18,7 +18,7 @@ export interface Sorting {
 
 export enum SortingDirection {
   ASC = "ASC",
-  DESC = "DESC"
+  DESC = "DESC",
 }
 
 export type Undoer = () => void;

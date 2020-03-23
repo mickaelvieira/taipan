@@ -14,7 +14,7 @@ export enum Action {
   FIRSTNAME = "firstname",
   LASTNAME = "lastname",
   AVATAR = "avatar",
-  SCALE = "scale"
+  SCALE = "scale",
 }
 
 function reducer(state: State, [type, payload]: [Action, Payload]): State {
@@ -22,22 +22,22 @@ function reducer(state: State, [type, payload]: [Action, Payload]): State {
     case Action.FIRSTNAME:
       return {
         ...state,
-        firstname: payload as string
+        firstname: payload as string,
       };
     case Action.LASTNAME:
       return {
         ...state,
-        lastname: payload as string
+        lastname: payload as string,
       };
     case Action.AVATAR:
       return {
         ...state,
-        file: payload as File
+        file: payload as File,
       };
     case Action.SCALE:
       return {
         ...state,
-        scale: payload as number
+        scale: payload as number,
       };
     default:
       throw new Error(`Invalid action type '${type}'`);
@@ -59,7 +59,7 @@ function getInitialState(user: User | null): State {
     firstname,
     lastname,
     scale,
-    file
+    file,
   };
 }
 

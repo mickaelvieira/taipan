@@ -14,7 +14,7 @@ export function toPromisedCursor(
 ): Promise<any[]> {
   return new Promise((resolve, reject) => {
     const results: any[] = [];
-    request.onsuccess = event => {
+    request.onsuccess = (event) => {
       const cursor = event.target && event.target.result;
       if (cursor) {
         const item = cursor.value;

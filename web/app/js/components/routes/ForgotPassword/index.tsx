@@ -18,24 +18,24 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
     border: `1px solid ${palette.grey[500]}`,
     padding: spacing(2),
     [breakpoints.up("sm")]: {
-      width: "600px"
-    }
+      width: "600px",
+    },
   },
   message: {
     textAlign: "center",
-    marginBottom: spacing(2)
+    marginBottom: spacing(2),
   },
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   button: {
-    margin: `${spacing(2)}px 0`
+    margin: `${spacing(2)}px 0`,
   },
   links: {
     display: "flex",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 }));
 
 export default function ForgotPassword(
@@ -58,7 +58,7 @@ export default function ForgotPassword(
           </Typography>
           <form
             className={classes.form}
-            onSubmit={event => event.preventDefault()}
+            onSubmit={(event) => event.preventDefault()}
           >
             <Group>
               <Label htmlFor="email">
@@ -69,7 +69,7 @@ export default function ForgotPassword(
                 id="email"
                 value={email}
                 aria-describedby="email-helper-text"
-                onChange={event => setEmail(event.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
               />
             </Group>
             {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -91,7 +91,7 @@ export default function ForgotPassword(
                       );
                     }
                   })
-                  .catch(e => {
+                  .catch((e) => {
                     setError(e.message);
                   });
               }}

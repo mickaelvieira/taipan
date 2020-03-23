@@ -12,7 +12,7 @@ export interface Variables {
 }
 
 const variables = {
-  isFavorite: false
+  isFavorite: false,
 };
 
 export { mutation, variables };

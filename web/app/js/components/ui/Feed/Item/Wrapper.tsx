@@ -9,13 +9,13 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     flexDirection: "column",
     borderRadius: 0,
     [breakpoints.up("sm")]: {
-      borderRadius: 4
-    }
-  }
+      borderRadius: 4,
+    },
+  },
 }));
 
 export default React.memo(function Item({
-  children
+  children,
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
 

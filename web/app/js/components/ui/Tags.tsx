@@ -8,15 +8,15 @@ import { sort } from "../../helpers/tags";
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   container: {
-    margin: `0 ${spacing(1)}px`
+    margin: `0 ${spacing(1)}px`,
   },
   chip: {
-    margin: spacing(1)
+    margin: spacing(1),
   },
   active: {
     color: palette.common.white,
-    backgroundColor: palette.primary.main
-  }
+    backgroundColor: palette.primary.main,
+  },
 }));
 
 interface Props {
@@ -41,13 +41,13 @@ export default function Tags({ ids, onChange }: Props): JSX.Element | null {
   }
 
   const {
-    subscriptions: { tags }
+    subscriptions: { tags },
   } = data;
   const list = sort(tags.results);
 
   return (
     <div className={classes.container}>
-      {list.map(tag => {
+      {list.map((tag) => {
         const active = ids.includes(tag.id);
         return (
           <Chip
@@ -58,7 +58,7 @@ export default function Tags({ ids, onChange }: Props): JSX.Element | null {
             className={classes.chip}
             onClick={() => {
               const sub = active
-                ? ids.filter(t => t != tag.id)
+                ? ids.filter((t) => t != tag.id)
                 : [tag.id, ...ids];
               onChange(sub);
             }}

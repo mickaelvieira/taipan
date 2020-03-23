@@ -16,7 +16,7 @@ import {
   LoadMore,
   query,
   variables,
-  getFetchMore
+  getFetchMore,
 } from "../../../apollo/Query/Syndication";
 import Row from "./Result";
 import { Sorting } from "../../../../types";
@@ -24,19 +24,19 @@ import { Sorting } from "../../../../types";
 const useStyles = makeStyles(({ spacing }) => ({
   total: {
     margin: spacing(2),
-    textAlign: "right"
+    textAlign: "right",
   },
   table: {
-    width: "100%"
+    width: "100%",
   },
   fetchMore: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   button: {
-    margin: "12px"
-  }
+    margin: "12px",
+  },
 }));
 
 interface Props {
@@ -54,7 +54,7 @@ export default React.memo(function SyndicationTable({
   hidden,
   paused,
   sort,
-  editSource
+  editSource,
 }: Props): JSX.Element | null {
   const isAtTheBottom = useWindowBottom();
   const loadMore = useRef<LoadMore | undefined>();
@@ -64,8 +64,8 @@ export default React.memo(function SyndicationTable({
     fetchPolicy: "network-only",
     variables: {
       ...variables,
-      search: { terms, tags, paused, hidden, sort }
-    }
+      search: { terms, tags, paused, hidden, sort },
+    },
   });
 
   useEffect(() => {
@@ -92,9 +92,9 @@ export default React.memo(function SyndicationTable({
     ...variables,
     pagination: {
       ...variables.pagination,
-      offset: results.length
+      offset: results.length,
     },
-    search: { terms, tags, paused, hidden, sort }
+    search: { terms, tags, paused, hidden, sort },
   });
 
   if (results.length === 0) {
@@ -113,7 +113,7 @@ export default React.memo(function SyndicationTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {results.map(source => (
+          {results.map((source) => (
             <Row key={source.id} editSource={editSource} source={source} />
           ))}
         </TableBody>

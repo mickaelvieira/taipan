@@ -9,12 +9,12 @@ const useStyles = makeStyles(({ palette }) => ({
     justifyContent: "center",
     alignItems: "center",
     minHeight: 300,
-    backgroundColor: palette.grey[200]
+    backgroundColor: palette.grey[200],
   },
   icon: {
     fontSize: "10rem",
-    color: palette.grey[400]
-  }
+    color: palette.grey[400],
+  },
 }));
 
 interface Props {

@@ -8,14 +8,14 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     border: `1px solid ${palette.grey[400]}`,
     borderRadius: 4,
     ["&:focus-within"]: {
-      borderColor: palette.primary.main
-    }
+      borderColor: palette.primary.main,
+    },
   },
   input: {
     ["&:focus"]: {
-      color: palette.primary.main
-    }
-  }
+      color: palette.primary.main,
+    },
+  },
 }));
 
 export default function InputBase({
@@ -27,7 +27,7 @@ export default function InputBase({
     <MuiInputBase
       className={`${classes.element} ${className ? className : ""}`}
       inputProps={{
-        className: classes.input
+        className: classes.input,
       }}
       {...rest}
     />

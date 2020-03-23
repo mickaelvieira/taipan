@@ -4,7 +4,7 @@ import {
   FeedQueryData,
   FeedItem,
   FeedName,
-  FeedResults
+  FeedResults,
 } from "../../../types/feed";
 import { ApolloClient } from "apollo-client";
 import { getBoundaries, getDataKey, addItem, removeItemWithId } from "./feed";
@@ -18,7 +18,7 @@ export default class FeedsUpdater {
   query = {
     news: queryNews,
     readinglist: queryReadingList,
-    favorites: queryFavorites
+    favorites: queryFavorites,
   };
 
   sorting = {
@@ -27,7 +27,7 @@ export default class FeedsUpdater {
       results.reverse();
       return {
         ...result,
-        results
+        results,
       };
     },
     readinglist: (result: FeedResults): FeedResults => {
@@ -35,7 +35,7 @@ export default class FeedsUpdater {
       results.reverse();
       return {
         ...result,
-        results
+        results,
       };
     },
     favorites: (result: FeedResults): FeedResults => {
@@ -43,9 +43,9 @@ export default class FeedsUpdater {
       results.reverse();
       return {
         ...result,
-        results
+        results,
       };
-    }
+    },
   };
 
   constructor(client: ApolloClient<object>) {
@@ -66,9 +66,9 @@ export default class FeedsUpdater {
             data: {
               feeds: {
                 ...data.feeds,
-                [key]: result
-              }
-            }
+                [key]: result,
+              },
+            },
           });
         }
       }
@@ -90,9 +90,9 @@ export default class FeedsUpdater {
             data: {
               feeds: {
                 ...data.feeds,
-                [key]: result
-              }
-            }
+                [key]: result,
+              },
+            },
           });
         }
       }
@@ -151,10 +151,10 @@ export default class FeedsUpdater {
                   first,
                   last,
                   total,
-                  results
-                }
-              }
-            }
+                  results,
+                },
+              },
+            },
           });
         }
       }

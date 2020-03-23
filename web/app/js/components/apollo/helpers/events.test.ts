@@ -8,7 +8,7 @@ describe("Events helpers", () => {
       event = {
         emitter: "foo",
         action: "favorite",
-        topic: "bookmark"
+        topic: "bookmark",
       };
     });
 

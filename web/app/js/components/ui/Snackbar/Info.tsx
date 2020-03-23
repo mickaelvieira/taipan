@@ -7,11 +7,11 @@ import Link from "@material-ui/core/Link";
 
 const useStyles = makeStyles(({ palette }) => ({
   icon: {
-    marginRight: 12
+    marginRight: 12,
   },
   message: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
   },
   link: {
     cursor: "pointer",
@@ -22,9 +22,9 @@ const useStyles = makeStyles(({ palette }) => ({
     color: palette.secondary.light,
     textDecoration: "underline",
     "&:hover": {
-      textDecoration: "none"
-    }
-  }
+      textDecoration: "none",
+    },
+  },
 }));
 
 interface Props extends SnackbarProps {
@@ -51,7 +51,7 @@ export default function SnackbarInfo({
     <Snackbar
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       ContentProps={{
-        "aria-describedby": "message-snackbar"
+        "aria-describedby": "message-snackbar",
       }}
       message={
         <span id="message-snackbar" className={classes.message}>

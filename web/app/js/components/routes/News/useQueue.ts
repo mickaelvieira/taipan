@@ -29,11 +29,11 @@ type DispatchArgs = [Action, Payload?];
 
 export enum Action {
   PUSH = "documents",
-  RESET = "reset"
+  RESET = "reset",
 }
 
 const initialState = {
-  queue: new Queue()
+  queue: new Queue(),
 };
 
 function reducer(state: State, [type, payload]: DispatchArgs): State {
@@ -41,7 +41,7 @@ function reducer(state: State, [type, payload]: DispatchArgs): State {
     case Action.PUSH:
       return {
         ...state,
-        queue: state.queue.push(payload as FeedItem[])
+        queue: state.queue.push(payload as FeedItem[]),
       };
     case Action.RESET:
       return { ...initialState };
@@ -52,7 +52,7 @@ function reducer(state: State, [type, payload]: DispatchArgs): State {
 
 export default function useLatestReducer(): [State, Dispatch<DispatchArgs>] {
   const [state, dispatch] = useReducer<Reducer<State, DispatchArgs>>(reducer, {
-    ...initialState
+    ...initialState,
   });
   return [state, dispatch];
 }

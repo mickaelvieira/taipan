@@ -11,8 +11,8 @@ import Search from "./Search";
 const useStyles = makeStyles(() => ({
   paper: {
     display: "flex",
-    flexDirection: "column"
-  }
+    flexDirection: "column",
+  },
 }));
 
 export default function Subscriptions(_: RouteSubscriptionProps): JSX.Element {
@@ -36,7 +36,7 @@ export default function Subscriptions(_: RouteSubscriptionProps): JSX.Element {
       />
       <CreateSubscription
         isOpen={isModalOpen}
-        toggleDialog={status => {
+        toggleDialog={(status) => {
           setIsContained(status);
           setModalStatus(status);
         }}

@@ -21,53 +21,53 @@ const useStyles = makeStyles(({ breakpoints, palette }) => ({
   appBar: {
     marginLeft: SIDEBAR_WIDTH,
     [breakpoints.up("md")]: {
-      width: `calc(100% - ${SIDEBAR_WIDTH}px)`
+      width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
     },
     "& .animation-entering": {
-      transform: "translate(0px, -36px)"
+      transform: "translate(0px, -36px)",
     },
     "& .animation-entered": {
-      transform: "translate(0px, -36px)"
+      transform: "translate(0px, -36px)",
     },
     "& .animation-exiting": {
-      transform: "translate(0px, 0px)"
+      transform: "translate(0px, 0px)",
     },
     "& .animation-exited": {
-      transform: "translate(0px, 0px)"
-    }
+      transform: "translate(0px, 0px)",
+    },
   },
   animated: {
     width: "100%",
     transition: `transform ${animDuration}ms ease-in-out`,
-    transform: "translate(0px, 1px)"
+    transform: "translate(0px, 1px)",
   },
   toolbar: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   titleBar: {
-    display: "flex"
+    display: "flex",
   },
   title: {
     flexGrow: 1,
     textAlign: "center",
-    lineHeight: 1.5
+    lineHeight: 1.5,
   },
   menuButton: {
     paddingTop: 4,
-    marginLeft: -12
+    marginLeft: -12,
   },
   searchButton: {
     marginRight: -12,
-    color: palette.common.white
+    color: palette.common.white,
   },
   container: {
     display: "flex",
     flexGrow: 1,
     overflow: "hidden",
-    height: 30
-  }
+    height: 30,
+  },
 }));
 
 interface Props {
@@ -95,7 +95,7 @@ export default function Header({ toggleDrawer }: Props): JSX.Element {
           <>
             <div className={classes.container}>
               <Transition in={isSearchOpen} timeout={animDuration}>
-                {state => (
+                {(state) => (
                   <div className={`${classes.animated} animation-${state}`}>
                     <div className={classes.titleBar}>
                       <IconButton

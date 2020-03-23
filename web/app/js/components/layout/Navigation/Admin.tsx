@@ -13,22 +13,22 @@ import MenuLink from "./MenuLink";
 const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
   nested: {
     [breakpoints.up("md")]: {
-      backgroundColor: "#1d1d1d"
-    }
+      backgroundColor: "#1d1d1d",
+    },
   },
   toggle: {
     color: palette.grey[600],
     [breakpoints.up("md")]: {
-      color: palette.grey[100]
+      color: palette.grey[100],
     },
     "&.active": {
-      color: palette.primary.main
-    }
+      color: palette.primary.main,
+    },
   },
   icon: {
     margin: spacing(1),
-    marginRight: spacing(3)
-  }
+    marginRight: spacing(3),
+  },
 }));
 
 interface Props {
