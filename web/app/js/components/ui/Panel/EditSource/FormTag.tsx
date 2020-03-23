@@ -7,25 +7,25 @@ import InputBase from "@material-ui/core/InputBase";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Syndication/Tags/Create";
 import { query } from "../../../apollo/Query/Tags";
 
 const useStyles = makeStyles(({ palette }) => ({
   editor: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
   },
   title: {
-    width: "100%"
+    width: "100%",
   },
   button: {
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   input: {
-    border: `1px solid ${palette.grey[200]}`
-  }
+    border: `1px solid ${palette.grey[200]}`,
+  },
 }));
 
 export default function FormTag(): JSX.Element {
@@ -35,30 +35,30 @@ export default function FormTag(): JSX.Element {
     onCompleted: () => setValue(""),
     refetchQueries: [
       {
-        query
-      }
-    ]
+        query,
+      },
+    ],
   });
 
   return (
     <>
       <form
         className={classes.editor}
-        onSubmit={event => event.preventDefault()}
+        onSubmit={(event) => event.preventDefault()}
       >
         <InputBase
           fullWidth
           className={classes.input}
           autoFocus
           value={value}
-          onChange={event => setValue(event.target.value)}
+          onChange={(event) => setValue(event.target.value)}
         />
         <IconButton
           type="submit"
           className={classes.button}
           onClick={() =>
             mutate({
-              variables: { label: value }
+              variables: { label: value },
             })
           }
         >

@@ -10,11 +10,11 @@ const useStyles = makeStyles((theme: Theme) =>
     container: {
       position: "fixed",
       backgroundColor: "#fff",
-      alignSelf: "center"
+      alignSelf: "center",
     },
     button: {
-      margin: theme.spacing(1)
-    }
+      margin: theme.spacing(1),
+    },
   })
 );
 

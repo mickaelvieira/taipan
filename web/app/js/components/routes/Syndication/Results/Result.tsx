@@ -11,12 +11,12 @@ import { sort } from "../../../../helpers/tags";
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   chip: {
-    margin: spacing(1)
+    margin: spacing(1),
   },
   active: {
     color: palette.common.white,
-    backgroundColor: palette.primary.main
-  }
+    backgroundColor: palette.primary.main,
+  },
 }));
 
 interface Props {
@@ -26,7 +26,7 @@ interface Props {
 
 export default React.memo(function Row({
   source,
-  editSource
+  editSource,
 }: Props): JSX.Element {
   const classes = useStyles();
   const list = sort(source.tags ? source.tags : []);
@@ -36,7 +36,7 @@ export default React.memo(function Row({
         <Link item={source} />
       </TableCell>
       <TableCell>
-        {list.map(tag => (
+        {list.map((tag) => (
           <Chip
             key={tag.id}
             size="small"

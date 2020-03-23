@@ -5,8 +5,8 @@ const truncate = (input: string, len = 250): string => {
 
   const words = input
     .split(/\s/)
-    .filter(word => word !== "")
-    .map(word => word.trim());
+    .filter((word) => word !== "")
+    .map((word) => word.trim());
 
   let output = "";
   let next = "";

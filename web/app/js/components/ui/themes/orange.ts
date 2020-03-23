@@ -7,22 +7,22 @@ export default {
       light: deepOrange[300],
       main: deepOrange[500],
       dark: deepOrange[700],
-      contrastText: "#fff"
+      contrastText: "#fff",
     },
     secondary: {
       light: lightBlue[300],
       main: lightBlue["A200"],
       dark: lightBlue[700],
-      contrastText: "#fff"
-    }
+      contrastText: "#fff",
+    },
   },
   status: {
-    danger: "orange"
+    danger: "orange",
   },
   typography: {
     button: {
       fontWeight: 400,
-      textAlign: "capitalize"
-    }
-  }
+      textAlign: "capitalize",
+    },
+  },
 };

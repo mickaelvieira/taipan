@@ -22,5 +22,5 @@ export async function remove(id: string): Promise<any> {
 export default {
   upsert,
   delete: remove,
-  get
+  get,
 };

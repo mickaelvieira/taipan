@@ -7,7 +7,7 @@ import { Bookmark } from "../../../../types/bookmark";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Bookmarks/Unfavorite";
 import red from "@material-ui/core/colors/red";
 import { FeedsContext, FeedsCacheContext } from "../../../context";
@@ -15,8 +15,8 @@ import { SuccessOptions } from ".";
 
 const useStyles = makeStyles({
   button: {
-    color: red[800]
-  }
+    color: red[800],
+  },
 });
 
 interface Props extends Partial<ButtonBaseProps> {
@@ -35,7 +35,7 @@ export default React.memo(function Unfavorite({
   const updater = useContext(FeedsCacheContext);
   const mutator = useContext(FeedsContext);
   const [mutate, { loading }] = useMutation<Data, Variables>(mutation, {
-    onCompleted: data => {
+    onCompleted: (data) => {
       const item = data.bookmarks.unfavorite;
       onSucceed({
         updateCache: () => {
@@ -48,10 +48,10 @@ export default React.memo(function Unfavorite({
             mutator.favorite(item);
           }
         },
-        item
+        item,
       });
     },
-    onError: error => onFail(error.message)
+    onError: (error) => onFail(error.message),
   });
 
   return (
@@ -64,8 +64,8 @@ export default React.memo(function Unfavorite({
       onClick={() =>
         mutate({
           variables: {
-            url: bookmark.url
-          }
+            url: bookmark.url,
+          },
         })
       }
       {...rest}

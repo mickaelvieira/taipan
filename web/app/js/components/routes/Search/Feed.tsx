@@ -23,7 +23,7 @@ export default function Feed({
   type,
   query,
   List,
-  name
+  name,
 }: Props): JSX.Element {
   const isAtTheBottom = useWindowBottom();
   const loadMore = useRef<LoadMore | undefined>();
@@ -33,7 +33,7 @@ export default function Feed({
   >(query, {
     fetchPolicy: "network-only",
     skip: terms.length === 0,
-    variables: { ...variables, search: { terms } }
+    variables: { ...variables, search: { terms } },
   });
 
   useEffect(() => {
@@ -52,9 +52,9 @@ export default function Feed({
       ...variables,
       pagination: {
         ...variables.pagination,
-        offset: results.length
+        offset: results.length,
       },
-      search: { terms }
+      search: { terms },
     });
   }
 

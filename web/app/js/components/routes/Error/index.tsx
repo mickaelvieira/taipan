@@ -9,18 +9,18 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   inner: {
     width: "100%",
-    maxWidth: 800
+    maxWidth: 800,
   },
   content: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     color: palette.text.secondary,
-    paddingTop: 70
+    paddingTop: 70,
   },
   fab: {
     margin: spacing(1),
@@ -29,13 +29,13 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     right: spacing(2),
     backgroundColor: palette.secondary.main,
     "&:hover": {
-      backgroundColor: palette.secondary.light
-    }
+      backgroundColor: palette.secondary.light,
+    },
   },
   message: {
     display: "flex",
-    alignItems: "center"
-  }
+    alignItems: "center",
+  },
 }));
 
 interface Props {

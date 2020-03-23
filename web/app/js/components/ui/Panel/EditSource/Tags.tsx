@@ -10,11 +10,11 @@ import red from "@material-ui/core/colors/red";
 import {
   query as querySource,
   Data as SourceData,
-  Variables as SourceVariables
+  Variables as SourceVariables,
 } from "../../../apollo/Query/Source";
 import {
   Data as TagsData,
-  query as queryTags
+  query as queryTags,
 } from "../../../apollo/Query/Tags";
 import Loader from "../../Loader";
 import { TagButton } from "../../Syndication/Button";
@@ -28,21 +28,21 @@ const useStyles = makeStyles(({ breakpoints, typography }) => ({
     overflowX: "hidden",
     overflowY: "auto",
     height: 380,
-    maxHeight: 380
+    maxHeight: 380,
   },
   table: {
     [breakpoints.up("md")]: {
-      minWidth: 650
-    }
+      minWidth: 650,
+    },
   },
   error: {
     color: red[500],
-    fontWeight: typography.fontWeightBold
+    fontWeight: typography.fontWeightBold,
   },
   checkbox: {
     paddingTop: 0,
-    paddingBottom: 0
-  }
+    paddingBottom: 0,
+  },
 }));
 
 interface Props {
@@ -54,9 +54,9 @@ export default React.memo(function Tags({ url }: Props): JSX.Element | null {
   const {
     data: sourceData,
     loading: isLoadingSource,
-    error: errorSource
+    error: errorSource,
   } = useQuery<SourceData, SourceVariables>(querySource, {
-    variables: { url }
+    variables: { url },
   });
   const { data: tagsData, loading: isLoadingTags, error: errorTags } = useQuery<
     TagsData,
@@ -79,7 +79,7 @@ export default React.memo(function Tags({ url }: Props): JSX.Element | null {
   }
 
   const {
-    syndication: { source }
+    syndication: { source },
   } = sourceData;
 
   if (!source) {
@@ -89,7 +89,7 @@ export default React.memo(function Tags({ url }: Props): JSX.Element | null {
   const ids = source.tags ? source.tags.map(({ id }) => id) : [];
 
   const {
-    syndication: { tags }
+    syndication: { tags },
   } = tagsData;
 
   return (
@@ -103,7 +103,7 @@ export default React.memo(function Tags({ url }: Props): JSX.Element | null {
           </TableRow>
         </TableHead>
         <TableBody>
-          {tags.results.map(tag => (
+          {tags.results.map((tag) => (
             <TableRow key={tag.id}>
               <TableCell>
                 <EditTag tag={tag} />

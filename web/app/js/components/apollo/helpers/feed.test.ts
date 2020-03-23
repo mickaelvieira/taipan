@@ -4,13 +4,13 @@ import {
   hasReceivedEvent,
   addItem,
   removeItem,
-  getBoundaries
+  getBoundaries,
 } from "./feed";
 import {
   FeedResults,
   FeedItem,
   FeedEvent,
-  FeedEventData
+  FeedEventData,
 } from "../../../types/feed";
 import { getBookmark } from "../../../helpers/testing";
 
@@ -29,9 +29,9 @@ describe("Feed helpers", () => {
               first: "",
               last: "",
               limit: 0,
-              results: []
-            }
-          }
+              results: [],
+            },
+          },
         })
       ).toBe("foo");
     });
@@ -46,7 +46,7 @@ describe("Feed helpers", () => {
         first: "",
         last: "",
         limit: 0,
-        results: []
+        results: [],
       });
     });
 
@@ -58,9 +58,9 @@ describe("Feed helpers", () => {
             first: "foo",
             last: "bar",
             limit: 10,
-            results: []
-          }
-        }
+            results: [],
+          },
+        },
       };
       const [hasResults, results] = hasReceivedData(result);
       expect(hasResults).toBe(false);
@@ -69,7 +69,7 @@ describe("Feed helpers", () => {
         first: "foo",
         last: "bar",
         limit: 10,
-        results: []
+        results: [],
       });
     });
 
@@ -82,9 +82,9 @@ describe("Feed helpers", () => {
             first: "foo",
             last: "bar",
             limit: 10,
-            results: [item]
-          }
-        }
+            results: [item],
+          },
+        },
       };
       const [hasResults, results] = hasReceivedData(result);
       expect(hasResults).toBe(true);
@@ -93,7 +93,7 @@ describe("Feed helpers", () => {
         first: "foo",
         last: "bar",
         limit: 10,
-        results: [item]
+        results: [item],
       });
     });
   });
@@ -106,10 +106,10 @@ describe("Feed helpers", () => {
         emitter: "baz",
         item: getBookmark(),
         action: "favorite",
-        topic: "bookmark"
+        topic: "bookmark",
       };
       result = {
-        foo: event
+        foo: event,
       };
     });
 
@@ -152,7 +152,7 @@ describe("Feed helpers", () => {
         first: "",
         last: "",
         limit: 10,
-        results: []
+        results: [],
       };
     });
 
@@ -233,7 +233,7 @@ describe("Feed helpers", () => {
         first: "foo",
         last: "baz",
         limit: 10,
-        results: [item1, item2, item3]
+        results: [item1, item2, item3],
       };
     });
 

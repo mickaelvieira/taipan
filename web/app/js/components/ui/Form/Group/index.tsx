@@ -6,8 +6,8 @@ const useStyles = makeStyles(({ spacing }) => ({
   element: {
     margin: `${spacing(1)}px 0 0`,
     display: "flex",
-    flexDirection: "column"
-  }
+    flexDirection: "column",
+  },
 }));
 
 export default function Group({

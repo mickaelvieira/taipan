@@ -10,7 +10,7 @@ interface Props {
 
 export default function Layout({
   user,
-  children
+  children,
 }: PropsWithChildren<Props>): JSX.Element | null {
   const redirect = useFirewall(user);
   const Component = user ? AppLayout : OutLayout;

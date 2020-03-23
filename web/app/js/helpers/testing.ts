@@ -13,7 +13,7 @@ export function getBookmark(bookmark?: Partial<Bookmark>): Bookmark {
     favoritedAt: new Date(),
     updatedAt: new Date(),
     isFavorite: false,
-    ...bookmark
+    ...bookmark,
   };
 }
 
@@ -30,7 +30,7 @@ export function getSubscription(
     isSubscribed: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    ...subscription
+    ...subscription,
   };
 }
 
@@ -47,6 +47,6 @@ export function getSource(source?: Partial<Source>): Source {
     createdAt: new Date(),
     updatedAt: new Date(),
     parsedAt: new Date(),
-    ...source
+    ...source,
   };
 }

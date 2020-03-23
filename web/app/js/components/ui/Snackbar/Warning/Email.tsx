@@ -13,7 +13,7 @@ interface Props {
 export default function SnackbarEmailWarning({
   user,
   onRendSuccess,
-  onRendFailure
+  onRendFailure,
 }: PropsWithChildren<Props>): JSX.Element | null {
   const email = getPrimaryEmail(user);
   if (!email) {
@@ -30,7 +30,7 @@ export default function SnackbarEmailWarning({
           email={email}
           onSuccess={onRendSuccess}
           onFailure={onRendFailure}
-        />
+        />,
       ]}
     />
   );

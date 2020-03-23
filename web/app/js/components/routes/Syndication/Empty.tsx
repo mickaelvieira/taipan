@@ -4,12 +4,12 @@ import Paper from "@material-ui/core/Paper";
 
 const useStyles = makeStyles(() => ({
   message: {
-    padding: 24
-  }
+    padding: 24,
+  },
 }));
 
 export default function Empty({
-  children
+  children,
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   return <Paper className={classes.message}>{children}</Paper>;

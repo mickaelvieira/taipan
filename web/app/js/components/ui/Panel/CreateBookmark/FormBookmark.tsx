@@ -15,7 +15,7 @@ import ExistingBookmark from "./FormBookmarkActions/ExistingBookmark";
 const useStyles = makeStyles(({ breakpoints }) => ({
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   media: {
     marginTop: 16,
@@ -23,30 +23,30 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     backgroundSize: "cover",
     minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`,
     [breakpoints.up("md")]: {
-      minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`
-    }
+      minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`,
+    },
   },
   nomedia: {
     marginTop: 16,
-    marginBottom: 16
+    marginBottom: 16,
   },
   item: {
-    padding: 0
+    padding: 0,
   },
   link: {
     paddingTop: 10,
     paddingLeft: 9,
-    paddingBottom: 9
+    paddingBottom: 9,
   },
   actions: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
-    alignItems: "center"
+    alignItems: "center",
   },
   addto: {
-    padding: "8px 6px"
-  }
+    padding: "8px 6px",
+  },
 }));
 
 interface Props {
@@ -56,11 +56,11 @@ interface Props {
 
 export default function FormBookmark({
   document,
-  onFinish
+  onFinish,
 }: Props): JSX.Element {
   const classes = useStyles();
   const { data, loading, error } = useQuery<Data, Variables>(query, {
-    variables: { url: document.url }
+    variables: { url: document.url },
   });
 
   return (

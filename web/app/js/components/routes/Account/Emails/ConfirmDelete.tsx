@@ -13,7 +13,7 @@ export interface Props {
 export default function ConfirmDeleteEmail({
   onConfirm,
   onCancel,
-  open
+  open,
 }: Props): JSX.Element {
   return (
     <Dialog

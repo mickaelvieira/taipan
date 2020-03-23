@@ -16,7 +16,7 @@ interface Props {
 export default React.memo(function SourceTitle({
   item,
   shouldTruncate = false,
-  className
+  className,
 }: Props): JSX.Element {
   const theme = useTheme();
   const lg = useMediaQuery(theme.breakpoints.up("lg"));

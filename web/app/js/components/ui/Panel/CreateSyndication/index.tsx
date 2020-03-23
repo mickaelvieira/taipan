@@ -12,7 +12,7 @@ interface Props {
 export default function AddSubscription({
   isOpen,
   toggleDialog,
-  onSyndicationCreated
+  onSyndicationCreated,
 }: Props): JSX.Element {
   return (
     <Panel isOpen={isOpen} prev={() => toggleDialog(false)} title="Add a feed">

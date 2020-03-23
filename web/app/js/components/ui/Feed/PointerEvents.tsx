@@ -4,15 +4,15 @@ import useScrollStatus from "../../../hooks/useScrollStatus";
 
 const useStyles = makeStyles({
   idle: {
-    pointerEvents: "auto"
+    pointerEvents: "auto",
   },
   scrolling: {
-    pointerEvents: "none"
-  }
+    pointerEvents: "none",
+  },
 });
 
 export default React.memo(function PointerEvents({
-  children
+  children,
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   const isScrolling = useScrollStatus();

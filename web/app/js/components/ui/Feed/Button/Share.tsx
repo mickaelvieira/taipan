@@ -12,8 +12,8 @@ interface Props {
 
 const useStyles = makeStyles(({ palette }) => ({
   button: {
-    color: palette.primary.main
-  }
+    color: palette.primary.main,
+  },
 }));
 
 function canShare(): boolean {
@@ -23,7 +23,7 @@ function canShare(): boolean {
 export default React.memo(function ShareButton({
   item,
   onSucceed,
-  onFail
+  onFail,
 }: Props): JSX.Element | null {
   const classes = useStyles();
   return !canShare() ? null : (
@@ -34,7 +34,7 @@ export default React.memo(function ShareButton({
         navigator
           .share({
             title: item.title,
-            url: item.url
+            url: item.url,
           })
           .then(() => {
             onSucceed("Thanks for sharing!");

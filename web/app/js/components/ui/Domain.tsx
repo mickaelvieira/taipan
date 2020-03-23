@@ -11,7 +11,7 @@ export interface DomainProps {
 
 export default React.memo(function Domain({
   item,
-  className
+  className,
 }: DomainProps): JSX.Element {
   return (
     <ExternalLink

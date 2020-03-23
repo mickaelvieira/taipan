@@ -6,8 +6,8 @@ import Typography from "@material-ui/core/Typography";
 const useStyles = makeStyles(() => ({
   paper: {
     display: "flex",
-    flexDirection: "column"
-  }
+    flexDirection: "column",
+  },
 }));
 
 interface Props {
@@ -20,7 +20,7 @@ export default function TabPanel({
   children,
   index,
   value,
-  className
+  className,
 }: PropsWithChildren<Props>): JSX.Element | null {
   const classes = useStyles();
   const styles = [classes.paper];

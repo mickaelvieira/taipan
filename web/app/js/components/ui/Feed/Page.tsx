@@ -10,20 +10,20 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   content: {
     [breakpoints.up("sm")]: {
-      width: FEED_SM_WIDTH
+      width: FEED_SM_WIDTH,
     },
     [breakpoints.up("md")]: {
-      width: FEED_LG_WIDTH
-    }
-  }
+      width: FEED_LG_WIDTH,
+    },
+  },
 }));
 
 export default function FeedPage({
-  children
+  children,
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   const setMessageInfo = useContext(MessageContext);
@@ -41,7 +41,7 @@ export default function FeedPage({
       />
       <CreateBookmark
         isOpen={isPanelOpen}
-        setIsPanelOpen={isOpen => {
+        setIsPanelOpen={(isOpen) => {
           setIsContained(isOpen);
           setIsPanelOpen(isOpen);
         }}
@@ -49,7 +49,7 @@ export default function FeedPage({
           setIsContained(false);
           setIsPanelOpen(false);
           setMessageInfo({
-            message: "Nice one! The bookmark was added"
+            message: "Nice one! The bookmark was added",
           });
         }}
       />

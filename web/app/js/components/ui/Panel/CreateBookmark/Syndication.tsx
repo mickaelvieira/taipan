@@ -9,11 +9,11 @@ import { Source } from "../../../../types/syndication";
 
 const useStyles = makeStyles(() => ({
   item: {
-    padding: 0
+    padding: 0,
   },
   label: {
-    padding: "14px 8px"
-  }
+    padding: "14px 8px",
+  },
 }));
 
 interface Props {
@@ -25,7 +25,7 @@ interface Props {
 export default function Syndication({
   syndication,
   subscriptions,
-  onChange
+  onChange,
 }: Props): JSX.Element | null {
   const classes = useStyles();
 
@@ -46,7 +46,7 @@ export default function Syndication({
               checked={subscriptions.includes(`${source.url}`)}
               onClick={() => {
                 const sub = subscriptions.includes(`${source.url}`)
-                  ? subscriptions.filter(url => url != `${source.url}`)
+                  ? subscriptions.filter((url) => url != `${source.url}`)
                   : [`${source.url}`, ...subscriptions];
                 onChange(sub);
               }}

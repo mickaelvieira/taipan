@@ -17,20 +17,20 @@ const useStyles = makeStyles(({ palette }) => ({
     margin: 0,
     padding: 0,
     color: palette.primary.contrastText,
-    backgroundColor: palette.primary.main
+    backgroundColor: palette.primary.main,
   },
   prev: {
-    color: palette.primary.contrastText
+    color: palette.primary.contrastText,
   },
   title: {
     paddingTop: 12,
-    paddingBottom: 12
+    paddingBottom: 12,
   },
   container: {
     padding: 16,
     display: "flex",
-    flexDirection: "column"
-  }
+    flexDirection: "column",
+  },
 }));
 
 interface Props {
@@ -45,7 +45,7 @@ export default function Wrapper({
   isOpen,
   prev,
   children,
-  BackButton
+  BackButton,
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   const theme = useTheme();

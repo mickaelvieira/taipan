@@ -4,8 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import FormLabel, { FormLabelProps } from "@material-ui/core/FormLabel";
 const useStyles = makeStyles(({ palette }) => ({
   element: {
-    border: `1px solid ${palette.grey[400]}`
-  }
+    border: `1px solid ${palette.grey[400]}`,
+  },
 }));
 
 export default function Label({

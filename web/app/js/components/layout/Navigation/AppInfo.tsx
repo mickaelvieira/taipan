@@ -7,7 +7,7 @@ import { getAppInfoFromEnv } from "../../../helpers/app";
 const useStyles = makeStyles(({ breakpoints, palette }) => ({
   root: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   appInfo: {
     lineHeight: 1.33,
@@ -16,13 +16,13 @@ const useStyles = makeStyles(({ breakpoints, palette }) => ({
     paddingTop: "1.2rem",
     margin: 0,
     [breakpoints.up("md")]: {
-      color: palette.grey[100]
-    }
+      color: palette.grey[100],
+    },
   },
   reload: {
     color: palette.primary.main,
-    textDecoration: "underline"
-  }
+    textDecoration: "underline",
+  },
 }));
 
 export default function AppInfo(): JSX.Element {

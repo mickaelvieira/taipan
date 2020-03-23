@@ -26,7 +26,7 @@ export function addSubscription(
   return {
     ...cloned,
     total,
-    results
+    results,
   };
 }
 
@@ -44,11 +44,11 @@ export function removeSubscription(
 
   const cloned = cloneDeep(result);
   const total = result.total - 1;
-  const results = cloned.results.filter(i => i.id !== item.id);
+  const results = cloned.results.filter((i) => i.id !== item.id);
 
   return {
     ...cloned,
     total,
-    results
+    results,
   };
 }

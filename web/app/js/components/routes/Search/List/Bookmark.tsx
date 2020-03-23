@@ -9,12 +9,12 @@ import { SearchProps } from "../";
 export default React.memo(function BookmarkList({
   results,
   terms,
-  type
+  type,
 }: SearchProps & ListProps): JSX.Element {
   return (
     <>
       {results.length === 0 && <NoResults terms={terms} type={type} />}
-      {results.map(result => (
+      {results.map((result) => (
         <FeedItem key={result.id}>
           <Item bookmark={result as Bookmark} />
         </FeedItem>

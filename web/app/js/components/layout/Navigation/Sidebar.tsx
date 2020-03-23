@@ -29,56 +29,56 @@ const useStyles = makeStyles(
       [breakpoints.up("md")]: {
         width: SIDEBAR_WIDTH,
         flexShrink: 0,
-        backgroundColor: palette.grey[500]
-      }
+        backgroundColor: palette.grey[500],
+      },
     },
     paper: {
       [breakpoints.up("md")]: {
         maxWidth: SIDEBAR_WIDTH + 1, // +1 for the border
-        backgroundColor: palette.grey[900]
-      }
+        backgroundColor: palette.grey[900],
+      },
     },
     divider: {
-      margin: "0 1rem"
+      margin: "0 1rem",
     },
     list: {
-      width: SIDEBAR_WIDTH
+      width: SIDEBAR_WIDTH,
     },
     icon: {
       margin: spacing(1),
-      marginRight: spacing(3)
+      marginRight: spacing(3),
     },
     link: {
       display: "block",
       fontSize: typography.fontSize,
       color: palette.grey[600],
       [breakpoints.up("md")]: {
-        color: palette.grey[100]
+        color: palette.grey[100],
       },
       "&.active": {
-        color: palette.primary.main
-      }
-    }
+        color: palette.primary.main,
+      },
+    },
   })
 );
 
 const entries = [
   {
     path: "/",
-    icon: HomeIcon
+    icon: HomeIcon,
   },
   {
     path: "/reading-list",
-    icon: LibraryIcon
+    icon: LibraryIcon,
   },
   {
     path: "/favorites",
-    icon: FavoriteIcon
+    icon: FavoriteIcon,
   },
   {
     path: "/subscriptions",
-    icon: RssFeedIcon
-  }
+    icon: RssFeedIcon,
+  },
 ];
 
 interface Props {
@@ -100,13 +100,13 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
         variant={md ? "permanent" : "temporary"}
         onClose={() => toggleDrawer(false)}
         classes={{
-          paper: classes.paper
+          paper: classes.paper,
         }}
       >
         <UserInfo />
         <Divider className={classes.divider} />
         <List className={classes.list}>
-          {entries.map(entry => (
+          {entries.map((entry) => (
             <li key={entry.path}>
               <MenuLink to={entry.path} onClick={() => toggleDrawer(false)}>
                 <ListItem button>
@@ -143,7 +143,7 @@ export default function Sidebar({ isOpen, toggleDrawer }: Props): JSX.Element {
                       window.location.href = "/signin";
                     }
                   })
-                  .catch(e => {
+                  .catch((e) => {
                     console.warn(e.message);
                   });
               }}

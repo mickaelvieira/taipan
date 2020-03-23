@@ -13,26 +13,26 @@ const useStyles = makeStyles(({ breakpoints, typography, palette }) => ({
     [breakpoints.up("md")]: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "flex-end"
-    }
+      justifyContent: "flex-end",
+    },
   },
   intro: {
     alignSelf: "flex-end",
-    textAlign: "right"
+    textAlign: "right",
   },
   button: {
     ...typography.body1,
     padding: "0 0 .06rem .2rem",
-    color: palette.primary.main
+    color: palette.primary.main,
   },
   cancel: {
     ...typography.body1,
-    color: palette.secondary.main
+    color: palette.secondary.main,
   },
   addto: {
     display: "inline-block",
-    paddingLeft: "0.3rem"
-  }
+    paddingLeft: "0.3rem",
+  },
 }));
 
 interface Props {
@@ -42,7 +42,7 @@ interface Props {
 
 export default function ExistingBookmark({
   bookmark,
-  onFinish
+  onFinish,
 }: Props): JSX.Element {
   const classes = useStyles();
   const setMessageInfo = useContext(MessageContext);
@@ -72,12 +72,12 @@ export default function ExistingBookmark({
                 className={classes.button}
                 onSucceed={({ updateCache, item }) => {
                   setMessageInfo({
-                    message: "The document was added to your favorites"
+                    message: "The document was added to your favorites",
                   });
                   updateCache();
                   onFinish(item as Bookmark);
                 }}
-                onFail={message => setMessageInfo({ message })}
+                onFail={(message) => setMessageInfo({ message })}
               />
             </>
           )}

@@ -5,12 +5,12 @@ const useStyles = makeStyles({
   footer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 });
 
 export default function ItemFooter({
-  children
+  children,
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
   return <footer className={classes.footer}>{children}</footer>;

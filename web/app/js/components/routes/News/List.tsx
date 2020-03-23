@@ -14,25 +14,25 @@ import Emoji from "../../ui/Emoji";
 
 const useStyles = makeStyles(({ spacing }) => ({
   message: {
-    margin: spacing(2)
+    margin: spacing(2),
   },
   subscriptions: {
     display: "flex",
     alignItems: "center",
-    margin: spacing(2)
+    margin: spacing(2),
   },
   links: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    margin: spacing(2)
-  }
+    margin: spacing(2),
+  },
 }));
 
 export default React.memo(function DocumentList({
   results,
   firstId,
-  lastId
+  lastId,
 }: ListProps): JSX.Element {
   const user = useContext(UserContext);
   const classes = useStyles();
@@ -66,7 +66,7 @@ export default React.memo(function DocumentList({
           </EmptyFeed>
         </>
       )}
-      {results.map(result => (
+      {results.map((result) => (
         <FeedItem key={result.id}>
           <Item document={result as Document} />
         </FeedItem>

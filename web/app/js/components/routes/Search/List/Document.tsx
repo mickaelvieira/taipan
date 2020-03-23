@@ -9,12 +9,12 @@ import { SearchProps } from "../";
 export default React.memo(function DocumentList({
   results,
   terms,
-  type
+  type,
 }: SearchProps & ListProps): JSX.Element {
   return (
     <>
       {results.length === 0 && <NoResults terms={terms} type={type} />}
-      {results.map(result => (
+      {results.map((result) => (
         <FeedItem key={result.id}>
           <Item document={result as Document} />
         </FeedItem>

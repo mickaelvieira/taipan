@@ -11,9 +11,9 @@ const useStyles = makeStyles(({ palette, spacing, breakpoints }) => ({
     justifyContent: "center",
     margin: spacing(1),
     [breakpoints.up("md")]: {
-      minWidth: 600
-    }
-  }
+      minWidth: 600,
+    },
+  },
 }));
 
 export default function SnackbarWarning({

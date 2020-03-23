@@ -11,7 +11,7 @@ describe("Syndication helpers", () => {
         total: 0,
         offset: 3,
         limit: 10,
-        results: []
+        results: [],
       };
     });
 
@@ -80,7 +80,7 @@ describe("Syndication helpers", () => {
         total: 3,
         offset: 3,
         limit: 10,
-        results: [item1, item2, item3]
+        results: [item1, item2, item3],
       };
     });
 

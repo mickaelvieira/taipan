@@ -10,8 +10,8 @@ import Loader from "../../Loader";
 
 const useStyles = makeStyles(() => ({
   item: {
-    padding: 0
-  }
+    padding: 0,
+  },
 }));
 
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
 
 export default React.memo(function Tags({
   ids,
-  onChange
+  onChange,
 }: Props): JSX.Element | null {
   const classes = useStyles();
 
@@ -40,19 +40,19 @@ export default React.memo(function Tags({
   }
 
   const {
-    syndication: { tags }
+    syndication: { tags },
   } = data;
 
   return (
     <List>
-      {tags.results.map(tag => (
+      {tags.results.map((tag) => (
         <ListItem key={tag.id} className={classes.item}>
           <Checkbox
             id={`tag-${tag.id}`}
             checked={ids.includes(tag.id)}
             onClick={() => {
               const sub = ids.includes(tag.id)
-                ? ids.filter(t => t != tag.id)
+                ? ids.filter((t) => t != tag.id)
                 : [tag.id, ...ids];
               onChange(sub);
             }}

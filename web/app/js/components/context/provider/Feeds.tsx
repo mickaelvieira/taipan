@@ -17,7 +17,7 @@ import FeedsMutator from "../../apollo/helpers/feeds-mutator";
 // import tranform from "../../../services/apollo/transformation";
 
 export default function FeedContextProvider({
-  children
+  children,
 }: PropsWithChildren<{}>): JSX.Element {
   // const clientId = useContext(ClientContext);
   const client = useApolloClient();

@@ -1,7 +1,7 @@
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
-  FetchMoreOptions
+  FetchMoreOptions,
 } from "apollo-client";
 import query from "../graphql/query/syndication/sources.graphql";
 import { OffsetPagination } from "../../../types";
@@ -20,8 +20,8 @@ export interface Variables {
 
 const variables = {
   pagination: {
-    limit: 50
-  }
+    limit: 50,
+  },
 };
 
 export type FetchMore = <K extends keyof Variables>(
@@ -38,8 +38,8 @@ export function getFetchMore(
 ): LoadMore | undefined {
   const {
     syndication: {
-      sources: { results, total }
-    }
+      sources: { results, total },
+    },
   } = data;
 
   return results.length === total
@@ -61,12 +61,12 @@ export function getFetchMore(
                   offset: next.syndication.sources.offset,
                   results: [
                     ...prev.syndication.sources.results,
-                    ...next.syndication.sources.results
-                  ]
-                }
-              }
+                    ...next.syndication.sources.results,
+                  ],
+                },
+              },
             };
-          }
+          },
         });
 }
 

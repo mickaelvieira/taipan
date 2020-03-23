@@ -44,9 +44,9 @@ export default function useLatest(firstId = ""): [FeedItem[], () => void] {
         variables: {
           pagination: {
             limit: POLLING_QUANTITY,
-            to: toId
-          }
-        }
+            to: toId,
+          },
+        },
       });
 
       const { data } = result;

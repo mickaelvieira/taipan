@@ -7,8 +7,8 @@ const useStyles = makeStyles(({ spacing }) => ({
     display: "inline-block",
     verticalAlign: "middle",
     padding: `0 ${spacing(0.5)}px`,
-    lineHeight: 0
-  }
+    lineHeight: 0,
+  },
 }));
 
 interface Props {

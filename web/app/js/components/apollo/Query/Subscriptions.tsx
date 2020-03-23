@@ -1,7 +1,7 @@
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
-  FetchMoreOptions
+  FetchMoreOptions,
 } from "apollo-client";
 import query from "../graphql/query/subscriptions/subscriptions.graphql";
 import { OffsetPagination } from "../../../types";
@@ -28,8 +28,8 @@ export type LoadMore = () => Promise<ApolloQueryResult<Data>>;
 
 const variables = {
   pagination: {
-    limit: 50
-  }
+    limit: 50,
+  },
 };
 
 export function getFetchMore(
@@ -39,8 +39,8 @@ export function getFetchMore(
 ): LoadMore | undefined {
   const {
     subscriptions: {
-      subscriptions: { results, total }
-    }
+      subscriptions: { results, total },
+    },
   } = data;
 
   return results.length === total
@@ -62,12 +62,12 @@ export function getFetchMore(
                   offset: next.subscriptions.subscriptions.offset,
                   results: [
                     ...prev.subscriptions.subscriptions.results,
-                    ...next.subscriptions.subscriptions.results
-                  ]
-                }
-              }
+                    ...next.subscriptions.subscriptions.results,
+                  ],
+                },
+              },
             };
-          }
+          },
         });
 }
 

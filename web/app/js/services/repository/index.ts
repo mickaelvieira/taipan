@@ -10,13 +10,13 @@ export async function getDBState(): Promise<any> {
   const user = await dbUser.get();
 
   const bookmarks = new Map<string, Bookmark>();
-  bkmks.forEach(item => {
+  bkmks.forEach((item) => {
     bookmarks.set(item.id, item);
   });
 
   return {
     bookmarks,
     feed,
-    user
+    user,
   };
 }

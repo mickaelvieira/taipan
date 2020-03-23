@@ -16,9 +16,9 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     backgroundSize: "cover",
     minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`,
     [breakpoints.up("md")]: {
-      minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`
-    }
-  }
+      minHeight: `calc(${getImageWidth("sm")}px * 9 / 16)`,
+    },
+  },
 }));
 
 export default function LazyLoadingImage({ media, title }: Props): JSX.Element {

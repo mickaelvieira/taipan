@@ -4,8 +4,8 @@ import Typography, { TypographyProps } from "@material-ui/core/Typography";
 
 const useStyles = makeStyles(({ spacing }) => ({
   element: {
-    marginTop: spacing(2)
-  }
+    marginTop: spacing(2),
+  },
 }));
 
 export default function Hint({

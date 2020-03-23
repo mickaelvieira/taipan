@@ -9,12 +9,12 @@ const useStyles = makeStyles(({ breakpoints, palette, typography }) => ({
     fontSize: typography.fontSize,
     color: palette.grey[600],
     [breakpoints.up("md")]: {
-      color: palette.grey[100]
+      color: palette.grey[100],
     },
     "&.active": {
-      color: palette.primary.main
-    }
-  }
+      color: palette.primary.main,
+    },
+  },
 }));
 
 interface Props {
@@ -25,7 +25,7 @@ interface Props {
 export default function MenuLink({
   to,
   children,
-  onClick
+  onClick,
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
 
@@ -33,7 +33,7 @@ export default function MenuLink({
     <Link
       to={to}
       classes={{
-        root: classes.link
+        root: classes.link,
       }}
       component={RouterLink}
       underline="none"

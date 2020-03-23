@@ -22,7 +22,7 @@ const hasScrollBars = (): { bottom: boolean; right: boolean } => {
   const doc = getDocumentElement();
   return {
     bottom: doc.scrollWidth > doc.clientWidth,
-    right: doc.scrollHeight > doc.clientHeight
+    right: doc.scrollHeight > doc.clientHeight,
   };
 };
 
@@ -79,5 +79,5 @@ export {
   getWindowDimensions,
   getDocumentDimensions,
   getScrollPosition,
-  hasScrollBars
+  hasScrollBars,
 };

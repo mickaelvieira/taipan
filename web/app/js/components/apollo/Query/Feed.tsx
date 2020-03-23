@@ -1,7 +1,7 @@
 import {
   ApolloQueryResult,
   FetchMoreQueryOptions,
-  FetchMoreOptions
+  FetchMoreOptions,
 } from "apollo-client";
 import { FeedVariables, FeedQueryData } from "../../../types/feed";
 import { getDataKey } from "../helpers/feed";
@@ -18,8 +18,8 @@ export type LoadMore = () => Promise<ApolloQueryResult<FeedQueryData>>;
 
 const variables = {
   pagination: {
-    limit: 10
-  }
+    limit: 10,
+  },
 };
 
 function getFetchMore(
@@ -43,8 +43,8 @@ function getFetchMore(
           variables: {
             pagination: {
               ...variables.pagination,
-              from: data ? data.feeds[key].last : ""
-            }
+              from: data ? data.feeds[key].last : "",
+            },
           },
           updateQuery: (prev, { fetchMoreResult: next }) => {
             if (!next) {
@@ -60,12 +60,12 @@ function getFetchMore(
                   limit: next.feeds[key].limit,
                   results: [
                     ...prev.feeds[key].results,
-                    ...next.feeds[key].results
-                  ]
-                }
-              }
+                    ...next.feeds[key].results,
+                  ],
+                },
+              },
             };
-          }
+          },
         });
 }
 
@@ -75,5 +75,5 @@ export {
   queryNews,
   variables,
   getFetchMore,
-  getDataKey
+  getDataKey,
 };

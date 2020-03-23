@@ -5,7 +5,7 @@ import Avatar from "@material-ui/core/Avatar";
 import {
   getPrimaryEmail,
   getFullname,
-  getEmailHandle
+  getEmailHandle,
 } from "../../../helpers/users";
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
@@ -18,8 +18,8 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
     color: palette.grey[900],
     [breakpoints.up("md")]: {
       backgroundColor: "#1d1d1d",
-      color: palette.primary.main
-    }
+      color: palette.primary.main,
+    },
   },
   name: {
     width: "100%",
@@ -29,12 +29,12 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
     lineHeight: 1.33,
     letterSpacing: "0em",
     overflowWrap: "break-word",
-    textAlign: "center"
+    textAlign: "center",
   },
   avatar: {
     width: 35,
-    height: 35
-  }
+    height: 35,
+  },
 }));
 
 export default function UserInfo(): JSX.Element | null {

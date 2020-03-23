@@ -11,7 +11,7 @@ type Payload = string[] | boolean;
 export enum Action {
   TERMS = "terms",
   DELETED = "deleted",
-  PAUSED = "paused"
+  PAUSED = "paused",
 }
 
 function reducer(state: State, [type, payload]: [Action, Payload]): State {
@@ -19,17 +19,17 @@ function reducer(state: State, [type, payload]: [Action, Payload]): State {
     case Action.TERMS:
       return {
         ...state,
-        terms: payload as string[]
+        terms: payload as string[],
       };
     case Action.DELETED:
       return {
         ...state,
-        showDeleted: payload as boolean
+        showDeleted: payload as boolean,
       };
     case Action.PAUSED:
       return {
         ...state,
-        pausedOnly: payload as boolean
+        pausedOnly: payload as boolean,
       };
     default:
       throw new Error(`Invalid action type '${type}'`);
@@ -42,7 +42,7 @@ export default function Search(): [State, Dispatch<[Action, Payload]>] {
   const [state, dispatch] = useReducer<SearchReducer>(reducer, {
     terms: [],
     showDeleted: false,
-    pausedOnly: false
+    pausedOnly: false,
   });
 
   return [state, dispatch];

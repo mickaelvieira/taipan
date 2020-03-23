@@ -7,11 +7,11 @@ import Emoji from "../../ui/Emoji";
 
 const useStyles = makeStyles(({ spacing }) => ({
   message: {
-    padding: spacing(2)
+    padding: spacing(2),
   },
   type: {
-    fontWeight: 500
-  }
+    fontWeight: 500,
+  },
 }));
 
 interface Props {

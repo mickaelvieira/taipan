@@ -14,7 +14,7 @@ import { MessageContext } from "../../../context";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/User/Profile";
 import { User } from "../../../../types/users";
 import Title from "../Title";
@@ -30,21 +30,21 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
     flexDirection: "column",
     width: "100%",
     [breakpoints.up("md")]: {
-      width: 350
+      width: 350,
     },
     margin: "0 auto",
-    alignItems: "center"
+    alignItems: "center",
   },
   editor: {
     border: "1px solid",
-    borderColor: palette.grey[400]
+    borderColor: palette.grey[400],
   },
   slider: {
-    margin: "6px 0"
+    margin: "6px 0",
   },
   inputFile: {
-    display: "none"
-  }
+    display: "none",
+  },
 }));
 
 function getAvatar(file: File | null, editor: AvatarEditor | null): string {
@@ -81,14 +81,14 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
       dispatch([Action.AVATAR, null]);
       dispatch([Action.SCALE, 1]);
       setMessageInfo({ message: "You profile has been saved" });
-    }
+    },
   });
 
   const { firstname, lastname, scale, file } = state;
 
   return (
     <Card>
-      <form onSubmit={event => event.preventDefault()}>
+      <form onSubmit={(event) => event.preventDefault()}>
         <Title value="Profile" />
         <CardContent>
           <div className={classes.avatar}>
@@ -110,7 +110,7 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
               onChange={(_, value) =>
                 dispatch([
                   Action.SCALE,
-                  typeof value === "object" ? value[0] : value
+                  typeof value === "object" ? value[0] : value,
                 ])
               }
             />
@@ -138,7 +138,7 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
             <InputBase
               id="firtname"
               value={firstname}
-              onChange={event =>
+              onChange={(event) =>
                 dispatch([Action.FIRSTNAME, event.target.value])
               }
             />
@@ -148,7 +148,7 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
             <InputBase
               id="lastname"
               value={lastname}
-              onChange={event =>
+              onChange={(event) =>
                 dispatch([Action.LASTNAME, event.target.value])
               }
             />
@@ -168,9 +168,9 @@ export default function UserProfile({ user }: Props): JSX.Element | null {
                     user: {
                       firstname,
                       lastname,
-                      image
-                    }
-                  }
+                      image,
+                    },
+                  },
                 });
               }
             }}

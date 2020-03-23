@@ -11,8 +11,8 @@ const useStyles = makeStyles(() => ({
     top: `50%`,
     left: `50%`,
     transform: `translate(-50%, -50%)`,
-    minHeight: 400
-  }
+    minHeight: 400,
+  },
 }));
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 export default function AddForm({
   isOpen,
   prev,
-  children
+  children,
 }: PropsWithChildren<Props>): JSX.Element {
   const classes = useStyles();
   return (

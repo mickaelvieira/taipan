@@ -8,7 +8,7 @@ import CardActions from "../CardActions";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/User/Password";
 import { MessageContext } from "../../../context";
 import Group from "../../../ui/Form/Group";
@@ -21,12 +21,12 @@ import { PasswordHint } from "../../../ui/Form/Message/Hint";
 const useStyles = makeStyles(({ spacing }) => ({
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   button: {
     marginTop: spacing(1),
-    alignSelf: "flex-end"
-  }
+    alignSelf: "flex-end",
+  },
 }));
 
 export default function UserPassword(): JSX.Element {
@@ -40,12 +40,15 @@ export default function UserPassword(): JSX.Element {
       setNewPassword("");
       setMessageInfo({ message: "We have changed your password." });
     },
-    onError: error => setMessageInfo({ message: getErrorMessage(error) })
+    onError: (error) => setMessageInfo({ message: getErrorMessage(error) }),
   });
 
   return (
     <Card>
-      <form className={classes.form} onSubmit={event => event.preventDefault()}>
+      <form
+        className={classes.form}
+        onSubmit={(event) => event.preventDefault()}
+      >
         <Title value="Password" />
         <CardContent>
           <Group>
@@ -53,7 +56,7 @@ export default function UserPassword(): JSX.Element {
             <InputPassword
               id="old-password"
               value={oldPassword}
-              onChange={event => setOldPassword(event.target.value)}
+              onChange={(event) => setOldPassword(event.target.value)}
             />
           </Group>
           <Group>
@@ -62,7 +65,7 @@ export default function UserPassword(): JSX.Element {
               id="new-password"
               value={newPassword}
               aria-describedby="new-password-helper-text"
-              onChange={event => setNewPassword(event.target.value)}
+              onChange={(event) => setNewPassword(event.target.value)}
             />
             <PasswordHint id="new-password-helper-text" />
           </Group>

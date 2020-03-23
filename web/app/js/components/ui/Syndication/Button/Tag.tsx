@@ -5,7 +5,7 @@ import {
   Data,
   Variables,
   tagMutation,
-  untagMutation
+  untagMutation,
 } from "../../../apollo/Mutation/Syndication/Tag";
 import { Source, Tag } from "../../../../types/syndication";
 
@@ -20,7 +20,7 @@ export default React.memo(function Tag({
   tag,
   ids,
   source,
-  className
+  className,
 }: Props): JSX.Element {
   const hasTag = ids.includes(tag.id);
   const [isChecked, setIsChecked] = useState(hasTag);
@@ -35,8 +35,8 @@ export default React.memo(function Tag({
         mutate({
           variables: {
             sourceId: source.id,
-            tagId: tag.id
-          }
+            tagId: tag.id,
+          },
         });
       }}
       checked={isChecked}

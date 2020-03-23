@@ -7,7 +7,7 @@ import {
   FeedItem,
   FeedVariables,
   FeedQueryData,
-  FeedName
+  FeedName,
 } from "../../../types/feed";
 import { hasReceivedData } from "../../apollo/helpers/feed";
 import FeedContainer from "./Container";
@@ -32,7 +32,7 @@ export default function Feed({ query, List, name }: Props): JSX.Element {
     FeedQueryData,
     FeedVariables
   >(query, {
-    variables
+    variables,
     // notifyOnNetworkStatusChange: true
   });
 

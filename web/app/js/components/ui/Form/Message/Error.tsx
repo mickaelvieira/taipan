@@ -6,8 +6,8 @@ import red from "@material-ui/core/colors/red";
 const useStyles = makeStyles(({ spacing }) => ({
   element: {
     marginTop: spacing(2),
-    color: red[800]
-  }
+    color: red[800],
+  },
 }));
 
 export default function Hint({

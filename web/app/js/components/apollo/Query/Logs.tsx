@@ -15,8 +15,8 @@ export interface Variables {
 
 const variables = {
   pagination: {
-    limit: 50
-  }
+    limit: 50,
+  },
 };
 
 export { query, variables };

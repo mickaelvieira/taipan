@@ -11,8 +11,8 @@ const useStyles = makeStyles({
     flexDirection: "column",
     marginBottom: 60,
     minHeight: "100vh",
-    pointerEvents: "auto"
-  }
+    pointerEvents: "auto",
+  },
 });
 
 interface Props extends ListProps {
@@ -37,7 +37,7 @@ export default React.memo(function FeedContainer({
         ref={ref}
         style={{
           paddingTop: `${padding.top}px`,
-          paddingBottom: `${padding.bottom}px`
+          paddingBottom: `${padding.bottom}px`,
         }}
         className={classes.container}
       >

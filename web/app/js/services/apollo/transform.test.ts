@@ -15,7 +15,7 @@ function getFetchedDocument(o?: Record<string, any>): any {
     createdAt: "2019-07-28T11:15:39Z",
     updatedAt: "2019-07-28T11:15:39Z",
     __typename: "Document",
-    ...o
+    ...o,
   };
 }
 
@@ -28,7 +28,7 @@ function getFetchedBookmark(o?: Record<string, any>): any {
     favoritedAt: "2019-07-28T11:15:39Z",
     updatedAt: "2019-07-28T11:15:39Z",
     __typename: "Bookmark",
-    ...o
+    ...o,
   };
 }
 
@@ -41,7 +41,7 @@ function getFetchedSource(o?: Record<string, any>): any {
     createdAt: "2019-07-28T11:15:39Z",
     updatedAt: "2019-07-28T11:15:39Z",
     __typename: "Source",
-    ...o
+    ...o,
   };
 }
 
@@ -53,7 +53,7 @@ function getFetchedSubscription(o?: Record<string, any>): any {
     createdAt: "2019-07-28T11:15:39Z",
     updatedAt: "2019-07-28T11:15:39Z",
     __typename: "UserSubscription",
-    ...o
+    ...o,
   };
 }
 
@@ -66,7 +66,7 @@ function getFetchEmail(o?: Record<string, any>): any {
     createdAt: "2019-07-28T11:15:39Z",
     updatedAt: "2019-07-28T11:15:39Z",
     __typename: "Email",
-    ...o
+    ...o,
   };
 }
 
@@ -79,7 +79,7 @@ function getFetchUser(o?: Record<string, any>): any {
     createdAt: "2019-07-28T11:15:39Z",
     updatedAt: "2019-07-28T11:15:39Z",
     __typename: "User",
-    ...o
+    ...o,
   };
 }
 
@@ -90,95 +90,95 @@ describe("Transformer", () => {
       data: {
         foonull: null,
         barnull: {
-          bar: null
+          bar: null,
         },
         document: {
-          bar: getFetchedDocument()
+          bar: getFetchedDocument(),
         },
         image: {
           bar: getFetchedDocument({
-            image: { url: "https://foo.bar/baz.jpeg", __typename: "Image" }
-          })
+            image: { url: "https://foo.bar/baz.jpeg", __typename: "Image" },
+          }),
         },
         user: {
-          bar: getFetchUser()
+          bar: getFetchUser(),
         },
         bookmark: {
-          bar: getFetchedBookmark()
+          bar: getFetchedBookmark(),
         },
         source: {
-          bar: getFetchedSource()
+          bar: getFetchedSource(),
         },
         subscription: {
-          bar: getFetchedSubscription()
+          bar: getFetchedSubscription(),
         },
         feeddocuments: {
           documents: {
             results: [
               getFetchedDocument({ id: "foo" }),
               getFetchedDocument({ id: "bar" }),
-              getFetchedDocument({ id: "baz" })
+              getFetchedDocument({ id: "baz" }),
             ],
-            __typename: "FeedDocumentResults"
-          }
+            __typename: "FeedDocumentResults",
+          },
         },
         feedbookmarks: {
           bookmarks: {
             results: [
               getFetchedBookmark({ id: "foo" }),
               getFetchedBookmark({ id: "bar" }),
-              getFetchedBookmark({ id: "baz" })
+              getFetchedBookmark({ id: "baz" }),
             ],
-            __typename: "FeedBookmarkResults"
-          }
+            __typename: "FeedBookmarkResults",
+          },
         },
         searchdocuments: {
           documents: {
             results: [
               getFetchedDocument({ id: "foo" }),
               getFetchedDocument({ id: "bar" }),
-              getFetchedDocument({ id: "baz" })
+              getFetchedDocument({ id: "baz" }),
             ],
-            __typename: "DocumentSearchResults"
-          }
+            __typename: "DocumentSearchResults",
+          },
         },
         searchbookmarks: {
           bookmarks: {
             results: [
               getFetchedBookmark({ id: "foo" }),
               getFetchedBookmark({ id: "bar" }),
-              getFetchedBookmark({ id: "baz" })
+              getFetchedBookmark({ id: "baz" }),
             ],
-            __typename: "BookmarkSearchResults"
-          }
+            __typename: "BookmarkSearchResults",
+          },
         },
         subscriptions: {
           foo: {
             results: [
               getFetchedSubscription({ id: "foo" }),
               getFetchedSubscription({ id: "bar" }),
-              getFetchedSubscription({ id: "baz" })
+              getFetchedSubscription({ id: "baz" }),
             ],
-            __typename: "SubscriptionCollection"
-          }
+            __typename: "SubscriptionCollection",
+          },
         },
         sources: {
           foo: {
             results: [
               getFetchedSource({ id: "foo" }),
               getFetchedSource({ id: "bar" }),
-              getFetchedSource({ id: "baz" })
+              getFetchedSource({ id: "baz" }),
             ],
-            __typename: "SourceCollection"
-          }
+            __typename: "SourceCollection",
+          },
         },
         unknown: {
           foo: {
             bar: "bar",
-            baz: "baz"
-          }
-        }
-      }
+            baz: "baz",
+          },
+        },
+      },
     };
   });
 

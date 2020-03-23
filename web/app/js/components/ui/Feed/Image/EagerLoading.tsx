@@ -15,14 +15,14 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     backgroundSize: "cover",
     minHeight: `calc(${getImageWidth("sm")}px * .5)`,
     [breakpoints.up("md")]: {
-      minHeight: `calc(${getImageWidth("sm")}px * .5)`
-    }
-  }
+      minHeight: `calc(${getImageWidth("sm")}px * .5)`,
+    },
+  },
 }));
 
 export default function EagerLoadingImage({
   media,
-  title
+  title,
 }: Props): JSX.Element {
   const classes = useStyles();
   const src = media ? `${media.url}` : IMAGE_PLACEHOLDER;

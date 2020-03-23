@@ -3,7 +3,7 @@ export interface WorkersCollection {
 }
 
 const workers = {
-  fetchWorker: new Worker("/fetch-worker.js")
+  fetchWorker: new Worker("/fetch-worker.js"),
 };
 
 export default workers;

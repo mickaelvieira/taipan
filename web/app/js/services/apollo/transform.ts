@@ -3,7 +3,7 @@ import transformation, { WithTypename } from "./transformation";
 
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 
-export default function(fetchResults: FetchResult): FetchResult {
+export default function (fetchResults: FetchResult): FetchResult {
   if (!fetchResults.data) {
     return fetchResults;
   }
@@ -19,7 +19,7 @@ export default function(fetchResults: FetchResult): FetchResult {
         const result = rest[key] as Record<string, any>;
         data[ns] = {
           __typename,
-          [key]: transformation(result)
+          [key]: transformation(result),
         };
       }
     } else {
@@ -29,6 +29,6 @@ export default function(fetchResults: FetchResult): FetchResult {
 
   return {
     ...fetchResults,
-    data
+    data,
   };
 }

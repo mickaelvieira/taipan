@@ -40,5 +40,5 @@ export default {
   all,
   select,
   unfavorite,
-  delete: remove
+  delete: remove,
 };

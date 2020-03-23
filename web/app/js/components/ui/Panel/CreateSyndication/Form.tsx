@@ -6,7 +6,7 @@ import { Source } from "../../../../types/syndication";
 import {
   mutation,
   Data,
-  Variables
+  Variables,
 } from "../../../apollo/Mutation/Syndication/Source";
 import Group from "../../Form/Group";
 import Label from "../../Form/Label";
@@ -17,18 +17,18 @@ import Tags from "./Tags";
 const useStyles = makeStyles(({ palette }) => ({
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   input: {
     borderRadius: 0,
     border: 0,
     borderBottom: `1px solid ${palette.grey[400]}`,
     paddingRight: 0,
-    paddingLeft: 0
+    paddingLeft: 0,
   },
   button: {
-    alignSelf: "flex-end"
-  }
+    alignSelf: "flex-end",
+  },
 }));
 
 interface Props {
@@ -42,7 +42,7 @@ export default function FormSubscription({ onCreated }: Props): JSX.Element {
   const [mutate, { loading, error }] = useMutation<Data, Variables>(mutation, {
     onCompleted: ({ syndication: { source } }) => {
       onCreated(source);
-    }
+    },
   });
 
   return (
@@ -59,7 +59,7 @@ export default function FormSubscription({ onCreated }: Props): JSX.Element {
           autoComplete="off"
           autoCapitalize="off"
           autoCorrect="off"
-          onChange={event => setUrl(event.target.value)}
+          onChange={(event) => setUrl(event.target.value)}
           className={classes.input}
         />
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
@@ -68,7 +68,7 @@ export default function FormSubscription({ onCreated }: Props): JSX.Element {
       <Button
         onClick={() =>
           mutate({
-            variables: { url, tags }
+            variables: { url, tags },
           })
         }
         className={classes.button}

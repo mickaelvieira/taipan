@@ -47,62 +47,62 @@ export default function Routes(): JSX.Element {
         <Route
           exact
           path="/"
-          render={routeProps => <NewsPage {...routeProps} />}
+          render={(routeProps) => <NewsPage {...routeProps} />}
         />
         <Route
           exact
           path="/reading-list"
-          render={routeProps => <ReadingListPage {...routeProps} />}
+          render={(routeProps) => <ReadingListPage {...routeProps} />}
         />
         <Route
           exact
           path="/favorites"
-          render={routeProps => <FavoritesPage {...routeProps} />}
+          render={(routeProps) => <FavoritesPage {...routeProps} />}
         />
         <Route
           exact
           path="/search/:type?"
-          render={routeProps => <SearchPage {...routeProps} />}
+          render={(routeProps) => <SearchPage {...routeProps} />}
         />
         <Route
           exact
           path="/subscriptions"
-          render={routeProps => <SubscriptionsPage {...routeProps} />}
+          render={(routeProps) => <SubscriptionsPage {...routeProps} />}
         />
         <Route
           exact
           path="/syndication"
-          render={routeProps => <SyndicationPage {...routeProps} />}
+          render={(routeProps) => <SyndicationPage {...routeProps} />}
         />
         <Route
           exact
           path="/account"
-          render={routeProps => <AccountPage {...routeProps} />}
+          render={(routeProps) => <AccountPage {...routeProps} />}
         />
         <Route
           exact
           path="/forgot-password"
-          render={routeProps => <ForgotPasswordPage {...routeProps} />}
+          render={(routeProps) => <ForgotPasswordPage {...routeProps} />}
         />
         <Route
           exact
           path="/reset-password"
-          render={routeProps => <ResetPasswordPage {...routeProps} />}
+          render={(routeProps) => <ResetPasswordPage {...routeProps} />}
         />
         <Route
           exact
           path="/confirm-email"
-          render={routeProps => <ConfirmEmailPage {...routeProps} />}
+          render={(routeProps) => <ConfirmEmailPage {...routeProps} />}
         />
         <Route
           exact
           path="/signin"
-          render={routeProps => <SigninPage {...routeProps} />}
+          render={(routeProps) => <SigninPage {...routeProps} />}
         />
         <Route
           exact
           path="/join"
-          render={routeProps => <SignupPage {...routeProps} />}
+          render={(routeProps) => <SignupPage {...routeProps} />}
         />
         <Route component={NotFoundPage} />
       </Switch>

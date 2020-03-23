@@ -4,8 +4,8 @@ import Card, { CardProps } from "@material-ui/core/Card";
 
 const useStyles = makeStyles(() => ({
   card: {
-    marginTop: 16
-  }
+    marginTop: 16,
+  },
 }));
 
 export default function ProfileCard({

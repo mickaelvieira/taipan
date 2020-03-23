@@ -19,24 +19,24 @@ const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
     border: `1px solid ${palette.grey[500]}`,
     padding: spacing(2),
     [breakpoints.up("sm")]: {
-      width: "600px"
-    }
+      width: "600px",
+    },
   },
   message: {
-    textAlign: "center"
+    textAlign: "center",
   },
   form: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   button: {
-    margin: `${spacing(2)}px 0`
+    margin: `${spacing(2)}px 0`,
   },
   links: {
     display: "flex",
     justifyContent: "center",
-    marginTop: spacing(2)
-  }
+    marginTop: spacing(2),
+  },
 }));
 
 export default function ResetPassword(
@@ -70,7 +70,7 @@ export default function ResetPassword(
           </Typography>
           <form
             className={classes.form}
-            onSubmit={event => event.preventDefault()}
+            onSubmit={(event) => event.preventDefault()}
           >
             <Group>
               <Label htmlFor="password">Enter your new your password</Label>
@@ -78,7 +78,7 @@ export default function ResetPassword(
                 id="password"
                 value={password}
                 aria-describedby="password-helper-text"
-                onChange={event => setPassword(event.target.value)}
+                onChange={(event) => setPassword(event.target.value)}
               />
               <PasswordHint id="password-helper-text" />
             </Group>
@@ -101,7 +101,7 @@ export default function ResetPassword(
                       );
                     }
                   })
-                  .catch(e => {
+                  .catch((e) => {
                     setError(e.message);
                   });
               }}

@@ -16,22 +16,22 @@ import {
   Variables,
   query,
   variables,
-  getFetchMore
+  getFetchMore,
 } from "../../../apollo/Query/Subscriptions";
 import Row from "./Result";
 
 const useStyles = makeStyles(() => ({
   table: {
-    width: "100%"
+    width: "100%",
   },
   fetchMore: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   button: {
-    margin: "12px"
-  }
+    margin: "12px",
+  },
 }));
 
 interface Props {
@@ -41,14 +41,14 @@ interface Props {
 
 export default React.memo(function SubscriptionsTable({
   terms,
-  tags
+  tags,
 }: Props): JSX.Element | null {
   const classes = useStyles();
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const { data, loading, error, fetchMore } = useQuery<Data, Variables>(query, {
     fetchPolicy: "network-only",
-    variables: { ...variables, search: { terms, tags } }
+    variables: { ...variables, search: { terms, tags } },
   });
 
   if (loading) {
@@ -82,7 +82,7 @@ export default React.memo(function SubscriptionsTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {results.map(subscription => (
+          {results.map((subscription) => (
             <Row key={subscription.id} subscription={subscription} />
           ))}
         </TableBody>
@@ -95,9 +95,9 @@ export default React.memo(function SubscriptionsTable({
               ...variables,
               pagination: {
                 ...variables.pagination,
-                offset: results.length
+                offset: results.length,
               },
-              search: { terms, tags }
+              search: { terms, tags },
             })}
           >
             Load more

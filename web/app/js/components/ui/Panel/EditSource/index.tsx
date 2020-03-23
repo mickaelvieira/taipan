@@ -17,7 +17,7 @@ interface Props {
 export default function EditSource({
   url,
   isOpen,
-  close
+  close,
 }: Props): JSX.Element | null {
   const [tab, setTab] = useState(0);
 

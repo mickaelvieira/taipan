@@ -7,7 +7,7 @@ import EmptyFeed from "../../ui/Feed/Empty";
 import Emoji from "../../ui/Emoji";
 
 export default React.memo(function BookmarkList({
-  results
+  results,
 }: ListProps): JSX.Element {
   return (
     <>
@@ -19,7 +19,7 @@ export default React.memo(function BookmarkList({
           </span>
         </EmptyFeed>
       )}
-      {results.map(result => (
+      {results.map((result) => (
         <FeedItem key={result.id}>
           <Item bookmark={result as Bookmark} />
         </FeedItem>

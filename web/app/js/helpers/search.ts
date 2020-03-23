@@ -5,8 +5,8 @@ export function getSearchTerms(search: string | null): string[] {
   }
   return decodeURIComponent(search)
     .split(/(\s)+/)
-    .map(term => term.trim())
-    .filter(term => term !== "");
+    .map((term) => term.trim())
+    .filter((term) => term !== "");
 }
 
 export function getSearchType(
@@ -20,5 +20,5 @@ export function getSearchType(
 }
 
 export function getSearchParams(terms: string[]): string {
-  return terms.map(term => `terms=${term}`).join(" ");
+  return terms.map((term) => `terms=${term}`).join(" ");
 }

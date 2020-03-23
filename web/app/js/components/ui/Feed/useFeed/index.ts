@@ -3,7 +3,7 @@ import {
   useState,
   MutableRefObject,
   useCallback,
-  useMemo
+  useMemo,
 } from "react";
 import { FeedName, FeedItem } from "../../../../types/feed";
 import Scroll from "./Scroll";
@@ -19,7 +19,7 @@ export default function useFeed(
   const feed = useMemo(() => getFeed(name), [name]);
   const [result, setResult] = useState<Result>({
     padding: { top: 0, bottom: 0 },
-    items: []
+    items: [],
   });
 
   console.log(result);

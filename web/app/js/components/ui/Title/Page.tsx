@@ -4,8 +4,8 @@ import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles(() => ({
   title: {
-    margin: "24px 0"
-  }
+    margin: "24px 0",
+  },
 }));
 
 interface Props {

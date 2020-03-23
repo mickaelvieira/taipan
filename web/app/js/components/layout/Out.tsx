@@ -7,15 +7,15 @@ const useStyles = makeStyles(() => ({
     flexDirection: "column",
     height: "100vh",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   contained: {
-    overflow: "hidden"
-  }
+    overflow: "hidden",
+  },
 }));
 
 export default function OutLayout({
-  children
+  children,
 }: PropsWithChildren<{}>): JSX.Element {
   const classes = useStyles();
 
