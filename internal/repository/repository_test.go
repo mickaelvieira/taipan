@@ -18,7 +18,7 @@ func TestGetMultiInsertPlacements(t *testing.T) {
 	}
 
 	for idx, tc := range testcase {
-		name := fmt.Sprintf("Test mutliple inserted values [%d]", idx)
+		name := fmt.Sprintf("Test multiple inserted values [%d]", idx)
 		t.Run(name, func(t *testing.T) {
 			r := getMultiInsertPlacements(tc.t, tc.n)
 			if r != tc.e {

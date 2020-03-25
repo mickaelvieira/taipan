@@ -5,7 +5,7 @@ import (
 	"github/mickaelvieira/taipan/internal/config"
 )
 
-// @TODO sign and validate the client ID instead to strenghen security
+// @TODO sign and validate the client ID instead to strengthen security
 // The resulting token should be forged with some kind of session ID and timestamp
 // https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 

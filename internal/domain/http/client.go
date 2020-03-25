@@ -87,7 +87,7 @@ type Client struct{}
 // Get fetches the document and returns the result of the request
 // if there is no result, that means:
 // - we could not build the request
-// - a network error occured
+// - a network error occurred
 // - we could not read the body
 func (c *Client) Get(URL *url.URL) *Result {
 	logger.Info(fmt.Sprintf("Fetching %s", URL.String()))
