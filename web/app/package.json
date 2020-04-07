@@ -52,7 +52,7 @@
     "babel-plugin-transform-class-properties": "6.24.1",
     "babel-plugin-transform-object-rest-spread": "6.26.0",
     "babel-preset-jest": "25.2.6",
-    "css-loader": "3.5.0",
+    "css-loader": "3.5.1",
     "dayjs": "1.8.23",
     "dotenv-flow": "3.1.0",
     "dotenv-flow-webpack": "1.0.0",
