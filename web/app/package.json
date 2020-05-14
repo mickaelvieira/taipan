@@ -53,7 +53,7 @@
     "babel-plugin-transform-object-rest-spread": "6.26.0",
     "babel-preset-jest": "25.5.0",
     "css-loader": "3.5.3",
-    "dayjs": "1.8.26",
+    "dayjs": "1.8.27",
     "dotenv-flow": "3.1.0",
     "dotenv-flow-webpack": "1.0.0",
     "emoji-mart": "3.0.0",
