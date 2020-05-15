@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
-	github.com/aws/aws-sdk-go v1.30.28
+	github.com/aws/aws-sdk-go v1.30.29
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang-migrate/migrate/v4 v4.11.0
