@@ -58,7 +58,7 @@
     "dotenv-flow-webpack": "1.0.0",
     "emoji-mart": "3.0.0",
     "fastdom": "1.0.9",
-    "graphql": "15.0.0",
+    "graphql": "15.1.0",
     "graphql-tag": "2.10.3",
     "lodash": "4.17.15",
     "mini-css-extract-plugin": "0.9.0",
