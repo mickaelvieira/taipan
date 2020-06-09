@@ -1,5 +1,5 @@
-import { BatchOperation, KeyPaths, ResultsFilter } from "./types";
 import { toPromisedCursor, toPromisedRequest } from "./helpers";
+import { BatchOperation, KeyPaths, ResultsFilter } from "./types";
 
 type Process = (callback: BatchOperation) => Promise<any>;
 
@@ -15,6 +15,7 @@ function batch(items: any[]): Process {
 }
 
 /* eslint @typescript-eslint/explicit-function-return-type: off */
+/* eslint @typescript-eslint/explicit-module-boundary-types: off */
 export default class Store {
   store: IDBObjectStore;
 
