@@ -1,13 +1,12 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useTheme } from "@material-ui/core/styles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { debounce } from "lodash";
-import { withRouter } from "react-router";
-import { makeStyles } from "@material-ui/core/styles";
-import InputBase from "@material-ui/core/InputBase";
 import ButtonBase from "@material-ui/core/ButtonBase";
-import SearchIcon from "@material-ui/icons/Search";
+import InputBase from "@material-ui/core/InputBase";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import CloseIcon from "@material-ui/icons/Close";
+import SearchIcon from "@material-ui/icons/Search";
+import { debounce } from "lodash";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { withRouter } from "react-router";
 import { RoutesProps } from "../../../types/routes";
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -60,6 +59,7 @@ export default withRouter(function Search({
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const [search, setSearch] = useState<string[]>(terms);
   const [value, setValue] = useState<string>(search.join(" "));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const redirect = useCallback(debounce(history.push, 1000), []);
 
   useEffect(() => {

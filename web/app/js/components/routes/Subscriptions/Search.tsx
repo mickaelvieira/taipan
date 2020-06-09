@@ -1,14 +1,14 @@
-import React, { useCallback, useState, useContext } from "react";
-import { debounce } from "lodash";
-import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
-import SearchIcon from "@material-ui/icons/Search";
+import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
+import SearchIcon from "@material-ui/icons/Search";
+import { debounce } from "lodash";
+import React, { useCallback, useContext, useState } from "react";
 import { UserContext } from "../../context";
-import Results from "./Results";
-import Empty from "./Empty";
 import Tags from "../../ui/Tags";
+import Empty from "./Empty";
+import Results from "./Results";
 
 const useStyles = makeStyles(({ palette }) => ({
   search: {
@@ -34,6 +34,7 @@ export default function Search(): JSX.Element | null {
   const [terms, setTerms] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [value, setValue] = useState("");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedDispatch = useCallback(debounce(setTerms, 400), []);
   const onChange = useCallback(
     (input: string, debounced = true) => {

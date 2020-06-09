@@ -29,6 +29,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": ["error", {
       argsIgnorePattern: "_"
     }],
+    "@typescript-eslint/ban-types": "off",
     "react/display-name": "off",
     // "graphql/template-strings": ["error", {
     //   env: "apollo",
