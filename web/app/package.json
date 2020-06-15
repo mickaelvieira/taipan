@@ -71,7 +71,7 @@
     "react-transition-group": "4.4.1",
     "roboto-fontface": "0.10.0",
     "subscriptions-transport-ws": "0.9.16",
-    "terser-webpack-plugin": "3.0.4",
+    "terser-webpack-plugin": "3.0.5",
     "typescript": "3.9.5",
     "uglify-js": "3.9.4",
     "uglifycss": "0.0.29",
