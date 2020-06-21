@@ -73,7 +73,7 @@
     "subscriptions-transport-ws": "0.9.16",
     "terser-webpack-plugin": "3.0.6",
     "typescript": "3.9.5",
-    "uglify-js": "3.9.4",
+    "uglify-js": "3.10.0",
     "uglifycss": "0.0.29",
     "webpack": "4.43.0",
     "webpack-cli": "3.3.12",
