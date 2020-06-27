@@ -55,7 +55,7 @@
     "css-loader": "3.6.0",
     "dayjs": "1.8.28",
     "dotenv-flow": "3.2.0",
-    "dotenv-flow-webpack": "1.0.0",
+    "dotenv-flow-webpack": "1.1.0",
     "emoji-mart": "3.0.0",
     "fastdom": "1.0.9",
     "graphql": "15.1.0",

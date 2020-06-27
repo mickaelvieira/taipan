@@ -3865,14 +3865,14 @@ dot-prop@^5.2.0:
   dependencies:
     is-obj "^2.0.0"
 
-dotenv-flow-webpack@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/dotenv-flow-webpack/-/dotenv-flow-webpack-1.0.0.tgz#c10158c441672f4bf363f28a21e2d92ac96b313f"
-  integrity sha512-mylbRzNPUJexeEK8Qoj8B3KyfB4yKclOxxY6R3mPIbdHkudqDETqi7MNZJOjGPeXNbuXblvl41Y1sm991xY0sQ==
+dotenv-flow-webpack@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/dotenv-flow-webpack/-/dotenv-flow-webpack-1.1.0.tgz#40976386d3bf93ad1d636cacd62ef79ed14917d5"
+  integrity sha512-U6klxT4Tjeka7RoEr//8b4fBm+LupsWgiHOoAE/vSfKzx4g8xpRh4dn59QyyTczbLS7SjKSHchlAHzhSu2ER3Q==
   dependencies:
-    dotenv-flow "^3.0.0-rc.1"
+    dotenv-flow "^3.2.0"
 
-dotenv-flow@3.2.0, dotenv-flow@^3.0.0-rc.1:
+dotenv-flow@3.2.0, dotenv-flow@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/dotenv-flow/-/dotenv-flow-3.2.0.tgz#a5d79dd60ddb6843d457a4874aaf122cf659a8b7"
   integrity sha512-GEB6RrR4AbqDJvNSFrYHqZ33IKKbzkvLYiD5eo4+9aFXr4Y4G+QaFrB/fNp0y6McWBmvaPn3ZNjIufnj8irCtg==
