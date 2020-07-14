@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@apollo/react-hooks": "3.1.5",
-    "@babel/cli": "7.10.4",
-    "@babel/core": "7.10.4",
+    "@babel/cli": "7.10.5",
+    "@babel/core": "7.10.5",
     "@babel/plugin-syntax-class-properties": "7.10.4",
     "@babel/plugin-transform-regenerator": "7.10.4",
     "@babel/preset-env": "7.10.4",
