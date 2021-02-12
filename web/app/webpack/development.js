@@ -1,4 +1,4 @@
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const common = require("./common.js");
@@ -10,23 +10,23 @@ module.exports = merge(common, {
     filename: "js/[name].js",
     chunkFilename: "js/[name].js",
     path: path.resolve(__dirname, "../../static"),
-    publicPath: "/static/"
+    publicPath: "/static/",
   },
   optimization: {
     splitChunks: {
-      name: true,
+      name: "all",
       chunks: "all",
       cacheGroups: {
         default: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendor"
-        }
-      }
-    }
+          name: "vendor",
+        },
+      },
+    },
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: "css/[name].css"
-    })
-  ]
+      filename: "css/[name].css",
+    }),
+  ],
 });

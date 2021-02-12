@@ -5,15 +5,15 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
   target: "web",
   entry: {
-    app: path.resolve(__dirname, "../js") + "/app.ts"
+    app: path.resolve(__dirname, "../js") + "/app.ts",
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: [".ts", ".tsx", ".js"],
   },
   plugins: [
     new DotenvFlow({
-      path: "../.."
-    })
+      path: "../..",
+    }),
   ],
   module: {
     rules: [
@@ -23,8 +23,8 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
           },
-          "css-loader"
-        ]
+          "css-loader",
+        ],
       },
       {
         test: /\.graphql?$/,
@@ -35,17 +35,17 @@ module.exports = {
               output: "document",
               validate: false,
               schema: "./schema.json",
-              removeUnusedFragments: true
-            }
-          }
-        ]
+              removeUnusedFragments: true,
+            },
+          },
+        ],
       },
       {
         test: /\.(js|jsx|ts|tsx)$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: "babel-loader"
-        }
+          loader: "babel-loader",
+        },
       },
       {
         test: /\.(woff(2)?|ttf|svg|eot)(\?v=\d+\.\d+\.\d+)?$/,
@@ -55,11 +55,11 @@ module.exports = {
             options: {
               name: "[name].[ext]",
               outputPath: "dist/fonts",
-              publicPath: "/dist/fonts"
-            }
-          }
-        ]
-      }
-    ]
-  }
+              publicPath: "/dist/fonts",
+            },
+          },
+        ],
+      },
+    ],
+  },
 };
